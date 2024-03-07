@@ -1,0 +1,334 @@
+
+adhesive tape
+airplane
+animal
+ant
+apple
+auto part
+backpack
+baked goods
+ball
+balloon
+banana
+barrel
+baseball bat
+baseball glove
+bathroom accessory
+bathroom cabinet
+bathtub
+beaker
+bear
+bed
+beer
+bench
+bicycle
+bicycle wheel
+bidet
+billboard
+billiard table
+bird
+blender
+boat
+book
+bookcase
+boot
+bottle
+bowl
+bowling equipment
+box
+boy
+broccoli
+building
+bus
+cabinetry
+cake
+calculator
+camera
+candle
+candy
+canoe
+car
+carrot
+castle
+cat
+caterpillar
+ceiling fan
+cell phone
+chair
+cheese
+chest of drawers
+chopsticks
+christmas tree
+clock
+closet
+clothing
+coat
+cocktail
+coconut
+coffee
+coffee cup
+coffee table
+coffeemaker
+coin
+computer keyboard
+computer monitor
+computer mouse
+convenience store
+corded phone
+cosmetics
+couch
+countertop
+cow
+cup
+cupboard
+curtain
+dairy product
+deer
+desk
+dessert
+dice
+digital clock
+dining table
+dog
+dolphin
+donut
+door
+door handle
+dragonfly
+drawer
+dress
+drill (tool)
+drink
+drinking straw
+drum
+earrings
+egg (food)
+elephant
+fashion accessory
+fast food
+fedora
+filing cabinet
+fire hydrant
+fireplace
+fish
+flag
+flower
+flowerpot
+food
+footwear
+fork
+fountain
+french fries
+frisbee
+fruit
+furniture
+gas stove
+giraffe
+girl
+glasses
+glove
+goggles
+golf cart
+grape
+guitar
+hair drier
+hamburger
+handbag
+harp
+hat
+headphones
+helmet
+high heels
+hiking equipment
+home appliance
+horse
+hot dog
+house
+houseplant
+human body
+human face
+human foot
+human hand
+human head
+human leg
+ice cream
+infant bed
+insect
+ipod
+jacket
+jeans
+jellyfish
+jug
+juice
+kettle
+keyboard
+kitchen & dining room table
+kitchen appliance
+kite
+knife
+ladder
+lamp
+land vehicle
+lantern
+laptop
+lavender (plant)
+lemon
+light bulb
+light switch
+limousine
+luggage and bags
+man
+maple
+marine invertebrates
+mechanical fan
+medical equipment
+microphone
+microwave
+microwave oven
+mirror
+mixer
+mixing bowl
+mobile phone
+motorcycle
+mouse
+mug
+musical keyboard
+nail (construction)
+necklace
+nightstand
+office building
+office supplies
+orange
+oven
+palm tree
+panda
+parking meter
+parrot
+pastry
+pen
+perfume
+person
+personal care
+personal flotation device
+piano
+picture frame
+pillow
+pineapple
+pizza
+plant
+plastic bag
+plate
+platter
+popcorn
+porch
+poster
+potted plant
+power plugs and sockets
+printer
+punching bag
+rabbit
+rays and skates
+refrigerator
+remote
+remote control
+rocket
+rose
+ruler
+salad
+sandwich
+saucer
+scarf
+scissors
+sculpture
+seat belt
+sewing machine
+shark
+sheep
+shelf
+shirt
+shorts
+shower
+sink
+skateboard
+skis
+skyscraper
+snack
+snowboard
+snowman
+sock
+sofa bed
+spice rack
+spoon
+sports ball
+stairs
+stationary bicycle
+stool
+stop sign
+strawberry
+street light
+studio couch
+suit
+suitcase
+sun hat
+sunglasses
+surfboard
+sushi
+swimming pool
+sword
+table
+tablet computer
+tableware
+tap
+taxi
+tea
+teapot
+teddy bear
+television
+tennis racket
+tent
+tie
+tiger
+tin can
+tire
+toaster
+toilet
+toilet paper
+tomato
+tool
+toothbrush
+towel
+tower
+toy
+traffic light
+traffic sign
+train
+treadmill
+tree
+tripod
+trousers
+truck
+tv
+umbrella
+van
+vase
+vegetable
+vehicle
+vehicle registration plate
+wardrobe
+washing machine
+waste container
+watch
+watermelon
+wheel
+wheelchair
+whisk
+whiteboard
+window
+window blind
+wine
+wine glass
+wine rack
+wok
+woman
+wood-burning stove
+zebra
