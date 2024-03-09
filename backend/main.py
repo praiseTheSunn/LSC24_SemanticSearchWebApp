@@ -42,10 +42,17 @@ app = FastAPI()
 
 #     return {"paths": paths}
     
-@app.get("/image/{file_url}")
+@app.get("/image/{file_url:path}")
 async def get_image(file_url: str):
     # file_url = file_url.replace("file://", "")
     print(file_url)
-    return FileResponse(file_url, media_type='image/jpeg')
+    header = {
+        'Access-Control-Allow-Origin': '*'
+    }
+    
+    image_folder = 'E:\\LSCDATA\\keyframes\\201901\\01'
+    image_files = glob.glob(image_folder + '/*.jpg')[:1000]  # Get the first 1000 jpg files in the folder
+    
+    return [FileResponse(file, media_type='image/jpeg', headers=header) for file in image_files]
 
 

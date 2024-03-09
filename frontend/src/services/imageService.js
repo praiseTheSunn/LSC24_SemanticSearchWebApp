@@ -1,7 +1,8 @@
 import http from "./http-common";
 
 const getImage = (url) => {
-    return http.get(`/image/${url}`);
+    // console.log(url);
+    return http.get(`/image/${url}`, { responseType: 'arraybuffer' });
 }
 
 const imageService = {

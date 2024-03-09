@@ -13,7 +13,7 @@ const RightPanel = ({query, filters}) => {
         // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
     ]
     const [images, setImages] = useState([{
-        src:"20190201_080944_000.jpg",
+        src:"",
         status: 0,
     }]);
     const { selectedImages, addSelectedImage, removeSelectedImage, getSize, getPath } = useSelectedImages();
@@ -26,14 +26,26 @@ const RightPanel = ({query, filters}) => {
         }
     }
     const [image, setImage] = useState(null);
-    const response = imageService.getImage("C:%5CUsers%5CADMIN%5CDownloads%5Cunnamed.png")
-        .then(
-        (response) => {
-            setImage(response);
-        })
-        .catch((error) => {
-            console.error('Error fetching image:', error);
-        });
+    const response = imageService.getImage("C:/Users/ADMIN/Downloads/unnamed.png")
+    .then(
+    (response) => {
+         // Convert the byte data to a base64-encoded string
+        const base64ImageString = btoa(
+            new Uint8Array(response.data).reduce(
+            (data, byte) => data + String.fromCharCode(byte),
+            ''
+            )
+        );
+
+        // Create the data URL for the image
+        const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+        // Set the image data URL in the state
+        setImages([imageDataUrl]);
+    })
+    .catch((error) => {
+        console.error('Error fetching image:', error);
+    });
 
 
     return(
@@ -46,7 +58,7 @@ const RightPanel = ({query, filters}) => {
                 {images.map((image, index) => (
                     <div key={index} className='grid-item'>
                         <img src={image} alt={`no. ${index}`}
-                            onClick={() => {handleImageClick(image.src)}}
+                            // onClick={() => {handleImageClick(image.src)}}
                         />
                     </div>
                 ))}
