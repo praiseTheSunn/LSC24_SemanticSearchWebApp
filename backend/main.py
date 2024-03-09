@@ -15,30 +15,37 @@ import torch
 from torch.utils.data import DataLoader
 
 from typing import List, Union, Tuple
+from fastapi.responses import FileResponse
 
 import open_clip
 
 import faiss
-from helper.embedding_helper import search_text_query
+# from helper.embedding_helper import search_text_query
 
-from helper.setup import setup
+# from helper.setup import setup
 
 print("setting up!")
-device, model, preprocess, keyframe_paths, index = setup()
+# device, model, preprocess, keyframe_paths, index = setup()
 print("setup done!")
 
 app = FastAPI()
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
+# @app.get("/")
+# async def root():
+#     return {"message": "Hello World"}
 
-@app.get("/search")
-async def search(text_query: str):
+# @app.get("/search")
+# async def search(text_query: str):
     
-    paths = search_text_query(index, keyframe_paths, model, text_query)
+#     paths = search_text_query(index, keyframe_paths, model, text_query)
 
-    return {"paths": paths}
+#     return {"paths": paths}
     
+@app.get("/image/{file_url}")
+async def get_image(file_url: str):
+    # file_url = file_url.replace("file://", "")
+    print(file_url)
+    return FileResponse(file_url, media_type='image/jpeg')
+
 

@@ -1,24 +1,20 @@
 import './filterTag.css'
+import React from 'react';
 
-// 1 GREEN AND
-// 2 YELLOW OR 
-// 3 REMOVE 
-
-import React, { useState } from 'react';
-
-const FilterTag = ({ category, value, state, removeFilters }) => {
-    const tagId = `${category}-${value}`; // Generate a distinct id for each tag
-    const [backgroundColor, setBackgroundColor] = useState('green');
-
-    const handleAndIconClick = () => {
-        setBackgroundColor('green');
-        state = 1;
-    };
-
-    const handleOrIconClick = () => {
-        setBackgroundColor('yellow');
-        state = 2;
-    };
+const FilterTag = ({index, filter, onIconClick}) => {
+    return (
+        <div className='filter-tag-container' key={index}>
+            <label htmlFor={`${filter.category}-${filter.value}`}>{filter.category}</label>
+            <div className={`form-control tag-content ${filter.status === 1 ? 'green' : 'red'}`} id={`${filter.category}-${filter.value}`}>
+                <div className='tag-value'>{filter.value}</div>
+                <div className='icon-container'>
+                    <div className={`${filter.status === 1 ? 'enable-icon' : 'disable-icon'}`} 
+                    title={`${filter.status === 1 ? 'Disable' : 'Enable'}`} 
+                    onClick={() => onIconClick(index)}></div>
+                </div>
+            </div>
+        </div>
+    )
 };
 
 export default FilterTag;

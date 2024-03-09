@@ -1,0 +1,39 @@
+
+.right-content-container{
+    height: 100%;
+    width: 85%;
+}
+
+.right-content-container .submit-button-area{
+    display: flex;
+    align-items: center;
+    min-height: 60px;
+    width: 100%;
+
+}
+
+.right-content-container .submit-button-text{
+    font-size: 20px;
+    font-weight: 600;
+    margin-left: 10px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-style: bold;
+}
+
+.right-content-container .grid-container {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 5 columns */
+    grid-gap: 3px;
+    padding-right: 5px;
+    overflow-y: scroll;
+  }
+  
+.right-content-container .grid-item {
+    border: 1px solid #ccc;
+  }
+
+.right-content-container .grid-item img {
+    max-width: 100%;
+    height: auto;
+    object-fit: cover;
+ }
