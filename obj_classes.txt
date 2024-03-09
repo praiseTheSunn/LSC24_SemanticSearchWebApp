@@ -1,4 +1,5 @@
 
+accordion
 adhesive tape
 airplane
 animal
@@ -19,9 +20,11 @@ bathtub
 beaker
 bear
 bed
+beehive
 beer
 bench
 bicycle
+bicycle helmet
 bicycle wheel
 bidet
 billboard
@@ -37,23 +40,32 @@ bowl
 bowling equipment
 box
 boy
+bread
+briefcase
 broccoli
 building
 bus
+cabbage
 cabinetry
 cake
 calculator
 camera
 candle
 candy
+cannon
 canoe
+cantaloupe
 car
 carrot
+cart
 castle
 cat
 caterpillar
+cattle
 ceiling fan
 cell phone
+cello
+centipede
 chair
 cheese
 chest of drawers
@@ -74,14 +86,17 @@ computer keyboard
 computer monitor
 computer mouse
 convenience store
+cookie
 corded phone
 cosmetics
 couch
 countertop
 cow
+croissant
 cup
 cupboard
 curtain
+cutting board
 dairy product
 deer
 desk
@@ -89,11 +104,13 @@ dessert
 dice
 digital clock
 dining table
+dinosaur
 dog
 dolphin
 donut
 door
 door handle
+doughnut
 dragonfly
 drawer
 dress
@@ -104,6 +121,7 @@ drum
 earrings
 egg (food)
 elephant
+envelope
 fashion accessory
 fast food
 fedora
@@ -115,28 +133,36 @@ flag
 flower
 flowerpot
 food
+food processor
+football
 footwear
 fork
 fountain
 french fries
 frisbee
 fruit
+frying pan
 furniture
+garden asparagus
 gas stove
 giraffe
 girl
 glasses
 glove
 goggles
+golf ball
 golf cart
 grape
+grapefruit
 guitar
 hair drier
 hamburger
 handbag
+handgun
 harp
 hat
 headphones
+helicopter
 helmet
 high heels
 hiking equipment
@@ -146,11 +172,15 @@ hot dog
 house
 houseplant
 human body
+human ear
+human eye
 human face
 human foot
+human hair
 human hand
 human head
 human leg
+human mouth
 ice cream
 infant bed
 insect
@@ -164,6 +194,7 @@ kettle
 keyboard
 kitchen & dining room table
 kitchen appliance
+kitchen knife
 kite
 knife
 ladder
@@ -175,7 +206,11 @@ lavender (plant)
 lemon
 light bulb
 light switch
+lighthouse
+lily
 limousine
+lipstick
+lizard
 luggage and bags
 man
 maple
@@ -185,13 +220,17 @@ medical equipment
 microphone
 microwave
 microwave oven
+miniskirt
 mirror
 mixer
 mixing bowl
 mobile phone
+monkey
 motorcycle
 mouse
+muffin
 mug
+musical instrument
 musical keyboard
 nail (construction)
 necklace
@@ -199,21 +238,29 @@ nightstand
 office building
 office supplies
 orange
+organ (musical instrument)
 oven
+owl
 palm tree
 panda
+parachute
 parking meter
 parrot
+pasta
 pastry
+pear
 pen
 perfume
 person
 personal care
 personal flotation device
 piano
+picnic basket
 picture frame
+pig
 pillow
 pineapple
+pitcher (container)
 pizza
 plant
 plastic bag
@@ -225,22 +272,29 @@ poster
 potted plant
 power plugs and sockets
 printer
+pumpkin
 punching bag
 rabbit
 rays and skates
 refrigerator
 remote
 remote control
+rifle
 rocket
 rose
 ruler
 salad
+salt and pepper shakers
+sandal
 sandwich
 saucer
 scarf
 scissors
 sculpture
+sea lion
+seafood
 seat belt
+segway
 sewing machine
 shark
 sheep
@@ -248,18 +302,25 @@ shelf
 shirt
 shorts
 shower
+shrimp
 sink
 skateboard
+skirt
 skis
+skull
 skyscraper
+slow cooker
 snack
 snowboard
 snowman
 sock
 sofa bed
 spice rack
+spider
 spoon
 sports ball
+sports equipment
+sports uniform
 stairs
 stationary bicycle
 stool
@@ -278,12 +339,14 @@ sword
 table
 tablet computer
 tableware
+tank
 tap
 taxi
 tea
 teapot
 teddy bear
 television
+tennis ball
 tennis racket
 tent
 tie
@@ -296,6 +359,7 @@ toilet paper
 tomato
 tool
 toothbrush
+tortoise
 towel
 tower
 toy
@@ -314,11 +378,15 @@ vase
 vegetable
 vehicle
 vehicle registration plate
+violin
+waffle
+wall clock
 wardrobe
 washing machine
 waste container
 watch
 watermelon
+whale
 wheel
 wheelchair
 whisk
