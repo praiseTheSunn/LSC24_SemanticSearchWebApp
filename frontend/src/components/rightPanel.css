@@ -22,7 +22,7 @@
 
 .right-content-container .grid-container {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 5 columns */
+    grid-template-columns: repeat(7, 1fr); /* 7 columns */
     grid-gap: 3px;
     padding-right: 5px;
     overflow-y: scroll;
