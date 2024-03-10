@@ -26,25 +26,80 @@ const RightPanel = ({query, filters}) => {
         }
     }
     const [image, setImage] = useState(null);
-    const response = imageService.getImage("C:/Users/ADMIN/Downloads/unnamed.png")
+    // const response = imageService.getImage("C:/Users/DELL/Pictures/8fd0ad7ae44f6a64c9016070.jpg")
+    // .then(
+    // (response) => {
+    //      // Convert the byte data to a base64-encoded string
+    //     const base64ImageString = btoa(
+    //         new Uint8Array(response.data).reduce(
+    //         (data, byte) => data + String.fromCharCode(byte),
+    //         ''
+    //         )
+    //     );
+
+    //     // Create the data URL for the image
+    //     const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+    //     // Set the image data URL in the state
+    //     setImages([imageDataUrl]);
+    // })
+    // .catch((error) => {
+    //     console.error('Error fetching image:', error);
+    // });
+
+    const response2 = imageService.getImages("blah blah blah")
     .then(
-    (response) => {
-         // Convert the byte data to a base64-encoded string
-        const base64ImageString = btoa(
-            new Uint8Array(response.data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ''
-            )
-        );
+    (response2) => {
+        // Convert the byte data to a base64-encoded string
+        var urls = response2.data['image_files']
+        var imageDataUrls = []
+
+        // for (var i = 0; i < urls.length; i++) {
+        for (var i = 0; i < 10; i++) {
+            var url = urls[i]
+            console.log("fetching " + i + "th url: " + url)
+
+            const response = imageService.getImage(url)
+            .then(
+            (response) => {
+                 // Convert the byte data to a base64-encoded string
+                const base64ImageString = btoa(
+                    new Uint8Array(response.data).reduce(
+                    (data, byte) => data + String.fromCharCode(byte),
+                    ''
+                    )
+                );
+
+                // Create the data URL for the image
+                const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+                imageDataUrls.push(imageDataUrl)
+
+                // Set the image data URL in the state
+                
+            })
+            .catch((error) => {
+                console.error('Error fetching image:', error);
+            });
+        }
+        setImages(imageDataUrls);
+        
+        
+        // const base64ImageString = btoa(
+        //     new Uint8Array(response.data).reduce(
+        //     (data, byte) => data + String.fromCharCode(byte),
+        //     ''
+        //     )
+        // );
 
         // Create the data URL for the image
-        const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+        // const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
 
         // Set the image data URL in the state
-        setImages([imageDataUrl]);
+        // setImages([imageDataUrl]);
     })
     .catch((error) => {
-        console.error('Error fetching image:', error);
+        console.error('Error fetching images:', error);
     });
 
 

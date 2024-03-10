@@ -16,10 +16,12 @@ from torch.utils.data import DataLoader
 
 from typing import List, Union, Tuple
 from fastapi.responses import FileResponse
+from fastapi.responses import JSONResponse
 
 import open_clip
 
 import faiss
+from settings import keyframes_path
 # from helper.embedding_helper import search_text_query
 
 # from helper.setup import setup
@@ -50,9 +52,20 @@ async def get_image(file_url: str):
         'Access-Control-Allow-Origin': '*'
     }
     
-    image_folder = 'E:\\LSCDATA\\keyframes\\201901\\01'
+    return FileResponse(file_url, media_type='image/jpeg', headers=header)
+
+@app.get("/query/{query_text}")
+async def get_images(query_text: str):
+    # file_url = file_url.replace("file://", "")
+    print(query_text)
+    header = {
+        'Access-Control-Allow-Origin': '*'
+    }
+    
+    image_folder = keyframes_path + '\\201901\\01'
     image_files = glob.glob(image_folder + '/*.jpg')[:1000]  # Get the first 1000 jpg files in the folder
     
-    return [FileResponse(file, media_type='image/jpeg', headers=header) for file in image_files]
+    
+    return JSONResponse(content={"image_files": image_files}, headers=header)
 
 
