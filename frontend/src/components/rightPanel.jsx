@@ -25,43 +25,55 @@ const RightPanel = ({query, filters}) => {
             addSelectedImage(imageUrl);
         }
     }
-    const [image, setImage] = useState(null);
-    const response = imageService.getImage("C:/Users/ADMIN/Downloads/unnamed.png")
-    .then(
-    (response) => {
-         // Convert the byte data to a base64-encoded string
-        const base64ImageString = btoa(
-            new Uint8Array(response.data).reduce(
-            (data, byte) => data + String.fromCharCode(byte),
-            ''
-            )
-        );
 
-        // Create the data URL for the image
-        const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+    const handleClick = () => {
+        
+        // imageService.getImages()
+        // .then(response => {
+        //     console.log(response);
+        //     const imageUrls = response.map(imageData => URL.createObjectURL(imageData));
+        //     setImages(imageUrls);
+        // })
+        // .catch(error => {
+        //     console.error('Error fetching images:', error);
+        // });
 
-        // Set the image data URL in the state
-        setImages([imageDataUrl]);
-    })
-    .catch((error) => {
-        console.error('Error fetching image:', error);
-    });
+        // const response = imageService.getImage("C:/Users/ADMIN/Downloads/unnamed.png")
+        // .then(
+        // (response) => {
+        //     console.log(response);
+        //     // Convert the byte data to a base64-encoded string
+        //     const base64ImageString = btoa(
+        //         new Uint8Array(response.data).reduce(
+        //         (data, byte) => data + String.fromCharCode(byte),
+        //         ''
+        //         )
+        //     );
+
+        //     // Create the data URL for the image
+        //     const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+        //     // Set the image data URL in the state
+        //     console.log(imageDataUrl);
+        //     setImages([imageDataUrl]);
+        // })
+        // .catch((error) => {
+        //     console.error('Error fetching image:', error);
+        // });
+    }
+    
 
 
     return(
         <div className='right-content-container'>
             <div className='submit-button-area'>
-                <button className='btn btn-primary submit-button'>Submit</button>
+                <button className='btn btn-primary submit-button' onClick={handleClick}>Submit</button>
                 <span className='submit-button-text'>Selected: {getSize}</span>
             </div>
             <div className='grid-container'>
-                {images.map((image, index) => (
-                    <div key={index} className='grid-item'>
-                        <img src={image} alt={`no. ${index}`}
-                            // onClick={() => {handleImageClick(image.src)}}
-                        />
-                    </div>
-                ))}
+            {images.map((imageUrl, index) => (
+                <img key={index} className='grid-item' src={imageUrl} alt={`no. ${index}`} />
+            ))}
             </div>
             {/* some more div tag here */}
         </div>

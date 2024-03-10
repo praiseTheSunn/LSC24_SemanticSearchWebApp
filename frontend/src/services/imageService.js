@@ -5,8 +5,13 @@ const getImage = (url) => {
     return http.get(`/image/${url}`, { responseType: 'arraybuffer' });
 }
 
+const getImages = () => {
+    return http.get("/images");
+}
+
 const imageService = {
     getImage,
+    getImages,
 };
 
 export default imageService;

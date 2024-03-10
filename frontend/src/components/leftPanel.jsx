@@ -95,7 +95,7 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
             </div>
             
             <div className='filter-container'>
-                <button type="button" class="btn btn-link clear-filter-button" onClick={handleClearAll}>Clear</button>
+                <button type="button" className="btn btn-link clear-filter-button" onClick={handleClearAll}>Clear</button>
                 <div className='filter-item-area'>
                     {displayedFilters.map((filter, index) => (
                         <FilterTag
