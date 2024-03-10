@@ -15,7 +15,7 @@ import torch
 from torch.utils.data import DataLoader
 
 from typing import List, Union, Tuple
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 
 import open_clip
 
@@ -23,12 +23,22 @@ import faiss
 # from helper.embedding_helper import search_text_query
 
 # from helper.setup import setup
+from fastapi.middleware.cors import CORSMiddleware
+
 
 print("setting up!")
 # device, model, preprocess, keyframe_paths, index = setup()
 print("setup done!")
 
 app = FastAPI()
+# Configure CORS settings
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allow requests from any origin
+    allow_credentials=True,
+    allow_methods=["GET"],  # Only allow GET requests
+    allow_headers=["*"],  # Allow all headers
+)
 
 
 # @app.get("/")
@@ -50,9 +60,39 @@ async def get_image(file_url: str):
         'Access-Control-Allow-Origin': '*'
     }
     
+    return FileResponse(file_url, media_type='image/jpeg', headers=header)
+
+
+
+@app.get("/images")
+async def get_images():
+    header = {
+        'Access-Control-Allow-Origin': '*'
+    }
+    print("get_images")
     image_folder = 'E:\\LSCDATA\\keyframes\\201901\\01'
-    image_files = glob.glob(image_folder + '/*.jpg')[:1000]  # Get the first 1000 jpg files in the folder
-    
+    image_files = glob.glob(image_folder + '/*.jpg')[:10]
+    print(image_files)
     return [FileResponse(file, media_type='image/jpeg', headers=header) for file in image_files]
 
+# @app.get("/images")
+# async def get_images():
+#     header = {
+#         'Access-Control-Allow-Origin': '*'
+#     }
+#     print("get_images")
+#     image_folder = 'E:\\LSCDATA\\keyframes\\201901\\01'
+#     image_files = glob.glob(image_folder + '/*.jpg')[:10]
+#     print(image_files)
+#     # return [FileResponse(file, media_type='image/jpeg', headers=header) for file in image_files]
+#     async def image_generator():
+#         for file in image_files:
+#             with open(file, "rb") as image_file:
+#                 # Determine the content type based on file extension
+#                 # content_type, _ = mimetypes.guess_type(file)
+#                 yield {
+#                     "content": image_file.read(),
+#                     "content_type": "image/jpeg",
+#                 }
 
+#     return StreamingResponse(image_generator(), headers=header, media_type="multipart/form-data")
