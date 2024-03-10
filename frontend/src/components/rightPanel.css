@@ -22,14 +22,15 @@
 
 .right-content-container .grid-container {
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7 columns */
-    grid-gap: 3px;
-    padding-right: 5px;
+    grid-template-columns: repeat(5, 1fr); /* 7 columns */
+    grid-gap: 0px;
+    padding-right: 0px;
     overflow-y: scroll;
   }
   
 .right-content-container .grid-item {
     border: 1px solid #ccc;
+    width: 80%
   }
 
 .right-content-container .grid-item img {
