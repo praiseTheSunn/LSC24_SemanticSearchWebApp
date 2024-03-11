@@ -3,6 +3,8 @@ import fakeimg from '../assets/bcn.png';
 import React, { useState } from 'react';
 import { useSelectedImages } from '../selectedImageContext';
 import imageService from '../services/imageService';
+import LazyLoad from 'react-lazy-load';
+
 // import '../file_index.js'
 
 const RightPanel = ({query, filters}) => {
@@ -12,10 +14,12 @@ const RightPanel = ({query, filters}) => {
         // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
         // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
     ]
-    const [images, setImages] = useState([{
-        src:"",
-        status: 0,
+    // var imageUrls = []
+    const [imageUrls, setImageUrls] = useState([{
+        srcUrl: "",
+        src: "",
     }]);
+
     const { selectedImages, addSelectedImage, removeSelectedImage, getSize, getPath } = useSelectedImages();
 
     const handleImageClick = (imageUrl) => {
@@ -26,61 +30,39 @@ const RightPanel = ({query, filters}) => {
         }
     }
 
-    // const handleClick = () => {        
+    const handleImageVisibility = (url, index) => {
+        const response = imageService.getImage(url)
+            .then((response) => {
+                const base64ImageString = btoa(
+                    new Uint8Array(response.data).reduce(
+                        (data, byte) => data + String.fromCharCode(byte),
+                        ''
+                    )
+                );
+
+                const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+                setImageUrls(prevImageUrls => {
+                    // Make a copy of the previous state
+                    const newImageUrls = [...prevImageUrls];
+
+                    // Update the copy of state based on previous values
+                    newImageUrls[index] = {
+                        ...newImageUrls[index],
+                        src: imageDataUrl,
+                    };
+
+                    // Return the updated state
+                    return newImageUrls;
+                });
+            })
+            .catch((error) => {
+                console.error('Error fetching image:', error);
+            });
+
+      };
 
 
-    //     const response2 = imageService.getImages("blah blah blah")
-    //     .then(
-    //     (response2) => {
-    //         // Convert the byte data to a base64-encoded string
-    //         var urls = response2.data['image_files']
-    //         var imageDataUrls = []
-
-    //         // for (var i = 0; i < urls.length; i++) {
-    //         for (var i = 0; i < 10; i++) {
-    //             var url = urls[i]
-    //             console.log("fetching " + i + "th url: " + url)
-
-    //             const response = imageService.getImage(url)
-    //             .then(
-    //             (response) => {
-    //                 // Convert the byte data to a base64-encoded string
-    //                 const base64ImageString = btoa(
-    //                     new Uint8Array(response.data).reduce(
-    //                     (data, byte) => data + String.fromCharCode(byte),
-    //                     ''
-    //                     )
-    //                 );
-
-    //                 // Create the data URL for the image
-    //                 const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
-
-    //                 imageDataUrls.push(
-    //                     { src: imageDataUrl, status: i }
-    //                 )
-    //             })
-    //             .catch((error) => {
-    //                 console.error('Error fetching image:', error);
-    //             });
-    //         }
-    //         setImages(imageDataUrls);
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error fetching images:', error);
-    //     });
-
-    //     // const response = imageService.getImage("C:/Users/ADMIN/Downloads/unnamed.png")
-    //     // .then(
-    //     // (response) => {
-    //     //     console.log(response);
-    //     //     // Convert the byte data to a base64-encoded string
-    //     //     const base64ImageString = btoa(
-    //     //         new Uint8Array(response.data).reduce(
-    //     //         (data, byte) => data + String.fromCharCode(byte),
-    //     //         ''
-    //     //         )
-    //     //     );
-    // }
 
     const handleClick = () => {
         // First HTTP request
@@ -89,42 +71,52 @@ const RightPanel = ({query, filters}) => {
                 // Convert the byte data to a base64-encoded string
                 var urls = response2.data['image_files'];
                 var imageDataUrls = [];
+
+                for (var i = 0; i < urls.length; i++) {
+                    const data = {
+                        srcUrl: urls[i],
+                        src: "",
+                    }
+                    imageDataUrls.push(data);
+                }
+                setImageUrls(imageDataUrls);
     
                 // Second HTTP request (sequentially inside the loop)
                 // You can use Promise.all() if you want to make requests concurrently
-                const fetchImages = (index) => {
-                    if (index < 50) {
-                        var url = urls[index];
-                        console.log("fetching " + index + "th url: " + url);
+                // const fetchImages = (index) => {
+                //     if (index < 1000) {
+                //         var url = urls[index];
+                //         console.log("fetching " + index + "th url: " + url);
     
-                        return imageService.getImage(url)
-                            .then((response) => {
-                                const base64ImageString = btoa(
-                                    new Uint8Array(response.data).reduce(
-                                        (data, byte) => data + String.fromCharCode(byte),
-                                        ''
-                                    )
-                                );
+                //         return imageService.getImage(url)
+                //             .then((response) => {
+                //                 const base64ImageString = btoa(
+                //                     new Uint8Array(response.data).reduce(
+                //                         (data, byte) => data + String.fromCharCode(byte),
+                //                         ''
+                //                     )
+                //                 );
     
-                                const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+                //                 const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
     
-                                // imageDataUrls.push({ src: imageDataUrl, status: index });
-                                imageDataUrls.push(imageDataUrl);
+                //                 // imageDataUrls.push({ src: imageDataUrl, status: index });
+                //                 imageDataUrls.push(imageDataUrl);
     
-                                // Recursive call to fetch the next image
-                                return fetchImages(index + 1);
-                            })
-                            .catch((error) => {
-                                console.error('Error fetching image:', error);
-                            });
-                    } else {
-                        // All images fetched, set the state or do other operations
-                        setImages(imageDataUrls);
-                    }
-                };
+                //                 // Recursive call to fetch the next image
+                //                 return fetchImages(index + 1);
+                //             })
+                //             .catch((error) => {
+                //                 console.error('Error fetching image:', error);
+                //             });
+                //     } else {
+                //         // All images fetched, set the state or do other operations
+                //         imageUrls = imageDataUrls;
+                //         // setImages(imageDataUrls);
+                //     }
+                // };
     
-                // Start fetching images from index 0
-                return fetchImages(0);
+                // // Start fetching images from index 0
+                // return fetchImages(0);
             })
             .catch((error) => {
                 console.error('Error fetching images:', error);
@@ -141,10 +133,28 @@ const RightPanel = ({query, filters}) => {
                 <span className='submit-button-text'>Selected: {getSize}</span>
             </div>
             <div className='grid-container'>
-            {images.map((imageUrl, index) => (
-                <img key={index} className='grid-item' src={imageUrl} alt={`no. ${index}`} />
-            ))}
+            {/* {images.map((imageUrl, index) => (
+                <img key={index} className='grid-item' src={imageUrl} alt={`no. ${index}`} loading= "lazy" />
+            ))} */}
+
+            {imageUrls.map((data, index) => (
+                <LazyLoad
+                    key={index}
+                    height={200} // Set a height for the placeholder
+                    offset={100} // Set an offset to trigger the lazy load before the image comes into view
+                    once
+                    onContentVisible={() => handleImageVisibility(data.srcUrl, index)}
+                    >
+                    <img
+                        key={index} className='grid-item' alt={`no. ${index}`}
+                        src={data.src}
+                        
+                    />
+                    
+                </LazyLoad>
+            ))}       
             </div>
+            
             {/* some more div tag here */}
         </div>
     )
