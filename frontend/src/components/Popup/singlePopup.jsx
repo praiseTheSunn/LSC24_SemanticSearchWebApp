@@ -112,7 +112,7 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
 
     return (
         <div className='single-popup-container'>
-            {viewNeighbors && <NeighborPopup openSinggleImage={openSinggleImage} closePopup={() => setViewNeighbors(false)} image={viewImage} />}
+            {viewNeighbors && <NeighborPopup openSinggleImage={openSinggleImage} closePopup={() => setViewNeighbors(false)} viewImage={viewImage} />}
             <div className='popup-content-background row'>
                 <div className='single-popup-image-container col'>
                     <div className='single-img-wrapper'>
