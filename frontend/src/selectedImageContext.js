@@ -16,15 +16,12 @@ export const SelectedImagesProvider = ({ children }) => {
         setSelectedImages((prevImages) => prevImages.filter((img) => img !== imageUrl));
     };
 
-    const getSize = () => selectedImages.length;
-
-    const imagePathE = 'E:\\LSCDATA\\keyframes'; // Absolute path to images on Disk E
-    const getPath = (fileName) => {
-        return `file://${imagePathE}/201902/01/${fileName}`;
-    };
+    const getSize = () => {
+        return selectedImages.length;
+    }
 
     return (
-        <SelectedImagesContext.Provider value={{ selectedImages, addSelectedImage, removeSelectedImage , getSize, getPath}}>
+        <SelectedImagesContext.Provider value={{ selectedImages, addSelectedImage, removeSelectedImage , getSize}}>
         {children}
         </SelectedImagesContext.Provider>
     );

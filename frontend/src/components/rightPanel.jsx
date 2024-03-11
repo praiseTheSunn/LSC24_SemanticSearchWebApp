@@ -1,9 +1,11 @@
 import './rightPanel.css'
 import fakeimg from '../assets/bcn.png';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelectedImages } from '../selectedImageContext';
 import imageService from '../services/imageService';
-// import '../file_index.js'
+import view_icon from '../assets/view_icon.png'
+import SinglePopup from '../components/Popup/singlePopup';
+import NeighborPopup from '../components/Popup/neighborPopup';
 
 const RightPanel = ({query, filters}) => {
     const links = [
@@ -12,17 +14,31 @@ const RightPanel = ({query, filters}) => {
         // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
         // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
     ]
-    const [images, setImages] = useState([{
-        src:"",
-        status: 0,
-    }]);
-    const { selectedImages, addSelectedImage, removeSelectedImage, getSize, getPath } = useSelectedImages();
+    const [images, setImages] = useState([]);
+    const { selectedImages, addSelectedImage, removeSelectedImage, getSize } = useSelectedImages();
 
-    const handleImageClick = (imageUrl) => {
+
+    const handleImageClick = (imageUrl, index) => {
+        console.log('clicked',imageUrl);
         if(selectedImages.includes(imageUrl)){
             removeSelectedImage(imageUrl);
+            const updatedImages = images.map((record, i) => {
+                if (i === index) {
+                    return { ...record, status: 0 };
+                }
+                return record;
+            });
+            setImages(updatedImages);
         }else{
+            console.log('adding',imageUrl);
             addSelectedImage(imageUrl);
+            const updatedImages = images.map((record, i) => {
+                if (i === index) {
+                    return { ...record, status: 1 };
+                }
+                return record;
+            });
+            setImages(updatedImages);
         }
     }
 
@@ -108,9 +124,15 @@ const RightPanel = ({query, filters}) => {
     
                                 const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
     
-                                // imageDataUrls.push({ src: imageDataUrl, status: index });
-                                imageDataUrls.push(imageDataUrl);
-    
+                                // Parse the filename to extract date and time
+                                const fileName = url.split('\\').pop();
+                                const date = fileName.slice(0, 4) + '-' + fileName.slice(4, 6) + '-' + fileName.slice(6, 8);
+                                const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
+
+                                // Add the image data to imageDataUrls
+                                imageDataUrls.push({ 'image': imageDataUrl, 'path': fileName, 'status': 0, 'date': date, 'time': time });
+                                
+                                console.log('imageDataUrls', imageDataUrls);
                                 // Recursive call to fetch the next image
                                 return fetchImages(index + 1);
                             })
@@ -133,16 +155,38 @@ const RightPanel = ({query, filters}) => {
         // You can add more code here or handle subsequent actions after the requests
     }
 
+    const [viewImage, setViewImage] = useState({image: "", path:""});
+    const [viewNeighbors, setViewNeighbors] = useState(false);
+    
+    const closePopup = () => {
+        console.log('closePopup');
+        setViewImage({image :"", path: ""});
+    }
+
+    const openSinggleImage = (image, path) => {
+        setViewImage({image: image, path: path});
+    }
 
     return(
         <div className='right-content-container'>
+            {viewImage.path !== "" && <SinglePopup closePopup={closePopup} viewImage={viewImage} />}
+            {viewNeighbors && <NeighborPopup closePopup={() => setViewNeighbors(false)} image={viewImage} />}
             <div className='submit-button-area'>
                 <button className='btn btn-primary submit-button' onClick={handleClick}>Submit</button>
-                <span className='submit-button-text'>Selected: {getSize}</span>
+                <span className='submit-button-text'>Selected: {getSize()}</span>
             </div>
             <div className='grid-container'>
-            {images.map((imageUrl, index) => (
-                <img key={index} className='grid-item' src={imageUrl} alt={`no. ${index}`} />
+            {images.map((record, index) => (
+                <div className={`img-container ${record.status === 1 ? 'clicked' : ''}`} key={index}>
+                    <div className='img-info'>
+                        <span>{record.date}</span>
+                        <span>{record.time}</span>
+                    </div>
+                    <img key={index} className='grid-item' src={record.image} alt={`no. ${index}`} onClick={() => handleImageClick(record.path)} />
+                    <div className='img-action'>
+                        <img src={view_icon} alt='view' onClick={() => openSinggleImage(record.image, record.path)} className='view_icon_img'/>
+                    </div>
+                </div>
             ))}
             </div>
             {/* some more div tag here */}

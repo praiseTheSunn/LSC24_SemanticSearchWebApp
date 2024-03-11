@@ -2,7 +2,7 @@ import './singlePopup.css'
 import closeIcon from '../../assets/close.png'
 import bcn from '../../assets/bcn.png'
 
-const SinglePopup = ({image, closePopup}) => {
+const SinglePopup = ({viewImage, closePopup}) => {
     const images = [bcn, bcn, bcn, bcn, bcn, bcn, bcn, bcn,
         bcn, bcn, bcn, bcn, bcn, bcn, bcn, bcn,bcn, bcn, bcn, bcn, bcn, bcn, bcn, bcn,
         bcn, bcn, bcn, bcn, bcn, bcn, bcn, bcn,bcn, bcn, bcn, bcn, bcn, bcn, bcn, bcn]
@@ -12,7 +12,7 @@ const SinglePopup = ({image, closePopup}) => {
                 <div className='single-popup-image-container col'>
                     {/* <img src={`data:image/jpeg;base64,${image}`} alt='single-popup-image'/> */}
                     <div className='single-img-wrapper'>
-                        <img src={bcn} alt='single-popup'/>
+                        <img src={viewImage.image} alt='single-popup'/>
                     </div>
                     
                     <div className='button-container'>

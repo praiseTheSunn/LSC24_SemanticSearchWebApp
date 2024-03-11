@@ -22,19 +22,75 @@
 
 .right-content-container .grid-container {
     display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 7 columns */
+    grid-template-columns: repeat(6, 1fr); /* 7 columns */
     grid-gap: 0px;
     padding-right: 0px;
     overflow-y: scroll;
+    max-height: 600px;
   }
-  
+
+.right-content-container .img-container{
+    padding: 2px;
+    height: fit-content;
+    position: relative;
+}
+
+.right-content-container .img-info{
+    position: absolute;
+    top:3px;
+    left:3px;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.right-content-container .img-info>span{
+    color: white;
+    font-size: 13px;
+    font-weight: 300;
+    padding: 5px;
+    font-family: 'Segoe UI', Tahoma;
+    font-style: bold;
+}
+
+.right-content-container .img-action{
+    position: absolute;
+    bottom:3px;
+    right:3px;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    visibility: hidden;
+}
+
+.img-container:hover .img-action {
+    visibility: visible;
+}
+
+.right-content-container .view_icon_img{
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    cursor: pointer;
+}
+
 .right-content-container .grid-item {
     border: 1px solid #ccc;
-    width: 80%
-  }
+    width: 100%;
+}
+
+.right-content-container .img-container:hover {
+    background-color: #000dc1;
+ }
+
+.right-content-container .clicked {
+    background-color: #000dc1;
+}
 
 .right-content-container .grid-item img {
     max-width: 100%;
     height: auto;
-    object-fit: cover;
+    object-fit: contain;
  }
