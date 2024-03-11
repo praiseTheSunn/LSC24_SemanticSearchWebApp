@@ -80,43 +80,6 @@ const RightPanel = ({query, filters}) => {
                     imageDataUrls.push(data);
                 }
                 setImageUrls(imageDataUrls);
-    
-                // Second HTTP request (sequentially inside the loop)
-                // You can use Promise.all() if you want to make requests concurrently
-                // const fetchImages = (index) => {
-                //     if (index < 1000) {
-                //         var url = urls[index];
-                //         console.log("fetching " + index + "th url: " + url);
-    
-                //         return imageService.getImage(url)
-                //             .then((response) => {
-                //                 const base64ImageString = btoa(
-                //                     new Uint8Array(response.data).reduce(
-                //                         (data, byte) => data + String.fromCharCode(byte),
-                //                         ''
-                //                     )
-                //                 );
-    
-                //                 const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
-    
-                //                 // imageDataUrls.push({ src: imageDataUrl, status: index });
-                //                 imageDataUrls.push(imageDataUrl);
-    
-                //                 // Recursive call to fetch the next image
-                //                 return fetchImages(index + 1);
-                //             })
-                //             .catch((error) => {
-                //                 console.error('Error fetching image:', error);
-                //             });
-                //     } else {
-                //         // All images fetched, set the state or do other operations
-                //         imageUrls = imageDataUrls;
-                //         // setImages(imageDataUrls);
-                //     }
-                // };
-    
-                // // Start fetching images from index 0
-                // return fetchImages(0);
             })
             .catch((error) => {
                 console.error('Error fetching images:', error);

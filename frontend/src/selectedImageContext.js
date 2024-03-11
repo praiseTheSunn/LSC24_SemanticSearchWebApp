@@ -18,9 +18,9 @@ export const SelectedImagesProvider = ({ children }) => {
 
     const getSize = () => selectedImages.length;
 
-    const imagePathE = 'E:\\LSCDATA\\keyframes'; // Absolute path to images on Disk E
+    const imagePathE = 'H:\\LSCDATA\\Keyframes'; // Absolute path to images on Disk E
     const getPath = (fileName) => {
-        return `file://${imagePathE}/201902/01/${fileName}`;
+        return `${imagePathE}\\201902\\01\\${fileName}`;
     };
 
     return (
