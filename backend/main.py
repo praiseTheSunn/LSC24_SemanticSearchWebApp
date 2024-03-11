@@ -76,24 +76,14 @@ async def get_images(query_text: str):
     
     return JSONResponse(content={"image_files": image_files}, headers=header)
 
-# @app.get("/images")
-# async def get_images():
-#     header = {
-#         'Access-Control-Allow-Origin': '*'
-#     }
-#     print("get_images")
-#     image_folder = 'E:\\LSCDATA\\keyframes\\201901\\01'
-#     image_files = glob.glob(image_folder + '/*.jpg')[:10]
-#     print(image_files)
-#     # return [FileResponse(file, media_type='image/jpeg', headers=header) for file in image_files]
-#     async def image_generator():
-#         for file in image_files:
-#             with open(file, "rb") as image_file:
-#                 # Determine the content type based on file extension
-#                 # content_type, _ = mimetypes.guess_type(file)
-#                 yield {
-#                     "content": image_file.read(),
-#                     "content_type": "image/jpeg",
-#                 }
-
-#     return StreamingResponse(image_generator(), headers=header, media_type="multipart/form-data")
+@app.get("/similars/{file_url:path}")
+def get_similars(file_url: str):
+    # DUMMY CODE
+    print(file_url)
+    header = {
+        'Access-Control-Allow-Origin': '*'
+    }
+    image_folder = keyframes_path + '\\201901\\01'
+    image_files = glob.glob(image_folder + '/*.jpg')[:1000]  # Get the first 1000 jpg files in the folder
+    
+    return JSONResponse(content={"image_files": image_files}, headers=header)

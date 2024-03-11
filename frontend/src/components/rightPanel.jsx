@@ -1,11 +1,13 @@
 import './rightPanel.css'
 import fakeimg from '../assets/bcn.png';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useSelectedImages } from '../selectedImageContext';
 import imageService from '../services/imageService';
 import LazyLoad from 'react-lazy-load';
 
-// import '../file_index.js'
+import SinglePopup from '../components/Popup/singlePopup';
+import NeighborPopup from '../components/Popup/neighborPopup';
+import ImageInList from './Image/imageInList';
 
 const RightPanel = ({query, filters}) => {
     const links = [
@@ -14,19 +16,34 @@ const RightPanel = ({query, filters}) => {
         // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
         // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
     ]
-    // var imageUrls = []
     const [imageUrls, setImageUrls] = useState([{
         srcUrl: "",
         src: "",
     }]);
-
-    const { selectedImages, addSelectedImage, removeSelectedImage, getSize, getPath } = useSelectedImages();
+    const { selectedImages, addSelectedImage, removeSelectedImage, getSize } = useSelectedImages();
 
     const handleImageClick = (imageUrl) => {
-        if(selectedImages.includes(imageUrl)){
-            removeSelectedImage(imageUrl);
+        const fileName = imageUrl.split('\\').pop();
+        console.log('clicked',fileName);
+        if(selectedImages.includes(fileName)){
+            removeSelectedImage(fileName);
+            const updatedImages = images.map((record) => {
+                if (record.path === imageUrl) {
+                    return { ...record, status: 0 };
+                }
+                return record;
+            });
+            setImages(updatedImages);
         }else{
-            addSelectedImage(imageUrl);
+            console.log('adding',fileName);
+            addSelectedImage(fileName);
+            const updatedImages = images.map((record, i) => {
+                if (record.path === imageUrl) {
+                    return { ...record, status: 1 };
+                }
+                return record;
+            });
+            setImages(updatedImages);
         }
     }
 
@@ -41,6 +58,14 @@ const RightPanel = ({query, filters}) => {
                 );
 
                 const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+                // Parse the filename to extract date and time
+                const fileName = url.split('\\').pop();
+                const date = fileName.slice(0, 4) + '-' + fileName.slice(4, 6) + '-' + fileName.slice(6, 8);
+                const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
+
+                // Add the image data to imageDataUrls
+                // imageDataUrls.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
 
                 setImageUrls(prevImageUrls => {
                     // Make a copy of the previous state
@@ -71,7 +96,7 @@ const RightPanel = ({query, filters}) => {
                 // Convert the byte data to a base64-encoded string
                 var urls = response2.data['image_files'];
                 var imageDataUrls = [];
-
+    
                 for (var i = 0; i < urls.length; i++) {
                     const data = {
                         srcUrl: urls[i],
@@ -88,37 +113,41 @@ const RightPanel = ({query, filters}) => {
         // You can add more code here or handle subsequent actions after the requests
     }
 
+    const [viewImage, setViewImage] = useState({image: "", path:""});
+    
+    
+    const closePopup = () => {
+        console.log('closePopup');
+        setViewImage({image :"", path: ""});
+    }
+
+    const openSinggleImage = (image, path) => {
+        setViewImage({image: image, path: path});
+    }
 
     return(
         <div className='right-content-container'>
+            {viewImage.path !== "" && <SinglePopup closePopup={closePopup} viewImage={viewImage} openSinggleImage={openSinggleImage} />}
             <div className='submit-button-area'>
                 <button className='btn btn-primary submit-button' onClick={handleClick}>Submit</button>
-                <span className='submit-button-text'>Selected: {getSize}</span>
+                <span className='submit-button-text'>Selected: {getSize()}</span>
             </div>
             <div className='grid-container'>
-            {/* {images.map((imageUrl, index) => (
-                <img key={index} className='grid-item' src={imageUrl} alt={`no. ${index}`} loading= "lazy" />
-            ))} */}
-
             {imageUrls.map((data, index) => (
                 <LazyLoad
-                    key={index}
-                    height={200} // Set a height for the placeholder
-                    offset={100} // Set an offset to trigger the lazy load before the image comes into view
-                    once
-                    onContentVisible={() => handleImageVisibility(data.srcUrl, index)}
-                    >
-                    <img
-                        key={index} className='grid-item' alt={`no. ${index}`}
-                        src={data.src}
-                        
-                    />
-                    
+                key={index}
+                height={200} // Set a height for the placeholder
+                offset={100} // Set an offset to trigger the lazy load before the image comes into view
+                once
+                onContentVisible={() => handleImageVisibility(data.srcUrl, index)}
+                >
+                <ImageInList key={index} record={record} index={index} handleImageClick={handleImageClick} openSinggleImage={openSinggleImage}
+                            alt={`no. ${index}`}
+                            src={data.src}
+                />
                 </LazyLoad>
-            ))}       
+            ))}
             </div>
-            
-            {/* some more div tag here */}
         </div>
     )
 };

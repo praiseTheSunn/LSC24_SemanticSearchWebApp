@@ -10,9 +10,15 @@ const getImages = (text) => {
     return http.get(`/query/${text}`);
 }
 
+const getSimilarImages = (url) => {
+    console.log('similar', url);
+    return http.get(`/similars/${url}`);
+}
+
 const imageService = {
     getImage,
-    getImages
+    getImages,
+    getSimilarImages
 };
 
 export default imageService;
