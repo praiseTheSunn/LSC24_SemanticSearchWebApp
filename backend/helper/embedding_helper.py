@@ -3,12 +3,15 @@ import open_clip
 import settings
 import numpy as np
 from textblob import TextBlob
-global git_index, clip_index, object_clip_index, nlp, object_df, object_list, location_category_list
+from setup import object_list, location_category_list, object_df, loccat_df, object_clip_index, git_index, nlp
+# from setup import object_list, location_category_list
 
+import faiss
+clip_index = faiss.read_index(settings.clip_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
 OFFSET_OBJECT_START = 0
-OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(settings.object_list)
+OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)
 OFFSET_LOCATION_START = OFFSET_OBJECT_END
-OFFSET_LOCATION_END = OFFSET_LOCATION_START + len(settings.location_category_list)
+OFFSET_LOCATION_END = OFFSET_LOCATION_START + len(location_category_list)
 num_results = 10000
 
 # compute text embedding using CLIP model
@@ -82,10 +85,12 @@ def search_text_query(keyframe_paths, model, text_query: str, mode):
     # compute object similarities
     object_similarities = []
     for idx in indices:
+        ImageID = keyframe_paths[idx]
         object_similarity = 0.01
         object_matches = 0
+        objects_from_image = object_df[object_df['ImageID'] == ImageID]['Tags']
         for object in parsed_objects_from_query:
-            if object in object_df[idx]['objects']:
+            if object in objects_from_image:
                 object_matches += 1
         if len(parsed_objects_from_query) > 0:
             object_similarity = object_matches / len(parsed_objects_from_query)
@@ -99,7 +104,15 @@ def search_text_query(keyframe_paths, model, text_query: str, mode):
         paths.append(keyframe_paths[idx])
 
     # TODO: filter by location category
-        
+    global loccat_df
+    parsed_location_categories_from_query = list(parsed_location_categories_from_query)
+    parsed_location_categories_from_query = " ".join(parsed_location_categories_from_query)
+    new_paths = []
+    for ImageID in paths:
+        location_category = loccat_df[loccat_df['ImageID'] == ImageID]['categories']
+        if location_category in parsed_location_categories_from_query:
+            new_paths.append(ImageID)
+    paths = new_paths
 
     # TODO: filter by time
         
