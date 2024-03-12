@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import pickle
 import glob
+from datetime import datetime
 
 import torch
 # from datasets import Dataset, Image
@@ -79,24 +80,61 @@ async def get_matched_image_paths(query_text: str):
     
     return JSONResponse(content={"image_files": image_files}, headers=header)
 
-# @app.get("/images")
-# async def get_images():
-#     header = {
-#         'Access-Control-Allow-Origin': '*'
-#     }
-#     print("get_images")
-#     image_folder = 'E:\\LSCDATA\\keyframes\\201901\\01'
-#     image_files = glob.glob(image_folder + '/*.jpg')[:10]
-#     print(image_files)
-#     # return [FileResponse(file, media_type='image/jpeg', headers=header) for file in image_files]
-#     async def image_generator():
-#         for file in image_files:
-#             with open(file, "rb") as image_file:
-#                 # Determine the content type based on file extension
-#                 # content_type, _ = mimetypes.guess_type(file)
-#                 yield {
-#                     "content": image_file.read(),
-#                     "content_type": "image/jpeg",
-#                 }
+@app.get("/similars/{file_url:path}")
+def get_similars(file_url: str):
+    # DUMMY CODE
+    print(file_url)
+    header = {
+        'Access-Control-Allow-Origin': '*'
+    }
+    image_folder = keyframes_path + '\\201901\\01'
+    image_files = glob.glob(image_folder + '/*.jpg')[:1000]  # Get the first 1000 jpg files in the folder
+    
+    return JSONResponse(content={"image_files": image_files}, headers=header)
 
-#     return StreamingResponse(image_generator(), headers=header, media_type="multipart/form-data")
+@app.get("/neighbors/{file_url:path}")
+def get_neighbors(file_url: str):
+    header = {
+        'Access-Control-Allow-Origin': '*'
+    }
+    num_images = 30
+
+    # List all files in the folder
+    folder_path = os.path.dirname(file_url)
+    all_image_files = glob.glob(os.path.join(folder_path, '*.jpg'))
+
+    # Filter and sort image files by timestamp
+    image_files_with_timestamp = []
+    for image_file in all_image_files:
+        filename = os.path.basename(image_file)
+        try:
+            timestamp_str = filename.split('_')[0] + filename.split('_')[1]
+            file_timestamp = datetime.strptime(timestamp_str, '%Y%m%d%H%M%S')
+            image_files_with_timestamp.append((file_timestamp, image_file))
+        except ValueError:
+            continue  # Skip files without valid timestamps
+
+    image_files_with_timestamp.sort(key=lambda x: x[0])  # Sort by timestamp
+
+    # Find index of given image path
+    index = None
+    norm_file_url = os.path.normpath(file_url)
+    for i, (_, file_path) in enumerate(image_files_with_timestamp):
+        print(os.path.normpath(file_path))
+        if os.path.normpath(file_path) == norm_file_url:
+            index = i
+            break
+
+    if index is None:
+        # print(all_image_files)
+        print(f"File {file_url} not found in the folder")
+        return JSONResponse(content={"image_files": []}, headers=header)
+
+    # Get 30 images before and after the given image
+    start_index = max(0, index - num_images)
+    end_index = min(len(image_files_with_timestamp), index + num_images + 1)
+
+    images_around = [file_path for _, file_path in image_files_with_timestamp[start_index:end_index]]
+    # print('images_around', images_around)
+
+    return JSONResponse(content={"image_files": images_around}, headers=header)
