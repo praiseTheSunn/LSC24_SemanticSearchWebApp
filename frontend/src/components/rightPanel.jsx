@@ -1,25 +1,20 @@
 import './rightPanel.css'
-import fakeimg from '../assets/bcn.png';
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useSelectedImages } from '../selectedImageContext';
 import imageService from '../services/imageService';
-import LazyLoad from 'react-lazy-load';
+// import LazyLoad from 'react-lazy-load';
 
 import SinglePopup from '../components/Popup/singlePopup';
 import NeighborPopup from '../components/Popup/neighborPopup';
 import ImageInList from './Image/imageInList';
 
 const RightPanel = ({query, filters}) => {
-    const links = [
-        fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
-        // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
-        // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
-        // fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,fakeimg,
-    ]
-    const [imageUrls, setImageUrls] = useState([{
-        srcUrl: "",
-        src: "",
-    }]);
+    const [imageUrls, setImageUrls] = useState([    ]);
+
+    const [activeImageUrls, setActiveImageUrls] = useState([    ]);
+  
+    const containerRef = useRef(null);
+
     const { selectedImages, addSelectedImage, removeSelectedImage, getSize } = useSelectedImages();
 
     const handleImageClick = (imageUrl) => {
@@ -27,90 +22,57 @@ const RightPanel = ({query, filters}) => {
         console.log('clicked',fileName);
         if(selectedImages.includes(fileName)){
             removeSelectedImage(fileName);
-            const updatedImages = images.map((record) => {
+            const updatedImages = imageUrls.map((record) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 0 };
                 }
                 return record;
             });
-            setImages(updatedImages);
+            setImageUrls(updatedImages);
         }else{
             console.log('adding',fileName);
             addSelectedImage(fileName);
-            const updatedImages = images.map((record, i) => {
+            const updatedImages = imageUrls.map((record, i) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 1 };
                 }
                 return record;
             });
-            setImages(updatedImages);
+            setImageUrls(updatedImages);
         }
     }
-
-    const handleImageVisibility = (url, index) => {
-        const response = imageService.getImage(url)
-            .then((response) => {
-                const base64ImageString = btoa(
-                    new Uint8Array(response.data).reduce(
-                        (data, byte) => data + String.fromCharCode(byte),
-                        ''
-                    )
-                );
-
-                const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
-
-                // Parse the filename to extract date and time
-                const fileName = url.split('\\').pop();
-                const date = fileName.slice(0, 4) + '-' + fileName.slice(4, 6) + '-' + fileName.slice(6, 8);
-                const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
-
-                // Add the image data to imageDataUrls
-                // imageDataUrls.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
-
-                setImageUrls(prevImageUrls => {
-                    // Make a copy of the previous state
-                    const newImageUrls = [...prevImageUrls];
-
-                    // Update the copy of state based on previous values
-                    newImageUrls[index] = {
-                        ...newImageUrls[index],
-                        src: imageDataUrl,
-                    };
-
-                    // Return the updated state
-                    return newImageUrls;
-                });
-            })
-            .catch((error) => {
-                console.error('Error fetching image:', error);
-            });
-
-      };
-
-
 
     const handleClick = () => {
         // First HTTP request
         const response2 = imageService.getImages("blah blah blah")
-            .then((response2) => {
+            .then(async (response2) => {
                 // Convert the byte data to a base64-encoded string
                 var urls = response2.data['image_files'];
+                
                 var imageDataUrls = [];
     
                 for (var i = 0; i < urls.length; i++) {
+                    const now = new Date();
+                    const currentTimeString = now.getTime().toString();
                     const data = {
-                        srcUrl: urls[i],
-                        src: "",
+                        path: urls[i],
+                        image: "",
+                        status: 0,
+                        dateInd: currentTimeString + i.toString(),
                     }
+                    
                     imageDataUrls.push(data);
                 }
-                setImageUrls(imageDataUrls);
+                setImageUrls(imageDataUrls)
+                setActiveImageUrls(imageDataUrls.slice(0, 50));
+                
             })
             .catch((error) => {
                 console.error('Error fetching images:', error);
             });
     
         // You can add more code here or handle subsequent actions after the requests
+        
     }
 
     const [viewImage, setViewImage] = useState({image: "", path:""});
@@ -125,6 +87,129 @@ const RightPanel = ({query, filters}) => {
         setViewImage({image: image, path: path});
     }
 
+
+    const [page, setPage] = useState(1);
+    const [isAtBottom, setIsAtBottom] = useState(false);
+
+    const handleScroll = () => {
+        const container = containerRef.current;
+
+        if (container) {
+            // Calculate the scroll position
+            const scrollHeight = container.scrollHeight;
+            const scrollTop = container.scrollTop;
+            const clientHeight = container.clientHeight;
+            console.log('scrollHeight',scrollHeight)
+            console.log('scrollTop',scrollTop)  
+            console.log('clientHeight',clientHeight)
+
+            // Check if the user is at the bottom (you can adjust the threshold if needed)
+            const isBottom = scrollHeight - scrollTop - 100 <= clientHeight;
+            console.log(isBottom)
+
+            setIsAtBottom(isBottom);
+
+            // Trigger a function when the user reaches the bottom
+        }
+    };
+
+    useEffect(() => {
+        const container = containerRef.current;
+
+        if (container) {
+            // Add scroll event listener
+            container.addEventListener('scroll', handleScroll);
+
+            return () => {
+            // Remove scroll event listener on component unmount
+            container.removeEventListener('scroll', handleScroll);
+            };
+        }
+    }, []);
+
+    const fetchImages = async (index, max) => {
+        if (index < max) {
+            // console.log(index, imageUrls)
+            const url = activeImageUrls[index].path;
+            console.log("fetching " + index + "th url: " + url);
+
+            return imageService.getImage(url)
+                .then((response) => {
+                    const base64ImageString = btoa(
+                        new Uint8Array(response.data).reduce(
+                            (data, byte) => data + String.fromCharCode(byte),
+                            ''
+                        )
+                    );
+
+                    const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
+
+                    // Parse the filename to extract date and time
+                    const fileName = url.split('\\').pop();
+                    const date = fileName.slice(0, 4) + '-' + fileName.slice(4, 6) + '-' + fileName.slice(6, 8);
+                    const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
+
+                    // Add the image data to imageDataUrls
+                    // imageDataUrls.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
+
+                    setActiveImageUrls(prevImageUrls => {
+                        // Make a copy of the previous state
+                        const newImageUrls = [...prevImageUrls];
+
+                        // Update the copy of state based on previous values
+                        newImageUrls[index] = {
+                            ...newImageUrls[index],
+                            image: imageDataUrl,
+                            date: date,
+                            time: time,
+                        };
+
+                        return newImageUrls;
+                    });
+
+                    // Recursive call to fetch the next image
+                    return fetchImages(index + 1, max);
+                })
+                .catch((error) => {
+                    console.error('Error fetching image:', error);
+                });
+        } else {
+            // All images fetched, set the state or do other operations
+        }
+    };
+
+    const fetchData = async () => {
+        try {
+
+            var data = imageUrls.slice(page * 50, page * 50 + 50);
+            setActiveImageUrls(prevItems => [...prevItems, ...data]);
+            setPage(prevPage => prevPage + 1);
+
+        } catch (error) {
+        //   setError(error);
+        } finally {
+            setIsAtBottom(false);
+        }
+      };
+
+    useEffect(() => {
+    if (isAtBottom) {
+        fetchData();
+    }
+    }, [isAtBottom]);
+
+    useEffect(() => {
+        if (activeImageUrls.length > 0) {
+            var prevPage = page - 1;
+            if (activeImageUrls[prevPage * 50].image == "") {
+
+                console.log(activeImageUrls[prevPage * 50]);
+                fetchImages(prevPage * 50, prevPage * 50 + 50);
+            }
+        }
+    }, [activeImageUrls])
+
+
     return(
         <div className='right-content-container'>
             {viewImage.path !== "" && <SinglePopup closePopup={closePopup} viewImage={viewImage} openSinggleImage={openSinggleImage} />}
@@ -132,21 +217,13 @@ const RightPanel = ({query, filters}) => {
                 <button className='btn btn-primary submit-button' onClick={handleClick}>Submit</button>
                 <span className='submit-button-text'>Selected: {getSize()}</span>
             </div>
-            <div className='grid-container'>
-            {imageUrls.map((data, index) => (
-                <LazyLoad
-                key={index}
-                height={200} // Set a height for the placeholder
-                offset={100} // Set an offset to trigger the lazy load before the image comes into view
-                once
-                onContentVisible={() => handleImageVisibility(data.srcUrl, index)}
-                >
-                <ImageInList key={index} record={record} index={index} handleImageClick={handleImageClick} openSinggleImage={openSinggleImage}
-                            alt={`no. ${index}`}
-                            src={data.src}
-                />
-                </LazyLoad>
-            ))}
+            <div className='grid-container' ref={containerRef}>
+            {activeImageUrls.map((record, index) => {
+                return <ImageInList key={index} record={record} index={index} 
+                    handleImageClick={handleImageClick} openSinggleImage={openSinggleImage}
+                    setImageUrls={setActiveImageUrls}
+                />;
+                })}
             </div>
         </div>
     )
