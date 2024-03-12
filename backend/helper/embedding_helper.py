@@ -24,7 +24,7 @@ def parse_objects_from_query(query):
 
     # Process our query
     print(query)
-    doc = nlp(query)
+    doc = setup.nlp(query)
 
     # Use blob to find words that are nouns
     blob = TextBlob(doc.text)
@@ -67,8 +67,16 @@ def search_text_query(keyframe_paths, model, text_query: str, mode):
     parsed_location_categories_from_query = []
     all_noun_chunks = parse_objects_from_query(text_query)
     for noun_chunk in all_noun_chunks:
+
         embedding = compute_text_embedding(model, noun_chunk)
+
+        print("embedding dimension: ", embedding.shape)
+        print("faiss dimension: ", setup.object_clip_index.d)
+
+        
         _, object_indices = setup.object_clip_index.search(embedding.cpu().detach().numpy(), 5)
+
+        
         print("Noun chunk: ", noun_chunk)
         print("Matches: ")
         first_match = object_indices[0][0]
@@ -102,17 +110,17 @@ def search_text_query(keyframe_paths, model, text_query: str, mode):
         paths.append(keyframe_paths[idx])
 
     # TODO: filter by location category
-    global loccat_df
     parsed_location_categories_from_query = list(parsed_location_categories_from_query)
     parsed_location_categories_from_query = " ".join(parsed_location_categories_from_query)
     new_paths = []
     for ImageID in paths:
-        location_category = loccat_df[loccat_df['ImageID'] == ImageID]['categories']
+        location_category = setup.loccat_df[setup.loccat_df['ImageID'] == ImageID]['categories']
         if location_category in parsed_location_categories_from_query:
             new_paths.append(ImageID)
     paths = new_paths
 
     # TODO: filter by time
+    # gia dinh la co paths, time_df
         
         
     return paths

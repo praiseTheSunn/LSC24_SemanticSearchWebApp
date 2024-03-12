@@ -54,6 +54,7 @@ app.add_middleware(
 
 #     return {"paths": paths}
     
+# return an image file from url
 @app.get("/image/{file_url:path}")
 async def get_image(file_url: str):
     # file_url = file_url.replace("file://", "")
@@ -64,13 +65,15 @@ async def get_image(file_url: str):
     
     return FileResponse(file_url, media_type='image/jpeg', headers=header)
 
+# return image paths of images that are results from a text query
 @app.get("/query/{query_text}")
-async def get_images(query_text: str):
+async def get_matched_image_paths(query_text: str):
     # file_url = file_url.replace("file://", "")
     print(query_text)
     header = {
         'Access-Control-Allow-Origin': '*'
     }
+    
     image_folder = keyframes_path + '\\201901\\01'
     image_files = glob.glob(image_folder + '/*.jpg')[:1000]  # Get the first 1000 jpg files in the folder
     
