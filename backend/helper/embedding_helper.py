@@ -2,17 +2,15 @@ import torch
 import open_clip
 import settings
 import numpy as np
+from helper import setup
 from textblob import TextBlob
-from setup import object_list, location_category_list, object_df, loccat_df, object_clip_index, git_index, nlp
-# from setup import object_list, location_category_list
-
 import faiss
-clip_index = faiss.read_index(settings.clip_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
-OFFSET_OBJECT_START = 0
-OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)
-OFFSET_LOCATION_START = OFFSET_OBJECT_END
-OFFSET_LOCATION_END = OFFSET_LOCATION_START + len(location_category_list)
-num_results = 10000
+
+# OFFSET_OBJECT_START = 0
+# OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)
+# OFFSET_LOCATION_START = OFFSET_OBJECT_END
+# OFFSET_LOCATION_END = OFFSET_LOCATION_START + len(location_category_list)
+# num_results = 10000
 
 # compute text embedding using CLIP model
 def compute_text_embedding(model, text_query: str):
@@ -56,10 +54,10 @@ def search_text_query(keyframe_paths, model, text_query: str, mode):
 
     # perform semantic search and compute semantic similarities
     if mode == 'caption':
-        semantic_index = git_index
+        semantic_index = setup.git_index
     else:
-        semantic_index = clip_index
-    semantic_similarities, indices = semantic_index.search(text_query_embedding.reshape(1, -1), num_results)             #2 represent top n results required
+        semantic_index = setup.clip_index
+    semantic_similarities, indices = semantic_index.search(text_query_embedding.reshape(1, -1), setup.num_results)             #2 represent top n results required
     semantic_similarities = np.array(semantic_similarities[0], dtype=np.float16)
     semantic_similarities = semantic_similarities / np.max(semantic_similarities)
     indices = np.array(indices[0], dtype=np.int32)
@@ -70,14 +68,14 @@ def search_text_query(keyframe_paths, model, text_query: str, mode):
     all_noun_chunks = parse_objects_from_query(text_query)
     for noun_chunk in all_noun_chunks:
         embedding = compute_text_embedding(model, noun_chunk)
-        _, object_indices = object_clip_index.search(embedding.cpu().detach().numpy(), 5)
+        _, object_indices = setup.object_clip_index.search(embedding.cpu().detach().numpy(), 5)
         print("Noun chunk: ", noun_chunk)
         print("Matches: ")
         first_match = object_indices[0][0]
-        if first_match >= OFFSET_OBJECT_START and first_match < OFFSET_OBJECT_END:
-            parsed_objects_from_query.append(object_list[first_match - OFFSET_OBJECT_START])
+        if first_match >= setup.OFFSET_OBJECT_START and first_match < setup.OFFSET_OBJECT_END:
+            parsed_objects_from_query.append(setup.object_list[first_match - setup.OFFSET_OBJECT_START])
         else:
-            parsed_location_categories_from_query.extend([location_category_list[i - OFFSET_LOCATION_START] for i in object_indices[0]])
+            parsed_location_categories_from_query.extend([setup.location_category_list[i - setup.OFFSET_LOCATION_START] for i in object_indices[0]])
         print()
     parsed_objects_from_query = set(parsed_objects_from_query)
     parsed_location_categories_from_query = set(parsed_location_categories_from_query)
@@ -88,7 +86,7 @@ def search_text_query(keyframe_paths, model, text_query: str, mode):
         ImageID = keyframe_paths[idx]
         object_similarity = 0.01
         object_matches = 0
-        objects_from_image = object_df[object_df['ImageID'] == ImageID]['Tags']
+        objects_from_image = setup.object_df[setup.object_df['ImageID'] == ImageID]['Tags']
         for object in parsed_objects_from_query:
             if object in objects_from_image:
                 object_matches += 1

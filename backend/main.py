@@ -29,7 +29,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 
 print("setting up!")
-# device, model, preprocess, keyframe_paths, index = setup()
+from helper import setup
 print("setup done!")
 
 app = FastAPI()
