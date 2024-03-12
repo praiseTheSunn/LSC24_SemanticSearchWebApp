@@ -132,6 +132,6 @@ def get_neighbors(file_url: str):
     end_index = min(len(image_files_with_timestamp), index + num_images + 1)
 
     images_around = [file_path for _, file_path in image_files_with_timestamp[start_index:end_index]]
-    print('images_around', images_around)
+    # print('images_around', images_around)
 
     return JSONResponse(content={"image_files": images_around}, headers=header)

@@ -2,8 +2,12 @@ import './imageInList.css'
 import view_icon from '../../assets/view_icon.png'
 
 const ImageInList = ({record, index, handleImageClick, openSinggleImage}) => {
+    const has_origin = record['is_origin'] !== undefined ? 1 : 0;
+    console.log('has_origin', has_origin, record.is_origin, record.path);
     return(
-        <div className={`img-container ${record.status === 1 ? 'clicked' : ''}`} key={index}>
+        <div className={`img-container ${record.status === 1 ? 'clicked' : ''}`} key={index}
+            style={{backgroundColor: has_origin && record.is_origin === 1 ? '#ff0000' : ''}}
+        >
             <div className='img-wrapper'>
                 <div className='img-info'>
                     <span>{record.date}</span>

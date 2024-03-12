@@ -20,8 +20,12 @@ export const SelectedImagesProvider = ({ children }) => {
         return selectedImages.length;
     }
 
+    const removeAllSelected = () => {
+        setSelectedImages([]);
+    }
+
     return (
-        <SelectedImagesContext.Provider value={{ selectedImages, addSelectedImage, removeSelectedImage , getSize}}>
+        <SelectedImagesContext.Provider value={{ selectedImages, addSelectedImage, removeSelectedImage , getSize, removeAllSelected}}>
         {children}
         </SelectedImagesContext.Provider>
     );

@@ -27,7 +27,7 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
             const fetchImages = (index) => {
                 if (index < 50) {
                     var url = urls[index];
-                    console.log("fetching " + index + "th url: " + url);
+                    // console.log("fetching " + index + "th url: " + url);
 
                     return imageService.getImage(url)
                         .then((response) => {
@@ -44,6 +44,7 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
                             const fileName = url.split('\\').pop();
                             const date = fileName.slice(0, 4) + '-' + fileName.slice(4, 6) + '-' + fileName.slice(6, 8);
                             const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
+                            url = url.replace(/\//g, '\\');
 
                             // Add the image data to imageDataUrls
                             imageDataUrls.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });

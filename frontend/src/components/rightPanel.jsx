@@ -9,7 +9,7 @@ import ImageInList from './Image/imageInList';
 
 const RightPanel = ({query, filters}) => {
     const [images, setImages] = useState([]);
-    const { selectedImages, addSelectedImage, removeSelectedImage, getSize } = useSelectedImages();
+    const { selectedImages, addSelectedImage, removeSelectedImage, getSize, removeAllSelected } = useSelectedImages();
 
 
     const handleImageClick = (imageUrl) => {
@@ -37,61 +37,6 @@ const RightPanel = ({query, filters}) => {
         }
     }
 
-    // const handleClick = () => {        
-
-
-    //     const response2 = imageService.getImages("blah blah blah")
-    //     .then(
-    //     (response2) => {
-    //         // Convert the byte data to a base64-encoded string
-    //         var urls = response2.data['image_files']
-    //         var imageDataUrls = []
-
-    //         // for (var i = 0; i < urls.length; i++) {
-    //         for (var i = 0; i < 10; i++) {
-    //             var url = urls[i]
-    //             console.log("fetching " + i + "th url: " + url)
-
-    //             const response = imageService.getImage(url)
-    //             .then(
-    //             (response) => {
-    //                 // Convert the byte data to a base64-encoded string
-    //                 const base64ImageString = btoa(
-    //                     new Uint8Array(response.data).reduce(
-    //                     (data, byte) => data + String.fromCharCode(byte),
-    //                     ''
-    //                     )
-    //                 );
-
-    //                 // Create the data URL for the image
-    //                 const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
-
-    //                 imageDataUrls.push(
-    //                     { src: imageDataUrl, status: i }
-    //                 )
-    //             })
-    //             .catch((error) => {
-    //                 console.error('Error fetching image:', error);
-    //             });
-    //         }
-    //         setImages(imageDataUrls);
-    //     })
-    //     .catch((error) => {
-    //         console.error('Error fetching images:', error);
-    //     });
-
-    //     // const response = imageService.getImage("C:/Users/ADMIN/Downloads/unnamed.png")
-    //     // .then(
-    //     // (response) => {
-    //     //     console.log(response);
-    //     //     // Convert the byte data to a base64-encoded string
-    //     //     const base64ImageString = btoa(
-    //     //         new Uint8Array(response.data).reduce(
-    //     //         (data, byte) => data + String.fromCharCode(byte),
-    //     //         ''
-    //     //         )
-    //     //     );
-    // }
 
     const handleClick = () => {
         // First HTTP request
@@ -168,6 +113,10 @@ const RightPanel = ({query, filters}) => {
             <div className='submit-button-area'>
                 <button className='btn btn-primary submit-button' onClick={handleClick}>Submit</button>
                 <span className='submit-button-text'>Selected: {getSize()}</span>
+                <button className='btn btn-danger' onClick={() => removeAllSelected()} style={{marginLeft: '20px'}}>Clear</button>
+                <div className='selected-images-area'>
+                    
+                </div>
             </div>
             <div className='grid-container'>
             {images.map((record, index) => (
