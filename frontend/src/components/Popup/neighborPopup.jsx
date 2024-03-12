@@ -71,9 +71,9 @@ const NeighborPopup = ({viewImage, closePopup, openSinggleImage}) => {
 
     const { selectedImages, addSelectedImage, removeSelectedImage } = useSelectedImages();
 
-    const handleImageClick = (imageUrl) => {
+    const handleImageClick = (imageUrl, image) => {
         const fileName = imageUrl.split('\\').pop();
-        console.log('clicked',fileName);
+        // console.log('clicked',fileName);
         if(selectedImages.includes(fileName)){
             removeSelectedImage(fileName);
             const updatedImages = neighbors.map((record) => {
@@ -84,8 +84,8 @@ const NeighborPopup = ({viewImage, closePopup, openSinggleImage}) => {
             });
             setNeighbors(updatedImages);
         }else{
-            console.log('adding',fileName);
-            addSelectedImage(fileName);
+            // console.log('adding',fileName);
+            addSelectedImage(fileName, image);
             const updatedImages = neighbors.map((record, i) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 1 };

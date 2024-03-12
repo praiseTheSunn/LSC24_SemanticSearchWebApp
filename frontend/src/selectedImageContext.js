@@ -8,12 +8,13 @@ export const useSelectedImages = () => useContext(SelectedImagesContext);
 export const SelectedImagesProvider = ({ children }) => {
     const [selectedImages, setSelectedImages] = useState([]);
 
-    const addSelectedImage = (imageUrl) => {
-        setSelectedImages((prevImages) => [...prevImages, imageUrl]);
+    const addSelectedImage = (imageUrl, image) => {
+        console.log('adding',imageUrl, image);
+        setSelectedImages((prevImages) => [...prevImages, {'url': imageUrl, 'image': image}]);
     };
 
     const removeSelectedImage = (imageUrl) => {
-        setSelectedImages((prevImages) => prevImages.filter((img) => img !== imageUrl));
+        setSelectedImages((prevImages) => prevImages.filter((img) => img.url !== imageUrl));
     };
 
     const getSize = () => {

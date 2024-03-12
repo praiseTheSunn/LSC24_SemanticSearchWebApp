@@ -27,4 +27,39 @@
     padding-right: 0px;
     overflow-y: scroll;
     max-height: 600px;
-  }
+}
+
+.right-content-container .selected-images-area{
+    width: 900px;
+    /* background-color: aqua; */
+    height: 70px;
+    margin-left: 20px;
+    padding: 5px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    display: flex;
+    flex-direction: row;
+    box-shadow: 4px 0px 20px 0px #b0b0b0;
+    border-radius: 10px;
+}
+
+.right-content-container .thumbnail-wrapper{
+    width: 80px;
+    margin-left: 10px;
+    height: 100%;
+    position: relative;
+}
+ .selected-images-area img{
+    width: 70px;
+    max-height: 50px;
+
+}
+
+.right-content-container .close-icon{
+    position: absolute;
+    top: -4px;
+    right: 0px;
+    height: 15px;
+    width: 15px;
+    cursor: pointer;
+}
