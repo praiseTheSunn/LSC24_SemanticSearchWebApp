@@ -50,20 +50,20 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
 
     const handleSelectClick = () => {
         const fileName = viewImage.path.split('\\').pop();
-        console.log('selectedImage', fileName);
+        // console.log('selectedImage', fileName);
         if(selectedImages.includes(fileName)){
             removeSelectedImage(fileName);
             viewImage.status = 0;
         }else{
-            console.log('adding',fileName);
-            addSelectedImage(fileName);
+            // console.log('adding',fileName);
+            addSelectedImage(fileName, viewImage.image);
             viewImage.status = 1;
         }
     }
 
     const handleImageClick = (imageUrl) => {
         const fileName = imageUrl.split('\\').pop();
-        console.log('clicked',fileName);
+        // console.log('clicked',fileName);
         if(selectedImages.includes(fileName)){
             removeSelectedImage(fileName);
             const updatedImages = similarImages.map((record) => {
@@ -74,8 +74,8 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
             });
             setSimilarImages(updatedImages);
         }else{
-            console.log('adding',fileName);
-            addSelectedImage(fileName);
+            // console.log('adding',fileName);
+            addSelectedImage(fileName, viewImage.image);
             const updatedImages = similarImages.map((record, i) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 1 };
@@ -214,10 +214,14 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
 
     return (
         <div className='single-popup-container'>
-            {viewNeighbors && <NeighborPopup openSinggleImage={openSinggleImage} closePopup={() => setViewNeighbors(false)} image={viewImage} />}
+            {viewNeighbors && <NeighborPopup openSinggleImage={openSinggleImage} closePopup={() => setViewNeighbors(false)} viewImage={viewImage} />}
             <div className='popup-content-background row'>
                 <div className='single-popup-image-container col'>
                     <div className='single-img-wrapper'>
+                        <div className='img-info'>
+                            <span>{viewImage.date}</span>
+                            <span>{viewImage.time}</span>
+                        </div>
                         <img src={viewImage.image} alt='single-popup'/>
                     </div>
                     

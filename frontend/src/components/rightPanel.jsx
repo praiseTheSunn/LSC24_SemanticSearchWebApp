@@ -5,7 +5,7 @@ import imageService from '../services/imageService';
 // import LazyLoad from 'react-lazy-load';
 
 import SinglePopup from '../components/Popup/singlePopup';
-import NeighborPopup from '../components/Popup/neighborPopup';
+import close_icon from '../assets/close.png';
 import ImageInList from './Image/imageInList';
 
 const RightPanel = ({query, filters}) => {
@@ -15,11 +15,11 @@ const RightPanel = ({query, filters}) => {
   
     const containerRef = useRef(null);
 
-    const { selectedImages, addSelectedImage, removeSelectedImage, getSize } = useSelectedImages();
+    const { selectedImages, addSelectedImage, removeSelectedImage, getSize, removeAllSelected } = useSelectedImages();
 
-    const handleImageClick = (imageUrl) => {
+    const handleImageClick = (imageUrl, image) => {
         const fileName = imageUrl.split('\\').pop();
-        console.log('clicked',fileName);
+        // console.log('clicked',fileName);
         if(selectedImages.includes(fileName)){
             removeSelectedImage(fileName);
             const updatedImages = imageUrls.map((record) => {
@@ -30,8 +30,8 @@ const RightPanel = ({query, filters}) => {
             });
             setImageUrls(updatedImages);
         }else{
-            console.log('adding',fileName);
-            addSelectedImage(fileName);
+            // console.log('adding',fileName);
+            addSelectedImage(fileName, image);
             const updatedImages = imageUrls.map((record, i) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 1 };
@@ -75,16 +75,28 @@ const RightPanel = ({query, filters}) => {
         
     }
 
-    const [viewImage, setViewImage] = useState({image: "", path:""});
+    // const [viewImage, setViewImage] = useState({image: "", path:""});
+    
+    
+    // const closePopup = () => {
+    //     console.log('closePopup');
+    //     setViewImage({image :"", path: ""});
+    // }
+
+    // const openSinggleImage = (image, path) => {
+    //     setViewImage({image: image, path: path});
+    // }
+
+    const [viewImage, setViewImage] = useState({image: "", path:"", date:"", time:""});
     
     
     const closePopup = () => {
-        console.log('closePopup');
+        // console.log('closePopup');
         setViewImage({image :"", path: ""});
     }
 
-    const openSinggleImage = (image, path) => {
-        setViewImage({image: image, path: path});
+    const openSinggleImage = (image, path, date, time) => {
+        setViewImage({image: image, path: path, date: date, time: time});
     }
 
 
@@ -216,6 +228,16 @@ const RightPanel = ({query, filters}) => {
             <div className='submit-button-area'>
                 <button className='btn btn-primary submit-button' onClick={handleClick}>Submit</button>
                 <span className='submit-button-text'>Selected: {getSize()}</span>
+                <button className='btn btn-danger' onClick={() => removeAllSelected()} style={{marginLeft: '20px'}}>Clear</button>
+                <div className='selected-images-area'>
+                    {selectedImages.map((record, index) => (
+                        <div className='thumbnail-wrapper' key={index}>
+                            <img key={index} src={record.image} alt={record.url} />
+                            <img src={close_icon} alt='close' className='close-icon' onClick={() => removeSelectedImage(record.url)}/>
+                        </div>
+                        
+                    ))}
+                </div>
             </div>
             <div className='grid-container' ref={containerRef}>
             {activeImageUrls.map((record, index) => {

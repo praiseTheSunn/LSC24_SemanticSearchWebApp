@@ -15,10 +15,16 @@ const getSimilarImages = (url) => {
     return http.get(`/similars/${url}`);
 }
 
+const getNeighbors = (url) => {
+    console.log('neighbors', url);
+    return http.get(`/neighbors/${url}`);
+}
+
 const imageService = {
     getImage,
     getImages,
-    getSimilarImages
+    getSimilarImages,
+    getNeighbors
 };
 
 export default imageService;
