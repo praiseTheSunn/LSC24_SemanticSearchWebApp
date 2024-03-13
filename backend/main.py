@@ -94,7 +94,7 @@ def get_neighbors(file_url: str):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    num_images = 30
+    num_images = 200
 
     # List all files in the folder
     folder_path = os.path.dirname(file_url)

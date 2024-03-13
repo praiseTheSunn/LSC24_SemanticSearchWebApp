@@ -143,7 +143,7 @@ const RightPanel = ({query, filters}) => {
         if (index < max) {
             // console.log(index, imageUrls)
             const url = activeImageUrls[index].path;
-            console.log("fetching " + index + "th url: " + url);
+            // console.log("fetching " + index + "th url: " + url);
 
             return imageService.getImage(url)
                 .then((response) => {
@@ -214,8 +214,7 @@ const RightPanel = ({query, filters}) => {
         if (activeImageUrls.length > 0) {
             var prevPage = page - 1;
             if (activeImageUrls[prevPage * 50].image == "") {
-
-                console.log(activeImageUrls[prevPage * 50]);
+                // console.log(activeImageUrls[prevPage * 50]);
                 fetchImages(prevPage * 50, prevPage * 50 + 50);
             }
         }

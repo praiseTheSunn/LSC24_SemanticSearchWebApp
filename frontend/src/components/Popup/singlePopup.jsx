@@ -154,7 +154,7 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
         if (index < max) {
             // console.log(index, imageUrls)
             const url = activeSimilarImages[index].path;
-            console.log("fetching " + index + "th url: " + url);
+            // console.log("fetching " + index + "th url: " + url);
 
             return imageService.getImage(url)
                 .then((response) => {
