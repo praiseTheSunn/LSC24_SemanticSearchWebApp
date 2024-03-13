@@ -17,21 +17,45 @@ print("loading keyframe paths")
 keyframe_paths = sorted(glob.glob(os.path.join(settings.keyframes_path, "*/*/*.jpg")))
 print(f"Done loading keyframe paths in {time.time() - start_time} seconds.\n")
 
-print("loading clip model")
-model, _, preprocess = open_clip.create_model_and_transforms('ViT-H/14', pretrained=settings.clip_model_path) 
-print(f"Done loading clip model in {time.time() - start_time} seconds.\n")
+# print("loading clip model")
+# model, _, preprocess = open_clip.create_model_and_transforms('ViT-H/14', pretrained=settings.clip_model_path) 
+# print(f"Done loading clip model in {time.time() - start_time} seconds.\n")
 
-print("loading clip index")
-clip_index = faiss.read_index(settings.clip_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
-print(f"Done loading clip index in {time.time() - start_time} seconds.\n")
+# print("loading clip index")
+# clip_index = faiss.read_index(settings.clip_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+# print(f"Done loading clip index in {time.time() - start_time} seconds.\n")
+
+# print("loading git index")
+# git_index = faiss.read_index(settings.git_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+# print(f"Done loading git index in {time.time() - start_time} seconds.\n")
+
+# print("loading object clip index")
+# object_clip_index = faiss.read_index(settings.object_clip_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+# print(f"Done loading clip model in {time.time() - start_time} seconds.\n")
+
+print("loading blip2 model")
+from torch import hub
+hub.set_dir(settings.blip2_model_path)
+import torch
+from lavis.models import load_model_and_preprocess
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+model, vis_processors, txt_processors = load_model_and_preprocess(name="blip2_feature_extractor", model_type="pretrain", is_eval=True, device=device)
+print(f"Done loading blip2 model in {time.time() - start_time} seconds.\n")
+
+print("loading blip2 index")
+blip2_index = faiss.read_index(settings.blip2_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+print(f"Done loading blip2 index in {time.time() - start_time} seconds.\n")
 
 print("loading git index")
 git_index = faiss.read_index(settings.git_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
 print(f"Done loading git index in {time.time() - start_time} seconds.\n")
 
-print("loading object clip index")
-object_clip_index = faiss.read_index(settings.object_clip_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
-print(f"Done loading clip model in {time.time() - start_time} seconds.\n")
+print("loading object blip2 index")
+object_blip2_index = faiss.read_index(settings.object_blip2_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+print(f"Done loading object blip2 index in {time.time() - start_time} seconds.\n")
+
+
+
 
 print("loading nlp parser")
 nlp = spacy.load("en_core_web_sm")
@@ -44,8 +68,8 @@ print(f"Done loading object and location category list in {time.time() - start_t
 
 print("loading metadata for object and location category")
 metadata_df = pd.read_csv(settings.metadata_path)
-object_df = metadata_df[['ImageID', 'Tags']]
-loccat_df = metadata_df[['ImageID', 'categories']]    
+object_dict = {row['ImageID']: set(row['object'].split(',')) for _, row in metadata_df.iterrows() if not pd.isna(row['object'])}
+loccat_dict = {row['ImageID']: set(row['categories'].split(',')) for _, row in metadata_df.iterrows() if not pd.isna(row['categories'])}
 print(f"Done loading metadata in {time.time() - start_time} seconds.\n")
 
 OFFSET_OBJECT_START = 0
