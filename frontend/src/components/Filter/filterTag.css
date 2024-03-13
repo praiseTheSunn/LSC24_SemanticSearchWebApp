@@ -1,0 +1,62 @@
+.left-filter-container .filter-tag-container{
+    height: fit-content;
+    width: 100%;
+    display: block;
+}
+
+.left-filter-container .filter-tag-container label{
+    color: gray;
+    font-size: small;
+}
+
+.left-filter-container .filter-tag-container .tag-content{
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    padding-right: 3px;
+}
+
+.left-filter-container .filter-tag-container .tag-value{
+    width: 100%;
+    text-wrap: normal;
+    word-break:break-all;
+}
+
+.left-filter-container .filter-tag-container .tag-content .icon-container{
+    display: flex;
+    flex-direction: row;
+    height: 28px;
+    width: 15px;
+    align-items: center;
+    margin-left: 3px;
+}
+
+.left-filter-container .filter-tag-container .icon-container>div{
+    width: 10px;
+    height: 10px;
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+.left-filter-container .filter-tag-container .enable-icon{
+    background-color: rgb(29, 162, 3);
+}
+
+
+.left-filter-container .filter-tag-container .disable-icon{
+    background-color: rgb(211, 0, 0);
+}
+
+.left-filter-container .filter-tag-container .green{
+    background-color: rgb(170, 247, 155);
+}
+
+.left-filter-container .filter-tag-container .red{
+    background-color: rgb(253, 174, 174);
+}
+
+.left-filter-container .clear-filter-button{
+    position: absolute;
+    right: 10px;
+}
+  
