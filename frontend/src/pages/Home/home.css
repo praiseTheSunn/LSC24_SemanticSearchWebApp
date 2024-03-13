@@ -1,0 +1,9 @@
+.home-main-container{
+    display: flex;
+    flex-direction: row;
+    height: 100%;
+    width: 100%;
+    min-height: 200px;
+    min-width: 1500px;
+    overflow: hidden;
+}
