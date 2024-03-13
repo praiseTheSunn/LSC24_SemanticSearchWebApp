@@ -1,21 +1,23 @@
 import './rightPanel.css'
 import fakeimg from '../assets/bcn.png';
 import React, { useEffect, useState } from 'react';
-import { useSelectedImages } from '../selectedImageContext';
+import { useSelectedImages } from '../contexts/selectedImageContext';
 import imageService from '../services/imageService';
 import SinglePopup from '../components/Popup/singlePopup';
 import close_icon from '../assets/close.png';
 import ImageInList from './Image/imageInList';
+import { usePopUp } from '../contexts/popUpContext';
 
 const RightPanel = ({query, filters}) => {
     const [images, setImages] = useState([]);
     const { selectedImages, addSelectedImage, removeSelectedImage, getSize, removeAllSelected } = useSelectedImages();
-
+    const {similarPopUp, setSimilarPopUp} = usePopUp();
 
     const handleImageClick = (imageUrl, image) => {
         const fileName = imageUrl.split('\\').pop();
-        // console.log('clicked',fileName);
-        if(selectedImages.includes(fileName)){
+        console.log('clicked',fileName);
+        console.log('selectedImages',selectedImages);
+        if (selectedImages.some(image => image.url.includes(fileName))) {
             removeSelectedImage(fileName);
             const updatedImages = images.map((record) => {
                 if (record.path === imageUrl) {
@@ -24,7 +26,7 @@ const RightPanel = ({query, filters}) => {
                 return record;
             });
             setImages(updatedImages);
-        }else{
+        } else {
             // console.log('adding',fileName);
             addSelectedImage(fileName, image);
             const updatedImages = images.map((record, i) => {
@@ -97,19 +99,15 @@ const RightPanel = ({query, filters}) => {
 
     const [viewImage, setViewImage] = useState({image: "", path:"", date:"", time:""});
     
-    
-    const closePopup = () => {
-        // console.log('closePopup');
-        setViewImage({image :"", path: ""});
-    }
 
     const openSinggleImage = (image, path, date, time) => {
         setViewImage({image: image, path: path, date: date, time: time});
+        setSimilarPopUp(true);
     }
 
     return(
         <div className='right-content-container'>
-            {viewImage.path !== "" && <SinglePopup closePopup={closePopup} viewImage={viewImage} openSinggleImage={openSinggleImage} />}
+            {similarPopUp && <SinglePopup  viewImage={viewImage} openSinggleImage={openSinggleImage} />}
             <div className='submit-button-area'>
                 <button className='btn btn-primary submit-button' onClick={handleClick}>Submit</button>
                 <span className='submit-button-text'>Selected: {getSize()}</span>

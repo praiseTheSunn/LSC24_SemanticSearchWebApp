@@ -9,7 +9,7 @@ export const SelectedImagesProvider = ({ children }) => {
     const [selectedImages, setSelectedImages] = useState([]);
 
     const addSelectedImage = (imageUrl, image) => {
-        console.log('adding',imageUrl, image);
+        console.log('adding',imageUrl);
         setSelectedImages((prevImages) => [...prevImages, {'url': imageUrl, 'image': image}]);
     };
 

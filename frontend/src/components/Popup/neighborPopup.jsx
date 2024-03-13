@@ -4,10 +4,11 @@ import bcn from '../../assets/bcn.png'
 import ImageInList from '../Image/imageInList'
 import { useEffect, useState } from 'react'
 import imageService from '../../services/imageService'
-import { useSelectedImages } from '../../selectedImageContext'
+import { useSelectedImages } from '../../contexts/selectedImageContext'
+import { usePopUp } from '../../contexts/popUpContext'
 
-const NeighborPopup = ({viewImage, closePopup, openSinggleImage}) => {
-    
+const NeighborPopup = ({viewImage, openSinggleImage}) => {
+    const {setNeighborPopUp} = usePopUp();
     const [neighbors, setNeighbors] = useState([]);
     useEffect(() => {
         const response2 = imageService.getNeighbors(viewImage.path)
@@ -21,7 +22,7 @@ const NeighborPopup = ({viewImage, closePopup, openSinggleImage}) => {
             const fetchImages = (index) => {
                 if (index < 60) {
                     var url = urls[index];
-                    console.log("fetching " + index + "th url: " + url);
+                    // console.log("fetching " + index + "th url: " + url);
 
                     return imageService.getImage(url)
                         .then((response) => {
@@ -42,7 +43,7 @@ const NeighborPopup = ({viewImage, closePopup, openSinggleImage}) => {
                             url = url.replace(/\//g, '\\');
 
                             const is_origin = url === viewImage.path ? 1 : 0;
-                            console.log('is_origin', is_origin, url, viewImage.path);
+                            // console.log('is_origin', is_origin, url, viewImage.path);
                             // Add the image data to imageDataUrls
                             imageDataUrls.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time ,'is_origin': is_origin});
                             
@@ -104,14 +105,14 @@ const NeighborPopup = ({viewImage, closePopup, openSinggleImage}) => {
                     <div className='neighbor-images-list-wrapper'>
                         <div className='neighbor-images-list'>
                             {neighbors.map((image, index) => {
-                                return <ImageInList record={image} index={index} handleImageClick={handleImageClick} openSinggleImage={openSinggleImage}/>;
+                                return <ImageInList key={index} record={image} index={index} handleImageClick={handleImageClick} openSinggleImage={openSinggleImage}/>;
                             })}
                         </div>
                     </div>
                     
                 </div>
-                <div className='close-button-container' onClick={closePopup}>
-                    <img src={closeIcon} className='close-popup-button' onClick={closePopup}/>
+                <div className='close-button-container'>
+                    <img src={closeIcon} className='close-popup-button' onClick={() => setNeighborPopUp(false)}/>
                 </div>
                 
             </div>

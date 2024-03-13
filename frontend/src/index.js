@@ -3,11 +3,14 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { PopUpProvider } from './contexts/popUpContext';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <PopUpProvider>
+      <App />
+    </PopUpProvider>
   </React.StrictMode>
 );
 

@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import './home.css';
 import LeftPanel from '../../components/leftPanel';
 import RightPanel from '../../components/rightPanel';
-import { SelectedImagesProvider } from '../../selectedImageContext';
+import { SelectedImagesProvider } from '../../contexts/selectedImageContext';
 
 
 const Home = ({selectedFilters}) => {

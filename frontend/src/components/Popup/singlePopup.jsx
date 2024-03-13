@@ -5,11 +5,11 @@ import NeighborPopup from './neighborPopup'
 import React, { useState, useEffect } from 'react';
 import imageService from '../../services/imageService';
 import ImageInList from '../Image/imageInList';
-import { useSelectedImages } from '../../selectedImageContext';
+import { useSelectedImages } from '../../contexts/selectedImageContext';
+import { usePopUp } from '../../contexts/popUpContext';
 
-const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
-
-    const [viewNeighbors, setViewNeighbors] = useState(false);
+const SinglePopup = ({viewImage, openSinggleImage}) => {
+    const { setSimilarPopUp, neighborPopUp, setNeighborPopUp } = usePopUp();
 
     const [similarImages, setSimilarImages] = useState([]);
 
@@ -113,7 +113,7 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
 
     return (
         <div className='single-popup-container'>
-            {viewNeighbors && <NeighborPopup openSinggleImage={openSinggleImage} closePopup={() => setViewNeighbors(false)} viewImage={viewImage} />}
+            {neighborPopUp && <NeighborPopup openSinggleImage={openSinggleImage} viewImage={viewImage} />}
             <div className='popup-content-background row'>
                 <div className='single-popup-image-container col'>
                     <div className='single-img-wrapper'>
@@ -125,7 +125,7 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
                     </div>
                     
                     <div className='button-container'>
-                        <button className='btn btn-primary' onClick={() => {setViewNeighbors(true)}}>Neighbors</button>
+                        <button className='btn btn-primary' onClick={() => {setNeighborPopUp(true)}}>Neighbors</button>
                         <button style={{backgroundColor : viewImage.status === 1 ? 'red' :''}} className='btn btn-success' onClick={() => handleSelectClick()}>{viewImage.status === 1 ? 'Unselct' :'Select'}</button>
                     </div>
                 </div>
@@ -140,8 +140,8 @@ const SinglePopup = ({viewImage, closePopup, openSinggleImage}) => {
                     </div>
                     
                 </div>
-                <div className='close-button-container' onClick={closePopup}>
-                    <img src={closeIcon} className='close-popup-button' onClick={closePopup}/>
+                <div className='close-button-container'>
+                    <img src={closeIcon} className='close-popup-button' onClick={() => setSimilarPopUp(false)}/>
                 </div>
                 
             </div>
