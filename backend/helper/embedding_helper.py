@@ -7,6 +7,7 @@ from helper import setup
 from textblob import TextBlob
 import faiss
 from PIL import Image
+from query_date_time import *
 
 # OFFSET_OBJECT_START = 0
 # OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)
@@ -165,5 +166,6 @@ def search(keyframe_paths, model, mode, text_query: None, image_query_path: None
     # gia dinh la co paths, time_df
     
         
-        
+    new_new_paths = query_time_date_image(setup.time_df, text_query, paths)
+    paths = new_new_paths
     return paths

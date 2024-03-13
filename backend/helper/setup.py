@@ -70,6 +70,9 @@ print("loading metadata for object and location category")
 metadata_df = pd.read_csv(settings.metadata_path)
 object_dict = {row['ImageID']: set(row['object'].split(',')) for _, row in metadata_df.iterrows() if not pd.isna(row['object'])}
 loccat_dict = {row['ImageID']: set(row['categories'].split(',')) for _, row in metadata_df.iterrows() if not pd.isna(row['categories'])}
+# object_df = metadata_df[['ImageID', 'Tags']]
+# loccat_df = metadata_df[['ImageID', 'categories']]    
+time_df = metadata_df[['ImageID', 'local_date', 'local_time']]
 print(f"Done loading metadata in {time.time() - start_time} seconds.\n")
 
 OFFSET_OBJECT_START = 0
