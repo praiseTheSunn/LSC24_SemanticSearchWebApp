@@ -46,6 +46,7 @@ print("loading metadata for object and location category")
 metadata_df = pd.read_csv(settings.metadata_path)
 object_df = metadata_df[['ImageID', 'Tags']]
 loccat_df = metadata_df[['ImageID', 'categories']]    
+time_df = metadata_df[['ImageID', 'local_date', 'local_time']]
 print(f"Done loading metadata in {time.time() - start_time} seconds.\n")
 
 OFFSET_OBJECT_START = 0
