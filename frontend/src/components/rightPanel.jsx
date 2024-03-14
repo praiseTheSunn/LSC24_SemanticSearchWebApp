@@ -147,7 +147,7 @@ const RightPanel = ({query, filters}) => {
 
                     // Parse the filename to extract date and time
                     const fileName = url.split('\\').pop();
-                    const date = fileName.slice(0, 4) + '-' + fileName.slice(4, 6) + '-' + fileName.slice(6, 8);
+                    const date = url.split('\\').slice(-3, -1).join('-').replace(/(\d{4})(\d{2})-(\d{2})/, '$1-$2-$3');
                     const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
 
                     // Add the image data to imageDataUrls
