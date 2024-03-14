@@ -317,9 +317,7 @@ def query_date_image(time_dict, text, paths):
 
     new_paths = []
     image_ids = np.array([path[-23:] for path in paths])
-    print(image_ids[:10])
     for image_id, path in zip(image_ids, paths):  
-        print(image_id)
         local_date = time_dict[image_id][0]
         if isinstance(off_date, list):
             if local_date >= int(off_date[0]) and local_date <= int(off_date[1]):
@@ -487,7 +485,6 @@ def query_time_image(time_dict, text, paths):
 
     for image_id, path in zip(image_ids, paths):  
         local_time = time_dict[image_id][1]
-        print(local_time)
         if local_time >= beg_end[0] and local_time <= beg_end[1]:
             new_paths.append(path)
     return new_paths
