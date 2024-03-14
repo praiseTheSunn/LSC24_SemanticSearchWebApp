@@ -51,7 +51,7 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
     const handleSelectClick = () => {
         const fileName = viewImage.path.split('\\').pop();
         // console.log('selectedImage', fileName);
-        if(selectedImages.includes(fileName)){
+        if(selectedImages.some(image => image.url.includes(fileName))){
             removeSelectedImage(fileName);
             viewImage.status = 0;
         }else{
@@ -61,10 +61,11 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
         }
     }
 
-    const handleImageClick = (imageUrl) => {
+    const handleImageClick = (imageUrl, m_img) => {
         const fileName = imageUrl.split('\\').pop();
         // console.log('clicked',fileName);
-        if(selectedImages.includes(fileName)){
+        console.log('selectedImages',selectedImages);
+        if(selectedImages.some(image => image.url.includes(fileName))){
             removeSelectedImage(fileName);
             const updatedImages = similarImages.map((record) => {
                 if (record.path === imageUrl) {
@@ -75,8 +76,8 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
             setSimilarImages(updatedImages);
         }else{
             // console.log('adding',fileName);
-            addSelectedImage(fileName, viewImage.image);
-            const updatedImages = similarImages.map((record, i) => {
+            addSelectedImage(fileName, m_img);
+            const updatedImages = similarImages.map((record) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 1 };
                 }

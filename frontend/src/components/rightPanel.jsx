@@ -35,7 +35,7 @@ const RightPanel = ({query, filters}) => {
         }else{
             // console.log('adding',fileName);
             addSelectedImage(fileName, image);
-            const updatedImages = imageUrls.map((record, i) => {
+            const updatedImages = imageUrls.map((record) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 1 };
                 }

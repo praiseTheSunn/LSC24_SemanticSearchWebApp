@@ -107,7 +107,7 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
     const handleImageClick = (imageUrl, image) => {
         const fileName = imageUrl.split('\\').pop();
         // console.log('clicked',fileName);
-        if(selectedImages.includes(fileName)){
+        if(selectedImages.some(image => image.url.includes(fileName))){
             removeSelectedImage(fileName);
             const updatedImages = neighbors.map((record) => {
                 if (record.path === imageUrl) {
