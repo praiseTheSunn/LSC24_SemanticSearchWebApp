@@ -3,6 +3,8 @@ import re
 import datetime
 from collections import OrderedDict
 import calendar
+import numpy as np
+from helper import setup
 nlp = spacy.load('en_core_web_sm')
 
 def date_to_str(datetime_obj):
@@ -309,22 +311,26 @@ def official_date(text):
         else:
             return find_period
 
-def query_date_image(df_time, text, ImageIDs):
-    new_ImageIDs = []
+def query_date_image(time_dict, text, paths):
+
     off_date = official_date(text)
-    for ImageID in ImageIDs:
-        local_date = df_time.loc[df_time['ImageID'] == ImageID, 'local_date'].values[0]
-        print(local_date)
+
+    new_paths = []
+    image_ids = np.array([path[-23:] for path in paths])
+    print(image_ids[:10])
+    for image_id, path in zip(image_ids, paths):  
+        print(image_id)
+        local_date = time_dict[image_id][0]
         if isinstance(off_date, list):
             if local_date >= int(off_date[0]) and local_date <= int(off_date[1]):
-                new_ImageIDs.append(ImageID)
+                new_paths.append(path)
         elif isinstance(off_date, dict):
             for key in off_date:
                 if local_date == int(key):
-                    new_ImageIDs.append(ImageID)
+                    new_paths.append(path)
         else:
-            return ImageIDs
-    return new_ImageIDs
+            return paths
+    return new_paths
 
 def extract_time_entities(sentence):
     """Extract named entities from a given sentence and return them in a list of tuples."""
@@ -403,7 +409,6 @@ def get_shortest_time_range(time_ranges):
     shortest_range = min(time_ranges, key=lambda x: get_duration(x))
     return shortest_range
 
-
 def get_duration(time_range):
     begin_hour, begin_min, end_hour, end_min = time_range
     duration = (end_hour - begin_hour) * 60 + (end_min - begin_min)
@@ -469,21 +474,25 @@ def begin_end(t_rande):
     else:
         return False
     
-def query_time_image(df_time, text, ImageIDs):
-    new_ImageIDs = []
+def query_time_image(time_dict, text, paths):
+    
     t_rande = extract_time_ranges(text)
     beg_end = begin_end(t_rande)
     print(t_rande)
     if beg_end == False:
-        return ImageIDs
-    for ImageID in ImageIDs:
-        local_time = df_time.loc[df_time['ImageID'] == ImageID, 'local_time'].values[0]
+        return paths
+    
+    new_paths = []
+    image_ids = np.array([path[-23:] for path in paths])
+
+    for image_id, path in zip(image_ids, paths):  
+        local_time = time_dict[image_id][1]
         print(local_time)
         if local_time >= beg_end[0] and local_time <= beg_end[1]:
-            new_ImageIDs.append(ImageID)
-    return new_ImageIDs
+            new_paths.append(path)
+    return new_paths
 
-def query_time_date_image(df_time, text, ImageIDs):
-    new_ImageIDs = query_date_image(df_time, text, ImageIDs)
-    new_new_ImageIDs = query_time_image(df_time, text, new_ImageIDs)
-    return new_new_ImageIDs
+def query_time_date_image(time_dict, text, paths):
+    paths = query_date_image(time_dict, text, paths)
+    paths = query_time_image(time_dict, text, paths)
+    return paths

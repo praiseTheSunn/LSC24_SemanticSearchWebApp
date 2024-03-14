@@ -3,11 +3,10 @@ import open_clip
 import settings
 import numpy as np
 import pandas as pd
-from helper import setup
+from helper import setup, query_date_time
 from textblob import TextBlob
 import faiss
 from PIL import Image
-from query_date_time import *
 
 # OFFSET_OBJECT_START = 0
 # OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)
@@ -78,7 +77,7 @@ def get_scores_sorted(indices, semantic_similarities, object_similarities):
     return scores_indices
 
 # search in index using text query and return top n results
-def search(keyframe_paths, model, mode, text_query: None, image_query_path: None):
+def search(keyframe_paths, model, mode, text_query = None, image_query_path = None):
     
     query_embedding = None
     if text_query:
@@ -162,10 +161,7 @@ def search(keyframe_paths, model, mode, text_query: None, image_query_path: None
             
     paths = new_paths
 
-    # TODO: filter by time
-    # gia dinh la co paths, time_df
-    
-        
-    new_new_paths = query_time_date_image(setup.time_df, text_query, paths)
-    paths = new_new_paths
+    # filter by time 
+    new_paths = query_date_time.query_time_date_image(setup.time_dict, text_query, paths)
+    paths = new_paths
     return paths
