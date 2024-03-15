@@ -12,6 +12,7 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
     const [neighbors, setNeighbors] = useState([]);
     const [activeNeighbors, setActiveNeighbors] = useState([]);
     const containerRef = useRef(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const response2 = imageService.getNeighbors(viewImage.path)
@@ -20,7 +21,6 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
             var urls = response2.data['image_files'];
             var imageDataUrls = [];
 
-            
             for (var i = 0; i < urls.length; i++) {
                 const now = new Date();
                 const currentTimeString = now.getTime().toString();
@@ -35,29 +35,53 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
             }
             console.log('imageDataUrls neigh', imageDataUrls);
             setNeighbors(imageDataUrls);
-            var totalNumbers = imageDataUrls.length;
-            var halfNumbers = totalNumbers/2;
-            setActiveNeighbors(imageDataUrls.slice(halfNumbers, halfNumbers + 50));
-            setBottomPage(halfNumbers/50);
-            setTopPage(halfNumbers/50);
-            setChangedPage(1);
 
+            // var totalPages = ~~(imageDataUrls.length/50);
+            // var halfPage = ~~(totalPages/2);
+
+            // console.log("starting data: ", halfPage * 50, halfPage * 50 + 50);
+            // // setActiveNeighbors(imageDataUrls.slice(halfPage * 50, halfPage * 50 + 50));
+            
+            // setBottomPage((halfPage));
+            // setTopPage((halfPage) + 1);
         })
         .catch((error) => {
             console.error('Error fetching similar images:', error);
         });
     }, [viewImage]);
 
-    const fetchImages = async (index, max) => {
-        if (index >= activeNeighbors.length) {
-            return;
+    useEffect(() => {
+        var totalPages = ~~(neighbors.length/50);
+        var halfPage = ~~(totalPages/2);
+
+        // console.log("starting data: ", halfPage * 50, halfPage * 50 + 50);
+        // setActiveNeighbors(imageDataUrls.slice(halfPage * 50, halfPage * 50 + 50));
+        
+        if (neighbors[halfPage * 50] !== undefined && neighbors[halfPage * 50].image == "") {
+            fetchImages(halfPage * 50, halfPage * 50 + 50, true);
+            
+            setBottomPage((halfPage));
+            setTopPage((halfPage) + 1);
         }
-        if (index < max) {
+        else {
+            console.log("neighbors updated", neighbors);
+        }
+    }, [neighbors]);
+
+    const fetchImages = (index, max, addToFront) => {
+        var copy = [];
+        fetchImagesToCopy(index, index, max, copy, addToFront);
+    }
+
+    const fetchImagesToCopy = (index, max, copy, addToFront) => {
+        // console.log("fetching ", index, " ", max, " ", copy.length, " ", neighbors.length)
+        // console.log(copy);
+        if (index < neighbors.length && index < max) {
             // console.log(index, imageUrls)
-            const url = activeNeighbors[index].path;
+            const url = neighbors[index].path;
             // console.log("fetching " + index + "th url: " + url);
 
-            return imageService.getImage(url)
+            imageService.getImage(url)
                 .then((response) => {
                     const base64ImageString = btoa(
                         new Uint8Array(response.data).reduce(
@@ -73,32 +97,34 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
                     const date = fileName.slice(0, 4) + '-' + fileName.slice(4, 6) + '-' + fileName.slice(6, 8);
                     const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
 
-                    // Add the image data to imageDataUrls
-                    // imageDataUrls.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
-
-                    setActiveNeighbors(prevImageUrls => {
-                        // Make a copy of the previous state
-                        const newImageUrls = [...prevImageUrls];
-
-                        // Update the copy of state based on previous values
-                        newImageUrls[index] = {
-                            ...newImageUrls[index],
-                            image: imageDataUrl,
-                            date: date,
-                            time: time,
-                        };
-
-                        return newImageUrls;
-                    });
+                    // Add the image data to copy
+                    copy.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
 
                     // Recursive call to fetch the next image
-                    return fetchImages(index + 1, max);
+                    // return fetchImages(index + 1, max);
+                    copy = fetchImagesToCopy(index + 1, max, copy, addToFront);
                 })
                 .catch((error) => {
                     console.error('Error fetching image:', error);
                 });
+                return copy;
         } else {
             // All images fetched, set the state or do other operations
+            console.log("finished fetching a page");
+            // console.log(neighbors);
+            setActiveNeighbors(prevActiveNeighbors => {
+                if (addToFront) {
+                    return [...copy, ...prevActiveNeighbors];
+                }
+                else {
+                    return [...prevActiveNeighbors, ...copy];
+                }
+                // for (var i = min; i < max; i++) {
+                //     prevActiveNeighbors[i] = copy[i];
+                // }
+                // return prevActiveNeighbors;
+            });
+            return copy;
         }
     };
 
@@ -131,7 +157,6 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
 
     const [topPage, setTopPage] = useState(1);
     const [bottomPage, setBottomPage] = useState(1);
-    const [changedPage, setChangedPage] = useState(1);
     const [isAtBottom, setIsAtBottom] = useState(false);
     const [isAtTop, setIsAtTop] = useState(false);
 
@@ -143,17 +168,17 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
             const scrollHeight = container.scrollHeight;
             const scrollTop = container.scrollTop;
             const clientHeight = container.clientHeight;
-            console.log('scrollHeight',scrollHeight)
-            console.log('scrollTop',scrollTop)  
-            console.log('clientHeight',clientHeight)
+            // console.log('scrollHeight',scrollHeight)
+            // console.log('scrollTop',scrollTop)  
+            // console.log('clientHeight',clientHeight)
 
             // Check if the user is at the bottom (you can adjust the threshold if needed)
             const isBottom = scrollHeight - scrollTop - 100 <= clientHeight;
             const isTop = scrollTop === 0;
-            console.log('isTop', isTop)
-            console.log('isBottom', isBottom);
-            console.log('topPage', topPage);
-            console.log('bottomPage', bottomPage);
+            // console.log('isTop', isTop)
+            // console.log('isBottom', isBottom);
+            // console.log('topPage', topPage);
+            // console.log('bottomPage', bottomPage);
             
             setIsAtBottom(isBottom);
             setIsAtTop(isTop);
@@ -177,82 +202,61 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
     }, []);
 
     const fetchDataTop = async () => {
-        // setIsLoading(true);
-        // setError(null);
         if (topPage == 1) {
+            setIsLoading(false);
             return;
         }
-        console.log("i tried")
       
         try {
-
             console.log("fetch data top ", (topPage - 1) * 50 - 50, " ", (topPage - 1) * 50)
-            var data = neighbors.slice((topPage - 1) * 50 - 50, (topPage - 1) * 50);
-            setActiveNeighbors(prevItems => [...data, ...prevItems]);
+            // var data = neighbors.slice((topPage - 1) * 50 - 50, (topPage - 1) * 50);
+            // setActiveNeighbors(prevItems => [...data, ...prevItems]);
+            fetchImages((topPage - 1) * 50 - 50, (topPage - 1) * 50, true);
             setTopPage(topPage => topPage - 1);
-            setChangedPage(topPage);
         } catch (error) {
             console.log('error', error);
         //   setError(error);
         } finally {
             setIsAtTop(false);
+            setIsLoading(false);
         }
     };
 
     const fetchDataBottom = async () => {
-        // setIsLoading(true);
-        // setError(null);
         if (bottomPage * 50 > neighbors.length) {
+            setIsLoading(false);
             return;
         }
       
         try {
             console.log("fetch data bottom ", (bottomPage + 1) * 50, " ", (bottomPage + 1) * 50 + 50);
-            var data = neighbors.slice((bottomPage + 1) * 50, (bottomPage + 1) * 50 + 50);
-            setActiveNeighbors(prevItems => [...prevItems, ...data]);
+            // var data = neighbors.slice((bottomPage + 1) * 50, (bottomPage + 1) * 50 + 50);
+            // setActiveNeighbors(prevItems => [...prevItems, ...data]);
+            fetchImages((bottomPage + 1) * 50, (bottomPage + 1) * 50 + 50, false);
             setBottomPage(prevPage => prevPage + 1);
-            setChangedPage(bottomPage);
         } catch (error) {
             console.log('error', error);
         //   setError(error);
         } finally {
             setIsAtBottom(false);
+            setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        if (isAtBottom) {
+        if (isAtBottom && isLoading === false) {
+            setIsLoading(true);
             fetchDataBottom();
+            
         }
     }, [isAtBottom]);
 
     useEffect(() => {
-        if (isAtTop) {
+        if (isAtTop && isLoading === false) {
+            setIsLoading(true);
             fetchDataTop();
         }
     }, [isAtTop]);
-
-    useEffect(() => {
-        if (activeNeighbors.length > 0) {
-            // if (changedPage == bottomPage) {
-                var topPage = 0;
-                var botPage = activeNeighbors.length / 50 - 1
-                console.log("top and bot page: ", topPage * 50, botPage * 50);
-                // console.log("prevpage * 50: ", prevPage * 50);
-
-                // console.log(activeNeighbors[prevPage * 50]);
-
-                if (activeNeighbors[topPage * 50].image == "") {
-                    // console.log(activeNeighbors[prevPage * 50]);
-                    fetchImages(topPage * 50, topPage * 50 + 50);
-                }
-                else if (activeNeighbors[botPage * 50].image == "") {
-                    // console.log(activeNeighbors[topPage * 50]);
-                    fetchImages(botPage * 50, botPage * 50 + 50);
-                }
-            // }
-        }
-    }, [activeNeighbors])
 
     return (
         <div className='neighbor-popup-container'>
@@ -262,7 +266,12 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
                     <div className='neighbor-images-list-wrapper' ref={containerRef}>
                         <div className='neighbor-images-list' >
                             {activeNeighbors.map((image, index) => {
-                                return <ImageInList key={index} record={image} index={index} handleImageClick={handleImageClick} openSinggleImage={openSinggleImage}/>;
+                                // if (image.image !== "") {
+                                    return <ImageInList key={index} record={image} index={index} handleImageClick={handleImageClick} openSinggleImage={openSinggleImage}/>;
+                                // }
+                                // else {
+                                    // return null;
+                                // }
                             })}
                         </div>
                     </div>
