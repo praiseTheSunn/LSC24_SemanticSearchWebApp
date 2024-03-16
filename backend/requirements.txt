@@ -201,6 +201,7 @@ weasel==0.3.4
 webdataset==0.2.86
 webencodings==0.5.1
 Werkzeug==3.0.1
+whoosh==2.7.4
 wrapt==1.14.1
 yacs==0.1.8
 yapf==0.40.2
