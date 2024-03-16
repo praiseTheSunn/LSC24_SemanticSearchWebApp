@@ -32,11 +32,17 @@ archive.zip
 #obj detection 
 merged_obj_detect.csv
 /obj
-/backend/settings.py
+
+# settings file
+count_files.py
+backend/settings.py
 
 # storybook
 .storybook
 frontend/src/stories/*
 
 # package-lock.json
-
+object_list.txt
+obj_class.txt
+/metadata
+location_category_list.csv
