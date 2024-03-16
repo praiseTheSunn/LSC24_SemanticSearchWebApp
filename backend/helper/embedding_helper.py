@@ -15,7 +15,7 @@ import io
 # OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)
 # OFFSET_LOCATION_START = OFFSET_OBJECT_END
 # OFFSET_LOCATION_END = OFFSET_LOCATION_START + len(location_category_list)
-num_results = 5000
+num_results = 1000
 max_location_categories_retrieved = 5
 
 # compute text embedding using CLIP model
@@ -35,6 +35,9 @@ def compute_image_embedding(model, image_path: str):
     return image_features
 
 # ------------------------------------------------------------------------------------
+def compute_text_embedding_transformer(text_query: str):
+    return setup.tfm_model.encode(text_query)
+
 # compute text embedding using BLIP2 model
 def compute_text_embedding_blip2(text_query: str):
 
@@ -83,6 +86,28 @@ def compute_image_embedding_blip2(image_path: str):
         print("Error:", e)
         return None
 
+# search in BLIP2 index
+def search_in_blip2_index(query_embedding, num_results):
+    base_url = "http://164.92.122.168:8000"
+    endpoint_url = f"{base_url}/search_in_blip2_index"
+
+    try:
+        # Send query embedding
+        data = {"query_embedding": query_embedding.tolist(), "num_results": int(num_results)}
+        response = requests.post(endpoint_url, json=data)
+        
+        if response.status_code == 200:
+            response_json = response.json()
+            semantic_similarities = response_json["semantic_similarities"]
+            indices = response_json["indices"]
+            return semantic_similarities, indices
+        else:
+            print("Failed to get search results. Status code:", response.status_code)
+            return None, None
+
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+        return None, None
 # ------------------------------------------------------------------------------------   
 # parse location semantic names from query
 def parse_location_semantic_name_from_query(query):
@@ -178,21 +203,32 @@ def loccat_filter(paths, parsed_location_categories_from_query):
             new_paths.append(path)
     return new_paths
 
-# search in index using text query and return top n results
-def search(keyframe_paths, mode, text_query = None, image_query_path = None):
-    
-    query_embedding = None
-    if text_query:
-        query_embedding = compute_text_embedding_blip2(text_query)
-    elif image_query_path:
-        query_embedding = compute_image_embedding_blip2(image_query_path)
+# ------------------------------------------------------------------------------------
+# search in index using image path and return top n results
+def search_by_image_path(keyframe_paths, image_query_path):
+    query_embedding = compute_image_embedding_blip2(image_query_path)
+    semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results)            
+    semantic_similarities = np.array(semantic_similarities[0], dtype=np.float16)
+    semantic_similarities = semantic_similarities / np.max(semantic_similarities)
+    indices = np.array(indices[0], dtype=np.int32)
 
+    paths = []
+    for idx in indices:
+        paths.append(keyframe_paths[idx])
+
+    return paths
+
+# search in index using text query and return top n results
+def search_by_text_query(keyframe_paths, mode, text_query):
+    
     # perform semantic search and compute semantic similarities
     if mode == 'caption':
-        semantic_index = setup.git_index
+        query_embedding = compute_text_embedding_transformer(text_query) 
+        semantic_index = setup.caption_git_index
+        semantic_similarities, indices = semantic_index.search(query_embedding.reshape(1, -1), num_results)  
     else:
-        semantic_index = setup.blip2_index
-    semantic_similarities, indices = semantic_index.search(query_embedding.reshape(1, -1), num_results)             #2 represent top n results required
+        query_embedding = compute_text_embedding_blip2(text_query)            
+        semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results) 
     semantic_similarities = np.array(semantic_similarities[0], dtype=np.float16)
     semantic_similarities = semantic_similarities / np.max(semantic_similarities)
     indices = np.array(indices[0], dtype=np.int32)
@@ -223,8 +259,9 @@ def search(keyframe_paths, mode, text_query = None, image_query_path = None):
     
     # filter by location semantic name
     location_semantic_name = parse_location_semantic_name_from_query(text_query)
-    new_paths = fuzzy_search.fuzzy_search_frame(paths, location_semantic_name, setup.ix, limit=1000)
-    paths = new_paths
+    if location_semantic_name != None:
+        new_paths = fuzzy_search.fuzzy_search_frame(paths, location_semantic_name, setup.ix, setup.searcher, setup.qp, limit=1000)
+        paths = new_paths
     print("After location filter, found: ", len(paths), " results")
 
     for path in paths[:200]:

@@ -44,13 +44,18 @@ print(f"Done loading keyframe paths in {time.time() - start_time} seconds.\n")
 # model, vis_processors, txt_processors = load_model_and_preprocess(name="blip2_feature_extractor", model_type="pretrain", is_eval=True, device=device)
 # print(f"Done loading blip2 model in {time.time() - start_time} seconds.\n")
 
-print("loading blip2 index")
-blip2_index = faiss.read_index(settings.blip2_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
-print(f"Done loading blip2 index in {time.time() - start_time} seconds.\n")
+# print("loading blip2 index")
+# blip2_index = faiss.read_index(settings.blip2_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+# print(f"Done loading blip2 index in {time.time() - start_time} seconds.\n")
 
-print("loading git index")
-git_index = faiss.read_index(settings.git_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
-print(f"Done loading git index in {time.time() - start_time} seconds.\n")
+print("loading sentence-transformers model")
+from sentence_transformers import SentenceTransformer
+tfm_model = SentenceTransformer('all-mpnet-base-v2', device=device)
+print(f"Done loading sentence-transformers model in {time.time() - start_time} seconds.\n")
+
+print("loading caption git index")
+caption_git_index = faiss.read_index(settings.git_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+print(f"Done loading caption git index in {time.time() - start_time} seconds.\n")
 
 print("loading object blip2 index")
 object_blip2_index = faiss.read_index(settings.object_blip2_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)

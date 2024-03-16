@@ -11,8 +11,6 @@ def fuzzy_search_frame(paths, query_text, ix, searcher, qp, limit=None):
     results = searcher.search(query, limit=limit)
     print(len(results))
 
-    
-
     # Tạo một bảng hash map từ list_image để lưu thứ tự của từng ảnh
     image_ids_dict = {path[-23:]: order for order, path in enumerate(paths)}
 

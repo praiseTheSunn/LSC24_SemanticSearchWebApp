@@ -41,7 +41,7 @@ app.add_middleware(
     allow_headers=["*"],  # Allow all headers
 )
 
-image_files = embedding_helper.search(setup.keyframe_paths, setup.model, 'image', "Lots of colourful mugs for sale in Bangkok. Yellow, red, green, blue, orange cups. They were on a stand beside some green plants in a large outdoor mall.")
+# image_files = embedding_helper.search(setup.keyframe_paths, setup.model, 'image', "Lots of colourful mugs for sale in Bangkok. Yellow, red, green, blue, orange cups. They were on a stand beside some green plants in a large outdoor mall.")
 
 
 # @app.get("/")
@@ -66,28 +66,28 @@ async def get_image(file_url: str):
     return FileResponse(file_url, media_type='image/jpeg', headers=header)
 
 # return image paths of images that are results from a text query
-@app.get("/query/{query_text}")
-async def get_matched_image_paths(text_query: str):
+@app.get("/query/{mode}/{query_text}")
+async def get_matched_image_paths(mode: str, text_query: str):
     # file_url = file_url.replace("file://", "")
     print(text_query)
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    image_files = embedding_helper.search(setup.keyframe_paths, setup.model, 'image', text_query)
+    image_files = embedding_helper.search_by_text_query(setup.keyframe_paths, mode, text_query)
     return JSONResponse(content={"image_files": image_files}, headers=header)
 
 @app.get("/similars/{file_url:path}")
-def get_similars(file_url: str):
+async def get_similars(file_url: str):
     # DUMMY CODE
     print(file_url)
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    image_files = embedding_helper.search(setup.keyframe_paths, setup.model, 'image', image_query_path=file_url)
+    image_files = embedding_helper.search_by_image_path(setup.keyframe_paths, image_query_path=file_url)
     return JSONResponse(content={"image_files": image_files}, headers=header)
 
 @app.get("/neighbors/{file_url:path}")
-def get_neighbors(file_url: str):
+async def get_neighbors(file_url: str):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
