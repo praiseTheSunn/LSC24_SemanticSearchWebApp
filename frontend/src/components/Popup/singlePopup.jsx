@@ -39,12 +39,21 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
             }
             // console.log('imageDataUrls single popup', imageDataUrls);
             setSimilarImages(imageDataUrls);
-            setActiveSimilarImages(imageDataUrls.slice(0, 50));
+            // setActiveSimilarImages(imageDataUrls.slice(0, 50));
         })
         .catch((error) => {
             console.error('Error fetching similar images:', error);
         });
     }, [viewImage.path]); // Trigger the effect when viewImage.path changes
+
+    useEffect(() => {
+        if (similarImages[0] !== undefined && similarImages[0].image == "") {
+            fetchImages(0, 50);
+        }
+        else {
+            console.log("similarImages updated", similarImages);
+        }
+    }, [similarImages]);
 
     const { selectedImages, addSelectedImage, removeSelectedImage } = useSelectedImages();
 
@@ -99,13 +108,13 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
             const scrollHeight = container.scrollHeight;
             const scrollTop = container.scrollTop;
             const clientHeight = container.clientHeight;
-            console.log('scrollHeight',scrollHeight)
-            console.log('scrollTop',scrollTop)  
-            console.log('clientHeight',clientHeight)
+            // console.log('scrollHeight',scrollHeight)
+            // console.log('scrollTop',scrollTop)  
+            // console.log('clientHeight',clientHeight)
 
             // Check if the user is at the bottom (you can adjust the threshold if needed)
             const isBottom = scrollHeight - scrollTop - 100 <= clientHeight;
-            console.log('isBottom', isBottom);
+            // console.log('isBottom', isBottom);
             
 
             setIsAtBottom(isBottom);
@@ -133,8 +142,9 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
         // setError(null);
       
         try {
-            var data = similarImages.slice(page * 50, page * 50 + 50);
-            setActiveSimilarImages(prevItems => [...prevItems, ...data]);
+            // var data = similarImages.slice(page * 50, page * 50 + 50);
+            // setActiveSimilarImages(prevItems => [...prevItems, ...data]);
+            fetchImages(page * 50, page * 50 + 50);
             setPage(prevPage => prevPage + 1);
         } catch (error) {
             console.log('error', error);
@@ -150,14 +160,19 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
 
         }
     }, [isAtBottom]);
+    
+    const fetchImages = (index, max) => {
+        var copy = [];
+        fetchImagesToCopy(index, max, copy);
+    }
 
-    const fetchImages = async (index, max) => {
+    const fetchImagesToCopy = (index, max, copy) => {
         if (index < max) {
             // console.log(index, imageUrls)
-            const url = activeSimilarImages[index].path;
+            const url = similarImages[index].path;
             // console.log("fetching " + index + "th url: " + url);
 
-            return imageService.getImage(url)
+            imageService.getImage(url)
                 .then((response) => {
                     const base64ImageString = btoa(
                         new Uint8Array(response.data).reduce(
@@ -173,45 +188,41 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
                     const date = url.split('\\').slice(-3, -1).join('-').replace(/(\d{4})(\d{2})-(\d{2})/, '$1-$2-$3');
                     const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
 
-                    // Add the image data to imageDataUrls
-                    // imageDataUrls.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
-
-                    setActiveSimilarImages(prevImageUrls => {
-                        // Make a copy of the previous state
-                        const newImageUrls = [...prevImageUrls];
-
-                        // Update the copy of state based on previous values
-                        newImageUrls[index] = {
-                            ...newImageUrls[index],
-                            image: imageDataUrl,
-                            date: date,
-                            time: time,
-                        };
-
-                        return newImageUrls;
-                    });
+                    // Add the image data to copy
+                    copy.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
 
                     // Recursive call to fetch the next image
-                    return fetchImages(index + 1, max);
+                    copy = fetchImagesToCopy(index + 1, max, copy);
                 })
                 .catch((error) => {
                     console.error('Error fetching image:', error);
                 });
+                return copy;
         } else {
             // All images fetched, set the state or do other operations
+            console.log("finished fetching a page");
+            // console.log(neighbors);
+            setActiveSimilarImages(prevActiveSimilars => {
+                return [...prevActiveSimilars, ...copy];
+                // for (var i = min; i < max; i++) {
+                //     prevActiveNeighbors[i] = copy[i];
+                // }
+                // return prevActiveNeighbors;
+            });
+            return copy;
         }
     };
 
-    useEffect(() => {
-        if (activeSimilarImages.length > 0) {
-            var prevPage = page - 1;
-            if (activeSimilarImages[prevPage * 50].image == "") {
+    // useEffect(() => {
+    //     if (activeSimilarImages.length > 0) {
+    //         var prevPage = page - 1;
+    //         if (activeSimilarImages[prevPage * 50].image == "") {
 
-                console.log(activeSimilarImages[prevPage * 50]);
-                fetchImages(prevPage * 50, prevPage * 50 + 50);
-            }
-        }
-    }, [activeSimilarImages])
+    //             console.log(activeSimilarImages[prevPage * 50]);
+    //             fetchImages(prevPage * 50, prevPage * 50 + 50);
+    //         }
+    //     }
+    // }, [activeSimilarImages])
 
     return (
         <div className='single-popup-container'>

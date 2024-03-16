@@ -11,9 +11,7 @@ import { usePopUp } from '../contexts/popUpContext';
 
 const RightPanel = ({query, filters}) => {
     const [imageUrls, setImageUrls] = useState([    ]);
-
     const [activeImageUrls, setActiveImageUrls] = useState([    ]);
-  
     const containerRef = useRef(null);
 
     const { selectedImages, addSelectedImage, removeSelectedImage, getSize, removeAllSelected } = useSelectedImages();
@@ -51,7 +49,6 @@ const RightPanel = ({query, filters}) => {
             .then(async (response2) => {
                 // Convert the byte data to a base64-encoded string
                 var urls = response2.data['image_files'];
-                
                 var imageDataUrls = [];
     
                 for (var i = 0; i < urls.length; i++) {
@@ -66,8 +63,9 @@ const RightPanel = ({query, filters}) => {
                     
                     imageDataUrls.push(data);
                 }
+
                 setImageUrls(imageDataUrls)
-                setActiveImageUrls(imageDataUrls.slice(0, 50));
+                // setActiveImageUrls(imageDataUrls.slice(0, 50));
                 
             })
             .catch((error) => {
@@ -77,6 +75,15 @@ const RightPanel = ({query, filters}) => {
         // You can add more code here or handle subsequent actions after the requests
         
     }
+
+    useEffect(() => {
+        if (imageUrls[0] !== undefined && imageUrls[0].image == "") {
+            fetchImages(0, 50);
+        }
+        else {
+            console.log("imageUrls updated", imageUrls);
+        }
+    }, [imageUrls]);
 
 
     const [viewImage, setViewImage] = useState({image: "", path:"", date:"", time:""});
@@ -100,13 +107,13 @@ const RightPanel = ({query, filters}) => {
             const scrollHeight = container.scrollHeight;
             const scrollTop = container.scrollTop;
             const clientHeight = container.clientHeight;
-            console.log('scrollHeight',scrollHeight)
-            console.log('scrollTop',scrollTop)  
-            console.log('clientHeight',clientHeight)
+            // console.log('scrollHeight',scrollHeight)
+            // console.log('scrollTop',scrollTop)  
+            // console.log('clientHeight',clientHeight)
 
             // Check if the user is at the bottom (you can adjust the threshold if needed)
             const isBottom = scrollHeight - scrollTop - 100 <= clientHeight;
-            console.log(isBottom)
+            // console.log(isBottom)
 
             setIsAtBottom(isBottom);
 
@@ -128,10 +135,15 @@ const RightPanel = ({query, filters}) => {
         }
     }, []);
 
-    const fetchImages = async (index, max) => {
+    const fetchImages = (index, max) => {
+        var copy = [];
+        fetchImagesToCopy(index, max, copy);
+    }
+
+    const fetchImagesToCopy = (index, max, copy) => {
         if (index < max) {
             // console.log(index, imageUrls)
-            const url = activeImageUrls[index].path;
+            const url = imageUrls[index].path;
             // console.log("fetching " + index + "th url: " + url);
 
             return imageService.getImage(url)
@@ -151,42 +163,33 @@ const RightPanel = ({query, filters}) => {
                     const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
 
                     // Add the image data to imageDataUrls
-                    // imageDataUrls.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
-
-                    setActiveImageUrls(prevImageUrls => {
-                        // Make a copy of the previous state
-                        const newImageUrls = [...prevImageUrls];
-
-                        // Update the copy of state based on previous values
-                        newImageUrls[index] = {
-                            ...newImageUrls[index],
-                            image: imageDataUrl,
-                            date: date,
-                            time: time,
-                        };
-
-                        return newImageUrls;
-                    });
+                    copy.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
 
                     // Recursive call to fetch the next image
-                    return fetchImages(index + 1, max);
+                    copy = fetchImagesToCopy(index + 1, max, copy);
                 })
                 .catch((error) => {
                     console.error('Error fetching image:', error);
                 });
+                return copy;
         } else {
             // All images fetched, set the state or do other operations
+            console.log("finished fetching a page");
+            // console.log(neighbors);
+            setActiveImageUrls(prevActiveUrls => {
+                return [...prevActiveUrls, ...copy];
+            });
+            return copy;
         }
     };
 
     const fetchData = async () => {
         try {
-
-            var data = imageUrls.slice(page * 50, page * 50 + 50);
-            setActiveImageUrls(prevItems => [...prevItems, ...data]);
+            fetchImages(page * 50, page * 50 + 50);
             setPage(prevPage => prevPage + 1);
 
         } catch (error) {
+            console.log('error in fetching data', error);
         //   setError(error);
         } finally {
             setIsAtBottom(false);
@@ -199,15 +202,15 @@ const RightPanel = ({query, filters}) => {
     }
     }, [isAtBottom]);
 
-    useEffect(() => {
-        if (activeImageUrls.length > 0) {
-            var prevPage = page - 1;
-            if (activeImageUrls[prevPage * 50].image == "") {
-                // console.log(activeImageUrls[prevPage * 50]);
-                fetchImages(prevPage * 50, prevPage * 50 + 50);
-            }
-        }
-    }, [activeImageUrls])
+    // useEffect(() => {
+    //     if (activeImageUrls.length > 0) {
+    //         var prevPage = page - 1;
+    //         if (activeImageUrls[prevPage * 50].image == "") {
+    //             // console.log(activeImageUrls[prevPage * 50]);
+    //             fetchImages(prevPage * 50, prevPage * 50 + 50);
+    //         }
+    //     }
+    // }, [activeImageUrls])
 
 
     return(
