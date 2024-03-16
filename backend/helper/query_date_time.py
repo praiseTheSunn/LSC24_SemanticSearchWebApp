@@ -4,7 +4,6 @@ import datetime
 from collections import OrderedDict
 import calendar
 import numpy as np
-from helper import setup
 nlp = spacy.load('en_core_web_sm')
 
 def date_to_str(datetime_obj):

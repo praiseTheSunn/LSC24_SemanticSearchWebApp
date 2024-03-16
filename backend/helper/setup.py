@@ -8,6 +8,8 @@ import pandas as pd
 from helper import loader
 from tqdm import tqdm
 import time
+from whoosh.qparser import QueryParser
+from whoosh.qparser.plugins import FuzzyTermPlugin
 
 device = "cpu"
 num_results = 10000
@@ -72,6 +74,14 @@ object_dict = {row['ImageID']: set(row['object'].split(',')) for _, row in metad
 loccat_dict = {row['ImageID']: set(row['categories'].split(',')) for _, row in metadata_df.iterrows() if not pd.isna(row['categories'])}
 time_dict = {row['ImageID']: [row['local_date'], row['local_time']] for _, row in metadata_df.iterrows()}
 print(f"Done loading metadata in {time.time() - start_time} seconds.\n")
+
+print("loading fuzzy index for location search")
+from whoosh.index import open_dir   
+ix = open_dir(settings.fuzzy_index_path)
+searcher = ix.searcher()   
+qp = QueryParser("place", schema=ix.schema)
+qp.add_plugin(FuzzyTermPlugin())
+print(f"Done loading fuzzy index in {time.time() - start_time} seconds.\n")
 
 OFFSET_OBJECT_START = 0
 OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)

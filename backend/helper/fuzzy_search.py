@@ -1,48 +1,39 @@
-from whoosh.index import open_dir
-from whoosh.qparser import QueryParser
-from whoosh.qparser.plugins import FuzzyTermPlugin
 import settings
 import pandas as pd
 
-def fuzzy_search_frame(list_keyframe, query_text, limit=None):
-    list_image = [str(keyframe)[-23:] for keyframe in list_keyframe]
-    
-    # Mở chỉ mục từ file
-    index_dir = settings.fuzzy_index_path  # Đường dẫn đến thư mục chứa chỉ mục Whoosh, có trên onedrive
-    ix = open_dir(index_dir)
-
-    # Tạo một đối tượng Searcher từ chỉ mục đã mở
-    searcher = ix.searcher()
-
-    # Tạo trình phân tích truy vấn với FuzzyTermPlugin
-    analyzer = FuzzyTermPlugin()    
-
-    # Tạo trình phân tích truy vấn với FuzzyTermPlugin
-    qp = QueryParser("place", schema=ix.schema)
-    qp.add_plugin(FuzzyTermPlugin())
+def fuzzy_search_frame(paths, query_text, ix, searcher, qp, limit=None):
+    image_ids = [str(path)[-23:] for path in paths]  
 
     # Tạo truy vấn với từ khoá fuzzy
     query = qp.parse(query_text)
 
     # Thực hiện truy vấn và lấy kết quả 
     results = searcher.search(query, limit=limit)
+    print(len(results))
 
-    # Chuyển đổi danh sách ảnh thành tập hợp các ImageID
-    image_set = set(list_image)
+    
 
     # Tạo một bảng hash map từ list_image để lưu thứ tự của từng ảnh
-    image_order = {image: order for order, image in enumerate(list_image)}
+    image_ids_dict = {path[-23:]: order for order, path in enumerate(paths)}
+
+    # # Chuyển đổi danh sách ảnh thành tập hợp các ImageID
+    # image_ids_set = set(image_ids_dict)
 
     # Thực hiện truy vấn và lấy kết quả từ danh sách ảnh
-    matching_keyframes = []
+    matched_image_ids = []
+    matched_image_orders = []
     for hit in results:
-        if hit['ImageID'] in image_set:
-            matching_keyframes.append(list_keyframe[image_order[hit['ImageID']]])
+        image_id = hit['ImageID']
+        if image_id in image_ids_dict:
+            ord = image_ids_dict[image_id]
+            matched_image_ids.append(image_ids[ord])
+            matched_image_orders.append(ord)
 
     # Sắp xếp kết quả theo thứ tự của list_keyframe
-    matching_keyframes.sort(key=lambda x: list_keyframe.index(x))
+    matches = zip(matched_image_ids, matched_image_orders)
+    matches = sorted(matches, key=lambda x: x[1])
     
-    return matching_keyframes
+    return matches[0]
 
 # list_keyframe = ['E:\\LSCDATA\\keyframes\\201910\\05\\20191005_143152_000.jpg',
 #                  'E:\\LSCDATA\\keyframes\\202006\\30\\20200630_205101_000.jpg',
