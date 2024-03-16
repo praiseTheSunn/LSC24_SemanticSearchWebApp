@@ -9,7 +9,6 @@ def fuzzy_search_frame(paths, query_text, ix, searcher, qp, limit=None):
 
     # Thực hiện truy vấn và lấy kết quả 
     results = searcher.search(query, limit=limit)
-    print(len(results))
 
     # Tạo một bảng hash map từ list_image để lưu thứ tự của từng ảnh
     image_ids_dict = {path[-23:]: order for order, path in enumerate(paths)}
@@ -28,6 +27,8 @@ def fuzzy_search_frame(paths, query_text, ix, searcher, qp, limit=None):
             matched_image_orders.append(ord)
 
     # Sắp xếp kết quả theo thứ tự của list_keyframe
+    if len(matched_image_ids) == 0:
+        return []
     matches = zip(matched_image_ids, matched_image_orders)
     matches = sorted(matches, key=lambda x: x[1])
     
