@@ -224,7 +224,9 @@ def search_by_text_query(keyframe_paths, mode, text_query):
     # perform semantic search and compute semantic similarities
     if mode == 'caption':
         query_embedding = compute_text_embedding_transformer(text_query) 
+        print(query_embedding.shape)
         semantic_index = setup.caption_git_index
+        print(semantic_index.d)
         semantic_similarities, indices = semantic_index.search(query_embedding.reshape(1, -1), num_results)  
     else:
         query_embedding = compute_text_embedding_blip2(text_query)            
