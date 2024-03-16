@@ -47,7 +47,7 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
     }, [viewImage.path]); // Trigger the effect when viewImage.path changes
 
     useEffect(() => {
-        if (similarImages[0] !== undefined && similarImages[0].image == "") {
+        if (similarImages.length && !activeSimilarImages.length) {
             fetchImages(0, 50);
         }
         else {

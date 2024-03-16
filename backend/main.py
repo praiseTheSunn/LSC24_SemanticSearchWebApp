@@ -78,7 +78,7 @@ async def get_images(query_text: str):
     return JSONResponse(content={"image_files": image_files}, headers=header)
 
 @app.get("/similars/{file_url:path}")
-def get_similars(file_url: str):
+async def get_similars(file_url: str):
     # DUMMY CODE
     print(file_url)
     header = {
@@ -90,7 +90,7 @@ def get_similars(file_url: str):
     return JSONResponse(content={"image_files": image_files}, headers=header)
 
 @app.get("/neighbors/{file_url:path}")
-def get_neighbors(file_url: str):
+async def get_neighbors(file_url: str):
     header = {
         'Access-Control-Allow-Origin': '*'
     }

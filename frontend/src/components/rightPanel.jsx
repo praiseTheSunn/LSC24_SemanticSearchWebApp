@@ -21,6 +21,7 @@ const RightPanel = ({query, filters}) => {
         const fileName = imageUrl.split('\\').pop();
         console.log('clicked',fileName);
         console.log('selectedImages',selectedImages);
+        
         if (selectedImages.some(image => image.url.includes(fileName))) {
             removeSelectedImage(fileName);
             const updatedImages = imageUrls.map((record) => {
@@ -35,12 +36,14 @@ const RightPanel = ({query, filters}) => {
             addSelectedImage(fileName, image);
             const updatedImages = imageUrls.map((record) => {
                 if (record.path === imageUrl) {
+                    console.log('FOUNDS',record.path, imageUrl);
                     return { ...record, status: 1 };
                 }
                 return record;
             });
             setImageUrls(updatedImages);
         }
+        
     }
 
     const handleClick = () => {
@@ -77,7 +80,8 @@ const RightPanel = ({query, filters}) => {
     }
 
     useEffect(() => {
-        if (imageUrls[0] !== undefined && imageUrls[0].image == "") {
+        console.log('updated imageUrls',imageUrls, 'active', activeImageUrls); 
+        if (imageUrls.length && !activeImageUrls.length) {
             fetchImages(0, 50);
         }
         else {
