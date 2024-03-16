@@ -8,6 +8,8 @@ import pandas as pd
 from helper import loader
 from tqdm import tqdm
 import time
+from whoosh.qparser import QueryParser
+from whoosh.qparser.plugins import FuzzyTermPlugin
 
 device = "cpu"
 num_results = 10000
@@ -42,13 +44,18 @@ print(f"Done loading keyframe paths in {time.time() - start_time} seconds.\n")
 # model, vis_processors, txt_processors = load_model_and_preprocess(name="blip2_feature_extractor", model_type="pretrain", is_eval=True, device=device)
 # print(f"Done loading blip2 model in {time.time() - start_time} seconds.\n")
 
-print("loading blip2 index")
-blip2_index = faiss.read_index(settings.blip2_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
-print(f"Done loading blip2 index in {time.time() - start_time} seconds.\n")
+# print("loading blip2 index")
+# blip2_index = faiss.read_index(settings.blip2_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+# print(f"Done loading blip2 index in {time.time() - start_time} seconds.\n")
 
-print("loading git index")
-git_index = faiss.read_index(settings.git_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
-print(f"Done loading git index in {time.time() - start_time} seconds.\n")
+print("loading sentence-transformers model")
+from sentence_transformers import SentenceTransformer
+tfm_model = SentenceTransformer('all-mpnet-base-v2', device=device)
+print(f"Done loading sentence-transformers model in {time.time() - start_time} seconds.\n")
+
+print("loading caption git index")
+caption_git_index = faiss.read_index(settings.git_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+print(f"Done loading caption git index in {time.time() - start_time} seconds.\n")
 
 print("loading object blip2 index")
 object_blip2_index = faiss.read_index(settings.object_blip2_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
@@ -72,6 +79,14 @@ object_dict = {row['ImageID']: set(row['object'].split(',')) for _, row in metad
 loccat_dict = {row['ImageID']: set(row['categories'].split(',')) for _, row in metadata_df.iterrows() if not pd.isna(row['categories'])}
 time_dict = {row['ImageID']: [row['local_date'], row['local_time']] for _, row in metadata_df.iterrows()}
 print(f"Done loading metadata in {time.time() - start_time} seconds.\n")
+
+print("loading fuzzy index for location search")
+from whoosh.index import open_dir   
+ix = open_dir(settings.fuzzy_index_path)
+searcher = ix.searcher()   
+qp = QueryParser("place", schema=ix.schema)
+qp.add_plugin(FuzzyTermPlugin())
+print(f"Done loading fuzzy index in {time.time() - start_time} seconds.\n")
 
 OFFSET_OBJECT_START = 0
 OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)
