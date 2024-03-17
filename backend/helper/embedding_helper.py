@@ -49,12 +49,12 @@ def compute_text_embedding_blip2(text_query: str):
         response = requests.get(endpoint_url)
         if response.status_code == 200:
             response_json = response.json()
-            embeddings = torch.tensor(response_json["text_embedding"])
+            text_embedding = torch.tensor(response_json["text_embedding"])
             # embeddings = np.array(response_json["text_embedding"])
-            print("Received embeddings shape:", embeddings.shape)
-            return embeddings
+            print("Received text embedding shape:", text_embedding.shape)
+            return text_embedding
         else:
-            print("Failed to get embeddings. Status code:", response.status_code)
+            print("Failed to get text embedding. Status code:", response.status_code)
             return response.status_code
 
     except requests.exceptions.RequestException as e:
@@ -71,12 +71,13 @@ def compute_image_embedding_blip2(image_path: str):
         with open(image_path, "rb") as image_file:
             encoded_string = base64.b64encode(image_file.read())
         data = {'image': encoded_string.decode('utf-8')}
+        print("Type of data before sending: ", type(data['image']))
         response = requests.post(endpoint_url, json=data)
             
         if response.status_code == 200:
             response_json = response.json()
-            embeddings = np.array(response_json["embeddings"])
-            return embeddings
+            image_embedding = torch.tensor(response_json["image_embedding"])
+            return image_embedding
         else:
             print("Failed to get embeddings. Status code:", response.status_code)   
             return response.status_code
@@ -91,7 +92,7 @@ def search_in_blip2_index(query_embedding, num_results):
     endpoint_url = f"{base_url}/search_in_blip2_index"
 
     try:
-        data = {"query_embedding": query_embedding.tolist()[0], "num_results": int(num_results)}
+        data = {"query_embedding": query_embedding.tolist(), "num_results": int(num_results)}
         response = requests.post(endpoint_url, json=data)
         
         if response.status_code == 200:
