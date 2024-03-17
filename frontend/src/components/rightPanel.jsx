@@ -48,7 +48,7 @@ const RightPanel = ({query, filters}) => {
 
     const handleClick = () => {
         // First HTTP request
-        const response2 = imageService.getImages("Buying hand soaps in a shop called Molton Brown in the early morning. I was at an outside shopping mall ")            // change query here    
+        const response2 = imageService.getImages("Greek wine on a Sunday. I was in a Greek restaurant drinking a small bottle of wine and eating Greek food (chips and meat) with a salad. I was sitting at a white tiled table. It was in Thessaloniki in Greece in January 2019. ")            // change query here    
             .then(async (response2) => {
                 // Convert the byte data to a base64-encoded string
                 var urls = response2.data['image_files'];

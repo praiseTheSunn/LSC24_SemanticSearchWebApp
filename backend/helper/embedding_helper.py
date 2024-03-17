@@ -1,3 +1,4 @@
+import os
 import torch
 import open_clip
 import settings
@@ -200,6 +201,7 @@ def loccat_filter(paths, parsed_location_categories_from_query):
 # ------------------------------------------------------------------------------------
 # search in index using image path and return top n results
 def search_by_image_path(keyframe_paths, image_query_path):
+    image_query_path = os.path.normpath(image_query_path)
     image_order = setup.keyframe_paths_dict[image_query_path]
     query_embedding = get_image_embedding_blip2(image_order)
     semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results)            
