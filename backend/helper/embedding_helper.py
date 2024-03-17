@@ -10,6 +10,7 @@ from PIL import Image
 import requests
 from PIL import Image
 import io
+import base64
 
 # OFFSET_OBJECT_START = 0
 # OFFSET_OBJECT_END = OFFSET_OBJECT_START + len(object_list)
@@ -48,38 +49,32 @@ def compute_text_embedding_blip2(text_query: str):
         response = requests.get(endpoint_url)
         if response.status_code == 200:
             response_json = response.json()
-            embeddings = torch.tensor(response_json["text_embedding"])
+            text_embedding = torch.tensor(response_json["text_embedding"])
             # embeddings = np.array(response_json["text_embedding"])
-            print("Received embeddings shape:", embeddings.shape)
-            return embeddings
+            print("Received text embedding shape:", text_embedding.shape)
+            return text_embedding
         else:
-            print("Failed to get embeddings. Status code:", response.status_code)
+            print("Failed to get text embedding. Status code:", response.status_code)
             return response.status_code
 
     except requests.exceptions.RequestException as e:
         print("Error:", e)
         return None
 
-# compute image embedding using BLIP2 model
-def compute_image_embedding_blip2(image_path: str):
+# get image embedding 
+def get_image_embedding_blip2(image_order: int):
         
     base_url = "http://164.92.122.168:8000"  
-    endpoint_url = f"{base_url}/get_image_embedding_blip2"
+    endpoint_url = f"{base_url}/get_image_embedding_blip2/{str(image_order)}"
 
     try:
-        with open(image_path, 'rb') as f:
-            image = Image.open(f)
-            image_bytes = io.BytesIO()
-            image.save(image_bytes, format='JPEG')
-            image_bytes = image_bytes.getvalue()
-        response = requests.post(endpoint_url, data=image_bytes)        
+        response = requests.get(endpoint_url)            
         if response.status_code == 200:
             response_json = response.json()
-            embeddings = np.array(response_json["embeddings"])
-            print("Received embeddings shape:", embeddings.shape)
-            return embeddings
+            image_embedding = torch.tensor(response_json["image_embedding"])
+            return image_embedding
         else:
-            print("Failed to get embeddings. Status code:", response.status_code)
+            print("Failed to get embeddings. Status code:", response.status_code)   
             return response.status_code
 
     except Exception as e:
@@ -92,7 +87,6 @@ def search_in_blip2_index(query_embedding, num_results):
     endpoint_url = f"{base_url}/search_in_blip2_index"
 
     try:
-        # Send query embedding
         data = {"query_embedding": query_embedding.tolist(), "num_results": int(num_results)}
         response = requests.post(endpoint_url, json=data)
         
@@ -117,7 +111,7 @@ def parse_location_semantic_name_from_query(query):
     # print(semantic_names)
     for ent in doc.ents:
         if ent.label_ in ['GPE', 'LOC', 'FAC', 'ORG']:
-            print(ent.text, ent.label_)
+            print("Location found: ", ent.text, ent.label_)
             return ent.text
     return None
 
@@ -206,7 +200,8 @@ def loccat_filter(paths, parsed_location_categories_from_query):
 # ------------------------------------------------------------------------------------
 # search in index using image path and return top n results
 def search_by_image_path(keyframe_paths, image_query_path):
-    query_embedding = compute_image_embedding_blip2(image_query_path)
+    image_order = setup.keyframe_paths_dict[image_query_path]
+    query_embedding = get_image_embedding_blip2(image_order)
     semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results)            
     semantic_similarities = np.array(semantic_similarities[0], dtype=np.float16)
     semantic_similarities = semantic_similarities / np.max(semantic_similarities)
@@ -224,11 +219,9 @@ def search_by_text_query(keyframe_paths, mode, text_query):
     # perform semantic search and compute semantic similarities
     if mode == 'caption':
         query_embedding = compute_text_embedding_transformer(text_query) 
-        print(query_embedding.shape)
         semantic_index = setup.caption_git_index
-        print(semantic_index.d)
         semantic_similarities, indices = semantic_index.search(query_embedding.reshape(1, -1), num_results)  
-    else:
+    elif mode == 'image':
         query_embedding = compute_text_embedding_blip2(text_query)            
         semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results) 
     semantic_similarities = np.array(semantic_similarities[0], dtype=np.float16)
