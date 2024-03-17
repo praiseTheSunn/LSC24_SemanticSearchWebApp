@@ -76,23 +76,23 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
         console.log('selectedImages',selectedImages);
         if(selectedImages.some(image => image.url.includes(fileName))){
             removeSelectedImage(fileName);
-            const updatedImages = similarImages.map((record) => {
+            const updatedImages = activeSimilarImages.map((record) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 0 };
                 }
                 return record;
             });
-            setSimilarImages(updatedImages);
+            setActiveSimilarImages(updatedImages);
         }else{
             // console.log('adding',fileName);
             addSelectedImage(fileName, m_img);
-            const updatedImages = similarImages.map((record) => {
+            const updatedImages = activeSimilarImages.map((record) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 1 };
                 }
                 return record;
             });
-            setSimilarImages(updatedImages);
+            setActiveSimilarImages(updatedImages);
         }
     }    
 

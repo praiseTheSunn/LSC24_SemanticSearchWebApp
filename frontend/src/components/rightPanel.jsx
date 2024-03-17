@@ -24,24 +24,24 @@ const RightPanel = ({query, filters}) => {
         
         if (selectedImages.some(image => image.url.includes(fileName))) {
             removeSelectedImage(fileName);
-            const updatedImages = imageUrls.map((record) => {
+            const updatedImages = activeImageUrls.map((record) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 0 };
                 }
                 return record;
             });
-            setImageUrls(updatedImages);
+            setActiveImageUrls(updatedImages);
         }else{
             // console.log('adding',fileName);
             addSelectedImage(fileName, image);
-            const updatedImages = imageUrls.map((record) => {
+            const updatedImages = activeImageUrls.map((record) => {
                 if (record.path === imageUrl) {
                     console.log('FOUNDS',record.path, imageUrl);
                     return { ...record, status: 1 };
                 }
                 return record;
             });
-            setImageUrls(updatedImages);
+            setActiveImageUrls(updatedImages);
         }
         
     }
@@ -194,7 +194,6 @@ const RightPanel = ({query, filters}) => {
 
         } catch (error) {
             console.log('error in fetching data', error);
-        //   setError(error);
         } finally {
             setIsAtBottom(false);
         }
@@ -205,16 +204,6 @@ const RightPanel = ({query, filters}) => {
         fetchData();
     }
     }, [isAtBottom]);
-
-    // useEffect(() => {
-    //     if (activeImageUrls.length > 0) {
-    //         var prevPage = page - 1;
-    //         if (activeImageUrls[prevPage * 50].image == "") {
-    //             // console.log(activeImageUrls[prevPage * 50]);
-    //             fetchImages(prevPage * 50, prevPage * 50 + 50);
-    //         }
-    //     }
-    // }, [activeImageUrls])
 
 
     return(
