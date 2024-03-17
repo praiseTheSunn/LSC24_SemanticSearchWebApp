@@ -61,19 +61,14 @@ def compute_text_embedding_blip2(text_query: str):
         print("Error:", e)
         return None
 
-# compute image embedding using BLIP2 model
-def compute_image_embedding_blip2(image_path: str):
+# get image embedding 
+def get_image_embedding_blip2(image_order: int):
         
     base_url = "http://164.92.122.168:8000"  
-    endpoint_url = f"{base_url}/compute_image_embedding_blip2"
+    endpoint_url = f"{base_url}/get_image_embedding_blip2/{str(image_order)}"
 
     try:
-        with open(image_path, "rb") as image_file:
-            encoded_string = base64.b64encode(image_file.read())
-        data = {'image': encoded_string.decode('utf-8')}
-        print("Type of data before sending: ", type(data['image']))
-        response = requests.post(endpoint_url, json=data)
-            
+        response = requests.get(endpoint_url)            
         if response.status_code == 200:
             response_json = response.json()
             image_embedding = torch.tensor(response_json["image_embedding"])
@@ -205,7 +200,8 @@ def loccat_filter(paths, parsed_location_categories_from_query):
 # ------------------------------------------------------------------------------------
 # search in index using image path and return top n results
 def search_by_image_path(keyframe_paths, image_query_path):
-    query_embedding = compute_image_embedding_blip2(image_query_path)
+    image_order = setup.keyframe_paths_dict[image_query_path]
+    query_embedding = get_image_embedding_blip2(image_order)
     semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results)            
     semantic_similarities = np.array(semantic_similarities[0], dtype=np.float16)
     semantic_similarities = semantic_similarities / np.max(semantic_similarities)
