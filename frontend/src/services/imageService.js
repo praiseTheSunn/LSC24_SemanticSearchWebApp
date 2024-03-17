@@ -7,7 +7,7 @@ const getImage = (url) => {
 
 const getImages = (text) => {
     // console.log(url);
-    return http.get(`/query/${text}`);
+    return http.get(`/query/image/${text}`);
 }
 
 const getSimilarImages = (url) => {
