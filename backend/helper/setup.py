@@ -17,6 +17,7 @@ num_results = 10000
 start_time = time.time()
 print("loading keyframe paths")
 keyframe_paths = sorted(glob.glob(os.path.join(settings.keyframes_path, "*/*/*.jpg")))
+keyframe_paths_dict = {path: order for order, path in enumerate(keyframe_paths)}
 print(f"Done loading keyframe paths in {time.time() - start_time} seconds.\n")
 
 # print("loading clip model")
@@ -74,10 +75,12 @@ location_category_list = loader.load_location_category_list()
 print(f"Done loading object and location category list in {time.time() - start_time} seconds.\n")
 
 print("loading metadata for object and location category")
-metadata_df = pd.read_csv(settings.metadata_path)
-object_dict = {row['ImageID']: set(row['object'].split(',')) for _, row in metadata_df.iterrows() if not pd.isna(row['object'])}
-loccat_dict = {row['ImageID']: set(row['categories'].split(',')) for _, row in metadata_df.iterrows() if not pd.isna(row['categories'])}
-time_dict = {row['ImageID']: [row['local_date'], row['local_time']] for _, row in metadata_df.iterrows()}
+object_df = pd.read_csv(settings.metadata_object_path)
+object_dict = {row['ImageID']: set(row['object'].split(',')) for _, row in object_df.iterrows() if not pd.isna(row['object'])}
+loccat_df = pd.read_csv(settings.metadata_categories_path)
+loccat_dict = {row['ImageID']: set(row['categories'].split(',')) for _, row in loccat_df.iterrows() if not pd.isna(row['categories'])}
+time_df = pd.read_csv(settings.metadata_time_path)
+time_dict = {row['ImageID']: [row['local_date'], row['local_time']] for _, row in time_df.iterrows()}
 print(f"Done loading metadata in {time.time() - start_time} seconds.\n")
 
 print("loading fuzzy index for location search")
