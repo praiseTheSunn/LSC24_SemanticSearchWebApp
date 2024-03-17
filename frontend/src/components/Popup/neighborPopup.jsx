@@ -53,11 +53,9 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
     useEffect(() => {
         var totalPages = ~~(neighbors.length/50);
         var halfPage = ~~(totalPages/2);
-
-        // console.log("starting data: ", halfPage * 50, halfPage * 50 + 50);
-        // setActiveNeighbors(imageDataUrls.slice(halfPage * 50, halfPage * 50 + 50));
+        console.log('neighbors', neighbors, 'activeNeighbors', activeNeighbors)
         
-        if (neighbors[halfPage * 50] !== undefined && neighbors[halfPage * 50].image == "") {
+        if (neighbors[halfPage * 50] !== undefined && activeNeighbors.length === 0) {
             fetchImages(halfPage * 50, halfPage * 50 + 50, true);
             
             setBottomPage((halfPage));
@@ -70,7 +68,7 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
 
     const fetchImages = (index, max, addToFront) => {
         var copy = [];
-        fetchImagesToCopy(index, index, max, copy, addToFront);
+        fetchImagesToCopy(index, max, copy, addToFront);
     }
 
     const fetchImagesToCopy = (index, max, copy, addToFront) => {
@@ -78,7 +76,7 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
         // console.log(copy);
         if (index < neighbors.length && index < max) {
             // console.log(index, imageUrls)
-            const url = activeNeighbors[index].path.replace(/\//g, '\\');
+            const url = neighbors[index].path.replace(/\//g, '\\');
             // console.log("fetching " + index + "th url: " + url);
 
             imageService.getImage(url)
@@ -97,8 +95,9 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
                     const date = url.split('\\').slice(-3, -1).join('-').replace(/(\d{4})(\d{2})-(\d{2})/, '$1-$2-$3');
                     const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
 
+                    const is_origin = url === viewImage.path ? 1 : 0;
                     // Add the image data to copy
-                    copy.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
+                    copy.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time, 'is_origin':is_origin });
 
                     // Recursive call to fetch the next image
                     // return fetchImages(index + 1, max);
@@ -119,10 +118,6 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
                 else {
                     return [...prevActiveNeighbors, ...copy];
                 }
-                // for (var i = min; i < max; i++) {
-                //     prevActiveNeighbors[i] = copy[i];
-                // }
-                // return prevActiveNeighbors;
             });
             return copy;
         }
@@ -135,23 +130,23 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
         // console.log('clicked',fileName);
         if(selectedImages.some(image => image.url.includes(fileName))){
             removeSelectedImage(fileName);
-            const updatedImages = neighbors.map((record) => {
+            const updatedImages = activeNeighbors.map((record) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 0 };
                 }
                 return record;
             });
-            setNeighbors(updatedImages);
+            setActiveNeighbors(updatedImages);
         }else{
             // console.log('adding',fileName);
             addSelectedImage(fileName, image);
-            const updatedImages = neighbors.map((record, i) => {
+            const updatedImages = activeNeighbors.map((record, i) => {
                 if (record.path === imageUrl) {
                     return { ...record, status: 1 };
                 }
                 return record;
             });
-            setNeighbors(updatedImages);
+            setActiveNeighbors(updatedImages);
         }
     }    
 
@@ -168,17 +163,9 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
             const scrollHeight = container.scrollHeight;
             const scrollTop = container.scrollTop;
             const clientHeight = container.clientHeight;
-            // console.log('scrollHeight',scrollHeight)
-            // console.log('scrollTop',scrollTop)  
-            // console.log('clientHeight',clientHeight)
-
             // Check if the user is at the bottom (you can adjust the threshold if needed)
             const isBottom = scrollHeight - scrollTop - 100 <= clientHeight;
             const isTop = scrollTop === 0;
-            // console.log('isTop', isTop)
-            // console.log('isBottom', isBottom);
-            // console.log('topPage', topPage);
-            // console.log('bottomPage', bottomPage);
             
             setIsAtBottom(isBottom);
             setIsAtTop(isTop);
@@ -209,13 +196,10 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
       
         try {
             console.log("fetch data top ", (topPage - 1) * 50 - 50, " ", (topPage - 1) * 50)
-            // var data = neighbors.slice((topPage - 1) * 50 - 50, (topPage - 1) * 50);
-            // setActiveNeighbors(prevItems => [...data, ...prevItems]);
             fetchImages((topPage - 1) * 50 - 50, (topPage - 1) * 50, true);
             setTopPage(topPage => topPage - 1);
         } catch (error) {
             console.log('error', error);
-        //   setError(error);
         } finally {
             setIsAtTop(false);
             setIsLoading(false);
@@ -230,8 +214,6 @@ const NeighborPopup = ({viewImage, openSinggleImage}) => {
       
         try {
             console.log("fetch data bottom ", (bottomPage + 1) * 50, " ", (bottomPage + 1) * 50 + 50);
-            // var data = neighbors.slice((bottomPage + 1) * 50, (bottomPage + 1) * 50 + 50);
-            // setActiveNeighbors(prevItems => [...prevItems, ...data]);
             fetchImages((bottomPage + 1) * 50, (bottomPage + 1) * 50 + 50, false);
             setBottomPage(prevPage => prevPage + 1);
         } catch (error) {
