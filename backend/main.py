@@ -23,14 +23,12 @@ import open_clip
 
 import faiss
 from settings import keyframes_path
-# from helper.embedding_helper import search_text_query
-
-# from helper.setup import setup
+from helper import embedding_helper
 from fastapi.middleware.cors import CORSMiddleware
 
 
 print("setting up!")
-# device, model, preprocess, keyframe_paths, index = setup()
+from helper import setup
 print("setup done!")
 
 app = FastAPI()
@@ -42,6 +40,8 @@ app.add_middleware(
     allow_methods=["GET"],  # Only allow GET requests
     allow_headers=["*"],  # Allow all headers
 )
+
+# image_files = embedding_helper.search(setup.keyframe_paths, setup.model, 'image', "Lots of colourful mugs for sale in Bangkok. Yellow, red, green, blue, orange cups. They were on a stand beside some green plants in a large outdoor mall.")
 
 
 # @app.get("/")
@@ -55,26 +55,25 @@ app.add_middleware(
 
 #     return {"paths": paths}
     
+# return an image file from url
 @app.get("/image/{file_url:path}")
 async def get_image(file_url: str):
     # file_url = file_url.replace("file://", "")
     print(file_url)
     header = {
         'Access-Control-Allow-Origin': '*'
-    }
-    
+    }    
     return FileResponse(file_url, media_type='image/jpeg', headers=header)
 
-@app.get("/query/{query_text}")
-async def get_images(query_text: str):
+# return image paths of images that are results from a text query
+@app.get("/query/{mode}/{text_query}")
+async def get_matched_image_paths(mode: str, text_query: str):
     # file_url = file_url.replace("file://", "")
-    print(query_text)
+    print(text_query)
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    image_folder = keyframes_path + '\\201901\\01'
-    image_files = glob.glob(image_folder + '/*.jpg')[:1000]  # Get the first 1000 jpg files in the folder
-    
+    image_files = embedding_helper.search_by_text_query(setup.keyframe_paths, mode, text_query)
     return JSONResponse(content={"image_files": image_files}, headers=header)
 
 @app.get("/similars/{file_url:path}")
@@ -84,9 +83,7 @@ async def get_similars(file_url: str):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    image_folder = keyframes_path + '\\201901\\01'
-    image_files = glob.glob(image_folder + '/*.jpg')[:1000]  # Get the first 1000 jpg files in the folder
-    
+    image_files = embedding_helper.search_by_image_path(setup.keyframe_paths, image_query_path=file_url)
     return JSONResponse(content={"image_files": image_files}, headers=header)
 
 @app.get("/neighbors/{file_url:path}")
@@ -94,7 +91,7 @@ async def get_neighbors(file_url: str):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    num_images = 200
+    num_images = 30
 
     # List all files in the folder
     folder_path = os.path.dirname(file_url)
