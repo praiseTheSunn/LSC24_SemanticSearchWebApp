@@ -1,10 +1,12 @@
 import FilterTag from './Filter/filterTag';
 import './leftPanel.css'
 import React, { useState } from 'react';
+import { useSelectedImages } from '../contexts/selectedImageContext';
 
 const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('90px');
+    const {displayedImages, setDisplayedImages} = useSelectedImages();
 
     const handleTextareaChange = (event) => {
         setTextareaValue(event.target.value);
@@ -28,10 +30,12 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
 
     const handleClearAll = () => {
         setDisplayedFilters([]);
+        setDisplayedImages(false);
     };
 
     const handleEnter = (event) => {
         if (event.key === 'Enter') {
+            setDisplayedImages(false);
             event.preventDefault(); // Prevent default behavior
             console.log('Enter key pressed');
             const input = event.target.value.trim();
@@ -61,7 +65,7 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                 setDisplayedFilters(previousState => [...previousState, filter]);
             }
             setTextareaValue('');
-            
+            setDisplayedImages(true);
         }
     };
 
