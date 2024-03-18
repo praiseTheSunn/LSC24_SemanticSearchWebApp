@@ -14,8 +14,8 @@ const RightPanel = ({query, filters}) => {
     const [activeImageUrls, setActiveImageUrls] = useState([    ]);
     const containerRef = useRef(null);
 
-    const { selectedImages, addSelectedImage, removeSelectedImage, getSize, removeAllSelected } = useSelectedImages();
-    const {similarPopUp, setSimilarPopUp} = usePopUp();
+    const { selectedImages, addSelectedImage, removeSelectedImage, getSize, removeAllSelected, displayedImages } = useSelectedImages();
+    const {similarPopUp, setSimilarPopUp, setNeighborPopUp, setLoadingPopUp} = usePopUp();
 
     const handleImageClick = (imageUrl, image) => {
         const fileName = imageUrl.split('\\').pop();
@@ -46,38 +46,40 @@ const RightPanel = ({query, filters}) => {
         
     }
 
-    const handleClick = () => {
-        // First HTTP request
-        const response2 = imageService.getImages("Greek wine on a Sunday. I was in a Greek restaurant drinking a small bottle of wine and eating Greek food (chips and meat) with a salad. I was sitting at a white tiled table. It was in Thessaloniki in Greece in January 2019. ")            // change query here    
-            .then(async (response2) => {
-                // Convert the byte data to a base64-encoded string
-                var urls = response2.data['image_files'];
-                var imageDataUrls = [];
-    
-                for (var i = 0; i < urls.length; i++) {
-                    const now = new Date();
-                    const currentTimeString = now.getTime().toString();
-                    const data = {
-                        path: urls[i],
-                        image: "",
-                        status: 0,
-                        dateInd: currentTimeString + i.toString(),
-                    }
-                    
-                    imageDataUrls.push(data);
-                }
-
-                setImageUrls(imageDataUrls)
-                // setActiveImageUrls(imageDataUrls.slice(0, 50));
-                
-            })
-            .catch((error) => {
-                console.error('Error fetching images:', error);
-            });
-    
-        // You can add more code here or handle subsequent actions after the requests
+    useEffect(() => {
+        if (query !== '') {
+            setLoadingPopUp(true);
+            // First HTTP request
+            const response2 = imageService.getImages(query)            // change query here    
+                .then(async (response2) => {
+                    // Convert the byte data to a base64-encoded string
+                    var urls = response2.data['image_files'];
+                    var imageDataUrls = [];
         
-    }
+                    for (var i = 0; i < urls.length; i++) {
+                        const now = new Date();
+                        const currentTimeString = now.getTime().toString();
+                        const data = {
+                            path: urls[i],
+                            image: "",
+                            status: 0,
+                            dateInd: currentTimeString + i.toString(),
+                        }
+                        
+                        imageDataUrls.push(data);
+                    }
+
+                    setImageUrls(imageDataUrls)
+                    // setActiveImageUrls(imageDataUrls.slice(0, 50));
+                    
+                })
+                .catch((error) => {
+                    console.error('Error fetching images:', error);
+                });
+        
+            // You can add more code here or handle subsequent actions after the requests
+        }
+    }, [query]);
 
     useEffect(() => {
         console.log('updated imageUrls',imageUrls, 'active', activeImageUrls); 
@@ -87,6 +89,7 @@ const RightPanel = ({query, filters}) => {
         else {
             console.log("imageUrls updated", imageUrls);
         }
+        setLoadingPopUp(false);
     }, [imageUrls]);
 
 
@@ -97,6 +100,7 @@ const RightPanel = ({query, filters}) => {
     const openSinggleImage = (image, path, date, time) => {
         setViewImage({image: image, path: path, date: date, time: time});
         setSimilarPopUp(true);
+        setNeighborPopUp(false);
     }
 
 
@@ -204,6 +208,17 @@ const RightPanel = ({query, filters}) => {
         fetchData();
     }
     }, [isAtBottom]);
+
+    const handleClick = () => {
+        console.log('Submit clicked');
+    };
+ 
+    useEffect(() => {
+        if (!displayedImages) {
+            setActiveImageUrls([]);
+            setImageUrls([]);
+        }
+    }, [displayedImages]);
 
 
     return(

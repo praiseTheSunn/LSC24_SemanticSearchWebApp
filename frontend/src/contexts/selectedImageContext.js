@@ -25,8 +25,10 @@ export const SelectedImagesProvider = ({ children }) => {
         setSelectedImages([]);
     }
 
+    const [displayedImages, setDisplayedImages] = useState(true);
+
     return (
-        <SelectedImagesContext.Provider value={{ selectedImages, addSelectedImage, removeSelectedImage , getSize, removeAllSelected}}>
+        <SelectedImagesContext.Provider value={{ displayedImages, setDisplayedImages,selectedImages, addSelectedImage, removeSelectedImage , getSize, removeAllSelected}}>
         {children}
         </SelectedImagesContext.Provider>
     );
