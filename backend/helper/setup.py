@@ -17,7 +17,7 @@ num_results = 10000
 start_time = time.time()
 print("loading keyframe paths")
 keyframe_paths = sorted(glob.glob(os.path.join(settings.keyframes_path, "*/*/*.jpg")))
-keyframe_paths_dict = {path: order for order, path in enumerate(keyframe_paths)}
+keyframe_paths_dict = {os.path.normpath(path): order for order, path in enumerate(keyframe_paths)}
 print(f"Done loading keyframe paths in {time.time() - start_time} seconds.\n")
 
 # print("loading clip model")

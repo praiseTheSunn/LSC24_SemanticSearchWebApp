@@ -1,5 +1,5 @@
 import './home.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './home.css';
 import LeftPanel from '../../components/leftPanel';
 import RightPanel from '../../components/rightPanel';
@@ -12,6 +12,9 @@ const Home = ({selectedFilters}) => {
     console.log('selectedFilters in home', selectedFilters);
 
     const [displayedFilters, setDisplayedFilters] = useState([]);
+    useEffect(()=>{
+        console.log('displayedFilters HOME',displayedFilters);
+    }, [displayedFilters]);
     const [query, setQuery] = useState('');
     const {loadingPopUp} = usePopUp();
 
@@ -27,6 +30,7 @@ const Home = ({selectedFilters}) => {
             <RightPanel 
                 query={query}
                 filters={displayedFilters}
+                setDisplayedFilters={setDisplayedFilters} 
             />
             
         </div>
