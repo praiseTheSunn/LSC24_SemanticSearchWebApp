@@ -2,7 +2,7 @@ import './filterTag.css'
 import React from 'react';
 
 const FilterTag = ({index, filter, onIconClick}) => {
-    console.log('filter', filter);
+    // console.log('filter', filter);
     const filterValue = Array.isArray(filter.value) ? filter.value.join(', ') : filter.value;
     return (
         <div className='filter-tag-container' key={index}>

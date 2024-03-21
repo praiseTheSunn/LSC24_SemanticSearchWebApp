@@ -170,7 +170,9 @@ const RightPanel = ({query, filters, setDisplayedFilters}) => {
 
     const fetchImagesToCopy = (index, max, copy) => {
         if (index < max) {
-            // console.log(index, imageUrls)
+            if (imageUrls[index] === undefined) 
+                return copy;
+            console.log(index, imageUrls[index])
             const url = imageUrls[index].path;
             // console.log("fetching " + index + "th url: " + url);
 
@@ -192,7 +194,7 @@ const RightPanel = ({query, filters, setDisplayedFilters}) => {
 
                     // Add the image data to imageDataUrls
                     copy.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
-
+                    console.log("fetched " + index + "th url: " + url);
                     // Recursive call to fetch the next image
                     copy = fetchImagesToCopy(index + 1, max, copy);
                 })
