@@ -39,14 +39,17 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
             event.preventDefault(); // Prevent default behavior
             console.log('Enter key pressed');
             const input = event.target.value.trim();
-            if (input.startsWith('-l ')) {
+            if (input.startsWith('-sl ')) {
                 const value = input.substring(3);
-                const filter = { category: 'location', value, status: 1 };
-                console.log('filter', filter);
+                const filter = { category: 'semantic location', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
             } else if (input.startsWith('-t ')) {
                 const value = input.substring(3);
                 const filter = { category: 'time', value, status: 1 };
+                setDisplayedFilters(previousState => [...previousState, filter]);
+            } else if (input.startsWith('-lc ')) {
+                const value = input.substring(3);
+                const filter = { category: 'location category', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
             } else if (input.startsWith('-ocr ')) {
                 const value = input.substring(5);
@@ -111,7 +114,8 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                     ))}
                     
                     <div className='filter-instruction'>
-                        -l ... : location <br/>
+                        -sl ... : semantic location <br/>
+                        -lc ... : location category<br/>
                         -t ... : time<br/>
                         -ocr ... : OCR text<br/>
                         -obj ... : Object Detection<br/>

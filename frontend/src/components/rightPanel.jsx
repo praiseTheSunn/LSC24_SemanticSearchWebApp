@@ -9,7 +9,7 @@ import close_icon from '../assets/close.png';
 import ImageInList from './Image/imageInList';
 import { usePopUp } from '../contexts/popUpContext';
 
-const RightPanel = ({query, filters}) => {
+const RightPanel = ({query, filters, setDisplayedFilters}) => {
     const [imageUrls, setImageUrls] = useState([    ]);
     const [activeImageUrls, setActiveImageUrls] = useState([    ]);
     const containerRef = useRef(null);
@@ -71,7 +71,27 @@ const RightPanel = ({query, filters}) => {
 
                     setImageUrls(imageDataUrls)
                     // setActiveImageUrls(imageDataUrls.slice(0, 50));
+                    const fetchedFiltersString = response2.data['filters'];
+                    const fetchedFilters = JSON.parse(fetchedFiltersString);
                     
+                    console.log('filters fron right', fetchedFilters);
+                    const updatedFilters = Object.entries(fetchedFilters).map(([key, value]) => {
+                        console.log('obj', key, value);
+                        if (key === 'obj' && value.length > 0) {
+                            return { category: 'objects', value: value, status: 1 };
+                        }else if (key === 'time' && value.length > 0) {
+                            return { category: 'time', value: value, status: 1 };
+                        }else if (key === 'loc_sem' && value) {
+                            return { category: 'semantic location', value: value, status: 1 };
+                        }else if (key === 'loc_cat' && value.length > 0) {
+                            return { category: 'location category', value: value, status: 1 };
+                        }else if (key === 'date' && value) {
+                            return { category: 'time', value: value, status: 1 };
+                        }
+                    }).filter(filter => filter !== undefined);
+                    setDisplayedFilters(previousState => [...previousState, ...updatedFilters]);
+                    
+                    console.log('filters fron right', fetchedFilters);
                 })
                 .catch((error) => {
                     console.error('Error fetching images:', error);

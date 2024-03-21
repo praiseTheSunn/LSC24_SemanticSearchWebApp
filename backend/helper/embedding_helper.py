@@ -250,7 +250,7 @@ def search_by_text_query(keyframe_paths, mode, text_query):
     print("After loccat filter, found: ", len(paths), " results")
 
     # filter by time 
-    new_paths = query_date_time.query_time_date_image(setup.time_dict, text_query, paths)
+    new_paths, off_date, time = query_date_time.query_time_date_image(setup.time_dict, text_query, paths)
     paths = new_paths
     print("After time filter, found: ", len(paths), " results")
     
@@ -264,4 +264,15 @@ def search_by_text_query(keyframe_paths, mode, text_query):
     for path in paths[:200]:
         print(path)
 
-    return paths
+    parsed_objects_list = list(parsed_objects_from_query)
+    parsed_location_categories_list = list(parsed_location_categories_from_query)
+
+    return_JSON = {
+        'obj' : parsed_objects_list,
+        'loc_cat' : parsed_location_categories_list,
+        'loc_sem' : location_semantic_name,
+        'date' : off_date,
+        'time' : time
+    }
+
+    return paths, return_JSON

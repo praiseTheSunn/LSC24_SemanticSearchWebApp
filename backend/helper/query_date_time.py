@@ -286,28 +286,34 @@ def compare_date_ranges(find_date, find_season):
     else:
         return find_season
     
-def official_date(text):
+def official_date(text): 
+    # trả về danh sách ngày
     if "christmas" in text.lower():
+        # trả về ngày Giáng sinh
         return {date_to_str(datetime.date(2019, 12, 24)): True}
     normal_text_date = normalize_text_date(text)
     if normal_text_date == False:
         return False
     find_date = findDate(normal_text_date)
     if isinstance(find_date, datetime.date):
+        # trả về 1 ngày cụ thể, dạng dict
         return {date_to_str(find_date): True}
     find_season = findSeasonPeriod(normal_text_date)
     find_period = compare_date_ranges(find_date, find_season)
 
     res = findDayOfWeek(find_period, findDaysOfWeekFromText(text))
     if res != False:
+        # trả về 1 dict gồm các ngày, ví dụ {20210101: True, 20210108: True}
         return res
     else:
         if isinstance(find_period, list):
             per = []
             for period in find_period:
                 per.append(date_to_str(period))
+            # trả về 1 list gồm 2 ngày, ngày bắt đầu và ngày kết thúc, ví dụ [20210101, 20210108]
             return per
         else:
+            # trả về 1 dict gồm các ngày, ví dụ {20210101: True, 20210108: True}
             return find_period
 
 def query_date_image(time_dict, text, paths):
@@ -326,8 +332,8 @@ def query_date_image(time_dict, text, paths):
                 if local_date == int(key):
                     new_paths.append(path)
         else:
-            return paths
-    return new_paths
+            return paths, off_date
+    return new_paths, off_date
 
 def extract_time_entities(sentence):
     """Extract named entities from a given sentence and return them in a list of tuples."""
@@ -459,7 +465,7 @@ def extract_time_ranges(text):
     t_rande = get_shortest_time_range(time_ranges_and_extract)
     return t_rande
 
-def begin_end(t_rande):
+def begin_end(t_rande): # trả về khoảng thời gian (theo giờ phút giây)
     if t_rande != False:
         bh = t_rande[0]
         bm = t_rande[1]
@@ -477,7 +483,7 @@ def query_time_image(time_dict, text, paths):
     beg_end = begin_end(t_rande)
     print(t_rande)
     if beg_end == False:
-        return paths
+        return paths, ''
     
     new_paths = []
     image_ids = np.array([path[-23:] for path in paths])
@@ -486,9 +492,9 @@ def query_time_image(time_dict, text, paths):
         local_time = time_dict[image_id][1]
         if local_time >= beg_end[0] and local_time <= beg_end[1]:
             new_paths.append(path)
-    return new_paths
+    return new_paths, beg_end
 
 def query_time_date_image(time_dict, text, paths):
-    paths = query_date_image(time_dict, text, paths)
-    paths = query_time_image(time_dict, text, paths)
-    return paths
+    paths, off_date = query_date_image(time_dict, text, paths)
+    paths, beg_end = query_time_image(time_dict, text, paths)
+    return paths, off_date, beg_end
