@@ -10,6 +10,7 @@ from tqdm import tqdm
 import time
 from whoosh.qparser import QueryParser
 from whoosh.qparser.plugins import FuzzyTermPlugin
+import concurrent.futures
 
 device = "cpu"
 num_results = 10000
@@ -18,6 +19,7 @@ start_time = time.time()
 print("loading keyframe paths")
 keyframe_paths = sorted(glob.glob(os.path.join(settings.keyframes_path, "*/*/*.jpg")))
 keyframe_paths_dict = {path: order for order, path in enumerate(keyframe_paths)}
+all_image_ids_dict = {path[-23:]: order for order, path in enumerate(keyframe_paths)}
 print(f"Done loading keyframe paths in {time.time() - start_time} seconds.\n")
 
 # print("loading clip model")
@@ -75,13 +77,22 @@ location_category_list = loader.load_location_category_list()
 print(f"Done loading object and location category list in {time.time() - start_time} seconds.\n")
 
 print("loading metadata for object and location category")
-object_df = pd.read_csv(settings.metadata_object_path)
+# Read CSVs in parallel
+with concurrent.futures.ThreadPoolExecutor() as executor:
+    object_df_future = executor.submit(pd.read_csv, settings.metadata_object_path)
+    loccat_df_future = executor.submit(pd.read_csv, settings.metadata_categories_path)
+    time_df_future = executor.submit(pd.read_csv, settings.metadata_time_path)
+# Get results
+object_df = object_df_future.result()
+loccat_df = loccat_df_future.result()
+time_df = time_df_future.result()
+# Create lists
 object_dict = {row['ImageID']: set(row['object'].split(',')) for _, row in object_df.iterrows() if not pd.isna(row['object'])}
-loccat_df = pd.read_csv(settings.metadata_categories_path)
-loccat_dict = {row['ImageID']: set(row['categories'].split(',')) for _, row in loccat_df.iterrows() if not pd.isna(row['categories'])}
-time_df = pd.read_csv(settings.metadata_time_path)
+loccat_dict = {row['ImageID']: row['categories'] for _, row in loccat_df.iterrows() if not pd.isna(row['categories'])}
 time_dict = {row['ImageID']: [row['local_date'], row['local_time']] for _, row in time_df.iterrows()}
+# Print completion message
 print(f"Done loading metadata in {time.time() - start_time} seconds.\n")
+
 
 print("loading fuzzy index for location search")
 from whoosh.index import open_dir   
