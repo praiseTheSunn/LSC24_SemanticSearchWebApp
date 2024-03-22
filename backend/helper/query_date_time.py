@@ -4,6 +4,7 @@ import datetime
 from collections import OrderedDict
 import calendar
 import numpy as np
+from helper import setup
 nlp = spacy.load('en_core_web_sm')
 
 def date_to_str(datetime_obj):
@@ -313,25 +314,27 @@ def official_date(text):
         else:
             return find_period
 
-def query_date_image(time_dict, text, paths):
+def query_date_image(time_dict, text, image_ids):
 
     off_date = official_date(text)
     print(off_date)
 
-    new_paths = []
-    image_ids = np.array([path[-23:] for path in paths])
-    for image_id, path in zip(image_ids, paths):  
+    date_similarities = []
+    for image_id in image_ids:
         local_date = time_dict[image_id][0]
         if isinstance(off_date, list):
             if local_date >= int(off_date[0]) and local_date <= int(off_date[1]):
-                new_paths.append(path)
+                date_similarities.append(1.0)
+            else:
+                date_similarities.append(0.2)
         elif isinstance(off_date, dict):
             for key in off_date:
                 if local_date == int(key):
-                    new_paths.append(path)
+                    date_similarities.append(1.0)
+            date_similarities.append(0.2)
         else:
-            return paths
-    return new_paths
+            return [1.0 * len(image_ids)]
+    return date_similarities
 
 def extract_time_entities(sentence):
     """Extract named entities from a given sentence and return them in a list of tuples."""
@@ -475,24 +478,24 @@ def begin_end(t_rande):
     else:
         return False
     
-def query_time_image(time_dict, text, paths):
+def query_time_image(time_dict, text, image_ids, date_similarities):
     
     t_rande = extract_time_ranges(text)
     beg_end = begin_end(t_rande)
     print(t_rande, beg_end)
     if beg_end == False:
-        return paths
+        return date_similarities
     
-    new_paths = []
-    image_ids = np.array([path[-23:] for path in paths])
-
-    for image_id, path in zip(image_ids, paths):  
+    time_similarities = []
+    for image_id in image_ids:  
         local_time = time_dict[image_id][1]
         if local_time >= beg_end[0] and local_time <= beg_end[1]:
-            new_paths.append(path)
-    return new_paths
+            time_similarities.append(1)
+        else:
+            time_similarities.append(0.6)
+    return time_similarities
 
-def query_time_date_image(time_dict, text, paths):
-    paths = query_date_image(time_dict, text, paths)
-    paths = query_time_image(time_dict, text, paths)
-    return paths
+def query_time_date_image(time_dict, text, image_ids):
+    date_similarities = query_date_image(time_dict, text, image_ids)
+    time_similarities = query_time_image(time_dict, text, image_ids, date_similarities)
+    return np.array(time_similarities)
