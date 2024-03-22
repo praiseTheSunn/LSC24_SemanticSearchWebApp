@@ -178,45 +178,45 @@ def parse_objects_and_loccats_from_query(query):
 
 # ------------------------------------------------------------------------------------
 # compute object similarities
-def compute_object_similarities(parsed_objects_from_query, indices):
+def compute_object_similarities(parsed_objects_from_query, image_ids):
     object_similarities = []
-    image_ids = np.array([setup.keyframe_paths[idx][-23:] for idx in indices])
     for image_id in image_ids:
-        if image_id in setup.object_dict:
+        try:
             objects_from_image = setup.object_dict[image_id]
             common_objects = objects_from_image & parsed_objects_from_query
             object_similarity = (0.2 + 0.8 * len(common_objects) / len(parsed_objects_from_query)) if parsed_objects_from_query else 0.5
-        else:
+        except:
             object_similarity = 0.2
         object_similarities.append(object_similarity)
     object_similarities = np.array(object_similarities, dtype=np.float16)
     return object_similarities
+# compute loccat similarities
+def compute_loccat_similarities(parsed_location_categories_from_query, image_ids):
+    loccat_similarities = []
+    for image_id in image_ids:
+        try:
+            location_category = setup.loccat_dict[image_id] 
+            if location_category in parsed_location_categories_from_query:
+                loccat_similarity = 1
+            else:
+                location_category = 0.2
+        except:
+            loccat_similarity = 0.8
+        loccat_similarities.append(loccat_similarity)
+    loccat_similarities = np.array(loccat_similarities, dtype=np.float16)
+    return loccat_similarities
+
 
 # ------------------------------------------------------------------------------------
-# get_harmonic_average
-def get_harmonic_average(x, y):
-    return 2 * (x * y) / (x + y)
+# get total score
+def get_total_score(s1, s2, s3, s4, s5):
+    return 1 / (1 / s1 + 1 / s2 + 1 / s3 + 1 / s4 + 1 / s5)
 
 # compute combined score for each keyframe
-def get_scores_sorted(indices, semantic_similarities, object_similarities):
-    scores_unsorted = get_harmonic_average(semantic_similarities, object_similarities)
-    scores_indices = list(zip(scores_unsorted, indices))
+def get_scores_sorted(combined_indices, total_scores):
+    scores_indices = list(zip(total_scores, combined_indices))
     scores_indices.sort(key=lambda x: x[0], reverse=True)
     return scores_indices
-
-# ------------------------------------------------------------------------------------
-# function to filter by location category
-def loccat_filter(paths, parsed_location_categories_from_query):
-    new_paths = []
-    image_ids = np.array([path[-23:] for path in paths])
-    for image_id, path in zip(image_ids, paths):
-        try:
-            location_category = setup.loccat_dict[image_id]  
-        except:
-            location_category = None    
-        if pd.isna(location_category) or location_category in parsed_location_categories_from_query:
-            new_paths.append(path)
-    return new_paths
 
 # ------------------------------------------------------------------------------------
 # search in index using image path and return top n results
@@ -252,42 +252,64 @@ def search_by_text_query(keyframe_paths, mode, text_query, debug = True):
     semantic_similarities = semantic_similarities / np.max(semantic_similarities)
     indices = np.array(indices[0], dtype=np.int32)
 
-    # parse objects and loccats from query
+    # parse objects, loccats and location semantic name from query
     parsed_objects_from_query, parsed_location_categories_from_query = parse_objects_and_loccats_from_query(text_query)
-    # print("Parsed objects: ", parsed_objects_from_query)
-    # print("Parsed locations: ", parsed_location_categories_from_query)
+    location_semantic_name = parse_location_semantic_name_from_query(text_query)
 
-    # compute object similarities
-    object_similarities = compute_object_similarities(parsed_objects_from_query, indices) 
+    # compute metadata similarities
+    image_ids = [setup.keyframe_paths[idx][-23:] for idx in indices]
+    object_similarities = compute_object_similarities(parsed_objects_from_query, image_ids) 
+    loccat_similarities = compute_loccat_similarities(parsed_location_categories_from_query, image_ids)
+    time_similarities = query_date_time.query_time_date_image(setup.time_dict, text_query, image_ids)
+    if location_semantic_name:
+        locsem_indices, locsem_similarities = fuzzy_search.fuzzy_search_frame(image_ids, location_semantic_name, setup.searcher, setup.qp, limit=2000)
+    else:
+        locsem_indices = indices
+        locsem_similarities = np.ones(len(indices), dtype=np.float16)
    
-    # get scores and indices sorted by scores
-    scores_indices = get_scores_sorted(indices, semantic_similarities, object_similarities)    
-    paths = []
-    for _, idx in scores_indices:
-        paths.append(keyframe_paths[idx])
+    # debug
+    print(f"image_ids: length {len(image_ids)}, ", image_ids[:10])
+    print(f"indices: length {len(indices)}, ", indices[:10])
+    print(f"semantic_similarities: length {len(semantic_similarities)}, ", semantic_similarities[:10])
+    print(f"object_similarities: length {len(object_similarities)}, ", object_similarities[:10])
+    print(f"loccat_similarities: length {len(loccat_similarities)}, ", loccat_similarities[:10])
+    print(f"time_similarities: length {len(time_similarities)}, ", time_similarities[:10])
+    print(f"locsem_similarities: length {len(locsem_similarities)}, ", locsem_similarities[:10])
 
-    # filter by location category
-    new_paths = loccat_filter(paths, parsed_location_categories_from_query)   
-    paths = new_paths
-    if (debug):
-        print("After loccat filter, found: ", len(paths), " results")
 
-    # filter by time 
-    new_paths = query_date_time.query_time_date_image(setup.time_dict, text_query, paths)
-    paths = new_paths
-    if (debug):
-        print("After time filter, found: ", len(paths), " results")
+
+    # get scores and indices
+    combined_indices = np.unique(np.concatenate((indices, locsem_indices)))
+    dict_1 = dict(zip(indices, semantic_similarities))
+    dict_2 = dict(zip(indices, object_similarities))
+    dict_3 = dict(zip(indices, loccat_similarities))
+    dict_4 = dict(zip(indices, time_similarities))
+    dict_5 = dict(zip(locsem_indices, locsem_similarities))
+    total_scores = [
+        get_total_score(dict_1.get(index, 0.2), dict_2.get(index, 0.2), dict_3.get(index, 0.2), dict_4.get(index, 0.2), dict_5.get(index, 0.2))
+        for index in combined_indices]
+
+    # sort scores and indices
+    scores_indices = get_scores_sorted(combined_indices, total_scores)
+    paths = [setup.keyframe_paths[idx] for _, idx in scores_indices]
+
+
+    # # filter by location category
+    # new_paths = loccat_filter(paths, parsed_location_categories_from_query)   
+    # paths = new_paths
+    # print("After loccat filter, found: ", len(paths), " results")
+
+    # # filter by time 
+    # new_paths = query_date_time.query_time_date_image(setup.time_dict, text_query, paths)
+    # paths = new_paths
+    # print("After time filter, found: ", len(paths), " results")
     
     # filter by location semantic name
-    location_semantic_name = parse_location_semantic_name_from_query(text_query)
-    if (debug):
-        print("Parse Location semantic name: ", location_semantic_name)
-    if location_semantic_name != None:
-        new_paths = fuzzy_search.fuzzy_search_frame(paths, location_semantic_name, setup.ix, setup.searcher, setup.qp, limit=1000)
-        paths = new_paths
-    
-    if (debug):
-        print("After location filter, found: ", len(paths), " results")
+    # location_semantic_name = parse_location_semantic_name_from_query(text_query)
+    # if location_semantic_name != None:
+    #     new_paths = fuzzy_search.fuzzy_search_frame(paths, location_semantic_name, setup.ix, setup.searcher, setup.qp, limit=1000)
+    #     paths = new_paths
+    # print("After location filter, found: ", len(paths), " results")
 
     # for path in paths[:200]:
     #     print(path)
