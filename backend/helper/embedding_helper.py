@@ -62,6 +62,22 @@ def compute_text_embedding_blip2(text_query: str):
         print("Error:", e)
         return None
 
+# def compute_text_embedding_clip(text_query: str):
+#     # loading CLIP model and its processor
+#     device = "cpu"
+#     # model, _, preprocess = open_clip.create_model_and_transforms('ViT-H/14', pretrained='laion2b_s32b_b79k', cache_dir=global_link.model_dir)
+#     model, _, preprocess = open_clip.create_model_and_transforms('ViT-H/14', pretrained=global_link.model_dir)
+
+#     with torch.no_grad(), torch.cuda.amp.autocast():
+#         text_embedding = model.encode_text(text_query_tokens)
+#     pass
+
+import helper.beit3 as beit3
+def compute_text_embedding_beit3(text_query: str):
+    
+    return beit3.calc_text_embedding(text_query, beit3.tokenizer)
+    # pass
+
 # get image embedding 
 def get_image_embedding_blip2(image_order: int):
         
@@ -103,6 +119,10 @@ def search_in_blip2_index(query_embedding, num_results):
     except requests.exceptions.RequestException as e:
         print("Error:", e)
         return None, None
+    
+def search_in_beit3_index(query_embedding, num_results):
+    distances, indices = beit3.index.search(query_embedding.reshape(1, -1), num_results)
+    return  distances, indices
 # ------------------------------------------------------------------------------------   
 # parse location semantic names from query
 def parse_location_semantic_name_from_query(query):
@@ -141,7 +161,7 @@ def parse_objects_and_loccats_from_query(query):
         embedding = compute_text_embedding_blip2(noun_chunk)        
         _, object_indices = setup.object_blip2_index.search(embedding.cpu().detach().numpy(), max_location_categories_retrieved)
         
-        print("Noun chunk: ", noun_chunk)
+        # print("Noun chunk: ", noun_chunk)
         first_match = object_indices[0][0]
         
         if first_match >= setup.OFFSET_OBJECT_START and first_match < setup.OFFSET_OBJECT_END:
@@ -152,8 +172,8 @@ def parse_objects_and_loccats_from_query(query):
                     parsed_location_categories_from_query.append(setup.location_category_list[i - setup.OFFSET_LOCATION_START])     
         print()
     
-    print("Final objects: ", parsed_objects_from_query)
-    print("Final locations: ", parsed_location_categories_from_query)
+    # print("Final objects: ", parsed_objects_from_query)
+    # print("Final locations: ", parsed_location_categories_from_query)
     return set(parsed_objects_from_query), set(parsed_location_categories_from_query)
 
 # ------------------------------------------------------------------------------------
@@ -216,7 +236,7 @@ def search_by_image_path(keyframe_paths, image_query_path):
     return paths
 
 # search in index using text query and return top n results
-def search_by_text_query(keyframe_paths, mode, text_query):
+def search_by_text_query(keyframe_paths, mode, text_query, debug = True):
     
     # perform semantic search and compute semantic similarities
     if mode == 'caption':
@@ -224,14 +244,18 @@ def search_by_text_query(keyframe_paths, mode, text_query):
         semantic_index = setup.caption_git_index
         semantic_similarities, indices = semantic_index.search(query_embedding.reshape(1, -1), num_results)  
     elif mode == 'image':
-        query_embedding = compute_text_embedding_blip2(text_query)            
-        semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results) 
-    semantic_similarities = np.array(semantic_similarities[0], dtype=np.float16)
+        # query_embedding = compute_text_embedding_blip2(text_query)            
+        # semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results) 
+        query_embedding = compute_text_embedding_beit3(text_query)            
+        semantic_similarities, indices = search_in_beit3_index(query_embedding, num_results) 
+    semantic_similarities = np.array(semantic_similarities, dtype=np.float16)
     semantic_similarities = semantic_similarities / np.max(semantic_similarities)
     indices = np.array(indices[0], dtype=np.int32)
 
     # parse objects and loccats from query
     parsed_objects_from_query, parsed_location_categories_from_query = parse_objects_and_loccats_from_query(text_query)
+    # print("Parsed objects: ", parsed_objects_from_query)
+    # print("Parsed locations: ", parsed_location_categories_from_query)
 
     # compute object similarities
     object_similarities = compute_object_similarities(parsed_objects_from_query, indices) 
@@ -242,26 +266,31 @@ def search_by_text_query(keyframe_paths, mode, text_query):
     for _, idx in scores_indices:
         paths.append(keyframe_paths[idx])
 
-
-
     # filter by location category
     new_paths = loccat_filter(paths, parsed_location_categories_from_query)   
     paths = new_paths
-    print("After loccat filter, found: ", len(paths), " results")
+    if (debug):
+        print("After loccat filter, found: ", len(paths), " results")
 
     # filter by time 
     new_paths = query_date_time.query_time_date_image(setup.time_dict, text_query, paths)
     paths = new_paths
-    print("After time filter, found: ", len(paths), " results")
+    if (debug):
+        print("After time filter, found: ", len(paths), " results")
     
     # filter by location semantic name
     location_semantic_name = parse_location_semantic_name_from_query(text_query)
+    if (debug):
+        print("Parse Location semantic name: ", location_semantic_name)
     if location_semantic_name != None:
         new_paths = fuzzy_search.fuzzy_search_frame(paths, location_semantic_name, setup.ix, setup.searcher, setup.qp, limit=1000)
         paths = new_paths
-    print("After location filter, found: ", len(paths), " results")
+    
+    if (debug):
+        print("After location filter, found: ", len(paths), " results")
 
-    for path in paths[:200]:
-        print(path)
+    # for path in paths[:200]:
+    #     print(path)
 
     return paths
+
