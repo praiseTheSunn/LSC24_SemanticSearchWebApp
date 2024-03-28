@@ -333,7 +333,7 @@ def query_date_image(time_dict, text, image_ids):
                     date_similarities.append(1.0)
             date_similarities.append(0.2)
         else:
-            return [1.0 * len(image_ids)]
+            return [1.0] * len(image_ids)
     return date_similarities
 
 def extract_time_entities(sentence):
