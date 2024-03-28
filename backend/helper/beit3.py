@@ -203,22 +203,22 @@ def calc_both_embedding(image_path, text, tokenizer):
     loss, img_embedding, text_embedding = model(image=img_tokens, text_description=text_tokens, padding_mask=padding_mask, only_infer=False)    
     return loss, img_embedding, text_embedding
 
-if __name__ == "__main__":
-    import torch
-    import timm
+# if __name__ == "__main__":
+#     import torch
+#     import timm
 
-    model_name = "beit3_base_patch16_384_retrieval"  # Replace with the specific model you want to use, e.g., "resnet50", "efficientnet_b3", etc.
-    num_classes = 10  # Replace with the number of output classes in your model
+#     model_name = "beit3_base_patch16_384_retrieval"  # Replace with the specific model you want to use, e.g., "resnet50", "efficientnet_b3", etc.
+#     num_classes = 10  # Replace with the number of output classes in your model
 
-    model = timm.models.create_model(model_name, pretrained=False, num_classes=num_classes)
+#     model = timm.models.create_model(model_name, pretrained=False, num_classes=num_classes)
 
-    ckpt_path = "beit3_base_patch16_384_f30k_retrieval.pth"
+#     ckpt_path = "beit3_base_patch16_384_f30k_retrieval.pth"
 
-    checkpoint = torch.load(ckpt_path, map_location='cpu')
-    # print(checkpoint)
+#     checkpoint = torch.load(ckpt_path, map_location='cpu')
+#     # print(checkpoint)
 
-    # Step 4: Load the model weights from the checkpoint
-    model.load_state_dict(checkpoint['model'])
+#     # Step 4: Load the model weights from the checkpoint
+#     model.load_state_dict(checkpoint['model'])
 
 
 

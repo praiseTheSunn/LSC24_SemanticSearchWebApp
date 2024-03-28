@@ -36,7 +36,7 @@ for test_name, test_value in tests.items():
 
         # image_paths = model.search_text_query(query_text)
         start_time = time.time()
-        image_files = embedding_helper.search_by_text_query(setup.keyframe_paths, 'image', query_text, False)
+        image_files = embedding_helper.search_by_text_query(setup.keyframe_paths, 'image', query_text, str(test_name + '_' + str(i)), False)
         print(f"Done searching for text query in {time.time() - start_time} seconds.\n")
 
         for j, n in enumerate([1, 5, 10, 20, 50]):
