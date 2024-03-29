@@ -31,18 +31,56 @@ def load_tests(file_path):
             # print(line)
     return test
 
+def load_tests_ntcir(test_file_ntcir, ntcir_file_answer_path):
+
+    import xml.etree.ElementTree as ET
+    import pandas as pd
+
+    # Read the XML file
+    tree = ET.parse(test_file_ntcir)
+    root = tree.getroot()
+
+    test = {}
+
+    # Access the XML data as needed
+    # Example: Print the tag and text of each element
+    prev_id = None
+    for element in root.iter():
+        if (element.tag == 'id'):
+                test_id = element.text
+                test[test_id] = {}
+                test[test_id]['query_text'] = []
+                test[test_id]['expected_result'] = []
+        if (element.tag == 'description'):
+            test[test_id]['query_text'].append(element.text)
+    # print(test)
+
+
+    # Read the CSV file
+    df = pd.read_csv(ntcir_file_answer_path)
+
+    # Get values in columns 'query' and 'docid'
+    queries = df['query'].tolist()
+    docids = df['docid'].tolist()
+
+    for i, query in enumerate(queries):
+        test[str(query)]['expected_result'].append(docids[i])
+
+    return test
+
 def calculate_r_at_n(predictions, true_labels, n):
-    print('calculating: ', predictions[:n], true_labels, n)
+    # print('calculating: ', predictions[:n], true_labels, n)
 
     correct_count = 0
 
     for true_label in true_labels:
-        if true_label in predictions[:n]:
-            correct_count += 1
+        for prediction in predictions[:n]:
+            if true_label in prediction:
+                correct_count += 1
 
     print(correct_count, len(predictions))
 
     if (len(predictions) == 0):
         return 0
-    r_at_n = correct_count / len(predictions)
+    r_at_n = correct_count / len(true_labels)
     return r_at_n

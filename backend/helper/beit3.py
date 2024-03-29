@@ -21,6 +21,8 @@ import glob
 import os
 import numpy as np
 
+import settings
+
 def trunc_normal_(tensor, mean=0., std=1.):
     __call_trunc_normal_(tensor, mean=mean, std=std, a=-std, b=std)
 
@@ -230,7 +232,7 @@ num_classes = 10  # Replace with the number of output classes in your model
 
 model = timm.models.create_model(model_name, pretrained=False, num_classes=num_classes)
 
-ckpt_path = "beit3_base_patch16_384_f30k_retrieval.pth"
+ckpt_path = settings.beit3_model_path
 
 checkpoint = torch.load(ckpt_path, map_location='cpu')
 # print(checkpoint)
@@ -238,7 +240,7 @@ checkpoint = torch.load(ckpt_path, map_location='cpu')
 # Step 4: Load the model weights from the checkpoint
 model.load_state_dict(checkpoint['model'])
 
-tokenizer = get_sentencepiece_model_for_beit3("beit3.spm")
+tokenizer = get_sentencepiece_model_for_beit3(settings.beit3_tokenizer_path)
 
 print("loading beit3 index")
-index = faiss.read_index("beit3.index", faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)
+index = faiss.read_index(settings.beit3_index_path, faiss.IO_FLAG_MMAP|faiss.IO_FLAG_READ_ONLY)

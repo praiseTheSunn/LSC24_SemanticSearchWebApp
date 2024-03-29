@@ -51,15 +51,15 @@ def compute_text_embedding_blip2(text_query: str):
             'text_query': text_query,
             "model": "blip2",
         }
-        print("Sending request to:", endpoint_url)
+        # print("Sending request to:", endpoint_url)
         response = requests.post(endpoint_url, json = data)
-        print("Received response")
+        # print("Received response")
         
         if response.status_code == 200:
             response_json = response.json()
             text_embedding = torch.tensor(response_json["text_embedding"])
             # embeddings = np.array(response_json["text_embedding"])
-            print("Received text embedding shape:", text_embedding.shape)
+            # print("Received text embedding shape:", text_embedding.shape)
             return text_embedding
         else:
             print("Failed to get text embedding. Status code:", response.status_code)
@@ -81,9 +81,14 @@ def compute_text_embedding_blip2(text_query: str):
 
 import helper.beit3 as beit3
 def compute_text_embedding_beit3(text_query: str):
+    
     print("print beit3")
     return beit3.calc_text_embedding(text_query, beit3.tokenizer)
     # pass
+
+# import helper.clip as clip
+def compute_text_embedding_clip(text_query: str):
+    return clip.calc_text_embedding(text_query)
 
 # get image embedding 
 def get_image_embedding_blip2(image_order: int):
@@ -134,6 +139,24 @@ def search_in_blip2_index(query_embedding, num_results):
 def search_in_beit3_index(query_embedding, num_results):
     distances, indices = beit3.index.search(query_embedding.reshape(1, -1), num_results)
     return  distances[0], indices
+
+# search in index using text query  and return top n results
+def search_in_clip_index(text_embedding, num_results):
+    distances, indices = clip.index.search(text_embedding.reshape(1, -1), num_results) #2 represent top n results required
+    distances = distances[0]
+    # indices = indices[0]
+    # indices_distances = list(zip(indices, distances))
+    # indices_distances.sort(key=lambda x: x[1], reverse=True) 
+
+    # paths = []
+    # for idx, distance in indices_distances[:num_results]:
+    #     path = setup.keyframe_paths[idx]
+    #     print(path)
+    #     path = path[len(settings.keyframes_path):]
+    #     paths.append(path)
+
+    return distances, indices
+
 # ------------------------------------------------------------------------------------   
 # parse location semantic names from query
 def parse_location_semantic_name_from_query(query):
@@ -151,7 +174,7 @@ def parse_location_semantic_name_from_query(query):
 def parse_noun_chunks_from_query(query):
 
     # Process our query
-    print(query)
+    # print(query)
     doc = setup.nlp(query)
 
     # Use blob to find words that are nouns
@@ -160,7 +183,7 @@ def parse_noun_chunks_from_query(query):
 
     # Extract noun_chunks, then extract the root from each noun_chunk
     all_noun_chunks = [chunk.text for chunk in doc.noun_chunks if str(chunk.root) in all_nouns]
-    print(all_noun_chunks)
+    # print(all_noun_chunks)
     return all_noun_chunks
 def parse_objects_and_loccats_from_query(query):
 
@@ -181,7 +204,7 @@ def parse_objects_and_loccats_from_query(query):
             for i in object_indices[0]:
                 if i >= setup.OFFSET_LOCATION_START and i < setup.OFFSET_LOCATION_END:
                     parsed_location_categories_from_query.append(setup.location_category_list[i - setup.OFFSET_LOCATION_START])     
-        print()
+        # print()
     
     # print("Final objects: ", parsed_objects_from_query)
     # print("Final locations: ", parsed_location_categories_from_query)
@@ -195,7 +218,7 @@ def compute_object_similarities(parsed_objects_from_query, image_ids):
         try:
             objects_from_image = setup.object_dict[image_id]
             common_objects = objects_from_image & parsed_objects_from_query
-            object_similarity = (0.2 + 0.8 * len(common_objects) / len(parsed_objects_from_query)) if parsed_objects_from_query else 0.5
+            object_similarity = (0.2 + 0.8 * len(common_objects) / len(objects_from_image)) if parsed_objects_from_query else 0.5
         except:
             object_similarity = 0.2
         object_similarities.append(object_similarity)
@@ -227,11 +250,11 @@ def get_total_score(s1, s2, s3, s4, s5):
 # compute combined score for each keyframe
 def get_scores_sorted(combined_indices, total_scores):
     scores_indices = list(zip(total_scores, combined_indices))
-    print("scores_indices: ", scores_indices[:10])
     # df = pd.DataFrame(scores_indices, columns=['score', 'index'])
     # df.to_csv("scores_indices.csv")
-    # scores_indices.sort(key=lambda x: x[0], reverse=True)
-    sorted(scores_indices, key=lambda x: x[0], reverse=True)
+    scores_indices.sort(key=lambda x: x[0], reverse=True)
+    print("scores_indices: ", scores_indices[:10])
+    # sorted(scores_indices, key=lambda x: x[0], reverse=True)
     return scores_indices
 
 # ------------------------------------------------------------------------------------
@@ -264,70 +287,75 @@ def search_by_text_query(keyframe_paths, mode, text_query, test_name, debug = Tr
         # semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results) 
         query_embedding = compute_text_embedding_beit3(text_query)            
         semantic_similarities, indices = search_in_beit3_index(query_embedding, num_results) 
+        # query_embedding = compute_text_embedding_clip(text_query)
+        # semantic_similarities, indices = search_in_clip_index(query_embedding, num_results)
     semantic_similarities = np.array(semantic_similarities, dtype=np.float16)
     semantic_similarities = semantic_similarities / np.max(semantic_similarities)
     indices = np.array(indices[0], dtype=np.int32)
 
-    if debug:
-        print("finished semantic search")
-    # parse objects, loccats and location semantic name from query
-    parsed_objects_from_query, parsed_location_categories_from_query = parse_objects_and_loccats_from_query(text_query)
-    location_semantic_name = parse_location_semantic_name_from_query(text_query)
+    # if debug:
+    #     print("finished semantic search")
+    # # parse objects, loccats and location semantic name from query
+    # parsed_objects_from_query, parsed_location_categories_from_query = parse_objects_and_loccats_from_query(text_query)
+    # location_semantic_name = parse_location_semantic_name_from_query(text_query)
 
-    if debug:
-        print("finished parsing objects and loccats")
+    # if debug:
+    #     print("finished parsing objects and loccats")
 
-    # compute metadata similarities
-    image_ids = [keyframe_paths[idx][-23:] for idx in indices]
-    print("image_ids similarity: ", image_ids[:10])
-    # df = pd.DataFrame([image_ids])
-    # df.to_csv("image_ids_similarity.csv")
+    # # compute metadata similarities
+    # image_ids = [keyframe_paths[idx][-23:] for idx in indices]
+    # print("image_ids similarity: ", image_ids[:10])
+    # # df = pd.DataFrame([image_ids])
+    # # df.to_csv("image_ids_similarity.csv")
 
-    object_similarities = compute_object_similarities(parsed_objects_from_query, image_ids) 
-    loccat_similarities = compute_loccat_similarities(parsed_location_categories_from_query, image_ids)
-    time_similarities = query_date_time.query_time_date_image(setup.time_dict, text_query, image_ids)
-    if location_semantic_name:
-        locsem_indices, locsem_similarities = fuzzy_search.fuzzy_search_frame(image_ids, location_semantic_name, setup.searcher, setup.qp, limit=2000)
-    else:
-        locsem_indices = indices
-        locsem_similarities = np.ones(len(indices), dtype=np.float16)
+    # object_similarities = compute_object_similarities(parsed_objects_from_query, image_ids) 
+    # loccat_similarities = compute_loccat_similarities(parsed_location_categories_from_query, image_ids)
+    # time_similarities = query_date_time.query_time_date_image(setup.time_dict, text_query, image_ids)
+    # if location_semantic_name:
+    #     locsem_indices, locsem_similarities = fuzzy_search.fuzzy_search_frame(image_ids, location_semantic_name, setup.searcher, setup.qp, limit=2000)
+    # else:
+    #     locsem_indices = indices
+    #     locsem_similarities = np.ones(len(indices), dtype=np.float16)
 
-    if debug:
-        print("finished computing metadata similarities")
+    # if debug:
+    #     print("finished computing metadata similarities")
    
-    # debug
-    if debug:
-        print(f"image_ids: length {len(image_ids)}, ", image_ids[:10])
-        print(f"indices: length {len(indices)}, ", indices[:10])
-        print(f"semantic_similarities: length {len(semantic_similarities)}, ", semantic_similarities[:10])
-        print(f"object_similarities: length {len(object_similarities)}, ", object_similarities[:10])
-        print(f"loccat_similarities: length {len(loccat_similarities)}, ", loccat_similarities[:10])
-        print(f"time_similarities: length {len(time_similarities)}, ", time_similarities[:10])
-        print(f"locsem_similarities: length {len(locsem_similarities)}, ", locsem_similarities[:10])
+    # # debug
+    # if debug:
+    #     print(f"image_ids: length {len(image_ids)}, ", image_ids[:10])
+    #     print(f"indices: length {len(indices)}, ", indices[:10])
+    #     print(f"semantic_similarities: length {len(semantic_similarities)}, ", semantic_similarities[:10])
+    #     print(f"object_similarities: length {len(object_similarities)}, ", object_similarities[:10])
+    #     print(f"loccat_similarities: length {len(loccat_similarities)}, ", loccat_similarities[:10])
+    #     print(f"time_similarities: length {len(time_similarities)}, ", time_similarities[:10])
+    #     print(f"locsem_similarities: length {len(locsem_similarities)}, ", locsem_similarities[:10])
 
 
 
-    # get scores and indices
-    combined_indices = np.unique(np.concatenate((indices, locsem_indices)))
-    dict_1 = dict(zip(indices, semantic_similarities))
-    dict_2 = dict(zip(indices, object_similarities))
-    dict_3 = dict(zip(indices, loccat_similarities))
-    dict_4 = dict(zip(indices, time_similarities))
-    dict_5 = dict(zip(locsem_indices, locsem_similarities))
+    # # get scores and indices
+    # combined_indices = np.unique(np.concatenate((indices, locsem_indices)))
+    # dict_1 = dict(zip(indices, semantic_similarities))
+    # dict_2 = dict(zip(indices, object_similarities))
+    # dict_3 = dict(zip(indices, loccat_similarities))
+    # dict_4 = dict(zip(indices, time_similarities))
+    # dict_5 = dict(zip(locsem_indices, locsem_similarities))
     
     
 
-    total_scores = [
-        get_total_score(dict_1.get(index, 0.2), dict_2.get(index, 0.2), dict_3.get(index, 0.2), dict_4.get(index, 0.2), dict_5.get(index, 0.2))
-        for index in combined_indices]
+    # total_scores = [
+    #     get_total_score(dict_1.get(index, 0.2), dict_2.get(index, 0.2), dict_3.get(index, 0.2), dict_4.get(index, 0.2), dict_5.get(index, 0.2))
+    #     for index in combined_indices]
 
-    # sort scores and indices
-    scores_indices = get_scores_sorted(combined_indices, total_scores)
+    # # sort scores and indices
+    # scores_indices = get_scores_sorted(combined_indices, total_scores)
 
-    df = pd.DataFrame([scores_indices, semantic_similarities.reshape(1, -1), object_similarities.reshape(1, -1), loccat_similarities.reshape(1, -1), time_similarities.reshape(1, -1), locsem_similarities.reshape(1, -1)], index=['scores_indices', 'semantic_similarities', 'object_similarities', 'loccat_similarities', 'time_similarities', 'locsem_similarities'])
-    df.to_csv(f"csv/{test_name}scores_indices.csv")
+    # df = pd.DataFrame([[x[0] for x in scores_indices], [x[1] for x in scores_indices], list(semantic_similarities), list(object_similarities), list(loccat_similarities), list(time_similarities), list(locsem_similarities)], index=['score', 'index', 'semantic_similarities', 'object_similarities', 'loccat_similarities', 'time_similarities', 'locsem_similarities']).T
+    # df.to_csv(f"csv/{test_name}scores_indices.csv")
 
-    paths = [setup.keyframe_paths[(int)(idx)] for _, idx in scores_indices]
+    # paths = [setup.keyframe_paths[(int)(idx)] for _, idx in scores_indices]
+    # print("scores_indices: ", scores_indices[:10])
+    # print("paths in embedding_helper: ", paths[:10])
+    paths = [setup.keyframe_paths[(int)(idx)] for idx in indices]
 
 
     # # filter by location category
