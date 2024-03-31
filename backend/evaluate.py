@@ -1,4 +1,4 @@
-from evaluate_helper import load_tests, load_tests_ntcir
+from evaluate_helper import load_tests, load_tests_ntcir, load_tests_lsc23
 # import models
 import settings
 from evaluate_helper import calculate_r_at_n
@@ -14,14 +14,15 @@ import time
 # models = [clip_model, blip_model, beit3_model]
 
 # tests = load_tests(settings.test_file_lsc22)
-tests = load_tests_ntcir(settings.test_file_ntcir, settings.ntcir_file_answer_path)
+# tests = load_tests_ntcir(settings.test_file_ntcir, settings.ntcir_file_answer_path)
+tests = load_tests_lsc23(settings.test_file_lsc23)
 
 
 # Create an empty dataframe
 df = pd.DataFrame()
 
-test_dataset_name = "ntcir"
-model_name = "beit3"
+test_dataset_name = "lsc23"
+model_name = "clip"
 
 
 # for i, model in enumerate(models):

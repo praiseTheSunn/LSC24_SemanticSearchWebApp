@@ -31,6 +31,42 @@ def load_tests(file_path):
             # print(line)
     return test
 
+def load_tests_lsc23(file_path):
+
+    # Open the file in read mode
+    with open(file_path, 'r', encoding='utf-8') as file:
+        # Read each line from the file
+        test = {}
+        cur_test = None
+        for line in file:
+            # Print the line to the screen
+            line = line.strip()
+            if (line == ""):
+                continue
+            
+            if line.startswith('LSC23-KIS'):
+                print(line)
+                # Extract the XXX part of the line
+                xxx = line[-2:]
+                print(xxx)
+                # Check if XXX is between '000' and '999'
+                if '00' <= xxx <= '99':
+                    # if (len(test) != 0):
+                    #     print(test)
+                    test[line] = {}
+                    cur_test = line
+                    test[cur_test]['query_text'] = []
+                    test[cur_test]['expected_result'] = []
+            
+            if (line != cur_test):
+                if (line[0].isdigit()):
+                    test[cur_test]['expected_result'].append(line)
+                else:
+                    test[cur_test]['query_text'].append(line)
+            # print(line)
+    return test
+
+
 def load_tests_ntcir(test_file_ntcir, ntcir_file_answer_path):
 
     import xml.etree.ElementTree as ET
