@@ -33,6 +33,9 @@ module.exports = {
         'light-gray': '#F7F7F7',
         'half-transparent': 'rgba(0, 0, 0, 0.5)',
       },
+      display: {
+        'hidden': 'none',
+      },
       borderWidth: {
         1: '1px',
       },

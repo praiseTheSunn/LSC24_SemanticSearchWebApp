@@ -22,7 +22,7 @@ const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}
     }
 
     return (
-        <div className='filter-container'>
+        <div className='filter-container messagePopup'>
             <button type="button" className="btn btn-link clear-filter-button" onClick={handleClearAll}>Clear</button>
             <div className='filter-item-area'>
                 {displayedFilters.map((filter, index) => (

@@ -1,11 +1,21 @@
 import './searchBox.css'
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSelectedImages } from '../contexts/selectedImageContext';
+import { MessagePopup } from '.';
 
-const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const {displayedImages, setDisplayedImages} = useSelectedImages();
+    const [isFocus, setIsFocus] = useState(false);
+    const messagePopup = useRef(null);
+
+    useEffect(() => {
+        
+        messagePopup.current = document.querySelector('.messagePopup');
+        console.log('messagePopup', messagePopup);
+        messagePopup.current.classList.add('hidden');
+    }, []);
 
     const handleTextareaChange = (event) => {
         setTextareaValue(event.target.value);
@@ -18,6 +28,8 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
     const handleTextareaBlur = () => {
         // Reset height when textarea loses focus
         setTextareaHeight('60px');
+        messagePopup.current.classList.add('hidden');
+        setIsFocus(false);
     };
 
     const handleTextareaFocus = (event) => {
@@ -25,6 +37,9 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
         if (event.target.value) {
             setTextareaHeight(event.target.scrollHeight + 'px');
         }
+        messagePopup.current.classList.remove('hidden');
+        console.log('messagePopup', messagePopup);
+        setIsFocus(true);
     }
 
     const handleEnter = (event) => {
@@ -76,15 +91,21 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                     value={textareaValue}
                     onChange={handleTextareaChange}
                     onBlur={handleTextareaBlur}
-                    onFocus={handleTextareaFocus}
+                    onFocus={(e) => handleTextareaFocus(e)}
                     placeholder="Search here then Enter..."
                     className='search-textarea'
                     rows={2}
                     onKeyDown={handleEnter}
-                    />
+                    // onMouseEnter={() => messagePopup.current.classList.remove('hidden')}
+                    onMouseLeave={() => isFocus ? {} : messagePopup.current.classList.add('hidden')}
+                />
+                <div>
+                <MessagePopup displayedFilters={displayedFilters} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
+                </div>
+                
             </div>
         // {/* </div> */}
     );
 };
 
-export default LeftPanel;
+export default SearchBox;
