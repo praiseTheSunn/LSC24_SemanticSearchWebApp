@@ -1,21 +1,18 @@
 import './home.css';
 import React, { useEffect, useState } from 'react';
 import './home.css';
-import LeftPanel from '../../components/searchBox';
-import RightPanel from '../../components/rightPanel';
+// import LeftPanel from '../../components/searchBox';
+// import RightPanel from '../../components/rightPanel';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
-import { TrapoziedBgGray1, TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGray4, TrapoziedBgGrayLeft } from '../../assets';
+import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
     { level: "Timeline", bg: TrapoziedBgGray2 },
     { level: "Location", bg: TrapoziedBgGray3 },
-    // { level: "Cấp 3", bg: TraposizeBgGray3 },
-    // { level: "Đại học", bg: TraposizeBgGray4 },
-    // { level: "Khác", bg: TraposizeBgGray5 },
-  ];
+];
 
 const Home = ({selectedFilters}) => {
     
