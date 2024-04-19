@@ -1,0 +1,36 @@
+
+ .filter-container{
+    background-color: rgb(206, 232, 255);
+    min-height: 550px;
+    width: 100%;
+    min-height: 580px;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-left: 10px;
+}
+
+ .filter-item-area{
+    overflow-y: scroll;
+    height: 580px;
+    width: 100%;
+    padding: 5px;
+    padding-top: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* background-color: aquamarine; */
+}
+
+ .filter-instruction{
+    background-color: white;
+    width: 100%;
+    border-radius: 7px;
+    padding: 10px 20px;
+    height:auto;
+    margin-top: 15px;
+}
+
+ .clear-filter-button{
+  padding-top: 1px;
+}
