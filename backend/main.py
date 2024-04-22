@@ -24,6 +24,7 @@ import open_clip
 import faiss
 from settings import keyframes_path
 from helper import embedding_helper
+import json
 from fastapi.middleware.cors import CORSMiddleware
 
 
@@ -73,8 +74,10 @@ async def get_matched_image_paths(mode: str, text_query: str):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    image_files = embedding_helper.search_by_text_query(setup.keyframe_paths, mode, text_query)
-    return JSONResponse(content={"image_files": image_files}, headers=header)
+    image_files, filters = embedding_helper.search_by_text_query(setup.keyframe_paths, mode, text_query)
+    # Convert filters object to JSON
+    filters_json = json.dumps(filters)
+    return JSONResponse(content={"image_files": image_files, "filters": filters_json}, headers=header)
 
 @app.get("/similars/{file_url:path}")
 async def get_similars(file_url: str):
