@@ -24,16 +24,13 @@ def extract_date_entities(sentence):
     return entities
 
 def string_combination(list):
-    s = ""
-    for text in list:
-        s = s + text + " "
-    return s
+    return " ".join(list)
 
 def normalize_text_date(text):
     text_entities = extract_date_entities(text)
     if len(text_entities) < 0:
         return False
-    return string_combination(extract_date_entities(text))
+    return string_combination(text_entities)
 
 def findYear(text):
     # Sử dụng regex để tìm số đầu tiên có dạng "20xx"
@@ -48,13 +45,11 @@ def findDayRegex(text):
     # Sử dụng regex để tìm ngày trong range từ 1-31
     pattern = r"(?<![0-9])([1-9]|[12][0-9]|3[01])(?![0-9])(?!\s)"
     match = re.search(pattern, text)
-
     if match:
         return match.group()
     else:
         return None
 
-    from collections import OrderedDict
 day_list = {}
 
 for day in range(1, 32):
@@ -66,7 +61,6 @@ for day in range(1, 32):
         day_str = str(day) + "rd"
     else:
         day_str = str(day) + "th"
-
     day_list[day_str] = f"{day:02d}"
 day_list = OrderedDict(reversed(list(day_list.items())))
 
