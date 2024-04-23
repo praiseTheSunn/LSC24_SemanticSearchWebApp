@@ -1,0 +1,37 @@
+
+.image-container {
+    margin-left: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adjust the gap between images */
+  }
+  
+  .image-day-container {
+    display: grid;
+    grid-template-columns: repeat(1, 1fr); /* Change 1fr to adjust the number of columns */
+    gap: 10px; /* Adjust the gap between images */
+  }
+
+  .image-day-date {
+    width: 100px;
+    background-color: #b0d9f3;
+    border-radius: 5px;
+    padding: 2px 5px 2px 5px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    color: rgb(13, 56, 84);
+  }
+
+  .image-day-images {
+        display: grid; /* Change display property to grid */
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust minmax value to change image size */
+        grid-auto-flow: column; /* Arrange items in columns */
+  }
+
+  .image-day-images img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+  }
+  

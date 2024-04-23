@@ -7,11 +7,19 @@ import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
+import Scrollbar from '../../containers/timeline/scrollbar';
+import ImageContainer from '../../containers/timeline/image-container';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
     { level: "Timeline", bg: TrapoziedBgGray2 },
     { level: "Location", bg: TrapoziedBgGray3 },
+];
+
+const timelineData = [
+    { date: "2023-01-01", event: "Event 1" },
+    { date: "2023-03-15", event: "Event 2" },
+    { date: "2023-06-20", event: "Event 3" },
 ];
 
 const Home = ({selectedFilters}) => {
@@ -29,7 +37,6 @@ const Home = ({selectedFilters}) => {
         setSelectedTabIndex(index);
     };
 
-    
 
     return (
         <div className='home-main-container'>
@@ -66,6 +73,13 @@ const Home = ({selectedFilters}) => {
             </div>
             <div className='bg-white w-full' style={{height: "575px", borderRadius:"5px", margin:"0 15px 0 15px"}}>
                 {/* {selectedTabIndex === 0 && (<Thẻ A/>)} */}
+                {selectedTabIndex === 1 && (
+                    <div className="flex flex-row" style={{marginTop: "10px"}}>
+                        <Scrollbar/>
+                        <ImageContainer/>
+                    </div>
+                    
+                )}
             </div>
             
         </div>
