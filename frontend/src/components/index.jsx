@@ -7,3 +7,5 @@ export { default as ImageGroup } from './imageGroup.jsx';
 export { default as ImageContainer } from './imageContainer.jsx';
 
 export { default as Scrollbar } from './scrollbar.jsx';
+
+export { default as TimelineTab } from '../containers/timeline/timelineTab.jsx';
