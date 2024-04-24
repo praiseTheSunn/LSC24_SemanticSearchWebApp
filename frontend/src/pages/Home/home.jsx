@@ -25,6 +25,10 @@ const timelineData = [
     { date: "2022-01-01", img_link: "Event 1" },
     { date: "2023-12-15", img_link: "Event 2" },
     { date: "2023-11-20", img_link: "Event 3" },
+    { date: "2012-11-20", img_link: "Event 3" },
+    { date: "2022-04-01", img_link: "Event 1" },
+    { date: "2023-06-15", img_link: "Event 2" },
+    { date: "2023-12-20", img_link: "Event 3" },
 ];
 
 const Home = ({selectedFilters}) => {
