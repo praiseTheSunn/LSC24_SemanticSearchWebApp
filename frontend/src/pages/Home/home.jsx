@@ -1,16 +1,16 @@
 import './home.css';
 import React, { useEffect, useState } from 'react';
 import './home.css';
-// import LeftPanel from '../../components/searchBox';
-// import RightPanel from '../../components/rightPanel';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
-import Scrollbar from '../../containers/timeline/scrollbar';
-import ImageContainer from '../../containers/timeline/image-container';
+import {Scrollbar} from '../../components';
+import {ImageContainer} from '../../components';
+// import TimelineTab from '../../components/timelineTab';
 import ImageGrid from '../../containers/similarity/image-grid';
-
+import ImageCluster from '../../containers/similarity/image-cluster';
+import ImageLocation  from '../../containers/similarity/image-location';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -19,9 +19,15 @@ const LevelList = [
 ];
 
 const timelineData = [
-    { date: "2023-01-01", event: "Event 1" },
-    { date: "2023-03-15", event: "Event 2" },
-    { date: "2023-06-20", event: "Event 3" },
+    { date: "2023-01-01", img_link: "Event 1" },
+    { date: "2023-03-15", img_link: "Event 2" },
+    { date: "2023-06-20", img_link: "Event 3" },
+    { date: "2022-01-01", img_link: "Event 1" },
+    { date: "2023-01-15", img_link: "Event 2" },
+    { date: "2012-06-20", img_link: "Event 3" },
+    { date: "2022-01-01", img_link: "Event 1" },
+    { date: "2023-12-15", img_link: "Event 2" },
+    { date: "2023-11-20", img_link: "Event 3" },
 ];
 
 const Home = ({selectedFilters}) => {
@@ -56,7 +62,7 @@ const Home = ({selectedFilters}) => {
                 {LevelList.map((item, index) => (
                 <button
                     key={index}
-                    className={`font-base font-bold py-1.5 grid-tab text-gray border-white ${index == selectedTabIndex ? "active" : ""}`}
+                    className={`font-base font-bold py-1.5 grid-tab text-gray border-white ${index === selectedTabIndex ? "active" : ""}`}
                     style={{
                     width: "197px",
                     backgroundImage: `url(${item.bg})`,
@@ -77,20 +83,29 @@ const Home = ({selectedFilters}) => {
                 {/* {selectedTabIndex === 0 && (<Thẻ A/>)} */}
                 {selectedTabIndex === 0 && (
                     <div className="flex flex-row" style={{marginTop: "12px"}}>
-                        <ImageGrid/>
+                        {/* <ImageGrid/> */}
+                        {/* {ImageCluster({
+                            bigImage: "http://34.124.236.208/img_lsc/201901/01/20190101_103717_000.webp",
+                            smallImage1: "http://34.124.236.208/img_lsc/201901/01/20190101_103749_000.webp",
+                            smallImage2: "http://34.124.236.208/img_lsc/201901/01/20190101_103821_000.webp",
+                            location_name: "Location Name"
+                        })} */}
+                        <ImageLocation/>
                     </div>
                 )}
 
-                {selectedTabIndex === 1 && (
-                    <div className="flex flex-row" style={{marginTop: "10px"}}>
-                        <Scrollbar/>
-                        <ImageContainer/>
-                    </div>
+                {/* {selectedTabIndex === 1 && (
+                    // <div className="flex flex-row" style={{marginTop: "10px"}}>
+                    //     <Scrollbar/>
+                    //     <ImageContainer/>
+                    // </div>
+                    // <TimelineTab data={timelineData}/>
                     
-                )}
+                )} */}
             </div>
             
         </div>
     );
     };
+    
     export default Home;

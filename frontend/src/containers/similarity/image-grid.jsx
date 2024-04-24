@@ -78,9 +78,9 @@ const ImageGrid = () => {
     }
 
     // Sử dụng hàm getInfoFromUrl với URL cụ thể
-    const url = 'http://34.124.236.208/img_lsc/201901/01/20190101_103717_000.webp';
-    const info = getInfoFromUrl(url);
-    console.log(info); // In ra đối tượng chứa thông tin từ URL
+    // const url = 'http://34.124.236.208/img_lsc/201901/01/20190101_103717_000.webp';
+    // const info = getInfoFromUrl(url);
+    // console.log(info); // In ra đối tượng chứa thông tin từ URL
 
     return (
         <div className='image-grid'>
@@ -105,7 +105,7 @@ const ImageGrid = () => {
                                 <img
                                     src={view_icon}
                                     alt={`View ${index}`}
-                                    className='view-icon'
+                                    className='view-item'
                                 />
                             </div>
                         );

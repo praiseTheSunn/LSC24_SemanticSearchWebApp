@@ -44,7 +44,7 @@
 }
 
 
-.view-icon {
+.view-item {
     position: absolute;
     bottom: 0;
     right: 0;
@@ -52,6 +52,5 @@
     z-index: 1;
     background-color: rgba(0, 0, 0, 0.5); /*Màu nền với độ trong suốt*/
     height: 25%;
-    border-bottom-right-radius: 10px; /* Bo tròn viền overlay */
-
+    border-bottom-right-radius: 10px; /*Bo tròn viền overlay*/
 }
