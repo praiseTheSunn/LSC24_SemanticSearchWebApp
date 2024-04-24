@@ -9,6 +9,8 @@ import { SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
 import Scrollbar from '../../containers/timeline/scrollbar';
 import ImageContainer from '../../containers/timeline/image-container';
+import ImageGrid from '../../containers/similarity/image-grid';
+
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -73,6 +75,12 @@ const Home = ({selectedFilters}) => {
             </div>
             <div className='bg-white w-full' style={{height: "575px", borderRadius:"5px", margin:"0 15px 0 15px"}}>
                 {/* {selectedTabIndex === 0 && (<Thẻ A/>)} */}
+                {selectedTabIndex === 0 && (
+                    <div className="flex flex-row" style={{marginTop: "12px"}}>
+                        <ImageGrid/>
+                    </div>
+                )}
+
                 {selectedTabIndex === 1 && (
                     <div className="flex flex-row" style={{marginTop: "10px"}}>
                         <Scrollbar/>

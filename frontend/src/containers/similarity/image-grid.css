@@ -1,0 +1,57 @@
+/* image-grid.css */
+
+.image-grid {
+    /* Các kiểu CSS cho lưới hình ảnh */
+}
+
+.grid-container {
+    margin-left: 2.5%;
+    width: 95%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 cột với chiều rộng bằng nhau */
+    grid-gap: 10px; /* Khoảng cách giữa các hình ảnh */
+}
+
+.image-item {
+    width: 100%; /* Chiều rộng hình ảnh sẽ chiếm toàn bộ ô của grid */
+    height: auto; /* Đảm bảo tỷ lệ hình ảnh không bị méo */
+    object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng khi thay đổi kích thước */
+    border-radius: 7px; /* Bo tròn viền hình ảnh */
+    transition: transform 0.3s ease; /* Tạo hiệu ứng chuyển động mềm mại */
+    cursor: pointer;
+}
+
+.image-item:hover {
+    transform: scale(1.05); /* Phóng to hình ảnh khi hover */
+    border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
+}
+
+
+.image-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Màu nền với độ trong suốt */
+    color: white; /* Màu chữ */
+    padding: 5px; /* Khoảng cách từ lề */
+    z-index: 1; /* Đảm bảo overlay hiển thị phía trên hình ảnh */
+    border-top-left-radius: 10px; /* Bo tròn viền overlay */
+}
+
+
+.view-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding: 5px;
+    z-index: 1;
+    background-color: rgba(0, 0, 0, 0.5); /*Màu nền với độ trong suốt*/
+    height: 25%;
+    border-bottom-right-radius: 10px; /* Bo tròn viền overlay */
+
+}
