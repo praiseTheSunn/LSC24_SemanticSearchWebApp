@@ -109,8 +109,8 @@ const TimelineTab = ({ data }) => {
                                 <h3 className="vertical-timeline-element-title font-bold" style={{ fontSize: "22px", minWidth: "200px" }}>
                                     {data[index].date}
                                 </h3>
-                                <img src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px" }} onClick={() => handleChangeTypeOfIndex(index)}/>
-                                <img src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px" }} onClick={() => handleChangeTypeOfIndex(index)}/>
+                                <img src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)}/>
+                                <img src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)}/>
                                 <div>Thanh trạng thái </div>
                             </div>
                         </div>
