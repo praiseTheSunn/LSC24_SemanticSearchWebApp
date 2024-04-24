@@ -7,8 +7,7 @@ import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
-import Scrollbar from '../../containers/timeline/scrollbar';
-import ImageContainer from '../../containers/timeline/image-container';
+import TimelineTab from '../../containers/timeline/timelineTab';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -17,9 +16,15 @@ const LevelList = [
 ];
 
 const timelineData = [
-    { date: "2023-01-01", event: "Event 1" },
-    { date: "2023-03-15", event: "Event 2" },
-    { date: "2023-06-20", event: "Event 3" },
+    { date: "2023-01-01", img_link: "Event 1" },
+    { date: "2023-03-15", img_link: "Event 2" },
+    { date: "2023-06-20", img_link: "Event 3" },
+    { date: "2022-01-01", img_link: "Event 1" },
+    { date: "2023-01-15", img_link: "Event 2" },
+    { date: "2012-06-20", img_link: "Event 3" },
+    { date: "2022-01-01", img_link: "Event 1" },
+    { date: "2023-12-15", img_link: "Event 2" },
+    { date: "2023-11-20", img_link: "Event 3" },
 ];
 
 const Home = ({selectedFilters}) => {
@@ -54,7 +59,7 @@ const Home = ({selectedFilters}) => {
                 {LevelList.map((item, index) => (
                 <button
                     key={index}
-                    className={`font-base font-bold py-1.5 grid-tab text-gray border-white ${index == selectedTabIndex ? "active" : ""}`}
+                    className={`font-base font-bold py-1.5 grid-tab text-gray border-white ${index === selectedTabIndex ? "active" : ""}`}
                     style={{
                     width: "197px",
                     backgroundImage: `url(${item.bg})`,
@@ -74,10 +79,11 @@ const Home = ({selectedFilters}) => {
             <div className='bg-white w-full' style={{height: "575px", borderRadius:"5px", margin:"0 15px 0 15px"}}>
                 {/* {selectedTabIndex === 0 && (<Thẻ A/>)} */}
                 {selectedTabIndex === 1 && (
-                    <div className="flex flex-row" style={{marginTop: "10px"}}>
-                        <Scrollbar/>
-                        <ImageContainer/>
-                    </div>
+                    // <div className="flex flex-row" style={{marginTop: "10px"}}>
+                    //     <Scrollbar/>
+                    //     <ImageContainer/>
+                    // </div>
+                    <TimelineTab data={timelineData}/>
                     
                 )}
             </div>
