@@ -1,10 +1,13 @@
 
 .image-container {
-    margin-left: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px; /* Adjust the gap between images */
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 10px; 
+  max-height: 600px; 
+  overflow-y: auto; 
+  width: 100%; 
+  margin: 5px 10px 0 10px;
+}
   
   .image-day-container {
     display: grid;
@@ -24,14 +27,8 @@
   }
 
   .image-day-images {
-        display: grid; /* Change display property to grid */
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* Adjust minmax value to change image size */
-        grid-auto-flow: column; /* Arrange items in columns */
-  }
-
-  .image-day-images img {
-    width: 200px;
-    height: 200px;
-    object-fit: cover;
+        display: flex; 
+        flex-direction: row;
+        justify-content: start;
   }
   

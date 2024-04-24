@@ -1,14 +1,12 @@
 import './home.css';
 import React, { useEffect, useState } from 'react';
 import './home.css';
-// import LeftPanel from '../../components/searchBox';
-// import RightPanel from '../../components/rightPanel';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
-import Scrollbar from '../../containers/timeline/scrollbar';
-import ImageContainer from '../../containers/timeline/image-container';
+import {Scrollbar} from '../../components';
+import {ImageContainer} from '../../components';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -85,4 +83,5 @@ const Home = ({selectedFilters}) => {
         </div>
     );
     };
+    
     export default Home;
