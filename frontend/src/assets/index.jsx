@@ -4,3 +4,7 @@ export { default as TrapoziedBgGray2 } from './trapoziedBgGray2.svg';
 export { default as TrapoziedBgGray3 } from './trapoziedBgGray3.svg';
 export { default as TrapoziedBgGray4 } from './trapoziedBgGray4.svg';
 export { default as TrapoziedBgGray5 } from './trapoziedBgGray5.svg';
+export { default as LocationIcon } from './LocationIcon.svg';
+export { default as ActivityIcon } from './ActivityIcon.svg';
+export { default as LocationIconActive } from './LocationIconActive.svg';
+export { default as ActivityIconActive } from './ActivityIconActive.svg';
