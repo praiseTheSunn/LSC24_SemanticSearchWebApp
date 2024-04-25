@@ -79,7 +79,7 @@ def compute_text_embedding_blip2(text_query: str):
 #         text_embedding = model.encode_text(text_query_tokens)
 #     pass
 
-# import helper.beit3 as beit3
+import helper.beit3 as beit3
 def compute_text_embedding_beit3(text_query: str):
     
     print("print beit3")
@@ -310,10 +310,10 @@ def search_by_text_query(keyframe_paths, mode, text_query, test_name, debug = Tr
     elif mode == 'image':
         # query_embedding = compute_text_embedding_blip2(text_query)            
         # semantic_similarities, indices = search_in_blip2_index(query_embedding, num_results) 
-        # query_embedding = compute_text_embedding_beit3(text_query)            
-        # semantic_similarities, indices = search_in_beit3_index(query_embedding, num_results) 
-        query_embedding = compute_text_embedding_clip(text_query)
-        semantic_similarities, indices = search_in_clip_index(query_embedding, num_results)
+        query_embedding = compute_text_embedding_beit3(text_query)            
+        semantic_similarities, indices = search_in_beit3_index(query_embedding, num_results) 
+        # query_embedding = compute_text_embedding_clip(text_query)
+        # semantic_similarities, indices = search_in_clip_index(query_embedding, num_results)
     semantic_similarities = np.array(semantic_similarities, dtype=np.float16)
     semantic_similarities = semantic_similarities / np.max(semantic_similarities)
     indices = np.array(indices[0], dtype=np.int32)
