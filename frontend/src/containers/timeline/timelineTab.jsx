@@ -205,7 +205,7 @@ const TimelineTab = ({ data }) => {
         <div className='h-full w-full overflow-hidden'>
             <div className='w-full h-full mx-0 pb-0 pt-4 relative'>
                 {inHoldMode && (
-                    <div className='bg-white absolute top-0 left-0 opacity-95 w-full h-full z-20 pl-[0.7%]'>
+                    <div className='bg-white absolute top-0 left-0 opacity-95 w-full h-full z-20 pl-[0.7%]' onClick={() => setInHoldMode(false)}>
                         <KhangScrollBar dates={dates} setSelectedDate={setSelectedDate}/>
                     </div>
                 )}
