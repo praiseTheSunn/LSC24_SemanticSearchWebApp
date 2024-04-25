@@ -1,10 +1,21 @@
-import FilterTag from './Filter/filterTag';
-import './leftPanel.css'
-import React, { useState } from 'react';
+import './searchBox.css'
+import React, { useEffect, useRef, useState } from 'react';
+import { useSelectedImages } from '../contexts/selectedImageContext';
+import { MessagePopup } from '.';
 
-const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
     const [textareaValue, setTextareaValue] = useState('');
-    const [textareaHeight, setTextareaHeight] = useState('90px');
+    const [textareaHeight, setTextareaHeight] = useState('60px');
+    const {displayedImages, setDisplayedImages} = useSelectedImages();
+    const [isFocus, setIsFocus] = useState(false);
+    const messagePopup = useRef(null);
+
+    useEffect(() => {
+        
+        messagePopup.current = document.querySelector('.messagePopup');
+        console.log('messagePopup', messagePopup);
+        messagePopup.current.classList.add('hidden');
+    }, []);
 
     const handleTextareaChange = (event) => {
         setTextareaValue(event.target.value);
@@ -16,7 +27,9 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
 
     const handleTextareaBlur = () => {
         // Reset height when textarea loses focus
-        setTextareaHeight('90px');
+        setTextareaHeight('60px');
+        messagePopup.current.classList.add('hidden');
+        setIsFocus(false);
     };
 
     const handleTextareaFocus = (event) => {
@@ -24,25 +37,28 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
         if (event.target.value) {
             setTextareaHeight(event.target.scrollHeight + 'px');
         }
+        messagePopup.current.classList.remove('hidden');
+        console.log('messagePopup', messagePopup);
+        setIsFocus(true);
     }
-
-    const handleClearAll = () => {
-        setDisplayedFilters([]);
-    };
 
     const handleEnter = (event) => {
         if (event.key === 'Enter') {
+            setDisplayedImages(false);
             event.preventDefault(); // Prevent default behavior
             console.log('Enter key pressed');
             const input = event.target.value.trim();
-            if (input.startsWith('-l ')) {
+            if (input.startsWith('-sl ')) {
                 const value = input.substring(3);
-                const filter = { category: 'location', value, status: 1 };
-                console.log('filter', filter);
+                const filter = { category: 'semantic location', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
             } else if (input.startsWith('-t ')) {
                 const value = input.substring(3);
                 const filter = { category: 'time', value, status: 1 };
+                setDisplayedFilters(previousState => [...previousState, filter]);
+            } else if (input.startsWith('-lc ')) {
+                const value = input.substring(3);
+                const filter = { category: 'location category', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
             } else if (input.startsWith('-ocr ')) {
                 const value = input.substring(5);
@@ -61,63 +77,35 @@ const LeftPanel = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                 setDisplayedFilters(previousState => [...previousState, filter]);
             }
             setTextareaValue('');
-            
+            setDisplayedImages(true);
         }
     };
 
-    const onIconClick = (index) => {
-        // Create a new array with updated filters
-        const updatedFilters = displayedFilters.map((filter, i) => {
-            if (i === index) {
-                // Toggle the status of the clicked filter
-                return { ...filter, status: filter.status === 1 ? 0 : 1 };
-            }
-            return filter;
-        });
-        // Set the state with the updated filters
-        setDisplayedFilters(updatedFilters);
-    }
+    
 
     return(
-        <div className='left-filter-container'>
+        // <div className='left-filter-container'>
             <div className='text-query-container'>
                 <textarea
                     style={{ height: textareaHeight }}
                     value={textareaValue}
                     onChange={handleTextareaChange}
                     onBlur={handleTextareaBlur}
-                    onFocus={handleTextareaFocus}
+                    onFocus={(e) => handleTextareaFocus(e)}
                     placeholder="Search here then Enter..."
                     className='search-textarea'
                     rows={2}
                     onKeyDown={handleEnter}
-                    />
-            </div>
-            
-            <div className='filter-container'>
-                <button type="button" className="btn btn-link clear-filter-button" onClick={handleClearAll}>Clear</button>
-                <div className='filter-item-area'>
-                    {displayedFilters.map((filter, index) => (
-                        <FilterTag
-                            key={index}
-                            filter={filter}
-                            index={index}
-                            onIconClick={onIconClick}
-                        />
-                    ))}
-                    
-                    <div className='filter-instruction'>
-                        -l ... : location <br/>
-                        -t ... : time<br/>
-                        -ocr ... : OCR text<br/>
-                        -obj ... : Object Detection<br/>
-                        -c : Turn on caption search<br/>
-                    </div>
+                    // onMouseEnter={() => messagePopup.current.classList.remove('hidden')}
+                    onMouseLeave={() => isFocus ? {} : messagePopup.current.classList.add('hidden')}
+                />
+                <div>
+                <MessagePopup displayedFilters={displayedFilters} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
                 </div>
                 
             </div>
-        </div>
+        // {/* </div> */}
     );
 };
 
-export default LeftPanel;
+export default SearchBox;

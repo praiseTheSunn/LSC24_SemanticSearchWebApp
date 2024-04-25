@@ -9,13 +9,13 @@ import close_icon from '../assets/close.png';
 import ImageInList from './Image/imageInList';
 import { usePopUp } from '../contexts/popUpContext';
 
-const RightPanel = ({query, filters}) => {
+const RightPanel = ({query, filters, setDisplayedFilters}) => {
     const [imageUrls, setImageUrls] = useState([    ]);
     const [activeImageUrls, setActiveImageUrls] = useState([    ]);
     const containerRef = useRef(null);
 
-    const { selectedImages, addSelectedImage, removeSelectedImage, getSize, removeAllSelected } = useSelectedImages();
-    const {similarPopUp, setSimilarPopUp} = usePopUp();
+    const { selectedImages, addSelectedImage, removeSelectedImage, getSize, removeAllSelected, displayedImages } = useSelectedImages();
+    const {similarPopUp, setSimilarPopUp, setNeighborPopUp, setLoadingPopUp} = usePopUp();
 
     const handleImageClick = (imageUrl, image) => {
         const fileName = imageUrl.split('\\').pop();
@@ -46,38 +46,60 @@ const RightPanel = ({query, filters}) => {
         
     }
 
-    const handleClick = () => {
-        // First HTTP request
-        const response2 = imageService.getImages("Greek wine on a Sunday. I was in a Greek restaurant drinking a small bottle of wine and eating Greek food (chips and meat) with a salad. I was sitting at a white tiled table. It was in Thessaloniki in Greece in January 2019. ")            // change query here    
-            .then(async (response2) => {
-                // Convert the byte data to a base64-encoded string
-                var urls = response2.data['image_files'];
-                var imageDataUrls = [];
-    
-                for (var i = 0; i < urls.length; i++) {
-                    const now = new Date();
-                    const currentTimeString = now.getTime().toString();
-                    const data = {
-                        path: urls[i],
-                        image: "",
-                        status: 0,
-                        dateInd: currentTimeString + i.toString(),
-                    }
-                    
-                    imageDataUrls.push(data);
-                }
-
-                setImageUrls(imageDataUrls)
-                // setActiveImageUrls(imageDataUrls.slice(0, 50));
-                
-            })
-            .catch((error) => {
-                console.error('Error fetching images:', error);
-            });
-    
-        // You can add more code here or handle subsequent actions after the requests
+    useEffect(() => {
+        if (query !== '') {
+            setLoadingPopUp(true);
+            // First HTTP request
+            const response2 = imageService.getImages(query)            // change query here    
+                .then(async (response2) => {
+                    // Convert the byte data to a base64-encoded string
+                    var urls = response2.data['image_files'];
+                    var imageDataUrls = [];
         
-    }
+                    for (var i = 0; i < urls.length; i++) {
+                        const now = new Date();
+                        const currentTimeString = now.getTime().toString();
+                        const data = {
+                            path: urls[i],
+                            image: "",
+                            status: 0,
+                            dateInd: currentTimeString + i.toString(),
+                        }
+                        
+                        imageDataUrls.push(data);
+                    }
+
+                    setImageUrls(imageDataUrls)
+                    // setActiveImageUrls(imageDataUrls.slice(0, 50));
+                    const fetchedFiltersString = response2.data['filters'];
+                    const fetchedFilters = JSON.parse(fetchedFiltersString);
+                    
+                    console.log('filters fron right', fetchedFilters);
+                    const updatedFilters = Object.entries(fetchedFilters).map(([key, value]) => {
+                        console.log('obj', key, value);
+                        if (key === 'obj' && value.length > 0) {
+                            return { category: 'objects', value: value, status: 1 };
+                        }else if (key === 'time' && value.length > 0) {
+                            return { category: 'time', value: value, status: 1 };
+                        }else if (key === 'loc_sem' && value) {
+                            return { category: 'semantic location', value: value, status: 1 };
+                        }else if (key === 'loc_cat' && value.length > 0) {
+                            return { category: 'location category', value: value, status: 1 };
+                        }else if (key === 'date' && value) {
+                            return { category: 'time', value: value, status: 1 };
+                        }
+                    }).filter(filter => filter !== undefined);
+                    setDisplayedFilters(previousState => [...previousState, ...updatedFilters]);
+                    
+                    console.log('filters fron right', fetchedFilters);
+                })
+                .catch((error) => {
+                    console.error('Error fetching images:', error);
+                });
+        
+            // You can add more code here or handle subsequent actions after the requests
+        }
+    }, [query]);
 
     useEffect(() => {
         console.log('updated imageUrls',imageUrls, 'active', activeImageUrls); 
@@ -87,6 +109,7 @@ const RightPanel = ({query, filters}) => {
         else {
             console.log("imageUrls updated", imageUrls);
         }
+        setLoadingPopUp(false);
     }, [imageUrls]);
 
 
@@ -97,6 +120,7 @@ const RightPanel = ({query, filters}) => {
     const openSinggleImage = (image, path, date, time) => {
         setViewImage({image: image, path: path, date: date, time: time});
         setSimilarPopUp(true);
+        setNeighborPopUp(false);
     }
 
 
@@ -146,7 +170,9 @@ const RightPanel = ({query, filters}) => {
 
     const fetchImagesToCopy = (index, max, copy) => {
         if (index < max) {
-            // console.log(index, imageUrls)
+            if (imageUrls[index] === undefined) 
+                return copy;
+            console.log(index, imageUrls[index])
             const url = imageUrls[index].path;
             // console.log("fetching " + index + "th url: " + url);
 
@@ -168,7 +194,7 @@ const RightPanel = ({query, filters}) => {
 
                     // Add the image data to imageDataUrls
                     copy.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
-
+                    console.log("fetched " + index + "th url: " + url);
                     // Recursive call to fetch the next image
                     copy = fetchImagesToCopy(index + 1, max, copy);
                 })
@@ -204,6 +230,17 @@ const RightPanel = ({query, filters}) => {
         fetchData();
     }
     }, [isAtBottom]);
+
+    const handleClick = () => {
+        console.log('Submit clicked');
+    };
+ 
+    useEffect(() => {
+        if (!displayedImages) {
+            setActiveImageUrls([]);
+            setImageUrls([]);
+        }
+    }, [displayedImages]);
 
 
     return(
