@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './timelineTab.css';
 import { ActivityIcon, ActivityIconActive, LocationIcon, LocationIconActive } from '../../assets';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
@@ -20,6 +20,8 @@ const TimelineTab = ({ data }) => {
     const [locationBasedData, setLocationBasedData] = useState({});
     const [activityBasedData, setActivityBasedData] = useState({});
     const listRef = useRef(null);
+
+    const ImageGroupMemorized = React.memo(ImageGroup);
 
     const cache = new CellMeasurerCache({
         fixedWidth: true,
@@ -169,7 +171,7 @@ const TimelineTab = ({ data }) => {
                             {typeOfIndex[index] === 0 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {locationData.map((locationItem, locationIndex) => (
-                                        <ImageGroup
+                                        <ImageGroupMemorized
                                             key={locationIndex}
                                             images={locationItem.images}
                                             title={locationItem.location}
@@ -182,7 +184,7 @@ const TimelineTab = ({ data }) => {
                             {typeOfIndex[index] === 1 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {activityData.map((activityItem, activityIndex) => (
-                                        <ImageGroup
+                                        <ImageGroupMemorized
                                             key={activityIndex}
                                             images={activityItem.images}
                                             title={activityItem.activity}
