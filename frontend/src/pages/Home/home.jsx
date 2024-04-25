@@ -4,6 +4,7 @@ import './home.css';
 import LeftPanel from '../../components/leftPanel';
 import RightPanel from '../../components/rightPanel';
 import { SelectedImagesProvider } from '../../contexts/selectedImageContext';
+import MapTab from '../../components/map_tab';
 
 
 const Home = ({selectedFilters}) => {
@@ -16,7 +17,7 @@ const Home = ({selectedFilters}) => {
     return (
         <div className='home-main-container'>
             
-            <LeftPanel 
+            {/* <LeftPanel 
                 displayedFilters={displayedFilters} 
                 setDisplayedFilters={setDisplayedFilters} 
                 setQuery={setQuery}
@@ -26,7 +27,9 @@ const Home = ({selectedFilters}) => {
                     query={query}
                     filters={displayedFilters}
                 />
-            </SelectedImagesProvider>
+            </SelectedImagesProvider> */}
+
+            <MapTab query={query} filters={displayedFilters} />
             
         </div>
     );
