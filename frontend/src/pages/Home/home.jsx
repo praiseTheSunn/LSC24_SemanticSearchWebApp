@@ -1,12 +1,12 @@
 import './home.css';
 import React, { useEffect, useState } from 'react';
 import './home.css';
-// import LeftPanel from '../../components/searchBox';
-// import RightPanel from '../../components/rightPanel';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
+import {Scrollbar} from '../../components';
+import {ImageContainer} from '../../components';
 import TimelineTab from '../../containers/timeline/timelineTab';
 
 const LevelList = [
@@ -16,19 +16,19 @@ const LevelList = [
 ];
 
 const timelineData = [
-    { date: "2023-01-01", img_link: "Event 1" },
-    { date: "2023-03-15", img_link: "Event 2" },
-    { date: "2023-06-20", img_link: "Event 3" },
-    { date: "2022-01-01", img_link: "Event 1" },
-    { date: "2023-01-15", img_link: "Event 2" },
-    { date: "2012-06-20", img_link: "Event 3" },
-    { date: "2022-01-01", img_link: "Event 1" },
-    { date: "2023-12-15", img_link: "Event 2" },
-    { date: "2023-11-20", img_link: "Event 3" },
-    { date: "2012-11-20", img_link: "Event 3" },
-    { date: "2022-04-01", img_link: "Event 1" },
-    { date: "2023-06-15", img_link: "Event 2" },
-    { date: "2023-12-20", img_link: "Event 3" },
+    { date: "2023-01-01",score: 1, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 1", activity: "Activity 1" },
+    { date: "2023-03-15",score: 2, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 2", activity: "Activity 1"  },
+    { date: "2023-01-01",score: 3, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 1", activity: "Activity 1"  },
+    { date: "2022-01-01",score: 1, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 2", activity: "Activity 1"  },
+    { date: "2023-01-15",score: 3, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 3", activity: "Activity 1"  },
+    { date: "2012-06-20",score: 3, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 1", activity: "Activity 1"  },
+    { date: "2022-01-01",score: 2, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 2", activity: "Activity 1"  },
+    { date: "2023-12-15",score: 1, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 3", activity: "Activity 1"  },
+    { date: "2023-01-01",score: 2, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 4", activity: "Activity 1"  },
+    { date: "2023-01-01",score: 3, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 1", activity: "Activity 1"  },
+    { date: "2023-01-01",score: 3, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 2", activity: "Activity 1"  },
+    { date: "2023-01-01",score: 2, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 2", activity: "Activity 1"  },
+    { date: "2023-01-01",score: 1, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 2", activity: "Activity 1"  },
 ];
 
 const Home = ({selectedFilters}) => {
@@ -95,4 +95,5 @@ const Home = ({selectedFilters}) => {
         </div>
     );
     };
+    
     export default Home;

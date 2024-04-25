@@ -1,0 +1,26 @@
+
+  .big-image {
+    width: 180px; 
+    height: 120px;
+    object-fit: cover;
+    border-color: rgb(243, 239, 239);
+  }
+  
+  .small-images {
+    width: 180px; 
+    height: 60px;
+  }
+  
+  .small-image {
+    max-height: 60px;
+    object-fit: cover;
+    position: relative;
+    border-color: rgb(243, 239, 239);
+  }
+  
+  .title {
+    margin-top: 2px;
+    font-size: 16px;
+    text-align: center;
+  }
+  
