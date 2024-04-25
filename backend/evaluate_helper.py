@@ -1,3 +1,37 @@
+import requests
+
+def search_in_remote(text_query: str, model_name, mode):
+    # return clip.calc_text_embedding(text_query)
+    base_url = "http://34.124.236.208:8001"
+    endpoint_url = f"{base_url}/search/search_with_text_query"
+
+    try:
+        data = {
+            "text_query": text_query,
+            "model": model_name,
+            "mode": mode,
+        }
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        # print("Sending request to:", endpoint_url)
+        response = requests.post(endpoint_url, json = data, headers = headers)
+        # print("Received response")
+        
+        if response.status_code == 200:
+            response_json = response.json()
+            # print(response_json)
+            # embeddings = np.array(response_json["text_embedding"])
+            # print("Received text embedding shape:", text_embedding.shape)
+            return response_json['urls']
+        else:
+            print("Failed to get text embedding. Status code:", response.status_code)
+            return response.status_code
+
+    except requests.exceptions.RequestException as e:
+        print("Error:", e)
+        return None
+
 def load_tests(file_path):
 
     # Open the file in read mode
@@ -113,8 +147,6 @@ def calculate_r_at_n(predictions, true_labels, n):
         for prediction in predictions[:n]:
             if true_label in prediction:
                 correct_count += 1
-
-    print(correct_count, len(predictions))
 
     if (len(predictions) == 0):
         return 0
