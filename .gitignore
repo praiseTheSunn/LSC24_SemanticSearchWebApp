@@ -46,3 +46,12 @@ object_list.txt
 obj_class.txt
 /metadata
 location_category_list.csv
+
+/test_sys
+settings.py
+startBackend.bat
+startFrontend.bat
+
+/backend/csv
+/backend/results
+*.ipynb
