@@ -1,9 +1,12 @@
 import './App.css';
 import Routers from './Routers/Routers';
-
+import { SelectedImagesProvider } from './contexts/selectedImageContext';
 function App() {
   return (
-    <Routers />
+    <SelectedImagesProvider>
+      <Routers />
+    </SelectedImagesProvider>
+    
   );
 }
 
