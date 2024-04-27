@@ -1,6 +1,7 @@
 // image-cluster.jsx
 
-import './image-cluster.css';
+// import './image-cluster.css';
+import './similarity.css';
 import React, { useEffect, useState } from 'react';
 
 const ImageCluster = ({

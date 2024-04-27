@@ -1,5 +1,6 @@
 // scroll-bar-sim.jsx
-import './scroll-bar-sim.css';
+// import './scroll-bar-sim.css';
+import './similarity.css';
 import React from "react";
 
 const Scrollbarsim = ({ children }) => {

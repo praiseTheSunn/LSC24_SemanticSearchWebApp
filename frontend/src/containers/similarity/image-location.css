@@ -1,8 +1,0 @@
-
-.grid-container-2 {
-    margin-left: 1.5%;
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr); /* 7 cột với chiều rộng bằng nhau */
-    grid-gap: 10px; /* Khoảng cách giữa các hình ảnh */
-}
