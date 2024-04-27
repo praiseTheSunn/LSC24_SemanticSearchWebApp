@@ -36,3 +36,18 @@
     transform: rotate(360deg);
   }
 }
+
+
+.grid-tab.active {
+  color: #1A1A1A;
+  z-index: 1000 !important;
+  background-image: url('./assets/trapoziedBgWhite.svg') !important;
+}
+
+.grid-tab.active:first-child {
+  background-image: url('./assets/trapoziedBgWhiteLeft.svg') !important;
+}
+
+.e-grid {
+  z-index: 999;
+}
