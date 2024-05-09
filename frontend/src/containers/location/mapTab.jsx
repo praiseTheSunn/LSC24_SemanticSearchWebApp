@@ -1,19 +1,19 @@
-import './map_tab.css';
+import './mapTab.css';
 // import 'leaflet/dist/leaflet.css';
 import React, { useRef, useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, GeoJSON } from 'react-leaflet';
 import { LatLng } from 'leaflet';
 // import L from 'leaflet';
 
-import json from '../assets/metadata_coordinates.geojson'
-import testgeojson from '../assets/test.geojson'
+import json from '../../assets/metadata_coordinates.geojson'
+import testgeojson from '../../assets/test.geojson'
 
 import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 // import { GeomanControl } from "./geomanTest";
-import GeomanControl from "./geomanControl";
+import GeomanControl from "../../components/geomanControl";
 
 import axios from "axios";
 
@@ -28,7 +28,7 @@ const MapTab = ({query, filters}) => {
     const [currentImage, setCurrentImage] = useState(null);
 
     const myIcon = L.icon({
-        iconUrl: require('../assets/close.png'),
+        iconUrl: require('../../assets/close.png'),
         iconSize: [64,64],
         // iconAnchor: [32, 64],
         // popupAnchor: null,
