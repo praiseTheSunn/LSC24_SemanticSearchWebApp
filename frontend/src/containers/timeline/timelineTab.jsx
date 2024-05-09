@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './timelineTab.css';
 import { ActivityIcon, ActivityIconActive, LocationIcon, LocationIconActive } from '../../assets';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
 import { KhangScrollBar } from '../../components';
 import { ImageGroup } from '../../components';
+import ActivityBar from '../../components/activityBar';
 
 const imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU"
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
@@ -20,6 +21,9 @@ const TimelineTab = ({ data }) => {
     const [locationBasedData, setLocationBasedData] = useState({});
     const [activityBasedData, setActivityBasedData] = useState({});
     const listRef = useRef(null);
+
+    const ImageGroupMemorized = React.memo(ImageGroup);
+    const ActivityBarMemorized = React.memo(ActivityBar);
 
     const cache = new CellMeasurerCache({
         fixedWidth: true,
@@ -140,6 +144,11 @@ const TimelineTab = ({ data }) => {
         const activityData = activityBasedData.get(currentDate) || [];
         // console.log('currentDate', currentDate)
         // console.log('locationData', locationData, locationBasedData);
+
+        // Sort activity data based on order
+        const activityOrder = ["Breakfast", "Drive to work", "Lecturing", "Dancing"];
+        activityData.sort((a, b) => activityOrder.indexOf(a.activity) - activityOrder.indexOf(b.activity));
+        console.log('activityData', activityData)
     
         return (
             <CellMeasurer
@@ -161,7 +170,9 @@ const TimelineTab = ({ data }) => {
                                     </h3>
                                     <img src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
                                     <img src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
-                                    <div>Thanh trạng thái </div>
+                                    <ActivityBarMemorized
+                                            data={activityData}
+                                    />
                                 </div>
                             </div>
                             
@@ -169,7 +180,7 @@ const TimelineTab = ({ data }) => {
                             {typeOfIndex[index] === 0 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {locationData.map((locationItem, locationIndex) => (
-                                        <ImageGroup
+                                        <ImageGroupMemorized
                                             key={locationIndex}
                                             images={locationItem.images}
                                             title={locationItem.location}
@@ -182,7 +193,7 @@ const TimelineTab = ({ data }) => {
                             {typeOfIndex[index] === 1 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {activityData.map((activityItem, activityIndex) => (
-                                        <ImageGroup
+                                        <ImageGroupMemorized
                                             key={activityIndex}
                                             images={activityItem.images}
                                             title={activityItem.activity}
