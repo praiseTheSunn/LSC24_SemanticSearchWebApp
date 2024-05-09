@@ -11,7 +11,7 @@ const activityColorMap = {
     "Dancing": "#af0000",
 }
 
-const ActivityBar = ({data}) => {
+const ActivityBar = ({data, visibility, onActivitySelect }) => {
 
     const imageCounts = data.map(entity => `${entity.images.length}`);
     const resultString = imageCounts.map(item => `${item}fr`).join(' ');
@@ -35,9 +35,14 @@ const ActivityBar = ({data}) => {
         console.log('bestImg', bestImg);
     }, [bestImg]);
     const handleActivityClick = (activity, bestImg, index) => {
-        console.log("Activity clicked:", activity);
-        console.log("Best image:", bestImg);
-        setClickedIndex(index);
+        if (clickedIndex !== index) {
+            setClickedIndex(index);
+            onActivitySelect(activity);
+        }            
+        else {
+            setClickedIndex(null);
+            onActivitySelect(null);
+        }            
     };
 
 
@@ -50,7 +55,7 @@ const ActivityBar = ({data}) => {
             height: "7px", 
             margin: "20px 0 20px 0", 
             borderRadius: "4px",
-            // visibility: "hidden" 
+            visibility: visibility,
             }}>
             <Tooltip id={`.tooltip_`} place="top" clickable 
                 render={({content, activeAnchor}) => (
@@ -64,8 +69,6 @@ const ActivityBar = ({data}) => {
             {data.map((data, index) => {
                 const activity = data.activity;
                 const color = activityColorMap[activity];
-                console.log("index", index)
-                console.log('color', color)
                 const best_img = data.images[0].img_link;
                 return(
                     <div 
