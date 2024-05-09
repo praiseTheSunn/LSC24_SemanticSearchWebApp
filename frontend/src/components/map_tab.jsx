@@ -12,16 +12,20 @@ import * as L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "@geoman-io/leaflet-geoman-free";
 import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
+// import { GeomanControl } from "./geomanTest";
+import GeomanControl from "./geomanControl";
 
 import axios from "axios";
 
 const MapTab = ({query, filters}) => {
     const [markers, setMarkers] = useState([
-        { position: new LatLng(51.505, -0.09), key: 1 },
-        { position: new LatLng(53.3854525, -6.2571793), key: 2 },
+        // { position: new LatLng(51.505, -0.09), key: 1 },
+        // { position: new LatLng(53.3854525, -6.2571793), key: 2 },
     ]);
     const [geojsonFeature, setGeojsonFeature] = useState([
     ]);
+
+    const [currentImage, setCurrentImage] = useState(null);
 
     const myIcon = L.icon({
         iconUrl: require('../assets/close.png'),
@@ -32,7 +36,7 @@ const MapTab = ({query, filters}) => {
         shadowSize: null,
         shadowAnchor: null
     });
-
+    
     useEffect(() => {
         
         // var geojsonLayer = new L.GeoJSON.AJAX("D:\UltimateDownload\_Yr3Sem1\LSC24\LSC24_SemanticSearchWebApp\metadata_coordinates.geojson");       
@@ -81,8 +85,10 @@ const MapTab = ({query, filters}) => {
 
 
     return (
+        <div className="tab-container">
+
         <div className="map-container">
-            <MapContainer center={[51.505, -0.09]} zoom={13}>
+            <MapContainer center={[53.38998, -6.1457602]} zoom={13}>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -91,7 +97,7 @@ const MapTab = ({query, filters}) => {
                     <Marker position={marker.position} key={marker.key} icon={myIcon}
                     eventHandlers={{
                         click: (e) => {
-                          console.log('marker clicked', e)
+                          console.log('marker clicked', e);
                         },
                       }}
                       interactive>
@@ -101,25 +107,31 @@ const MapTab = ({query, filters}) => {
                     </Marker>)
                 }
                 {geojsonFeature.features?.map((feature, index) => (
-                  <Marker key={index} position={[feature.geometry.coordinates[1], feature.geometry.coordinates[0]]} icon={myIcon}>
+                  <Marker key={index} position={[feature.geometry.coordinates[1], feature.geometry.coordinates[0]]} icon={myIcon}
+                  eventHandlers={{
+                    click: (e) => {
+                      console.log('marker clicked', e);
+                      setCurrentImage(feature.properties.ImageID)
+                    },
+                  }}
+                  >
                     <Popup>
                       <img src={feature.properties.ImageID} alt="Image" style={{ maxWidth: '100%' }} />
                     </Popup>
                   </Marker>
                 ))}
+
+                {/* <GeomanControl position="topleft" oneBlock /> */}
+                <GeomanControl geoFeatures={geojsonFeature.features} />
             </MapContainer>
-            {/* <MapContainer center={[51.505, -0.09]} zoom={13} scrollWheelZoom={false}>
-  <TileLayer
-    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-  />
-  <Marker position={[51.505, -0.09]}>
-    <Popup>
-      A pretty CSS3 popup. <br /> Easily customizable.
-    </Popup>
-  </Marker>
-</MapContainer> */}
         </div>
+        <div className="timeline-container">
+            <h1>Timeline</h1>
+            <h1>
+              {currentImage}
+            </h1>
+        </div>            
+      </div>
     );
 }
 

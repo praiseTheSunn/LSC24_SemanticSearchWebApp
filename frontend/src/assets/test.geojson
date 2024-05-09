@@ -351,5 +351,57 @@
       "properties": {
         "ImageID": "20190101_105109_000.jpg"
       }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.2565257,
+          53.3857922
+        ]
+      },
+      "properties": {
+        "ImageID": "20190923_155714_000.jpg"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -6.2565257,
+          53.3857922
+        ]
+      },
+      "properties": {
+        "ImageID": "20190923_155731_000.jpg"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.7075529,
+          41.26922094
+        ]
+      },
+      "properties": {
+        "ImageID": "20190516_054718_000.jpg"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          28.7075529,
+          41.26922094
+        ]
+      },
+      "properties": {
+        "ImageID": "20190516_054750_000.jpg"
+      }
     }
 ]}
