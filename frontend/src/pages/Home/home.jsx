@@ -11,6 +11,7 @@ import {ImageContainer} from '../../components';
 import ImageGrid from '../../containers/similarity/image-grid';
 import ImageCluster from '../../containers/similarity/image-cluster';
 import ImageLocation  from '../../containers/similarity/image-location';
+import MapTab from '../../components/map_tab';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -71,10 +72,10 @@ const timelineData = [
     { date: "2023-01-01",score: 2, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 2", activity: "Lecturing"  },
     { date: "2023-01-01",score: 1, img_link: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU", location: "Location 2", activity: "Lecturing"  },
 ];
-import LeftPanel from '../../components/leftPanel';
-import RightPanel from '../../components/rightPanel';
-import { SelectedImagesProvider } from '../../contexts/selectedImageContext';
-import MapTab from '../../components/map_tab';
+// import LeftPanel from '../../components/leftPanel';
+// import RightPanel from '../../components/rightPanel';
+// import { SelectedImagesProvider } from '../../contexts/selectedImageContext';
+
 
 
 const Home = ({selectedFilters}) => {
@@ -143,18 +144,26 @@ const Home = ({selectedFilters}) => {
                     // <TimelineTab data={timelineData}/>
                     
                 )} */}
+                {
+                    selectedTabIndex === 2 && (
+                        // <ImageCluster data={timelineData} />
+                        <MapTab className="flex flex-row" style={{marginTop: "12px"}} query={query} filters={displayedFilters} />
+                    )
+                }
+
+                
             </div>
             {/* <SelectedImagesProvider>
                 <RightPanel 
                     query={query}
                     filters={displayedFilters}
                 />
-            </SelectedImagesProvider> */} */}
+            </SelectedImagesProvider> */}
 
-            {/* <MapTab query={query} filters={displayedFilters} /> */}
+            
             
         </div>
     );
     };
     
-    export default Home;
+export default Home;
