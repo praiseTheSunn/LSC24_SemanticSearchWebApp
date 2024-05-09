@@ -146,7 +146,7 @@ const TimelineTab = ({ data }) => {
         // console.log('locationData', locationData, locationBasedData);
 
         // Sort activity data based on order
-        const activityOrder = ["Breakfast", "Drive to work", "Lecturing"];
+        const activityOrder = ["Breakfast", "Drive to work", "Lecturing", "Dancing"];
         activityData.sort((a, b) => activityOrder.indexOf(a.activity) - activityOrder.indexOf(b.activity));
         console.log('activityData', activityData)
     

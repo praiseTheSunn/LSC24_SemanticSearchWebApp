@@ -5,9 +5,10 @@ import 'react-tooltip/dist/react-tooltip.css'
 
 // create a map from activity to color code
 const activityColorMap = {
-    "Breakfast": "green",
-    "Drive to work": "yellow",
-    "Lecturing": "purple"
+    "Breakfast": "#386f43",
+    "Drive to work": "#ba8e2b",
+    "Lecturing": "#6f006f",
+    "Dancing": "#af0000",
 }
 
 const ActivityBar = ({data}) => {
@@ -25,8 +26,23 @@ const ActivityBar = ({data}) => {
     useEffect(() => {
         console.log('bestImg', bestImg);
     }, [bestImg]);
+
+
+
+    // xu ly viec click vao 1 activity nao do
+    const [clickedIndex, setClickedIndex] = useState(null);
+    useEffect(() => {
+        console.log('bestImg', bestImg);
+    }, [bestImg]);
+    const handleActivityClick = (activity, bestImg, index) => {
+        console.log("Activity clicked:", activity);
+        console.log("Best image:", bestImg);
+        setClickedIndex(index);
+    };
+
+
     return(
-        <div className="bg-lightGray" style={{             
+        <div className="bg-white" style={{             
             display: "grid",
             gridTemplateColumns: resultString,
             gridGap: 0,
@@ -57,13 +73,15 @@ const ActivityBar = ({data}) => {
                         className={`relative cursor-pointer tooltip_${index}`}  
                         data-tooltip-id={`.tooltip_`}
                         style={{ 
-                            height: "7px", 
+                            height: "10px",
                             borderRadius: "10px", 
                             backgroundColor: color,
+                            opacity: clickedIndex === index ? "1" : "0.4"
                         }}
                         data-tooltip-content={activity}
                         data-tooltip-img={best_img}
                         data-tooltip-variant="info"
+                        onClick={() => handleActivityClick(activity, best_img, index)}
                     >
                     </div>
                 )
