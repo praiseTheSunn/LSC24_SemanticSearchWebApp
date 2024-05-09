@@ -7,11 +7,11 @@ import { SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
 import {Scrollbar} from '../../components';
 import {ImageContainer} from '../../components';
-// import TimelineTab from '../../components/timelineTab';
+import TimelineTab from '../../containers/timeline/timelineTab';
 import ImageGrid from '../../containers/similarity/image-grid';
 import ImageCluster from '../../containers/similarity/image-cluster';
 import ImageLocation  from '../../containers/similarity/image-location';
-import MapTab from '../../components/map_tab';
+import MapTab from '../../containers/location/mapTab';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -172,14 +172,16 @@ const Home = ({selectedFilters}) => {
                     </div>
                 )}
 
-                {/* {selectedTabIndex === 1 && (
+                {
+                selectedTabIndex === 1 && (
                     // <div className="flex flex-row" style={{marginTop: "10px"}}>
                     //     <Scrollbar/>
                     //     <ImageContainer/>
                     // </div>
-                    // <TimelineTab data={timelineData}/>
+                    <TimelineTab data={timelineData}/>
                     
-                )} */}
+                )
+                }
                 {
                     selectedTabIndex === 2 && (
                         // <ImageCluster data={timelineData} />
