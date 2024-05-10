@@ -30,8 +30,8 @@ const imageList = [
     "https://e3.365dm.com/23/08/1600x900/skynews-taylor-swift-santa-clara_6237922.jpg?20230802101540",
     "https://ca-times.brightspotcdn.com/dims4/default/b598fb5/2147483647/strip/true/crop/4000x2667+0+0/resize/1200x800!/quality/75/?url=https%3A%2F%2Fcalifornia-times-brightspot.s3.amazonaws.com%2Fe0%2Fde%2F9e80ee1545d9bc32a14a304bede6%2Ftaylor-swift-francia-07405.jpg",
     "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTYFAXqcwl-tVJwjkdF3G3Fwry4ukTFtTNBcec4q2Hyfw&s",
-    "https://i9.ytimg.com/s_p/OLAK5uy_mvRgYPh8u-KBTbU6mkGyrg5CBduos_LEY/sddefault.jpg?sqp=COiP8bEGir7X7AMICKL-0LEGEAE=&rs=AOn4CLD1G-WpT3xymRoMXy3Dk4aUennlzg&v=1714700066",
-    "https://i.abcnewsfe.com/a/06f5ba1e-de2d-4b1a-b3df-4a1649608ac2/katy-perry-taylor-swift-01-ht-jt-240223_1708718542679_hpEmbed_4x5.jpg"
+    "https://i.abcnewsfe.com/a/06f5ba1e-de2d-4b1a-b3df-4a1649608ac2/katy-perry-taylor-swift-01-ht-jt-240223_1708718542679_hpEmbed_4x5.jpg",
+    "https://d.newsweek.com/en/full/2345169/taylor-swift-2024-grammy-awards.jpg?w=1600&h=1600&q=88&f=b1b0f37269d3db205aa0aef9dec181b6"
 ]
 
 
