@@ -8,6 +8,10 @@ import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../a
 import {Scrollbar} from '../../components';
 import {ImageContainer} from '../../components';
 import TimelineTab from '../../containers/timeline/timelineTab';
+import ImageGrid from '../../containers/similarity/image-grid';
+import ImageCluster from '../../containers/similarity/image-cluster';
+import ImageLocation  from '../../containers/similarity/image-location';
+import MapTab from '../../containers/location/mapTab';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -31,6 +35,44 @@ const imageList = [
 ]
 
 
+
+const similarityData1 = [
+    { date: '2019-01-01', time: '10:37:17', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_103717_000.webp' },
+    { date: '2019-01-01', time: '10:37:49', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_103749_000.webp' },
+    { date: '2019-01-01', time: '10:38:21', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_103821_000.webp' },
+    { date: '2019-01-01', time: '10:38:53', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_103853_000.webp' },
+    { date: '2019-01-01', time: '10:39:25', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_103925_000.webp' },
+    { date: '2019-01-01', time: '10:39:57', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_103957_000.webp' },
+    { date: '2019-01-01', time: '10:40:29', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104029_000.webp' },
+    { date: '2019-01-01', time: '10:41:01', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104101_000.webp' },
+    { date: '2019-01-01', time: '10:41:33', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104133_000.webp' },
+    { date: '2019-01-01', time: '10:42:05', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104205_000.webp' },
+    { date: '2019-01-01', time: '10:42:37', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104237_000.webp' },
+    { date: '2019-01-01', time: '10:43:09', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104309_000.webp' },
+    { date: '2019-01-01', time: '10:43:41', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104341_000.webp' },
+    { date: '2019-01-01', time: '10:44:13', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104413_000.webp' },
+    { date: '2019-01-01', time: '10:44:45', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104445_000.webp' },
+    { date: '2019-01-01', time: '10:45:17', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104517_000.webp' },
+    { date: '2019-01-01', time: '10:45:49', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104549_000.webp' },
+    { date: '2019-01-01', time: '10:46:21', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104621_000.webp' },
+    { date: '2019-01-01', time: '10:46:53', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104653_000.webp' },
+    { date: '2019-01-01', time: '10:47:25', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104725_000.webp' },
+    { date: '2019-01-01', time: '10:47:57', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104757_000.webp' },
+    { date: '2019-01-01', time: '10:48:29', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104829_000.webp' },
+    { date: '2019-01-01', time: '10:49:01', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104901_000.webp' },
+    { date: '2019-01-01', time: '10:49:33', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_104933_000.webp' },
+    { date: '2019-01-01', time: '10:50:05', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105005_000.webp' },
+    { date: '2019-01-01', time: '10:50:37', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105037_000.webp' },
+    { date: '2019-01-01', time: '10:51:09', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105109_000.webp' },
+    { date: '2019-01-01', time: '10:51:41', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105141_000.webp' },
+    { date: '2019-01-01', time: '10:52:13', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105213_000.webp' },
+    { date: '2019-01-01', time: '10:52:45', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105245_000.webp' },
+    { date: '2019-01-01', time: '10:53:17', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105317_000.webp' },
+    { date: '2019-01-01', time: '10:53:49', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105349_000.webp' },
+    { date: '2019-01-01', time: '10:54:21', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105421_000.webp' },
+    { date: '2019-01-01', time: '10:54:53', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105453_000.webp' },
+    { date: '2019-01-01', time: '10:55:25', path: 'http://34.124.236.208/img_lsc/201901/01/20190101_105525_000.webp' }
+]
 
 const timelineData = [
     { date: "2023-01-01", score: 7, img_link: imageList[0], location: "Location 1", activity: "Dancing" },
@@ -66,6 +108,11 @@ const timelineData = [
     { date: "2023-01-02", score: 0, img_link: imageList[9], location: "Location 2", activity: "Lecturing"  },
     { date: "2012-06-20", score: 3, img_link: imageList[3], location: "Location 1", activity: "Breakfast"  },
 ];
+// import LeftPanel from '../../components/leftPanel';
+// import RightPanel from '../../components/rightPanel';
+// import { SelectedImagesProvider } from '../../contexts/selectedImageContext';
+
+
 
 const Home = ({selectedFilters}) => {
     
@@ -118,18 +165,43 @@ const Home = ({selectedFilters}) => {
             </div>
             <div className='bg-white w-full' style={{height: "575px", borderRadius:"5px", margin:"0 15px 0 15px"}}>
                 {/* {selectedTabIndex === 0 && (<Thẻ A/>)} */}
-                {selectedTabIndex === 1 && (
+                {selectedTabIndex === 0 && (
+                    <div className="flex flex-row" style={{marginTop: "12px"}}>
+                        <ImageGrid simData={similarityData1}/>
+                        {/* <ImageLocation data = {timelineData}/>  */}
+                    </div>
+                )}
+
+                {
+                selectedTabIndex === 1 && (
                     // <div className="flex flex-row" style={{marginTop: "10px"}}>
                     //     <Scrollbar/>
                     //     <ImageContainer/>
                     // </div>
                     <TimelineTab data={timelineData}/>
                     
-                )}
+                )
+                }
+                {
+                    selectedTabIndex === 2 && (
+                        // <ImageCluster data={timelineData} />
+                        <MapTab className="flex flex-row" style={{marginTop: "12px"}} query={query} filters={displayedFilters} />
+                    )
+                }
+
+                
             </div>
+            {/* <SelectedImagesProvider>
+                <RightPanel 
+                    query={query}
+                    filters={displayedFilters}
+                />
+            </SelectedImagesProvider> */}
+
+            
             
         </div>
     );
     };
     
-    export default Home;
+export default Home;
