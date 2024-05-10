@@ -1,4 +1,3 @@
-import './searchBox.css'
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelectedImages } from '../contexts/selectedImageContext';
 import { MessagePopup } from '.';
@@ -15,7 +14,21 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
         messagePopup.current = document.querySelector('.messagePopup');
         console.log('messagePopup', messagePopup);
         messagePopup.current.classList.add('hidden');
+
+        const handleClickOutside = (event) => {
+            if (messagePopup.current && !messagePopup.current.contains(event.target)) {
+                messagePopup.current.classList.add('hidden');
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
     }, []);
+
+    
+
+    
 
     const handleTextareaChange = (event) => {
         setTextareaValue(event.target.value);
@@ -28,8 +41,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
     const handleTextareaBlur = () => {
         // Reset height when textarea loses focus
         setTextareaHeight('60px');
-        messagePopup.current.classList.add('hidden');
-        setIsFocus(false);
+        
     };
 
     const handleTextareaFocus = (event) => {
@@ -85,22 +97,47 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
 
     return(
         // <div className='left-filter-container'>
-            <div className='text-query-container'>
+            <div className='text-query-container' style={{
+                width: "100%",
+                height: "50px",
+                paddingBottom: "5px",
+                display: "block",
+                position: "relative",
+                marginTop: "10px",
+                marginLeft: "10px",
+                marginBottom: "10px",
+            }}
+            onBlur={handleTextareaBlur}
+            onFocus={(e) => handleTextareaFocus(e)}
+            onMouseLeave={() => isFocus ? {} : messagePopup.current.classList.add('hidden')}
+            >
                 <textarea
-                    style={{ height: textareaHeight }}
+                    style={{ 
+                        height: textareaHeight,
+                        width: "286px",
+                        display: "block",
+                        position: "absolute",
+                        boxShadow: "2px 3px #c8c5c5 ",
+                        border: "solid 1.9px #636262",
+                        borderRadius: "10px",
+                        overflow: "hidden",
+                        zIndex: "10",
+                        paddingLeft: "7px",
+                        paddingTop: "5px",
+
+                    }}
                     value={textareaValue}
                     onChange={handleTextareaChange}
-                    onBlur={handleTextareaBlur}
-                    onFocus={(e) => handleTextareaFocus(e)}
+                   
                     placeholder="Search here then Enter..."
                     className='search-textarea'
                     rows={2}
                     onKeyDown={handleEnter}
                     // onMouseEnter={() => messagePopup.current.classList.remove('hidden')}
-                    onMouseLeave={() => isFocus ? {} : messagePopup.current.classList.add('hidden')}
+                    
                 />
                 <div>
-                <MessagePopup displayedFilters={displayedFilters} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
+                    <MessagePopup displayedFilters={displayedFilters} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
                 </div>
                 
             </div>

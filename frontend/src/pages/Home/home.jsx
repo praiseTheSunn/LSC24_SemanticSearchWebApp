@@ -1,16 +1,10 @@
-import './home.css';
 import React, { useEffect, useState } from 'react';
-import './home.css';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft } from '../../assets';
-import {Scrollbar} from '../../components';
-import {ImageContainer} from '../../components';
 import TimelineTab from '../../containers/timeline/timelineTab';
 import ImageGrid from '../../containers/similarity/image-grid';
-import ImageCluster from '../../containers/similarity/image-cluster';
-import ImageLocation  from '../../containers/similarity/image-location';
 import MapTab from '../../containers/location/mapTab';
 
 const LevelList = [
@@ -108,9 +102,6 @@ const timelineData = [
     { date: "2023-01-02", score: 0, img_link: imageList[9], location: "Location 2", activity: "Lecturing"  },
     { date: "2012-06-20", score: 3, img_link: imageList[3], location: "Location 1", activity: "Breakfast"  },
 ];
-// import LeftPanel from '../../components/leftPanel';
-// import RightPanel from '../../components/rightPanel';
-// import { SelectedImagesProvider } from '../../contexts/selectedImageContext';
 
 
 
@@ -131,7 +122,7 @@ const Home = ({selectedFilters}) => {
 
 
     return (
-        <div className='home-main-container'>
+        <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] min-w-[1500px] overflow-hidden ' style={{ backgroundColor: "#F5F5F5"}}>
             {loadingPopUp && <LoadingPopup />}
             <SearchBox 
                 displayedFilters={displayedFilters} 
@@ -153,7 +144,7 @@ const Home = ({selectedFilters}) => {
                     zIndex: 999 - index * 10,
                     border: "none",
                     backgroundColor: "transparent",
-                    marginLeft:`${index != 0 && "-20px"}`,
+                    marginLeft:`${index !== 0 && "-20px"}`,
                     position: "relative",
                     height: "30px"
                     }}

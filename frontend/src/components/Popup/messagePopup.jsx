@@ -1,5 +1,4 @@
 import FilterTag from "../Filter/filterTag";
-import './messagePopup.css';
 
 const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}) => {
 
@@ -22,9 +21,21 @@ const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}
     }
 
     return (
-        <div className='filter-container messagePopup'>
-            <button type="button" className="btn btn-link clear-filter-button" onClick={handleClearAll}>Clear</button>
-            <div className='filter-item-area'>
+        <div className='filter-container messagePopup'
+        style={{
+            backgroundColor: 'rgb(206, 232, 255)',
+            maxHeight: '350px',
+            width: '286px',
+            minHeight: '250px',
+            position: 'absolute',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            top: '70px',
+            zIndex: '10000',
+        }}
+        >
+            <button type="button" className="btn btn-link clear-filter-button pt-[1px]" onClick={() => handleClearAll()}>Clear</button>
+            <div className='filter-item-area overflow-y-scroll h-auto w-full p-[5px] pt-[10px] flex flex-col items-center'>
                 {displayedFilters.map((filter, index) => (
                     <FilterTag
                         key={index}
@@ -34,7 +45,7 @@ const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}
                     />
                 ))}
                 
-                <div className='filter-instruction'>
+                <div className='filter-instruction bg-white w-full h-auto mt-4' style={{ borderRadius: '7px', padding: '10px 20px'}}>
                     -sl ... : semantic location <br/>
                     -lc ... : location category<br/>
                     -t ... : time<br/>

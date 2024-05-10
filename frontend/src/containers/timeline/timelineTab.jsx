@@ -1,12 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './timelineTab.css';
 import { ActivityIcon, ActivityIconActive, LocationIcon, LocationIconActive } from '../../assets';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
 import { KhangScrollBar } from '../../components';
 import { ImageGroup } from '../../components';
 import ActivityBar from '../../components/activityBar';
 
-const imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU"
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
 const TimelineTab = ({ data }) => {
@@ -28,7 +26,6 @@ const TimelineTab = ({ data }) => {
     const listRef = useRef(null);
 
     const ImageGroupMemorized = React.memo(ImageGroup);
-    const ActivityBarMemorized = React.memo(ActivityBar);
 
     const cache = new CellMeasurerCache({
         fixedWidth: true,
@@ -175,8 +172,8 @@ const TimelineTab = ({ data }) => {
                                     <h3 className="vertical-timeline-element-title font-bold" style={{ fontSize: "22px", minWidth: "200px" }}>
                                         {currentDate}
                                     </h3>
-                                    <img src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
-                                    <img src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
+                                    <img alt='location-icon' src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
+                                    <img alt='activity-icon' src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
                                     <ActivityBar
                                         data={activityData}
                                         visibility={typeOfIndex[index] === 1 ? "visible" : "hidden"}
