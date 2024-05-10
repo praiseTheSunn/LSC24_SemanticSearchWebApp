@@ -72,13 +72,6 @@
     grid-column-gap: 10px; 
   }
 
-  .small-image {
-    width: 100px;
-    height: 75px;
-    object-fit: cover;
-    border-radius: 10px;
-  }
-
   .small-image-cluster:hover {
       transform: scale(1.02); /* Phóng to hình ảnh khi hover */
       border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */

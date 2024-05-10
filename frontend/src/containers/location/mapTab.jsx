@@ -1,11 +1,7 @@
 import './mapTab.css';
 // import 'leaflet/dist/leaflet.css';
-import React, { useRef, useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, GeoJSON } from 'react-leaflet';
-import { LatLng } from 'leaflet';
-// import L from 'leaflet';
-
-import json from '../../assets/metadata_coordinates.geojson'
+import React, { useEffect, useState } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import testgeojson from '../../assets/test.geojson'
 
 import * as L from "leaflet";
@@ -15,8 +11,6 @@ import "@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css";
 // import { GeomanControl } from "./geomanTest";
 import GeomanControl from "../../components/geomanControl";
 import LocationTimeline from './locationTimeline';
-
-import axios from "axios";
 
 const imageList = [
   "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU",
