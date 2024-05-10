@@ -8,3 +8,7 @@ export { default as LocationIcon } from './LocationIcon.svg';
 export { default as ActivityIcon } from './ActivityIcon.svg';
 export { default as LocationIconActive } from './LocationIconActive.svg';
 export { default as ActivityIconActive } from './ActivityIconActive.svg';
+export { default as SimilarityIcon } from './SimilarityIcon.svg';
+export { default as SimilarityIconActive } from './SimilarityIconActive.svg';
+export { default as TimelineIcon} from './TimelineIcon.svg';
+export { default as TimelineIconActive} from './TimelineIconActive.svg';
