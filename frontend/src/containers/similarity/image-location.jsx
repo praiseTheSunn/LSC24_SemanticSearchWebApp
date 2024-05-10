@@ -17,7 +17,7 @@ const groupDataByLocation = (data) => {
                 images: [],
             };
         }
-        groupedData[item.location].images.push(item.img_link);
+        groupedData[item.location].images.push(item.path);
     });
 
     // Tạo thêm các mục mới nếu một location có nhiều hơn 3 ảnh

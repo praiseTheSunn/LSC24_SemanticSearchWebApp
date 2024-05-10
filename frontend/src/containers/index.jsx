@@ -1,0 +1,1 @@
+export { default as ImageLocation } from './similarity/image-location.jsx';
