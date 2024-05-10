@@ -17,13 +17,13 @@
     background-color: black; /* Color of the thumb */
     left: 0;
     border-radius: 4px;
-    transition: top 0.15s ease-in-out; /* Smooth transition for thumb movement */
+    transition: top 0.1s ease-in-out; /* Smooth transition for thumb movement */
   }
 
   .scroll-percentage {
     position: relative;
     left: 20px;
-    width: 36px;
+    min-width: 120px;
     padding: 2px;
     font-family: Arial, Helvetica, sans-serif;
     text-align: center;
