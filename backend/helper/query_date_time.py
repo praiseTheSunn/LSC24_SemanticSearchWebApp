@@ -197,6 +197,9 @@ def findSeasonPeriod(text):
         return None
 
     year = findYear(text)
+    print("year", year)
+    if year is None:
+        return None
     begin_month = int(season_list[season]["begin_month"])
     begin_day = int(season_list[season]["begin_day"])
     end_month = int(season_list[season]["end_month"])
@@ -314,6 +317,7 @@ def official_date(text):
 def query_date_image(time_dict, text, image_ids):
 
     off_date = official_date(text)
+    print(off_date)
 
     date_similarities = []
     for image_id in image_ids:
@@ -329,7 +333,7 @@ def query_date_image(time_dict, text, image_ids):
                     date_similarities.append(1.0)
             date_similarities.append(0.2)
         else:
-            return [1.0 * len(image_ids)]
+            return [1.0] * len(image_ids)
     return date_similarities
 
 def extract_time_entities(sentence):
@@ -478,7 +482,7 @@ def query_time_image(time_dict, text, image_ids, date_similarities):
     
     t_rande = extract_time_ranges(text)
     beg_end = begin_end(t_rande)
-    print(t_rande)
+    print(t_rande, beg_end)
     if beg_end == False:
         return date_similarities
     
