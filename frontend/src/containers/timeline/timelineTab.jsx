@@ -20,6 +20,11 @@ const TimelineTab = ({ data }) => {
     const [dates, setDates] = useState([]);
     const [locationBasedData, setLocationBasedData] = useState({});
     const [activityBasedData, setActivityBasedData] = useState({});
+    const [selectedActivities, setSelectedActivities] = useState([]);
+    useEffect(() => {
+        const initialSelectedActivities = dates.map(() => null);
+        setSelectedActivities(initialSelectedActivities);
+    }, [dates]);
     const listRef = useRef(null);
 
     const ImageGroupMemorized = React.memo(ImageGroup);
@@ -138,17 +143,19 @@ const TimelineTab = ({ data }) => {
         setTypeOfIndex(newTypeOfIndex);
     };
 
-    function renderRow({ index, key, style, parent, isScrolling }) {
+    const renderRow = ({ index, key, style, parent, isScrolling })  => {
         const currentDate = dates[index];
         const locationData = locationBasedData.get(currentDate) || [];
         const activityData = activityBasedData.get(currentDate) || [];
-        // console.log('currentDate', currentDate)
-        // console.log('locationData', locationData, locationBasedData);
+
+        // Filter the data based on the selected activity ID for this row
+        const selectedActivity = selectedActivities[index];
+        console.log('selectedActivities', selectedActivities)
+        const filteredActivityData = selectedActivity ? activityData.filter(item => item.activity === selectedActivity) : activityData;
 
         // Sort activity data based on order
         const activityOrder = ["Breakfast", "Drive to work", "Lecturing", "Dancing"];
         activityData.sort((a, b) => activityOrder.indexOf(a.activity) - activityOrder.indexOf(b.activity));
-        console.log('activityData', activityData)
     
         return (
             <CellMeasurer
@@ -170,8 +177,14 @@ const TimelineTab = ({ data }) => {
                                     </h3>
                                     <img src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
                                     <img src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
-                                    <ActivityBarMemorized
+                                    <ActivityBar
                                             data={activityData}
+                                            visibility={typeOfIndex[index] === 1 ? "visible" : "hidden"}
+                                            onActivitySelect={(activity) => {
+                                                const newSelectedActivities = [...selectedActivities];
+                                                newSelectedActivities[index] = activity;
+                                                setSelectedActivities(newSelectedActivities);
+                                            }} 
                                     />
                                 </div>
                             </div>
@@ -192,7 +205,7 @@ const TimelineTab = ({ data }) => {
                             {/* Activity data */}
                             {typeOfIndex[index] === 1 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
-                                    {activityData.map((activityItem, activityIndex) => (
+                                    {filteredActivityData.map((activityItem, activityIndex) => (
                                         <ImageGroupMemorized
                                             key={activityIndex}
                                             images={activityItem.images}
