@@ -2,15 +2,17 @@
 
 .scrollbarsim-container {
     overflow-y: scroll;
-    height: 600px;
+    height: 63%;
+    /* width: 100%; */
     position: relative;
+    /* flex-direction: center; */
 }
 
 .scrollbarsim {
     width: 100%;
     height: 100%;
-    overflow-y: auto;
-    padding-right: 20px; /* Khoảng cách để giữ chỗ cho thanh cuộn */
+    overflow-y: scroll;
+    padding-right: 5%; 
 }
 
 /* Tạo thanh cuộn */
@@ -33,30 +35,35 @@
 
 
 .grid-container-2 {
-    margin-left: 1.5%;
+    margin-left: 2.5%;
     width: 100%;
     display: grid;
     grid-template-columns: repeat(6, 1fr); /* 7 cột với chiều rộng bằng nhau */
-    grid-gap: 10px; /* Khoảng cách giữa các hình ảnh */
+    grid-template-rows:  max-content; 
+    grid-gap: 20px; /* Khoảng cách giữa các hình ảnh */
+    align-items: center; /* Căn giữa theo chiều dọc */
+    justify-items: center; /* Căn giữa theo chiều ngang */
+    grid-row-gap: 40px;
 }
 
 .image-cluster-container {
     display: grid;
-    grid-template-rows: 150px 85px 20px;
-    grid-row-gap: 4px;
-    margin-right: 20px;
+    grid-template-rows: 59% 28%;
+    grid-row-gap: 2%;
+    /* margin-right: 20px; */
     padding: 4px;
-    border-width: 2px;
+    /* border-width: 2px; */
     border-color: rgb(243, 239, 239);
-    border-radius: 10px;
+    /* border-radius: 10px; */
     box-shadow: 2px 2px 2px 2px rgba(0, 0, 1, 0.1);
+    height: 110%;
 }
 
   .big-image-container {
-    width: 200px; 
+    width: 100%; 
     height: 140px;
     object-fit: cover;
-    border-radius: 10px;
+    /* border-radius: 10px; */
   }
   
   .big-image-cluster:hover {
@@ -66,10 +73,11 @@
   }
 
   .small-image-container {
-    width: 200px; 
+    /* height: 50%; */
+    width: 100%; 
     display: grid;
     grid-template-columns: 1fr 1fr;
-    grid-column-gap: 10px; 
+    grid-column-gap: 2%; 
   }
 
   .small-image-cluster:hover {
@@ -79,8 +87,10 @@
   }
   
   .location-name {
-    font-size: 16px;
+    font-size: 15px;
     text-align: center;
+    /*bold*/
+    font-weight: bold;
   }
 
   /* image-grid.css */
@@ -91,7 +101,7 @@
 
 .grid-container {
     margin-left: 2.5%;
-    width: 95%;
+    width: 100%;
     display: grid;
     grid-template-columns: repeat(7, 1fr); /* 7 cột với chiều rộng bằng nhau */
     grid-gap: 10px; /* Khoảng cách giữa các hình ảnh */
