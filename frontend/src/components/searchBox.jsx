@@ -1,6 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSelectedImages } from '../contexts/selectedImageContext';
-import { MessagePopup } from '.';
+import { MessagePopup, ObjectPositionPopup } from '.';
+import { ObjectPosIcon } from '../assets';
+import imageService from '../services/imageService';
 
 const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
     const [textareaValue, setTextareaValue] = useState('');
@@ -85,23 +87,30 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
             }else{
                 const value = input;
                 const filter = { category: 'query', value, status: 1 };
+                // console.log('input', input);
                 setQuery(value);
                 setDisplayedFilters(previousState => [...previousState, filter]);
+               
             }
             setTextareaValue('');
             setDisplayedImages(true);
         }
     };
 
+    const [objectPosPopup, setObjectPosPopup] = useState(false);
+    const openObjPosPopup = () => {
+        setObjectPosPopup(true);
+    }
+
     
 
     return(
         // <div className='left-filter-container'>
-            <div className='text-query-container' style={{
-                width: "100%",
+            <div className='text-query-container flex-row' style={{
+                width: "auto",
                 height: "50px",
                 paddingBottom: "5px",
-                display: "block",
+                display: "flex",
                 position: "relative",
                 marginTop: "10px",
                 marginLeft: "10px",
@@ -111,12 +120,13 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
             onFocus={(e) => handleTextareaFocus(e)}
             onMouseLeave={() => isFocus ? {} : messagePopup.current.classList.add('hidden')}
             >
+                
                 <textarea
                     style={{ 
                         height: textareaHeight,
                         width: "286px",
                         display: "block",
-                        position: "absolute",
+                        position: "relative",
                         boxShadow: "2px 3px #c8c5c5 ",
                         border: "solid 1.9px #636262",
                         borderRadius: "10px",
@@ -136,9 +146,14 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                     // onMouseEnter={() => messagePopup.current.classList.remove('hidden')}
                     
                 />
-                <div>
+                <div className='absolute left-0'>
                     <MessagePopup displayedFilters={displayedFilters} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
                 </div>
+                <div className='relative flex-row flex flex-nowrap'>
+                    <img src={ObjectPosIcon} alt = 'object_pos_icon' className='ml-3 mt-2 size-9 cursor-pointer relative' onClick={() => openObjPosPopup()}/>
+                    {objectPosPopup && <ObjectPositionPopup />}
+                </div>
+                
                 
             </div>
         // {/* </div> */}

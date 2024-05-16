@@ -20,7 +20,7 @@ const ActivityBar = ({data, visibility, onActivitySelect }) => {
             data[i].images.sort((a, b) => b.score - a.score);
         }
     }
-    console.log('data', data);
+    // console.log('data', data);
     const [bestImg, setBestImg] = useState(null);
 
     useEffect(() => {

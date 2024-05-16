@@ -1,1 +1,1 @@
-export { default as ImageLocation } from './similarity/image-location.jsx';
+export { default as SimialrityAdvancedGrid } from './similarity/SimilarityAdvancedGrid.jsx';
