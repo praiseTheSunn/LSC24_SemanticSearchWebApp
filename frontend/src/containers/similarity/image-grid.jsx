@@ -1,42 +1,51 @@
-// ImageGrid.jsx
-
-import './similarity.css'
-import React, { useEffect, useState } from 'react';
-import Scrollbarsim from './scroll-bar-sim';
-import view_icon from '../../assets/view_icon.png'
-
+import React from 'react';
+import { FixedSizeGrid as Grid } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
+import { AnImage } from '../../components';
+import './similarity.css';
 
 const ImageGrid = ({ simData }) => {
-    return (
-        <div className='image-grid'>
-            <Scrollbarsim>
-                {/* create a grid of image */}
-                <div className='grid-container'>
-                    {simData.map((data, index) => {
-                    const { path, date, time } = data;
-                    const formattedTime = `${date} ${time}`;
-                    return (
-                        // add event to open singlePopup at every image
-                        <div key={index} className='image-wrapper'>
-                            <div className='overlay'>{formattedTime}</div>
-                            <img
-                                src={path}
-                                alt={`Image ${index}`}
-                                className='image-item'
-                                // onClick={() => openSinggleImage(null, path, date, time)}
-                            />
-                            <img
-                                src={view_icon}
-                                alt={`View ${index}`}
-                                className='view-item'
-                            />
-                        </div>
-                    );
-                })}
+    const columnCount = 9; // Number of columns in the grid
+
+    const Cell = ({ columnIndex, rowIndex, style }) => {
+        const index = rowIndex * columnCount + columnIndex;
+        if (index >= simData.length) return null; // Ensure not to exceed simData length
+
+        const data = simData[index];
+
+        return (
+            <div style={style} className="max-h-[142px]">
+                <div className="h-auto image-item overflow-hidden">
+                    <AnImage key={index} src={data.img_link} date={data.date} index={index} time={data.time} />
                 </div>
-            </Scrollbarsim>
+            </div>
+        );
+    };
+
+    return (
+        <div className="h-full w-full">
+            <AutoSizer>
+                {({ height, width }) => {
+                    const columnWidth = width / columnCount;
+                    const rowHeight = 130; // Making rows square by setting row height equal to column width
+                    const rowCount = Math.ceil(simData.length / columnCount);
+
+                    return (
+                        <Grid
+                            columnCount={columnCount}
+                            columnWidth={columnWidth}
+                            height={height}
+                            rowCount={rowCount}
+                            rowHeight={rowHeight}
+                            width={width}
+                        >
+                            {Cell}
+                        </Grid>
+                    );
+                }}
+            </AutoSizer>
         </div>
     );
-}
+};
 
 export default ImageGrid;

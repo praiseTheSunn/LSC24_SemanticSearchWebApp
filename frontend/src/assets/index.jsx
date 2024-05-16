@@ -12,3 +12,20 @@ export { default as SimilarityIcon } from './SimilarityIcon.svg';
 export { default as SimilarityIconActive } from './SimilarityIconActive.svg';
 export { default as TimelineIcon} from './TimelineIcon.svg';
 export { default as TimelineIconActive} from './TimelineIconActive.svg';
+
+export { default as BicycleIcon } from './obj_icons/Bicycle.svg'
+export { default as CarIcon } from './obj_icons/car.svg'
+export { default as CatIcon } from './obj_icons/cat.svg'
+export { default as DogIcon } from './obj_icons/Dog Sit.svg'
+export { default as PersonIcon } from './obj_icons/Person.svg'
+export { default as BirdIcon } from './obj_icons/Bird.svg'
+export { default as MobilePhoneIcon } from './obj_icons/Smartphone.svg'
+export { default as LaptopIcon } from './obj_icons/Laptop.svg'
+export { default as ComputerMonitorIcon } from './obj_icons/iMac.svg'
+export { default as FoodIcon } from './obj_icons/Italian Pizza.svg'
+export { default as TreeIcon } from './obj_icons/Oak Tree.svg'
+export { default as ShirtIcon } from './obj_icons/T-Shirt.svg'
+export { default as TrousersIcon } from './obj_icons/Trousers.svg'
+export { default as TrafficLightIcon } from './obj_icons/Traffic Light.svg'
+
+export { default as ObjectPosIcon } from './objectPosIcon.svg';
