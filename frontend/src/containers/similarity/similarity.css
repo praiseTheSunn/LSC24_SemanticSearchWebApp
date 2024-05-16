@@ -1,127 +1,18 @@
-/* scrollbar.css */
-
-.scrollbarsim-container {
-    overflow-y: scroll;
-    height: 600px;
-    position: relative;
-}
-
-.scrollbarsim {
-    width: 100%;
-    height: 100%;
-    overflow-y: auto;
-    padding-right: 20px; /* Khoảng cách để giữ chỗ cho thanh cuộn */
-}
-
-/* Tạo thanh cuộn */
-.scrollbarsim::-webkit-scrollbar {
-    width: 10px;
-}
-
-.scrollbarsim::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.scrollbarsim::-webkit-scrollbar-thumb {
-    background: #888;
-    border-radius: 5px;
-}
-
-.scrollbarsim::-webkit-scrollbar-thumb:hover {
-    background: #555;
-}
-
-
-.grid-container-2 {
-    margin-left: 1.5%;
-    width: 100%;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr); /* 7 cột với chiều rộng bằng nhau */
-    grid-gap: 10px; /* Khoảng cách giữa các hình ảnh */
-}
-
-.image-cluster-container {
-    display: grid;
-    grid-template-rows: 150px 85px 20px;
-    grid-row-gap: 4px;
-    margin-right: 20px;
-    padding: 4px;
-    border-width: 2px;
-    border-color: rgb(243, 239, 239);
-    border-radius: 10px;
-    box-shadow: 2px 2px 2px 2px rgba(0, 0, 1, 0.1);
-}
-
-  .big-image-container {
-    width: 200px; 
-    height: 140px;
-    object-fit: cover;
-    border-radius: 10px;
-  }
-  
-  .big-image-cluster:hover {
-      transform: scale(1.02); /* Phóng to hình ảnh khi hover */
-      border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
-      cursor: pointer;
-  }
-
-  .small-image-container {
-    width: 200px; 
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-column-gap: 10px; 
-  }
-
-  .small-image {
-    width: 100px;
-    height: 75px;
-    object-fit: cover;
-    border-radius: 10px;
-  }
-
-  .small-image-cluster:hover {
-      transform: scale(1.02); /* Phóng to hình ảnh khi hover */
-      border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
-      cursor: pointer;
-  }
-  
-  .location-name {
-    font-size: 16px;
-    text-align: center;
-  }
 
   /* image-grid.css */
-
-.image-grid {
-    /* Các kiểu CSS cho lưới hình ảnh */
-}
-
-.grid-container {
-    margin-left: 2.5%;
-    width: 95%;
-    display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7 cột với chiều rộng bằng nhau */
-    grid-gap: 10px; /* Khoảng cách giữa các hình ảnh */
-}
-
 .image-item {
-    width: 100%; /* Chiều rộng hình ảnh sẽ chiếm toàn bộ ô của grid */
+    /* width: 200px; Chiều rộng hình ảnh sẽ chiếm toàn bộ ô của grid */
     height: auto; /* Đảm bảo tỷ lệ hình ảnh không bị méo */
     object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng khi thay đổi kích thước */
     border-radius: 7px; /* Bo tròn viền hình ảnh */
     transition: transform 0.3s ease; /* Tạo hiệu ứng chuyển động mềm mại */
     cursor: pointer;
+    border: 2px solid transparent; /* Hiển thị khung hình ảnh in đậm khi hover */
 }
 
 .image-item:hover {
     transform: scale(1.05); /* Phóng to hình ảnh khi hover */
     border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
-}
-
-
-.image-wrapper {
-    position: relative;
-    display: inline-block;
 }
 
 .overlay {

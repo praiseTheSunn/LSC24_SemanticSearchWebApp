@@ -6,8 +6,9 @@ const getImage = (url) => {
 }
 
 const getImages = (text) => {
-    // console.log(url);
-    return http.get(`/query/image/${text}`);
+   
+    return http.post(`/search/search_with_text_query`, {  mode: "smt-3m-dtin",
+    model: "clip", text_query: text });
 }
 
 const getSimilarImages = (url) => {

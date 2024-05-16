@@ -1,5 +1,6 @@
 import React from 'react';
 import './imageGroup.css';
+import AnImage from './AnImage';
 
 const ImageGroup = ({ images, title }) => {
     //sort images by score
@@ -8,11 +9,20 @@ const ImageGroup = ({ images, title }) => {
 
     return (
         <div className="relative image-group p-0.5 flex-col flex bg-white my-1" 
-        style={{ boxShadow: "2px 4px 4px 0px rgba(0, 0, 0, 0.5)"}}>
-            <div className='mb-[2px]' >
-                <img src={images[0] && images[0].img_link ? images[0].img_link : null} className="big-image"/>
+        style={{ boxShadow: "2px 4px 4px 0px rgba(0, 0, 0, 0.5)", maxHeight: "230px"}}>
+            <div className='mb-[2px]' 
+            style={{
+                width: '100%',
+                height: '120px',
+                objectFit: 'cover',
+            }}
+            >
+                <AnImage src={images[0] && images[0].img_link ? images[0].img_link : null} date={images[0].date} time={images[0].time} />
+                {/* <img src={images[0] && images[0].img_link ? images[0].img_link : null} style={{
+                    
+                }}/> */}
             </div>            
-            <div className="flex flex-row gap-x-0.5 w-[180px] small-images relative">
+            <div className="flex flex-row gap-x-0.5 w-full small-images relative justify-center">
                 <div className="small-image">
                     <img src={images[1] && images[1].img_link ? images[1].img_link : null} className="small-image"/>
                 </div>
@@ -20,8 +30,8 @@ const ImageGroup = ({ images, title }) => {
                     <img src={images[2] && images[2].img_link ? images[2].img_link : null} className="small-image"/>
                 </div>
             </div>
-            <div className='inline-flex items-center w-full justify-center h-[36px]'>
-                <h2 className="title">{title}</h2>
+            <div className='inline-flex items-center w-full justify-center h-[36px] max-w-[180px]'>
+                <h2 className="title truncate" title={title}>{title}</h2>
             </div>
         </div>
     );

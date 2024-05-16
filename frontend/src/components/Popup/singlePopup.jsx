@@ -17,58 +17,14 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
     const containerRef = useRef(null);
 
     //Fetch the similar images when the viewImage.path changes
+    
     useEffect(() => {
-        console.log('fetching similar images for', viewImage.path);
-        const response2 = imageService.getSimilarImages(viewImage.path)
-        .then((response2) => {
-            // Convert the byte data to a base64-encoded string
-            var urls = response2.data['image_files'];
-            var imageDataUrls = [];
-
-            for (var i = 0; i < urls.length; i++) {
-                const now = new Date();
-                const currentTimeString = now.getTime().toString();
-                const data = {
-                    path: urls[i],
-                    image: "",
-                    status: 0,
-                    dateInd: currentTimeString + i.toString(),
-                }
-                imageDataUrls.push(data);
-                
-            }
-            // console.log('imageDataUrls single popup', imageDataUrls);
-            setSimilarImages(imageDataUrls);
-            // setActiveSimilarImages(imageDataUrls.slice(0, 50));
-        })
-        .catch((error) => {
-            console.error('Error fetching similar images:', error);
-        });
-    }, [viewImage.path]); // Trigger the effect when viewImage.path changes
-
-    useEffect(() => {
-        if (similarImages.length && !activeSimilarImages.length) {
-            fetchImages(0, 50);
-        }
-        else {
-            console.log("similarImages updated", similarImages);
-        }
+        
     }, [similarImages]);
 
     const { selectedImages, addSelectedImage, removeSelectedImage } = useSelectedImages();
 
-    const handleSelectClick = () => {
-        const fileName = viewImage.path.split('\\').pop();
-        // console.log('selectedImage', fileName);
-        if(selectedImages.some(image => image.url.includes(fileName))){
-            removeSelectedImage(fileName);
-            viewImage.status = 0;
-        }else{
-            // console.log('adding',fileName);
-            addSelectedImage(fileName, viewImage.image);
-            viewImage.status = 1;
-        }
-    }
+    
 
     const handleImageClick = (imageUrl, m_img) => {
         const fileName = imageUrl.split('\\').pop();
