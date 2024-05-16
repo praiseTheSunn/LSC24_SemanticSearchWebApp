@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
-import './timelineTab.css';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIcon, ActivityIconActive, LocationIcon, LocationIconActive } from '../../assets';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
 import { KhangScrollBar } from '../../components';
 import { ImageGroup } from '../../components';
+import ActivityBar from '../../components/activityBar';
 
-const imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU"
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
 const TimelineTab = ({ data }) => {
@@ -19,7 +18,14 @@ const TimelineTab = ({ data }) => {
     const [dates, setDates] = useState([]);
     const [locationBasedData, setLocationBasedData] = useState({});
     const [activityBasedData, setActivityBasedData] = useState({});
+    const [selectedActivities, setSelectedActivities] = useState([]);
+    useEffect(() => {
+        const initialSelectedActivities = dates.map(() => null);
+        setSelectedActivities(initialSelectedActivities);
+    }, [dates]);
     const listRef = useRef(null);
+
+    const ImageGroupMemorized = React.memo(ImageGroup);
 
     const cache = new CellMeasurerCache({
         fixedWidth: true,
@@ -134,12 +140,19 @@ const TimelineTab = ({ data }) => {
         setTypeOfIndex(newTypeOfIndex);
     };
 
-    function renderRow({ index, key, style, parent, isScrolling }) {
+    const renderRow = ({ index, key, style, parent, isScrolling })  => {
         const currentDate = dates[index];
         const locationData = locationBasedData.get(currentDate) || [];
         const activityData = activityBasedData.get(currentDate) || [];
-        // console.log('currentDate', currentDate)
-        // console.log('locationData', locationData, locationBasedData);
+
+        // Filter the data based on the selected activity ID for this row
+        const selectedActivity = selectedActivities[index];
+        console.log('selectedActivities', selectedActivities)
+        const filteredActivityData = selectedActivity ? activityData.filter(item => item.activity === selectedActivity) : activityData;
+
+        // Sort activity data based on order
+        const activityOrder = ["Breakfast", "Drive to work", "Lecturing", "Dancing"];
+        activityData.sort((a, b) => activityOrder.indexOf(a.activity) - activityOrder.indexOf(b.activity));
     
         return (
             <CellMeasurer
@@ -159,9 +172,17 @@ const TimelineTab = ({ data }) => {
                                     <h3 className="vertical-timeline-element-title font-bold" style={{ fontSize: "22px", minWidth: "200px" }}>
                                         {currentDate}
                                     </h3>
-                                    <img src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
-                                    <img src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
-                                    <div>Thanh trạng thái </div>
+                                    <img alt='location-icon' src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
+                                    <img alt='activity-icon' src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
+                                    <ActivityBar
+                                        data={activityData}
+                                        visibility={typeOfIndex[index] === 1 ? "visible" : "hidden"}
+                                        onActivitySelect={(activity) => {
+                                            const newSelectedActivities = [...selectedActivities];
+                                            newSelectedActivities[index] = activity;
+                                            setSelectedActivities(newSelectedActivities);
+                                        }} 
+                                    />
                                 </div>
                             </div>
                             
@@ -169,7 +190,7 @@ const TimelineTab = ({ data }) => {
                             {typeOfIndex[index] === 0 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {locationData.map((locationItem, locationIndex) => (
-                                        <ImageGroup
+                                        <ImageGroupMemorized
                                             key={locationIndex}
                                             images={locationItem.images}
                                             title={locationItem.location}
@@ -181,8 +202,8 @@ const TimelineTab = ({ data }) => {
                             {/* Activity data */}
                             {typeOfIndex[index] === 1 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
-                                    {activityData.map((activityItem, activityIndex) => (
-                                        <ImageGroup
+                                    {filteredActivityData.map((activityItem, activityIndex) => (
+                                        <ImageGroupMemorized
                                             key={activityIndex}
                                             images={activityItem.images}
                                             title={activityItem.activity}

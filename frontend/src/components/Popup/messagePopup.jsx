@@ -1,5 +1,4 @@
 import FilterTag from "../Filter/filterTag";
-import './messagePopup.css';
 
 const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}) => {
 
@@ -22,25 +21,47 @@ const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}
     }
 
     return (
-        <div className='filter-container messagePopup'>
-            <button type="button" className="btn btn-link clear-filter-button" onClick={handleClearAll}>Clear</button>
-            <div className='filter-item-area'>
-                {displayedFilters.map((filter, index) => (
-                    <FilterTag
-                        key={index}
-                        filter={filter}
-                        index={index}
-                        onIconClick={onIconClick}
-                    />
-                ))}
+        <div className='filter-container messagePopup'
+        style={{
+            backgroundColor: 'rgb(206, 232, 255)',
+            maxHeight: '350px',
+            width: '286px',
+            minHeight: '250px',
+            position: 'absolute',
+            borderRadius: '20px',
+            overflow: 'scroll',
+            top: '70px',
+            zIndex: '10000',
+        }}
+        >
+            <div className="pt-[1px] w-full sticky top-0 ">
+                <button type="button" className="btn btn-link clear-filter-button text-left " 
+                onClick={() => handleClearAll()}
+                >
+                    Clear
+                </button>
                 
-                <div className='filter-instruction'>
-                    -sl ... : semantic location <br/>
-                    -lc ... : location category<br/>
-                    -t ... : time<br/>
-                    -ocr ... : OCR text<br/>
-                    -obj ... : Object Detection<br/>
-                    -c : Turn on caption search<br/>
+            </div>
+            
+            <div className="h-full overflow-y-scroll">
+                <div className='filter-item-area w-full p-[5px] flex flex-col items-center h-full'>
+                    {displayedFilters.map((filter, index) => (
+                        <FilterTag
+                            key={index}
+                            filter={filter}
+                            index={index}
+                            onIconClick={onIconClick}
+                        />
+                    ))}
+                    
+                    <div className='filter-instruction bg-white w-full h-auto mt-4' style={{ borderRadius: '7px', padding: '10px 20px'}}>
+                        -sl ... : semantic location <br/>
+                        -lc ... : location category<br/>
+                        -t ... : time<br/>
+                        -ocr ... : OCR text<br/>
+                        -obj ... : Object Detection<br/>
+                        -c : Turn on caption search<br/>
+                    </div>
                 </div>
             </div>
             

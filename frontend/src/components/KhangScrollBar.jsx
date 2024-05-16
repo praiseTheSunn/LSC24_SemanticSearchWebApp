@@ -3,7 +3,7 @@ import { Tooltip } from 'react-tooltip'
 
 const KhangScrollBar = ({dates, setSelectedDate}) => {
 
-    const [interval, setInterval] = useState(dates.length / (dates.length > 10 ? dates.length * 50 / 100 : dates.length));
+    const [interval, setInterval] = useState(dates.length / (dates.length > 10 ? dates.length * 10 / 100 : dates.length));
     
     return(
         <div className="grid bg-lightGray" style={{ width:"7px", height: "98%" }}>
