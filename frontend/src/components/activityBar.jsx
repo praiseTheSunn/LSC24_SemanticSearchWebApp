@@ -4,12 +4,28 @@ import 'react-tooltip/dist/react-tooltip.css'
 
 
 // create a map from activity to color code
+// const activityColorMap = {
+//     "Breakfast": "#2f3f8f",
+//     "Drive to work": "#228b22",
+//     "Lecturing": "#ff0000",
+//     "Dancing": "#ffff00",
+// }
+
 const activityColorMap = {
-    "Breakfast": "#386f43",
-    "Drive to work": "#ba8e2b",
-    "Lecturing": "#6f006f",
-    "Dancing": "#af0000",
+    "driving car": "#800000",
+    "working on computer": "#9A6324",
+    "eating": "#808000",
+    "doing laundry": "#469990",
+    "cooking": "#000075",
+    "biking": "#000000",
+    "watching tv": "#911eb4",
+    "writing": "#3cb44b",
+    "shopping": "#ffe119",
+    "Other": "#f58231"
 }
+
+
+
 
 const ActivityBar = ({data, visibility, onActivitySelect }) => {
 
@@ -78,7 +94,7 @@ const ActivityBar = ({data, visibility, onActivitySelect }) => {
                         style={{ 
                             height: "10px",
                             backgroundColor: color,
-                            opacity: clickedIndex === index ? "1" : "0.4"
+                            opacity: clickedIndex === index ? "1" : "0.35"
                         }}
                         data-tooltip-content={activity}
                         data-tooltip-img={best_img}

@@ -14,7 +14,8 @@ const ImageGroup = ({ images, title }) => {
             style={{
                 width: '100%',
                 height: '120px',
-                objectFit: 'cover',
+                objectFit: 'contain',
+                minWidth: '160px'
             }}
             >
                 <AnImage src={images[0] && images[0].img_link ? images[0].img_link : null} date={images[0].date} time={images[0].time} />

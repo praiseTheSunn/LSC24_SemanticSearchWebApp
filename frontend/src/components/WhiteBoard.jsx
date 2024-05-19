@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 
-const Whiteboard = ({ selectedIcon, onDraw }) => {
+const Whiteboard = ({ selectedIcon, onDraw, onClear, setIsClear }) => {
   const [drawing, setDrawing] = useState(false);
   const [startPos, setStartPos] = useState(null);
   const [rect, setRect] = useState(null);
@@ -17,6 +17,13 @@ const Whiteboard = ({ selectedIcon, onDraw }) => {
       window.removeEventListener('mousemove', updateCursorPosition);
     };
   }, []);
+
+  useEffect(() => {
+    if (onClear) {
+      setDrawnItems([]);
+      setIsClear(false);
+    }
+  }, [onClear]);
 
   const handleMouseDown = (e) => {
     if (selectedIcon) {
