@@ -4,25 +4,25 @@ import 'react-tooltip/dist/react-tooltip.css'
 
 
 // create a map from activity to color code
-const activityColorMap = {
-    "Breakfast": "#2f3f8f",
-    "Drive to work": "#228b22",
-    "Lecturing": "#ff0000",
-    "Dancing": "#ffff00",
-}
-
 // const activityColorMap = {
-//     "driving car": "#2f3f8f",
-//     "working on computer": "#228b22",
-//     "eating": "#ff0000",
-//     "doing laundry": "#ffff00",
-//     "cooking": "#00ff00",
-//     "biking": "#9400d3",
-//     "watching tv": "#00ffff",
-//     "writing": "#1e90ff",
-//     "shopping": "#ff1493",
-//     "Other": "ffdead"
+//     "Breakfast": "#2f3f8f",
+//     "Drive to work": "#228b22",
+//     "Lecturing": "#ff0000",
+//     "Dancing": "#ffff00",
 // }
+
+const activityColorMap = {
+    "driving car": "#2f3f8f",
+    "working on computer": "#228b22",
+    "eating": "#ff0000",
+    "doing laundry": "#ffff00",
+    "cooking": "#00ff00",
+    "biking": "#9400d3",
+    "watching tv": "#00ffff",
+    "writing": "#1e90ff",
+    "shopping": "#ff1493",
+    "Other": "#ffdead"
+}
 
 
 
