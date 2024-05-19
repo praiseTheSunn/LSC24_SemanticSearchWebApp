@@ -10,10 +10,12 @@ import { usePopUp } from '../../contexts/popUpContext';
 
 
 const SinglePopup = ({viewImage, openSinggleImage}) => {
+    // Display viewImage , fetch API to get similars of viewImage, display neighbors in a list
+    // Link doc cua API: http://34.124.236.208:8001/docs
+    // Tạo service mới cho API get neighbor
     const { setSimilarPopUp, neighborPopUp, setNeighborPopUp } = usePopUp();
 
     const [similarImages, setSimilarImages] = useState([]);
-    const [activeSimilarImages, setActiveSimilarImages] = useState([]);
     const containerRef = useRef(null);
 
     //Fetch the similar images when the viewImage.path changes
@@ -28,7 +30,6 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
 
     const handleImageClick = (imageUrl, m_img) => {
         const fileName = imageUrl.split('\\').pop();
-        // console.log('clicked',fileName);
         console.log('selectedImages',selectedImages);
         if(selectedImages.some(image => image.url.includes(fileName))){
             removeSelectedImage(fileName);
@@ -38,9 +39,7 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
                 }
                 return record;
             });
-            setActiveSimilarImages(updatedImages);
         }else{
-            // console.log('adding',fileName);
             addSelectedImage(fileName, m_img);
             const updatedImages = activeSimilarImages.map((record) => {
                 if (record.path === imageUrl) {
@@ -48,137 +47,8 @@ const SinglePopup = ({viewImage, openSinggleImage}) => {
                 }
                 return record;
             });
-            setActiveSimilarImages(updatedImages);
         }
     }    
-
-
-    const [page, setPage] = useState(1);
-    const [isAtBottom, setIsAtBottom] = useState(false);
-
-    const handleScroll = () => {
-        const container = containerRef.current;
-
-        if (container) {
-            // Calculate the scroll position
-            const scrollHeight = container.scrollHeight;
-            const scrollTop = container.scrollTop;
-            const clientHeight = container.clientHeight;
-            // console.log('scrollHeight',scrollHeight)
-            // console.log('scrollTop',scrollTop)  
-            // console.log('clientHeight',clientHeight)
-
-            // Check if the user is at the bottom (you can adjust the threshold if needed)
-            const isBottom = scrollHeight - scrollTop - 100 <= clientHeight;
-            // console.log('isBottom', isBottom);
-            
-
-            setIsAtBottom(isBottom);
-
-            // Trigger a function when the user reaches the bottom
-        }
-    };
-
-    useEffect(() => {
-        const container = containerRef.current;
-
-        if (container) {
-            // Add scroll event listener
-            container.addEventListener('scroll', handleScroll);
-
-            return () => {
-            // Remove scroll event listener on component unmount
-            container.removeEventListener('scroll', handleScroll);
-            };
-        }
-    }, []);
-
-    const fetchData = async () => {
-        // setIsLoading(true);
-        // setError(null);
-      
-        try {
-            // var data = similarImages.slice(page * 50, page * 50 + 50);
-            // setActiveSimilarImages(prevItems => [...prevItems, ...data]);
-            fetchImages(page * 50, page * 50 + 50);
-            setPage(prevPage => prevPage + 1);
-        } catch (error) {
-            console.log('error', error);
-        //   setError(error);
-        } finally {
-            setIsAtBottom(false);
-        }
-      };
-
-    useEffect(() => {
-        if (isAtBottom) {
-            fetchData();
-
-        }
-    }, [isAtBottom]);
-    
-    const fetchImages = (index, max) => {
-        var copy = [];
-        fetchImagesToCopy(index, max, copy);
-    }
-
-    const fetchImagesToCopy = (index, max, copy) => {
-        if (index < max) {
-            // console.log(index, imageUrls)
-            const url = similarImages[index].path;
-            // console.log("fetching " + index + "th url: " + url);
-
-            imageService.getImage(url)
-                .then((response) => {
-                    const base64ImageString = btoa(
-                        new Uint8Array(response.data).reduce(
-                            (data, byte) => data + String.fromCharCode(byte),
-                            ''
-                        )
-                    );
-
-                    const imageDataUrl = `data:image/jpeg;base64,${base64ImageString}`;
-
-                    // Parse the filename to extract date and time
-                    const fileName = url.split('\\').pop();
-                    const date = url.split('\\').slice(-3, -1).join('-').replace(/(\d{4})(\d{2})-(\d{2})/, '$1-$2-$3');
-                    const time = fileName.slice(9, 11) + ':' + fileName.slice(11, 13) + ':' + fileName.slice(13, 15);
-
-                    // Add the image data to copy
-                    copy.push({ 'image': imageDataUrl, 'path' : url, 'status': 0, 'date': date, 'time': time });
-
-                    // Recursive call to fetch the next image
-                    copy = fetchImagesToCopy(index + 1, max, copy);
-                })
-                .catch((error) => {
-                    console.error('Error fetching image:', error);
-                });
-                return copy;
-        } else {
-            // All images fetched, set the state or do other operations
-            console.log("finished fetching a page");
-            // console.log(neighbors);
-            setActiveSimilarImages(prevActiveSimilars => {
-                return [...prevActiveSimilars, ...copy];
-                // for (var i = min; i < max; i++) {
-                //     prevActiveNeighbors[i] = copy[i];
-                // }
-                // return prevActiveNeighbors;
-            });
-            return copy;
-        }
-    };
-
-    // useEffect(() => {
-    //     if (activeSimilarImages.length > 0) {
-    //         var prevPage = page - 1;
-    //         if (activeSimilarImages[prevPage * 50].image == "") {
-
-    //             console.log(activeSimilarImages[prevPage * 50]);
-    //             fetchImages(prevPage * 50, prevPage * 50 + 50);
-    //         }
-    //     }
-    // }, [activeSimilarImages])
 
     return (
         <div className='single-popup-container'>
