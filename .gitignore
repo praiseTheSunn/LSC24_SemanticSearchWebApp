@@ -56,3 +56,5 @@ startFrontend.bat
 /backend/results
 *.ipynb
 /index
+
+/backend/objpos/image_data.db
