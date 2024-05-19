@@ -17,6 +17,8 @@ class ObjectData(BaseModel):
 class ImageScore(BaseModel):
     filename: str
     score: float
+    date: str
+    time: str
 
 class Database:
     def __init__(self, db_url):

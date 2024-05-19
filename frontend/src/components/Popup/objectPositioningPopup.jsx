@@ -1,17 +1,12 @@
 // Popup.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { DragIconList } from '../../data/icon';
-import DragIcon from '../DragIcon';
 import Whiteboard from '../WhiteBoard';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-const ObjectPositionPopup = () => {
-    const [selectedIcons, setSelectedIcons] = useState([]);
+const ObjectPositionPopup = ({showPopup}) => {
     const [selectedIcon, setSelectedIcon] = useState(null);
   
     const handleIconClick = (icon) => {
       setSelectedIcon(icon);
-      setSelectedIcons([...selectedIcons, icon]);
       console.log('Selected icon:', icon);
     };
   
@@ -19,14 +14,27 @@ const ObjectPositionPopup = () => {
       console.log('Drawn item:', item);
       setSelectedIcon(null); // Clear selection after drawing
     };
+
+    const [isClear, setIsClear] = useState(false);
+
+    const handleClear = () => {
+      setSelectedIcon(null);
+      setIsClear(true);
+    };
   
     return (
       <div
-        className='absolute left-10 top-0 p-2 flex flex-row border border-solid border-black bg-white w-fit'
+        id='objectPosPopup'
+        className='objectPosPopup absolute left-10 top-0 flex flex-row bg-white w-fit'
         style={{
-          zIndex: '1000',
+          zIndex: '10000',
           borderRadius: '6px',
           boxShadow: '2px 4px 4px 0px rgba(0, 0, 0, 0.5)',
+          height: showPopup ? 'fit-content' : '0px',
+          width: showPopup ? 'fit-content' : '0px',
+          overflow: 'hidden',
+          padding: showPopup ? '8px' : '0px',
+          border: showPopup ? '1px solid black' : '0px',
         }}
       >
         <div className='grid grid-cols-3 mr-2 min-w-[100px] gap-x-0.5 gap-y-0.5'>
@@ -41,7 +49,8 @@ const ObjectPositionPopup = () => {
             />
           ))}
         </div>
-        <Whiteboard onDraw={handleDraw} selectedIcon={selectedIcon} />
+        <Whiteboard onDraw={handleDraw} selectedIcon={selectedIcon} onClear={isClear} setIsClear={setIsClear} />
+        <button className='bg-red text-white rounded-[3px] w-[50px] h-[30px] ml-[3px]' onClick={() => handleClear()} >Clear</button>
       </div>
     );
   };
