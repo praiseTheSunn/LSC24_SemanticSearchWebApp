@@ -192,11 +192,13 @@ const TimelineTab = ({ data }) => {
                             {typeOfIndex[index] === 0 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {locationData.map((locationItem, locationIndex) => (
-                                        <ImageGroupMemorized
-                                            key={locationIndex}
-                                            images={locationItem.images}
-                                            title={locationItem.location}
-                                        />
+                                        <div className='w-[180px] h-[230px]' key={locationIndex}>
+                                            <ImageGroupMemorized
+                                                
+                                                images={locationItem.images}
+                                                title={locationItem.location}
+                                            />
+                                        </div>
                                     ))}
                                 </div>
                             )}
