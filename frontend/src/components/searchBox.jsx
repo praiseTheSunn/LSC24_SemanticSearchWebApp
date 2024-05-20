@@ -4,7 +4,7 @@ import { MessagePopup, ObjectPositionPopup } from '.';
 import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
 
-const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const {displayedImages, setDisplayedImages} = useSelectedImages();
@@ -17,16 +17,14 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
     useEffect(() => {
         messagePopup.current = document.querySelector('.messagePopup');
         objPosPopup.current = document.querySelector('.objectPosPopup');
-        console.log('messagePopup', messagePopup);
-        console.log('objPosPopup', objPosPopup);
         const handleClickOutside = (event) => {
             if (messagePopup.current && !messagePopup.current.contains(event.target)) {
                 setShowMessagePopup(false);
-                console.log('messagePopup', messagePopup);
+                // console.log('messagePopup', messagePopup);
             }
             if (objPosPopup.current && !objPosPopup.current.contains(event.target)) {
                 setShowObjectPosPopup(false);
-                console.log('objPosPopup', objPosPopup);
+                // console.log('objPosPopup', objPosPopup);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -56,7 +54,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
             setTextareaHeight(event.target.scrollHeight + 'px');
         }
         setShowMessagePopup(true);
-        console.log('messagePopup', messagePopup);
+        // console.log('messagePopup', messagePopup);
         setIsFocus(true);
     }
 
@@ -122,9 +120,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                 marginLeft: "10px",
                 marginBottom: "10px",
             }}
-            onBlur={handleTextareaBlur}
-            onFocus={(e) => handleTextareaFocus(e)}
-            onMouseLeave={() => isFocus ? {} : setShowMessagePopup(false)}
+            
             >
                 
                 <textarea
@@ -150,6 +146,9 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                     rows={2}
                     onKeyDown={handleEnter}
                     // onMouseEnter={() => messagePopup.current.classList.remove('hidden')}
+                    onBlur={handleTextareaBlur}
+                    onFocus={(e) => handleTextareaFocus(e)}
+                    onMouseLeave={() => isFocus ? {} : setShowMessagePopup(false)}
                     
                 />
                 <div className='absolute left-0'>
@@ -157,7 +156,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                 </div>
                 <div className='relative flex-row flex flex-nowrap'>
                     <img src={ObjectPosIcon} alt = 'object_pos_icon' className='ml-3 mt-2 size-9 cursor-pointer relative' onClick={() => openObjPosPopup()}/>
-                    <ObjectPositionPopup showPopup={showObjectPosPopup}/>
+                    <ObjectPositionPopup showPopup={showObjectPosPopup} setResult={setResult}/>
                 </div>
                 
                 
