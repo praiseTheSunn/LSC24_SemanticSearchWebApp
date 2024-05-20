@@ -89,6 +89,7 @@ const Home = ({selectedFilters}) => {
                 displayedFilters={displayedFilters}
                 setDisplayedFilters={setDisplayedFilters}
                 setQuery={setQuery}
+                setResult= {setResult}
             />
 
             <div
