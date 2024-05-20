@@ -3,6 +3,7 @@ import { ActivityIcon, ActivityIconActive, LocationIcon, LocationIconActive } fr
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
 import { KhangScrollBar } from '../../components';
 import { ImageGroup } from '../../components';
+import { ImageSingle } from '../../components';
 import ActivityBar from '../../components/activityBar';
 
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
@@ -150,9 +151,10 @@ const TimelineTab = ({ data }) => {
         console.log('selectedActivities', selectedActivities)
         const filteredActivityData = selectedActivity ? activityData.filter(item => item.activity === selectedActivity) : activityData;
 
-        // Sort activity data based on order
-        const activityOrder = ["Breakfast", "Drive to work", "Lecturing", "Dancing"];
-        activityData.sort((a, b) => activityOrder.indexOf(a.activity) - activityOrder.indexOf(b.activity));
+        // Sort activities in activityData based on time of the first image in each activity
+        activityData.sort((a, b) => 
+            Math.min(a.images.map(img => Object.values(img)[0].time)) - Math.min(b.images.map(img => Object.values(img)[0].time))
+        );
     
         return (
             <CellMeasurer
@@ -190,11 +192,13 @@ const TimelineTab = ({ data }) => {
                             {typeOfIndex[index] === 0 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {locationData.map((locationItem, locationIndex) => (
-                                        <ImageGroupMemorized
-                                            key={locationIndex}
-                                            images={locationItem.images}
-                                            title={locationItem.location}
-                                        />
+                                        <div className='w-[180px] h-[230px]' key={locationIndex}>
+                                            <ImageGroupMemorized
+                                                
+                                                images={locationItem.images}
+                                                title={locationItem.location}
+                                            />
+                                        </div>
                                     ))}
                                 </div>
                             )}
@@ -202,13 +206,28 @@ const TimelineTab = ({ data }) => {
                             {/* Activity data */}
                             {typeOfIndex[index] === 1 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
-                                    {filteredActivityData.map((activityItem, activityIndex) => (
-                                        <ImageGroupMemorized
-                                            key={activityIndex}
-                                            images={activityItem.images}
-                                            title={activityItem.activity}
-                                        />
-                                    ))}
+                                    {filteredActivityData.length === 1 ? (
+                                        // If there is only one activity, display all images in a single row
+                                        <div className="flex flex-row flex-wrap gap-x-2">
+                                            {filteredActivityData[0].images.map((imageItem) => (
+                                                <ImageSingle
+                                                    image={imageItem}
+                                                    title={filteredActivityData[0].activity}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        // Otherwise, display images in ImageGroups
+                                        <div className="flex flex-row flex-wrap gap-x-2">
+                                            {filteredActivityData.map((activityItem, activityIndex) => (
+                                                <ImageGroupMemorized
+                                                    key={activityIndex}
+                                                    images={activityItem.images}
+                                                    title={activityItem.activity}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
