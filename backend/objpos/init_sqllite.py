@@ -9,7 +9,8 @@ cursor = conn.cursor()
 
 # Create a table to store image data
 cursor.execute('''CREATE TABLE IF NOT EXISTS images (
-                filename TEXT,
+                id integer primary key autoincrement,
+                filepath TEXT,
                 object_name TEXT,
                 top_left_x REAL,
                 top_left_y REAL,
@@ -18,6 +19,14 @@ cursor.execute('''CREATE TABLE IF NOT EXISTS images (
                 )''')
 
 conn.commit()
+
+def image_file_name_to_file_path(image_file_name):
+    month = image_file_name[0:6]
+    day = image_file_name[6:8]
+    if '2000' in month:
+        month = month.replace('2000', '2020')
+        day = str(int(day) + 15)
+    return "http://34.124.236.208/img_lsc/" + month + "/" + day + "/" + image_file_name[:-4] + ".webp"
 
 
 def insert_data_from_csv(file_path):
@@ -50,10 +59,10 @@ def insert_data_from_csv(file_path):
                             top_left_x, top_left_y = map(float, matches.group(2).split(';'))
                             bottom_right_x, bottom_right_y = map(float, matches.group(3).split(';'))
                         object_name = object_and_coordinates[:object_name_end_index].strip('[')                    
-                        
-                        cursor.execute('''INSERT INTO images (filename, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y)
+                        filepath = image_file_name_to_file_path(filename)
+                        cursor.execute('''INSERT INTO images (filepath, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y)
                                           VALUES (?, ?, ?, ?, ?, ?)''',
-                                       (filename, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y))
+                                       (filepath, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y))
     conn.commit()
 
 
@@ -90,20 +99,20 @@ def insert_data_from_xlsx(file_path):
                     object_name = object_and_coordinates[:object_name_end_index].strip('[')    
                     # uppercase first letter of object name
                     object_name = object_name[0].upper() + object_name[1:]                
-                    
+                    filepath = image_file_name_to_file_path(filename)
                     # print(filename, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y)
-                    cursor.execute('''INSERT INTO images (filename, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y)
+                    cursor.execute('''INSERT INTO images (filepath, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y)
                                       VALUES (?, ?, ?, ?, ?, ?)''',
-                                   (filename, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y))
+                                   (filepath, object_name, top_left_x, top_left_y, bottom_right_x, bottom_right_y))
     
     conn.commit()
 
 
 # Insert data from CSV files
-# insert_data_from_csv("E:\\LSCDATA\\obj\\coordinates\\v8_boundary_percent.csv")
-# print("v8 done")
-# insert_data_from_xlsx("E:\\LSCDATA\\obj\\coordinates\\v9_boundary_percent.xlsx")
-# print("v9 done")
+insert_data_from_csv("E:\\LSCDATA\\obj\\coordinates\\v8_boundary_percent.csv")
+print("v8 done")
+insert_data_from_xlsx("E:\\LSCDATA\\obj\\coordinates\\v9_boundary_percent.xlsx")
+print("v9 done")
 
 # Commit changes and close connection
 conn.commit()
