@@ -2,8 +2,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { DragIconList } from '../../data/icon';
 import Whiteboard from '../WhiteBoard';
-const ObjectPositionPopup = ({showPopup}) => {
+import { ObjectService } from '../../services/objectService';
+const ObjectPositionPopup = ({showPopup, setResult}) => {
     const [selectedIcon, setSelectedIcon] = useState(null);
+    const [selectedObjects, setSelectedObjects] = useState([]);
   
     const handleIconClick = (icon) => {
       setSelectedIcon(icon);
@@ -17,10 +19,35 @@ const ObjectPositionPopup = ({showPopup}) => {
 
     const [isClear, setIsClear] = useState(false);
 
-    const handleClear = () => {
+    const handleClear = (e) => {
       setSelectedIcon(null);
       setIsClear(true);
     };
+
+    const handleQuery = () => {
+      const query = [];
+      for (const obj of selectedObjects) {
+        console.log('Object:', obj);
+        const obj_coor = obj.rect;
+        const new_element = {
+          "object_name": obj.icon.name.charAt(0).toUpperCase() + obj.icon.name.slice(1),
+          "top_left_x": obj_coor.left,
+          "top_left_y": obj_coor.top,
+          "bottom_right_y": obj_coor.bottom,
+          "bottom_right_x": obj_coor.right,
+        }
+        query.push(new_element);
+      }
+
+      ObjectService.searchObjectPosition(query)
+      .then((response) => {
+        console.log('Response:', response);
+        setResult(response.data);
+      })
+      .catch((error) => {
+        console.log('Error:', error);
+      });
+    }
   
     return (
       <div
@@ -49,8 +76,11 @@ const ObjectPositionPopup = ({showPopup}) => {
             />
           ))}
         </div>
-        <Whiteboard onDraw={handleDraw} selectedIcon={selectedIcon} onClear={isClear} setIsClear={setIsClear} />
-        <button className='bg-red text-white rounded-[3px] w-[50px] h-[30px] ml-[3px]' onClick={() => handleClear()} >Clear</button>
+        <Whiteboard setSelecObjects={setSelectedObjects} onDraw={handleDraw} selectedIcon={selectedIcon} onClear={isClear} setIsClear={setIsClear} />
+        <div className='flex flex-col'>
+          <button className='bg-red text-white rounded-[3px] w-[50px] h-[30px] ml-[3px]' onClick={(e) => handleClear(e)} >Clear</button>
+          <button className='bg-blue text-white rounded-[3px] mt-2 w-[50px] h-[30px] ml-[3px]' onClick={(e) => handleQuery()} >Send</button>
+        </div>
       </div>
     );
   };

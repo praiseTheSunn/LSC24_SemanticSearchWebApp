@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 
-const Whiteboard = ({ selectedIcon, onDraw, onClear, setIsClear }) => {
+const Whiteboard = ({ selectedIcon, onDraw, onClear, setIsClear, setSelecObjects }) => {
   const [drawing, setDrawing] = useState(false);
   const [startPos, setStartPos] = useState(null);
   const [rect, setRect] = useState(null);
@@ -25,6 +25,10 @@ const Whiteboard = ({ selectedIcon, onDraw, onClear, setIsClear }) => {
     }
   }, [onClear]);
 
+  useEffect(() => {
+    setSelecObjects(drawnItems);
+  }, [drawnItems]);
+
   const handleMouseDown = (e) => {
     if (selectedIcon) {
       const rect = whiteboardRef.current.getBoundingClientRect();
@@ -40,11 +44,22 @@ const Whiteboard = ({ selectedIcon, onDraw, onClear, setIsClear }) => {
       const rect = whiteboardRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
+      const whiteboardWidth = whiteboardRef.current.offsetWidth;
+      const whiteboardHeight = whiteboardRef.current.offsetHeight;
+      const x_percent = (e.clientX - rect.left) / whiteboardWidth ;
+      const y_percent = (e.clientY - rect.top) / whiteboardHeight ;
+      const startX = startPos.x / whiteboardWidth ;
+      const startY = startPos.y / whiteboardHeight ;
+
       setRect({
         x: Math.min(x, startPos.x),
         y: Math.min(y, startPos.y),
         width: Math.abs(x - startPos.x),
         height: Math.abs(y - startPos.y),
+        top: Math.min(y_percent, startY),
+        left: Math.min(x_percent, startX),
+        bottom: Math.max(y_percent, startY),
+        right: Math.max(x_percent, startX),
       });
     }
   };
