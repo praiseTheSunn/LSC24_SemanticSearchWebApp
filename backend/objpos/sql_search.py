@@ -72,7 +72,7 @@ def calculate_intersection_area(x1, y1, x2, y2, x3, y3, x4, y4):
     inter_width = min(x2, x4) - max(x1, x3)
     inter_height = min(y2, y4) - max(y1, y3)
     if inter_width > 0 and inter_height > 0:
-        return inter_width * inter_height
+        return inter_width * inter_height / ((x3 - x4) * (y3 - y4)) # intersection area / total area of the groundtruth
     return 0
 
 @app.post('/obj/positioning', response_model=List[ImageScore])
