@@ -43,6 +43,9 @@ class ImageScore(BaseModel):
     activity: str 
     new_lat: Optional[float]  # Allow None
     new_lng: Optional[float]  # Allow None
+    activity_id: int
+    event_id:int
+    location_id: int
 
 class Database:
     def __init__(self, db_url):
@@ -84,7 +87,7 @@ async def search_images(objects: List[ObjectData], limit: int = 1000):
 
     for obj in objects:
         await cursor.execute('''SELECT filepath, top_left_x, top_left_y, bottom_right_x, bottom_right_y, 
-                                       date, time, location, new_lat, new_lng, caption, ocr, activity
+                                       date, time, location, new_lat, new_lng, caption, ocr, activity, activity_id, event_id, location_id
                                 FROM joined_data
                                 WHERE object_name = ? AND
                                 top_left_x <= ? AND bottom_right_x >= ? AND
@@ -113,8 +116,12 @@ async def search_images(objects: List[ObjectData], limit: int = 1000):
                         "new_lng": image[9] if image[9] is not None and not math.isnan(image[9]) else None,
                         "caption": image[10],
                         "ocr": image[11],
-                        "activity": image[12]
+                        "activity": image[12],
+                        "activity_id": image[13],
+                        "event_id": image[14],
+                        "location_id": image[15]
                     }
+                # print(image_scores[filepath]["activity_id"])
                 image_scores[filepath]["score"] += area
     
     # Sort images by their total score in descending order
@@ -131,7 +138,10 @@ async def search_images(objects: List[ObjectData], limit: int = 1000):
         "new_lng": img[1]["new_lng"],
         "caption": img[1]["caption"],
         "ocr": img[1]["ocr"],
-        "activity": img[1]["activity"]
+        "activity": img[1]["activity"],
+        "activity_id": img[1]["activity_id"],
+        "event_id": img[1]["event_id"],
+        "location_id": img[1]["location_id"],
     } for img in sorted_images[:limit]]
     
     return matching_images

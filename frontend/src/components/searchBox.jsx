@@ -4,7 +4,7 @@ import { MessagePopup, ObjectPositionPopup } from '.';
 import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
 
-const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const {displayedImages, setDisplayedImages} = useSelectedImages();
@@ -86,7 +86,18 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult})
                 setDisplayedFilters(previousState => [...previousState, filter]);
             } else if (input === '-c') {
                 // Handle special case
-            }else{
+            } else if (input.startsWith('-clip') || input.startsWith('-blip2') || input.startsWith('-beit3') || input.startsWith('-stfm')){
+                const value = input.substring(1);
+                const filter = { category: 'model', value, status: 1 };
+                setModel(value);
+                setDisplayedFilters(previousState => [...previousState, filter]);
+            } else if (input.startsWith('-mode')){
+                const value = input.substring(5);
+                const filter = { category: 'mode', value, status: 1 };
+                setMode(value);
+                setDisplayedFilters(previousState => [...previousState, filter]);
+            }         
+            else{
                 const value = input;
                 const filter = { category: 'query', value, status: 1 };
                 // console.log('input', input);
