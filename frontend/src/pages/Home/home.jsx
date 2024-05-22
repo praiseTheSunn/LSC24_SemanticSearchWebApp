@@ -71,7 +71,7 @@ const Home = ({selectedFilters}) => {
 
     useEffect(() => {
         if (query !== '') {
-            console.log('query', query);
+            console.log('query', query, model, mode);
             imageService.getImages(query, model, mode).then((response) => {
                 console.log('response.data',query, model, mode, response.data.response[0]);
                 setResult(response.data.response);
@@ -98,7 +98,7 @@ const Home = ({selectedFilters}) => {
 
             <div
                 className="flex w-full justify-start relative"
-                style={{ marginBottom: "-1.5px", marginTop: "15px", marginLeft: "15px" }}
+                style={{ marginBottom: "-1.5px", paddingTop: "15px", paddingLeft: "15px" }}
             >
                 {LevelList.map((item, index) => (
                 <button
@@ -121,10 +121,10 @@ const Home = ({selectedFilters}) => {
                 ))}
             </div>
 
-            <div className='bg-white w-full' style={{ height: "575px", borderRadius: "5px", padding: "0 0 0 10px" }}>
+            <div className='bg-white w-full' style={{ height: "calc(100dvh - 120px)", borderRadius: "5px", padding: "0 0 0 10px" }}>
                 {selectedTabIndex === 0 && (
                     <div className="flex flex-col w-full h-full">
-                        <div className="flex justify-start items-center" style={{ marginTop: "10px" }}>
+                        <div className="flex justify-start items-center" style={{ paddingTop: "10px" }}>
                             {Mode.map((item, index) => (
                                 <button
                                     key={index}
