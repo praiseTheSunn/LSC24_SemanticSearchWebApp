@@ -12,16 +12,16 @@ import 'react-tooltip/dist/react-tooltip.css'
 // }
 
 const activityColorMap = {
-    "driving car": "#2f3f8f",
-    "working on computer": "#228b22",
-    "eating": "#ff0000",
-    "doing laundry": "#ffff00",
-    "cooking": "#00ff00",
-    "biking": "#9400d3",
-    "watching tv": "#00ffff",
-    "writing": "#1e90ff",
-    "shopping": "#ff1493",
-    "Other": "#ffdead"
+    "driving car": "#800000",
+    "working on computer": "#9A6324",
+    "eating": "#808000",
+    "doing laundry": "#469990",
+    "cooking": "#000075",
+    "biking": "#000000",
+    "watching tv": "#911eb4",
+    "writing": "#3cb44b",
+    "shopping": "#ffe119",
+    "Other": "#f58231"
 }
 
 
