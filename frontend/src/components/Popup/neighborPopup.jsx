@@ -5,9 +5,9 @@ import ImageInList from '../Image/imageInList'
 import { useRef, useEffect, useState } from 'react'
 import imageService from '../../services/imageService'
 import { useSelectedImages } from '../../contexts/selectedImageContext'
-import { usePopUp } from '../../contexts/popUpContext'
 
-const NeighborPopup = ({ viewImage, neighborsData, onClose }) => {
+
+const NeighborPopup = ({ viewImage, onClose }) => {
 
     // Display viewImage , fetch API to get neibors of viewImage, display neighbors in a list
     // Link doc cua API: http://34.124.236.208:8001/docs
@@ -18,6 +18,13 @@ const NeighborPopup = ({ viewImage, neighborsData, onClose }) => {
     // // const containerRef = useRef(null);
     // const [isLoading, setIsLoading] = useState(false);
 
+    const [neighborsData, setNeighborsData] = useState(null);
+    useEffect(() => {
+        imageService.getNeighbors(viewImage).then((response) => {
+            console.log('image neighbors', response.data);
+            setNeighborsData(response.data.response);
+        });
+    }, [viewImage]);
     console.log('neighborsData in popup', neighborsData)
 
 

@@ -14,23 +14,23 @@ const ImageGrid = ({ simData }) => {
     const [imageToShowPopup, setImageToShowPopup] = useState(null);
     const [neighborData, setNeighborData] = useState(null);
 
-    const handleDoubleClick = (src) => {
-        setImageToShowPopup(src);
-        setShowNeighborPopup(true);
-    }
+    // const handleDoubleClick = (src) => {
+    //     setImageToShowPopup(src);
+    //     setShowNeighborPopup(true);
+    // }
 
-    const handleClosePopup = () => {
-        setShowNeighborPopup(false);
-    };
+    // const handleClosePopup = () => {
+    //     setShowNeighborPopup(false);
+    // };
 
-    useEffect(() => {
-        if (showNeighborPopup && imageToShowPopup) {
-            imageService.getNeighbors(imageToShowPopup).then((response) => {
-                console.log('image neighbors', response.data);
-                setNeighborData(response.data.response);
-            });
-        }
-    }, [showNeighborPopup, imageToShowPopup]);
+    // useEffect(() => {
+    //     if (showNeighborPopup && imageToShowPopup) {
+    //         imageService.getNeighbors(imageToShowPopup).then((response) => {
+    //             console.log('image neighbors', response.data);
+    //             setNeighborData(response.data.response);
+    //         });
+    //     }
+    // }, [showNeighborPopup, imageToShowPopup]);
 
     // console.log('ne')
 
@@ -49,7 +49,7 @@ const ImageGrid = ({ simData }) => {
                         date={data.date} 
                         index={index} 
                         time={data.time} 
-                        onDoubleClick={() => handleDoubleClick(data.img_link)}
+                        // onDoubleClick={() => handleDoubleClick(data.img_link)}
                     />
                 </div>
             </div>
@@ -76,13 +76,13 @@ const ImageGrid = ({ simData }) => {
                         >
                             {Cell}
                         </Grid>
-                        {showNeighborPopup && 
+                        {/* {showNeighborPopup && 
                             <NeighborPopup 
                                 viewImage={imageToShowPopup}  
                                 neighborsData={neighborData}
                                 onClose={handleClosePopup}
                             />
-                        }
+                        } */}
                         </>
                     );
                 }}
