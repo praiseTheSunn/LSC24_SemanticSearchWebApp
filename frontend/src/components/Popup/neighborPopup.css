@@ -9,7 +9,7 @@
     height: 100%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 100;
+    z-index: 10000000;
 }
 
 .neighbor-popup-container .popup-content-background{
@@ -136,4 +136,11 @@
     height: auto; /* Đảm bảo tỷ lệ hình ảnh không bị méo */
     object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng khi thay đổi kích thước */
     border-radius: 7px; /* Bo tròn viền hình ảnh */
+    cursor: pointer;
+}
+
+.image-item-neighbor:hover {
+    transform: scale(1.05); /* Phóng to hình ảnh khi hover */
+    border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
+    
 }
