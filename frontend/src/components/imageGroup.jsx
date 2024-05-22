@@ -2,10 +2,17 @@ import React from 'react';
 import './imageGroup.css';
 import AnImage from './AnImage';
 
-const ImageGroup = ({ images, title }) => {
-    //sort images by score
-    images.sort((a, b) => b.score - a.score);
-    console.log('images', images);
+const ImageGroup = ({ images, title, sortType = 0 }) => {
+    if (sortType === 1){
+        // sort images by time string
+        images.sort((a, b) => a.time.localeCompare(b.time));
+    }
+    else {
+        //sort images by score
+        images.sort((a, b) => b.score - a.score);
+    }
+    
+    // console.log('images',title, sortType, images);
 
     return (
         <div className="relative image-group p-0.5 flex-col flex bg-white my-1" 
@@ -14,7 +21,8 @@ const ImageGroup = ({ images, title }) => {
             style={{
                 width: '100%',
                 height: '120px',
-                objectFit: 'cover',
+                objectFit: 'contain',
+                minWidth: '160px'
             }}
             >
                 <AnImage src={images[0] && images[0].img_link ? images[0].img_link : null} date={images[0].date} time={images[0].time} />

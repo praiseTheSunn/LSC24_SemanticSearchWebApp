@@ -1,6 +1,6 @@
 import FilterTag from "../Filter/filterTag";
 
-const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}) => {
+const messagePopup = ({displayedFilters, setDisplayedFilters, setDisplayedImages, showPopup}) => {
 
     const handleClearAll = () => {
         setDisplayedFilters([]);
@@ -24,9 +24,9 @@ const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}
         <div className='filter-container messagePopup'
         style={{
             backgroundColor: 'rgb(206, 232, 255)',
-            maxHeight: '350px',
-            width: '286px',
-            minHeight: '250px',
+            maxHeight: showPopup ? '350px' : '0px',
+            width: showPopup ? '286px' : '0px',
+            minHeight: showPopup ? '250px' : '0px',
             position: 'absolute',
             borderRadius: '20px',
             overflow: 'scroll',
@@ -43,7 +43,7 @@ const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}
                 
             </div>
             
-            <div className="h-full overflow-y-scroll">
+            <div className="h-full">
                 <div className='filter-item-area w-full p-[5px] flex flex-col items-center h-full'>
                     {displayedFilters.map((filter, index) => (
                         <FilterTag
@@ -55,6 +55,8 @@ const messagePopup = ({displayedFilters, setDisplayedFilters,setDisplayedImages}
                     ))}
                     
                     <div className='filter-instruction bg-white w-full h-auto mt-4' style={{ borderRadius: '7px', padding: '10px 20px'}}>
+                        -clip/blip2/beit3/stfm: model name (default clip) <br/>
+                        -mode ... : mode smt/smt-mm-dtin/smt-3m-dtin <br/>
                         -sl ... : semantic location <br/>
                         -lc ... : location category<br/>
                         -t ... : time<br/>

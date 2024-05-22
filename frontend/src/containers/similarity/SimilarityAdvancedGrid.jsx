@@ -38,7 +38,7 @@ const SimialrityAdvancedGrid = ({ data, tabindex }) => {
     let glob_columnCount = 8;
 
     const cellRenderer = ({ columnIndex, rowIndex, style }) => {
-        const displayData = tabindex === 1 ? locationBasedData : timeBasedData;
+        const displayData = tabindex === 2 ? locationBasedData : timeBasedData;
         const item = displayData?.[rowIndex * glob_columnCount + columnIndex];
         // if (item === undefined) console.log('item undefined', item, rowIndex * glob_columnCount + columnIndex); 
         if (!item) return null;
@@ -47,7 +47,7 @@ const SimialrityAdvancedGrid = ({ data, tabindex }) => {
             <div style={{ ...style, padding: '0 5px' }} className="image-cell">
                 <ImageGroupMemoized
                     images={item}
-                    title={tabindex === 1 ? item[0]?.location : item[0]?.date}
+                    title={tabindex === 2 ? item[0]?.location : item[0]?.date}
                 />
             </div>
         );

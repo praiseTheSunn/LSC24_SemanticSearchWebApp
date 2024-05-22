@@ -12,7 +12,8 @@ const ImageSingle = ({ image, title }) => {
             style={{
                 width: '100%',
                 height: '120px',
-                objectFit: 'cover',
+                objectFit: 'contain',
+                minWidth: '160px',
             }}
             >
                 <AnImage src={image.img_link} date={image.date} time={image.time} />

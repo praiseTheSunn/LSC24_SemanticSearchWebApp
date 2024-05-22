@@ -21,7 +21,8 @@ module.exports = {
         'gray': '#737373',
         'blueDark': '#26627F',
         'lighterGray': '#F2F2F2',
-        'darkerGray': '#EAEAEA'
+        'darkerGray': '#EAEAEA',
+        'blue': '#438BFF',
       },
       fontSize: {
         14: '14px',

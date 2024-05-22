@@ -34,6 +34,8 @@ const Home = ({selectedFilters}) => {
         console.log('displayedFilters HOME', displayedFilters);
     }, [displayedFilters]);
     const [query, setQuery] = useState('');
+    const [model, setModel] = useState('clip');
+    const [mode, setMode] = useState('smt-3m-dtin');
     const { loadingPopUp } = usePopUp();
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const handleTabClick = (index) => {
@@ -70,8 +72,8 @@ const Home = ({selectedFilters}) => {
     useEffect(() => {
         if (query !== '') {
             console.log('query', query);
-            imageService.getImages(query).then((response) => {
-                console.log('response.data', response.data.response[0]);
+            imageService.getImages(query, model, mode).then((response) => {
+                console.log('response.data',query, model, mode, response.data.response[0]);
                 setResult(response.data.response);
                 
             })
@@ -89,6 +91,9 @@ const Home = ({selectedFilters}) => {
                 displayedFilters={displayedFilters}
                 setDisplayedFilters={setDisplayedFilters}
                 setQuery={setQuery}
+                setResult= {setResult}
+                setModel={setModel}
+                setMode={setMode}
             />
 
             <div
@@ -140,13 +145,13 @@ const Home = ({selectedFilters}) => {
                             ))}
                         </div>
                         {selectedModeIndex === 0 && (
-                            <div className="flex flex-row w-full h-full overflow-y-auto" style={{ marginTop: "10px" }}>
+                            <div className="flex flex-row w-full h-full overflow-y-auto" style={{ marginTop: "2px" }}>
                                 <ImageGridMemo simData={result} />
                             </div>
 
                         )}
                         {selectedModeIndex !== 0 && (
-                            <div className="flex flex-row w-full h-full overflow-y-auto" style={{ marginTop: "12px" }}>
+                            <div className="flex flex-row w-full h-full overflow-y-auto" style={{ marginTop: "2px" }}>
                                 <SimialrityAdvancedGrid tabindex={selectedModeIndex} data = {result}/> 
                             </div>
                         )}                        

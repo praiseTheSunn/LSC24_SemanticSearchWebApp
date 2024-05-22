@@ -4,22 +4,27 @@ import { MessagePopup, ObjectPositionPopup } from '.';
 import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
 
-const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const {displayedImages, setDisplayedImages} = useSelectedImages();
     const [isFocus, setIsFocus] = useState(false);
     const messagePopup = useRef(null);
+    const objPosPopup = useRef(null);
+    const [showMessagePopup, setShowMessagePopup] = useState(false);
+    const [showObjectPosPopup, setShowObjectPosPopup] = useState(false);
 
     useEffect(() => {
-        
         messagePopup.current = document.querySelector('.messagePopup');
-        console.log('messagePopup', messagePopup);
-        messagePopup.current.classList.add('hidden');
-
+        objPosPopup.current = document.querySelector('.objectPosPopup');
         const handleClickOutside = (event) => {
             if (messagePopup.current && !messagePopup.current.contains(event.target)) {
-                messagePopup.current.classList.add('hidden');
+                setShowMessagePopup(false);
+                // console.log('messagePopup', messagePopup);
+            }
+            if (objPosPopup.current && !objPosPopup.current.contains(event.target)) {
+                setShowObjectPosPopup(false);
+                // console.log('objPosPopup', objPosPopup);
             }
         };
         document.addEventListener('mousedown', handleClickOutside);
@@ -27,9 +32,6 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
             document.removeEventListener('mousedown', handleClickOutside);
         };
     }, []);
-
-    
-
     
 
     const handleTextareaChange = (event) => {
@@ -51,8 +53,8 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
         if (event.target.value) {
             setTextareaHeight(event.target.scrollHeight + 'px');
         }
-        messagePopup.current.classList.remove('hidden');
-        console.log('messagePopup', messagePopup);
+        setShowMessagePopup(true);
+        // console.log('messagePopup', messagePopup);
         setIsFocus(true);
     }
 
@@ -84,7 +86,18 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                 setDisplayedFilters(previousState => [...previousState, filter]);
             } else if (input === '-c') {
                 // Handle special case
-            }else{
+            } else if (input.startsWith('-clip') || input.startsWith('-blip2') || input.startsWith('-beit3') || input.startsWith('-stfm')){
+                const value = input.substring(1);
+                const filter = { category: 'model', value, status: 1 };
+                setModel(value);
+                setDisplayedFilters(previousState => [...previousState, filter]);
+            } else if (input.startsWith('-mode')){
+                const value = input.substring(5);
+                const filter = { category: 'mode', value, status: 1 };
+                setMode(value);
+                setDisplayedFilters(previousState => [...previousState, filter]);
+            }         
+            else{
                 const value = input;
                 const filter = { category: 'query', value, status: 1 };
                 // console.log('input', input);
@@ -94,12 +107,14 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
             }
             setTextareaValue('');
             setDisplayedImages(true);
+            setShowMessagePopup(true);
         }
+        
     };
 
-    const [objectPosPopup, setObjectPosPopup] = useState(false);
+    
     const openObjPosPopup = () => {
-        setObjectPosPopup(true);
+        setShowObjectPosPopup(true);
     }
 
     
@@ -116,9 +131,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                 marginLeft: "10px",
                 marginBottom: "10px",
             }}
-            onBlur={handleTextareaBlur}
-            onFocus={(e) => handleTextareaFocus(e)}
-            onMouseLeave={() => isFocus ? {} : messagePopup.current.classList.add('hidden')}
+            
             >
                 
                 <textarea
@@ -144,14 +157,17 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery}) => {
                     rows={2}
                     onKeyDown={handleEnter}
                     // onMouseEnter={() => messagePopup.current.classList.remove('hidden')}
+                    onBlur={handleTextareaBlur}
+                    onFocus={(e) => handleTextareaFocus(e)}
+                    onMouseLeave={() => isFocus ? {} : setShowMessagePopup(false)}
                     
                 />
                 <div className='absolute left-0'>
-                    <MessagePopup displayedFilters={displayedFilters} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
+                   <MessagePopup displayedFilters={displayedFilters} showPopup={showMessagePopup} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
                 </div>
                 <div className='relative flex-row flex flex-nowrap'>
                     <img src={ObjectPosIcon} alt = 'object_pos_icon' className='ml-3 mt-2 size-9 cursor-pointer relative' onClick={() => openObjPosPopup()}/>
-                    {objectPosPopup && <ObjectPositionPopup />}
+                    <ObjectPositionPopup showPopup={showObjectPosPopup} setResult={setResult}/>
                 </div>
                 
                 
