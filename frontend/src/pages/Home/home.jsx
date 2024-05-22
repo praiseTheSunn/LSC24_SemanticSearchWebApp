@@ -167,7 +167,7 @@ const Home = ({selectedFilters}) => {
                 {
                     selectedTabIndex === 2 && (
                         // <ImageCluster data={timelineData} />
-                        <MapTab className="flex flex-row" style={{marginTop: "12px"}} query={query} filters={displayedFilters} />
+                        <MapTab className="flex flex-row" style={{marginTop: "12px"}} data = {result} />
                     )
                 }
             </div>
