@@ -11,19 +11,19 @@
 }
 
 .image-item:hover {
-    transform: scale(1.05); /* Phóng to hình ảnh khi hover */
-    border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
+    transform: scale(1.05); 
+    border: 2px solid rgb(0, 47, 255); 
 }
 
 .overlay {
     position: absolute;
     top: 0;
     left: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Màu nền với độ trong suốt */
-    color: white; /* Màu chữ */
-    padding: 5px; /* Khoảng cách từ lề */
-    z-index: 1; /* Đảm bảo overlay hiển thị phía trên hình ảnh */
-    border-top-left-radius: 10px; /* Bo tròn viền overlay */
+    background-color: rgba(0, 0, 0, 0.5); 
+    color: white; 
+    padding: 5px; 
+    z-index: 1; 
+    border-top-left-radius: 10px; 
 }
 
 

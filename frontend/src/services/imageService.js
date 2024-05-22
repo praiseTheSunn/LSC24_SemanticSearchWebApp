@@ -17,8 +17,11 @@ const getSimilarImages = (url) => {
 }
 
 const getNeighbors = (url) => {
-    console.log('neighbors', url);
-    return http.get(`/neighbors/${url}`);
+    console.log('neighbors_api: ', url);
+    return http.post(`/explore/explore_neighbor_images`, {
+        "image_url": url,  
+        "span": 30
+    });
 }
 
 const imageService = {
