@@ -13,7 +13,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 
 const activityColorMap = {
     "driving car": "#800000",
-    "working on computer": "#9A6324",
+    "working on computer": "#9a6324",
     "eating": "#808000",
     "doing laundry": "#469990",
     "cooking": "#000075",
@@ -50,10 +50,10 @@ const ActivityBar = ({data, visibility, onActivitySelect }) => {
     useEffect(() => {
         console.log('bestImg', bestImg);
     }, [bestImg]);
-    const handleActivityClick = (activity, bestImg, index) => {
+    const handleActivityClick = (activity_id, bestImg, index) => {
         if (clickedIndex !== index) {
             setClickedIndex(index);
-            onActivitySelect(activity);
+            onActivitySelect(activity_id);
         }            
         else {
             setClickedIndex(null);
@@ -73,6 +73,9 @@ const ActivityBar = ({data, visibility, onActivitySelect }) => {
             borderRadius: "4px",
             visibility: visibility,
             }}>
+
+
+
             <Tooltip id={`.tooltip_`} place="top" clickable 
                 render={({content, activeAnchor}) => (
                     <div className="w-full h-full">
@@ -82,7 +85,11 @@ const ActivityBar = ({data, visibility, onActivitySelect }) => {
                 )}
             >
             </Tooltip>
+
+
+
             {data.map((data, index) => {
+                const activity_id = data.activity_id;
                 const activity = data.activity;
                 const color = activityColorMap[activity];
                 const best_img = data.images[0].img_link;
@@ -99,7 +106,7 @@ const ActivityBar = ({data, visibility, onActivitySelect }) => {
                         data-tooltip-content={activity}
                         data-tooltip-img={best_img}
                         data-tooltip-variant="info"
-                        onClick={() => handleActivityClick(activity, best_img, index)}
+                        onClick={() => handleActivityClick(activity_id, best_img, index)}
                     >
                     </div>
                 )
@@ -107,8 +114,6 @@ const ActivityBar = ({data, visibility, onActivitySelect }) => {
  
 
         
-            
-
             {/* {data.map((activity, index) => {
                 color = activityColorMap[activity];
                 return(
@@ -120,16 +125,12 @@ const ActivityBar = ({data, visibility, onActivitySelect }) => {
                         {<div className="absolute top-[40%] w-[100px] hover:font-bold" style={{left: "10px"}}>{(index % interval == 0 || index == dates.length - 1) ? date : " "}</div>}
                     </div>
                 )
-            });
-        } */}
+            })}
 
 
 
 
-
-
-
-            {/* {activityColorMap.map((activity, index) => (
+            {activityColorMap.map((activity, index) => (
                 <div key={index} className={`hover:{bg-red} relative cursor-pointer tooltip_${index}`}
                 style={{ width: "100%", height: "100%", borderRadius: "10px" }}
                 onClick={() => setSelectedDate(date)}

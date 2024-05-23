@@ -1,12 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
-import './locationTimeline.css';
 import { ActivityIcon, ActivityIconActive, LocationIcon, LocationIconActive } from '../../assets';
 import { AutoSizer, CellMeasurer, CellMeasurerCache, List } from 'react-virtualized';
 import { KhangScrollBar } from '../../components';
 import { ImageGroup } from '../../components';
+import { ImageSingle } from '../../components';
 import ActivityBar from '../../components/activityBar';
 
-const imageUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRY2oYj5Olj4XiuIB5uEeaWbxc8Y6_Zup5lcfEUCt5IIidsiHIUR_2xua7vepE7RP4KHCw&usqp=CAU"
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
 const LocationTimeline = ({ data }) => {
@@ -20,10 +19,14 @@ const LocationTimeline = ({ data }) => {
     const [dates, setDates] = useState([]);
     const [locationBasedData, setLocationBasedData] = useState({});
     const [activityBasedData, setActivityBasedData] = useState({});
+    const [selectedActivities, setSelectedActivities] = useState([]);
+    useEffect(() => {
+        const initialSelectedActivities = dates.map(() => null);
+        setSelectedActivities(initialSelectedActivities);
+    }, [dates]);
     const listRef = useRef(null);
 
     const ImageGroupMemorized = React.memo(ImageGroup);
-    const ActivityBarMemorized = React.memo(ActivityBar);
 
     const cache = new CellMeasurerCache({
         fixedWidth: true,
@@ -75,15 +78,23 @@ const LocationTimeline = ({ data }) => {
         const activityDataMap = new Map();
 
         data.forEach((item) => {
+            if (item.hasOwnProperty('within')) {
+                if (!item.within) {
+                    return;
+                }
+            }
+            if (item.date === '2019-01-12') {
+                console.log('item', item);
+            }
             // Location-based data
             if (!locationDataMap.has(item.date)) {
                 locationDataMap.set(item.date, []);
             }
             const locationData = locationDataMap.get(item.date);
-            if (!locationData.some((data) => data.location === item.location)) {
-                locationData.push({ location: item.location, images: [item] });
+            if (!locationData.some((data) => data.location_id === item.location_id)) {
+                locationData.push({ location_id: item.location_id, images: [item] });
             } else {
-                const existingLocation = locationData.find((data) => data.location === item.location);
+                const existingLocation = locationData.find((data) => data.location_id === item.location_id);
                 existingLocation.images.push(item);
             }
 
@@ -92,16 +103,24 @@ const LocationTimeline = ({ data }) => {
                 activityDataMap.set(item.date, []);
             }
             const activityData = activityDataMap.get(item.date);
-            if (!activityData.some((data) => data.activity === item.activity)) {
-                activityData.push({ activity: item.activity, images: [item] });
+            if (!activityData.some((data) => data.activity_id === item.activity_id)) {
+                activityData.push({ activity_id: item.activity_id, images: [item] });
             } else {
-                const existingActivity = activityData.find((data) => data.activity === item.activity);
+                const existingActivity = activityData.find((data) => data.activity_id === item.activity_id);
                 existingActivity.images.push(item);
             }
         });
 
-        // console.log('locationDataMap', locationDataMap);
-        // console.log('activityDataMap', activityDataMap);
+        
+        //sort location_id and activity_id ascending in each date of the map
+        locationDataMap.forEach((value, key) => {
+            value.sort((a, b) => a.location_id - b.location_id);
+        });
+        activityDataMap.forEach((value, key) => {
+            value.sort((a, b) => a.activity_id - b.activity_id);
+        });
+        console.log('locationDataMap', locationDataMap);
+        console.log('activityDataMap', activityDataMap);
 
         // Update state
         setLocationBasedData(locationDataMap);
@@ -110,6 +129,8 @@ const LocationTimeline = ({ data }) => {
         //sort dates ascending
         const dates = Array.from(locationDataMap.keys()).sort((a, b) => new Date(a) - new Date(b));
         setDates(dates);
+
+        
 
         const initialTypeOfIndex = dates.map(() => 0);
         setTypeOfIndex(initialTypeOfIndex);
@@ -134,21 +155,24 @@ const LocationTimeline = ({ data }) => {
         
         const newTypeOfIndex = [...typeOfIndex];
         newTypeOfIndex[index] = newTypeOfIndex[index] === 0 ? 1 : 0;
-        // console.log('index', index, newTypeOfIndex);
+        console.log('index', index, newTypeOfIndex);
         setTypeOfIndex(newTypeOfIndex);
     };
 
-    function renderRow({ index, key, style, parent, isScrolling }) {
+    const renderRow = ({ index, key, style, parent, isScrolling })  => {
         const currentDate = dates[index];
         const locationData = locationBasedData.get(currentDate) || [];
         const activityData = activityBasedData.get(currentDate) || [];
-        // console.log('currentDate', currentDate)
-        // console.log('locationData', locationData, locationBasedData);
 
-        // Sort activity data based on order
-        const activityOrder = ["Breakfast", "Drive to work", "Lecturing", "Dancing"];
-        activityData.sort((a, b) => activityOrder.indexOf(a.activity) - activityOrder.indexOf(b.activity));
-        // console.log('activityData', activityData)
+        // Filter the data based on the selected activity ID for this row
+        const selectedActivity = selectedActivities[index];
+        // console.log('selectedActivities', selectedActivities)
+        const filteredActivityData = selectedActivity ? activityData.filter(item => item.activity === selectedActivity) : activityData;
+
+        // Sort activities in activityData based on time of the first image in each activity
+        activityData.sort((a, b) => 
+            Math.min(a.images.map(img => Object.values(img)[0].time)) - Math.min(b.images.map(img => Object.values(img)[0].time))
+        );
     
         return (
             <CellMeasurer
@@ -168,10 +192,16 @@ const LocationTimeline = ({ data }) => {
                                     <h3 className="vertical-timeline-element-title font-bold" style={{ fontSize: "22px", minWidth: "200px" }}>
                                         {currentDate}
                                     </h3>
-                                    {/* <img src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
-                                    <img src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
-                                    <ActivityBarMemorized
-                                            data={activityData}
+                                    {/* <img alt='location-icon' src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
+                                    <img alt='activity-icon' src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
+                                    <ActivityBar
+                                        data={activityData}
+                                        visibility={typeOfIndex[index] === 1 ? "visible" : "hidden"}
+                                        onActivitySelect={(activity) => {
+                                            const newSelectedActivities = [...selectedActivities];
+                                            newSelectedActivities[index] = activity;
+                                            setSelectedActivities(newSelectedActivities);
+                                        }} 
                                     /> */}
                                 </div>
                             </div>
@@ -180,11 +210,13 @@ const LocationTimeline = ({ data }) => {
                             {typeOfIndex[index] === 0 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {locationData.map((locationItem, locationIndex) => (
-                                        <ImageGroupMemorized
-                                            key={locationIndex}
-                                            images={locationItem.images}
-                                            title={locationItem.location}
-                                        />
+                                        <div className='w-[180px] h-[230px]' key={locationIndex}>
+                                            <ImageGroupMemorized
+                                                sortType={1}
+                                                images={locationItem.images}
+                                                title={locationItem.images[0].location}
+                                            />
+                                        </div>
                                     ))}
                                 </div>
                             )}
@@ -192,13 +224,29 @@ const LocationTimeline = ({ data }) => {
                             {/* Activity data */}
                             {typeOfIndex[index] === 1 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
-                                    {activityData.map((activityItem, activityIndex) => (
-                                        <ImageGroupMemorized
-                                            key={activityIndex}
-                                            images={activityItem.images}
-                                            title={activityItem.activity}
-                                        />
-                                    ))}
+                                    {filteredActivityData.length === 1 ? (
+                                        // If there is only one activity, display all images in a single row
+                                        <div className="flex flex-row flex-wrap gap-x-2">
+                                            {filteredActivityData[0].images.map((imageItem) => (
+                                                <ImageSingle
+                                                    image={imageItem}
+                                                    title={filteredActivityData[0].activity}
+                                                />
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        // Otherwise, display images in ImageGroups
+                                        <div className="flex flex-row flex-wrap gap-x-2">
+                                            {filteredActivityData.map((activityItem, activityIndex) => (
+                                                <ImageGroupMemorized
+                                                    key={activityIndex}
+                                                    images={activityItem.images}
+                                                    title={activityItem.images[0].activity}
+                                                    sortType={1}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>
