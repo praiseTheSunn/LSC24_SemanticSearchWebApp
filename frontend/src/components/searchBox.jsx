@@ -3,6 +3,7 @@ import { useSelectedImages } from '../contexts/selectedImageContext';
 import { MessagePopup, ObjectPositionPopup } from '.';
 import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
+import Dropdown from './dropDown'; 
 
 const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode}) => {
     const [textareaValue, setTextareaValue] = useState('');
@@ -169,8 +170,24 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                     <img src={ObjectPosIcon} alt = 'object_pos_icon' className='ml-3 mt-2 size-9 cursor-pointer relative' onClick={() => openObjPosPopup()}/>
                     <ObjectPositionPopup showPopup={showObjectPosPopup} setResult={setResult}/>
                 </div>
-                
-                
+                <div className='ml-3 mt-2'>
+                    <Dropdown
+                    // className='ml-300'
+                    label="Model"
+                    displayItems={['CLIP', 'BLIP2', 'BEiT-3', 'STFM']}
+                    valueItems={['clip', 'blip2', 'beit3', 'stfm']}
+                    setData={setModel}
+                    />
+                </div>
+                <div className='ml-3 mt-2'>
+                    <Dropdown
+                    // className='ml-10'
+                    label="Mode"
+                    displayItems={['Semantic', 'Semantic-Full text', 'Semantic-Autoparse']}
+                    valueItems={['smt', 'smt-mm-dtin', 'smt-3m-dtin']}
+                    setData={setMode}
+                    />
+                </div>
             </div>
         // {/* </div> */}
     );
