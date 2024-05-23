@@ -4,7 +4,7 @@ import { MessagePopup, ObjectPositionPopup } from '.';
 import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
 
-const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const {displayedImages, setDisplayedImages} = useSelectedImages();
@@ -64,26 +64,31 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
             event.preventDefault(); // Prevent default behavior
             console.log('Enter key pressed');
             const input = event.target.value.trim();
-            if (input.startsWith('-sl ')) {
-                const value = input.substring(3);
-                const filter = { category: 'semantic location', value, status: 1 };
+            if (input.startsWith('-lo ')) {
+                const value = input.substring(4);
+                const filter = { category: 'location', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
+                handleFilterChange('location', value);
             } else if (input.startsWith('-t ')) {
                 const value = input.substring(3);
                 const filter = { category: 'time', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
-            } else if (input.startsWith('-lc ')) {
+                handleFilterChange('time', value);
+            } else if (input.startsWith('-d ')) {
                 const value = input.substring(3);
-                const filter = { category: 'location category', value, status: 1 };
+                const filter = { category: 'date', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
+                handleFilterChange('date', value);
             } else if (input.startsWith('-ocr ')) {
                 const value = input.substring(5);
                 const filter = { category: 'ocr', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
+                handleFilterChange('ocr', value);
             } else if (input.startsWith('-obj ')) {
                 const value = input.substring(5);
                 const filter = { category: 'objects', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
+                handleFilterChange('objects', value);
             } else if (input === '-c') {
                 // Handle special case
             } else if (input.startsWith('-clip') || input.startsWith('-blip2') || input.startsWith('-beit3') || input.startsWith('-stfm')){

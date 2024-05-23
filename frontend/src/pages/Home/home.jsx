@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
-import { ObjectPositionPopup, SearchBox } from '../../components';
-import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft, SimilarityIcon, SimilarityIconActive, TimelineIcon, TimelineIconActive, LocationIcon, LocationIconActive, ObjectPosIcon } from '../../assets';
+import { SearchBox } from '../../components';
+import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft, SimilarityIcon, SimilarityIconActive, TimelineIcon, TimelineIconActive, LocationIcon, LocationIconActive } from '../../assets';
 import TimelineTab from '../../containers/timeline/timelineTab';
 import ImageGrid from '../../containers/similarity/image-grid';
 import MapTab from '../../containers/location/mapTab';
 import { SimialrityAdvancedGrid } from '../../containers';
 import imageService from '../../services/imageService';
+import Fuse from 'fuse.js';
+import { ToastContainer, toast } from 'react-toastify';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -30,21 +32,55 @@ const Home = ({selectedFilters}) => {
     console.log('selectedFilters in home', selectedFilters);
 
     const [displayedFilters, setDisplayedFilters] = useState([]);
-    useEffect(() => {
-        console.log('displayedFilters HOME', displayedFilters);
-    }, [displayedFilters]);
     const [query, setQuery] = useState('');
     const [model, setModel] = useState('clip');
     const [mode, setMode] = useState('smt-3m-dtin');
     const { loadingPopUp } = usePopUp();
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
+    const [selectedModeIndex, setSelectedModeIndex] = useState(0);
     const handleTabClick = (index) => {
         setSelectedTabIndex(index);
     };
 
-    const [selectedModeIndex, setSelectedModeIndex] = useState(0);
     const [result, setResult] = useState([]);
+    const [cacheResult, setCacheResult] = useState([]);
+    // Initialize search terms for each key
+    const [searchTerms, setSearchTerms] = useState({}); 
+    const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
+    
+    // Handle input changes for each key
+    const handleFilterChange = (key, value) => {
+        setSearchTerms((prevTerms) => ({
+        ...prevTerms,
+        [key]: value
+        }));
+    };
 
+    useEffect(() => {
+        if (Object.keys(searchTerms).length > 0) {
+            let fuseResults = []; // Initialize as an empty array
+        
+            Object.keys(searchTerms).forEach(key => {
+              if (searchTerms[key] !== '') {
+                const fuse = new Fuse(cacheResult.length === 0 ? result : cacheResult, { keys: [key] });
+                const results = fuse.search(searchTerms[key]).map(result => {
+                  // Add the fuzzy search score to the original score attribute
+                  return { ...result.item, score: result.item.score };
+                });
+                fuseResults.push(results); // Push results directly into fuseResults
+              }
+            });
+        
+            // Intersection of results for all search terms
+            const filteredResults = fuseResults.length > 0 ? fuseResults[fuseResults.length - 1] : result;
+            if (fuseResults.length === 0) {
+              // Assuming you're using some kind of toast notification library like 'react-toastify'
+              toast.error('No fuzzy results found'); 
+            }
+            setResult(filteredResults);
+            console.log('filteredResults', filteredResults.length, fuseResults, filteredResults);
+        }
+      }, [searchTerms]);
     const ImageGridMemo = React.memo(ImageGrid);
 
     window.document.addEventListener('keydown', function(event) {
@@ -75,7 +111,7 @@ const Home = ({selectedFilters}) => {
             imageService.getImages(query, model, mode).then((response) => {
                 console.log('response.data',query, model, mode, response.data.response[0]);
                 setResult(response.data.response);
-                
+                setCacheResult(response.data.response);
             })
             .catch((error) => {
                 console.log('error', error);
@@ -85,7 +121,8 @@ const Home = ({selectedFilters}) => {
 
 
     return (
-        <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] min-w-[1500px] overflow-hidden ' style={{ backgroundColor: "#F5F5F5"}}>
+        <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] min-w-[1500px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
+            <ToastContainer/>
             {loadingPopUp && <LoadingPopup />}
             <SearchBox
                 displayedFilters={displayedFilters}
@@ -94,8 +131,8 @@ const Home = ({selectedFilters}) => {
                 setResult= {setResult}
                 setModel={setModel}
                 setMode={setMode}
+                handleFilterChange={handleFilterChange}
             />
-
             <div
                 className="flex w-full justify-start relative"
                 style={{ marginBottom: "-1.5px", paddingTop: "15px", paddingLeft: "15px" }}
