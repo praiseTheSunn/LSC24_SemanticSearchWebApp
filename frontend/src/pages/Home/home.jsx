@@ -13,6 +13,7 @@ const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
     { level: "Timeline", bg: TrapoziedBgGray2 },
     { level: "Location", bg: TrapoziedBgGray3 },
+    { level: "VQA", bg: TrapoziedBgGray3 },
 ];
 
 const Mode = [
@@ -81,7 +82,7 @@ const Home = ({selectedFilters}) => {
                 console.log('error', error);
             });
         }
-    }, [query]);
+    }, [query, model, mode]);
 
 
     return (
