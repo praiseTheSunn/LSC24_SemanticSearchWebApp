@@ -10,6 +10,8 @@ import { SimialrityAdvancedGrid } from '../../containers';
 import imageService from '../../services/imageService';
 import Fuse from 'fuse.js';
 import { ToastContainer, toast } from 'react-toastify';
+import { useSelectedImages } from '../../contexts/selectedImageContext';
+import 'react-toastify/dist/ReactToastify.css';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -27,9 +29,9 @@ const Mode = [
 
 
 
-const Home = ({selectedFilters}) => {
+const Home = () => {
     
-    console.log('selectedFilters in home', selectedFilters);
+    // console.log('selectedFilters in home', selectedFilters);
 
     const [displayedFilters, setDisplayedFilters] = useState([]);
     const [query, setQuery] = useState('');
@@ -41,12 +43,11 @@ const Home = ({selectedFilters}) => {
     const handleTabClick = (index) => {
         setSelectedTabIndex(index);
     };
-
+    const { displayedImages } = useSelectedImages();
     const [result, setResult] = useState([]);
     const [cacheResult, setCacheResult] = useState([]);
-    // Initialize search terms for each key
-    const [searchTerms, setSearchTerms] = useState({}); 
-    const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
+    const [searchTerms, setSearchTerms] = useState({});
+    // const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
     
     // Handle input changes for each key
     const handleFilterChange = (key, value) => {
@@ -57,30 +58,37 @@ const Home = ({selectedFilters}) => {
     };
 
     useEffect(() => {
-        if (Object.keys(searchTerms).length > 0) {
-            let fuseResults = []; // Initialize as an empty array
-        
+        if (Object.keys(searchTerms).length > 0 && cacheResult.length > 0) {
+            let fuseResults = cacheResult;
+
             Object.keys(searchTerms).forEach(key => {
-              if (searchTerms[key] !== '') {
-                const fuse = new Fuse(cacheResult.length === 0 ? result : cacheResult, { keys: [key] });
-                const results = fuse.search(searchTerms[key]).map(result => {
-                  // Add the fuzzy search score to the original score attribute
-                  return { ...result.item, score: result.item.score };
+                if (searchTerms[key] !== '') {
+                const fuse = new Fuse(fuseResults, { keys: [key], threshold: 0.3 });
+                fuseResults = fuse.search(searchTerms[key]).map(result => {
+                    return { ...result.item, score: result.score };
                 });
-                fuseResults.push(results); // Push results directly into fuseResults
-              }
+                }
             });
-        
-            // Intersection of results for all search terms
-            const filteredResults = fuseResults.length > 0 ? fuseResults[fuseResults.length - 1] : result;
+
             if (fuseResults.length === 0) {
-              // Assuming you're using some kind of toast notification library like 'react-toastify'
-              toast.error('No fuzzy results found'); 
+                toast.error('No fuzzy results found'); 
             }
-            setResult(filteredResults);
-            console.log('filteredResults', filteredResults.length, fuseResults, filteredResults);
+
+            setResult(fuseResults);
+            console.log('filteredResults', fuseResults.length, fuseResults);
         }
-      }, [searchTerms]);
+    }, [searchTerms, cacheResult]);
+
+    useEffect(() => {
+        if (!displayedImages) {
+            setDisplayedFilters([]);
+            setQuery('');
+            setResult([]);
+            setCacheResult([]);
+            setSearchTerms({});
+        }
+    }, [displayedImages]);
+
     const ImageGridMemo = React.memo(ImageGrid);
 
     window.document.addEventListener('keydown', function(event) {
@@ -107,17 +115,17 @@ const Home = ({selectedFilters}) => {
 
     useEffect(() => {
         if (query !== '') {
-            console.log('query', query, model, mode);
-            imageService.getImages(query, model, mode).then((response) => {
-                console.log('response.data',query, model, mode, response.data.response[0]);
-                setResult(response.data.response);
-                setCacheResult(response.data.response);
-            })
-            .catch((error) => {
-                console.log('error', error);
-            });
+          console.log('query', query, model, mode);
+          imageService.getImages(query, model, mode).then((response) => {
+            console.log('response.data', query, model, mode, response.data.response[0]);
+            setResult(response.data.response);
+            setCacheResult(response.data.response);
+          })
+          .catch((error) => {
+            console.log('error', error);
+          });
         }
-    }, [query]);
+      }, [query, model, mode]);
 
 
     return (

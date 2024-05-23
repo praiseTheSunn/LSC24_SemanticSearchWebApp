@@ -7,7 +7,7 @@ import imageService from '../services/imageService';
 const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
-    const {displayedImages, setDisplayedImages} = useSelectedImages();
+    const { setDisplayedImages} = useSelectedImages();
     const [isFocus, setIsFocus] = useState(false);
     const messagePopup = useRef(null);
     const objPosPopup = useRef(null);
@@ -60,7 +60,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
 
     const handleEnter = (event) => {
         if (event.key === 'Enter') {
-            setDisplayedImages(false);
+            // setDisplayedImages(false);
             event.preventDefault(); // Prevent default behavior
             console.log('Enter key pressed');
             const input = event.target.value.trim();
