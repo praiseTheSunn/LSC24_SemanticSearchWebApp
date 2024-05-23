@@ -55,10 +55,7 @@ const messagePopup = ({displayedFilters, setDisplayedFilters, setDisplayedImages
                     ))}
                     
                     <div className='filter-instruction bg-white w-full h-auto mt-4' style={{ borderRadius: '7px', padding: '10px 20px'}}>
-                        -clip/blip2/beit3/stfm: model name (default clip) <br/>
-                        -mode ... : mode smt/smt-mm-dtin/smt-3m-dtin <br/>
-                        -sl ... : semantic location <br/>
-                        -lc ... : location category<br/>
+                        -lo ... : location<br/>
                         -t ... : time<br/>
                         -ocr ... : OCR text<br/>
                         -obj ... : Object Detection<br/>
