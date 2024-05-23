@@ -19,10 +19,10 @@ const TimelineTab = ({ data }) => {
     const [dates, setDates] = useState([]);
     const [locationBasedData, setLocationBasedData] = useState({});
     const [activityBasedData, setActivityBasedData] = useState({});
-    const [selectedActivities, setSelectedActivities] = useState([]);
+    const [selectedActivityIDs, setSelectedActivityIDs] = useState([]);
     useEffect(() => {
-        const initialSelectedActivities = dates.map(() => null);
-        setSelectedActivities(initialSelectedActivities);
+        const initialSelectedActivityIDs = dates.map(() => null);
+        setSelectedActivityIDs(initialSelectedActivityIDs);
     }, [dates]);
     const listRef = useRef(null);
 
@@ -99,7 +99,7 @@ const TimelineTab = ({ data }) => {
             }
             const activityData = activityDataMap.get(item.date);
             if (!activityData.some((data) => data.activity_id === item.activity_id)) {
-                activityData.push({ activity_id: item.activity_id, images: [item] });
+                activityData.push({ activity_id: item.activity_id, activity: item.activity, images: [item] });
             } else {
                 const existingActivity = activityData.find((data) => data.activity_id === item.activity_id);
                 existingActivity.images.push(item);
@@ -159,10 +159,9 @@ const TimelineTab = ({ data }) => {
         const locationData = locationBasedData.get(currentDate) || [];
         const activityData = activityBasedData.get(currentDate) || [];
 
-        // Filter the data based on the selected activity ID for this row
-        const selectedActivity = selectedActivities[index];
-        // console.log('selectedActivities', selectedActivities)
-        const filteredActivityData = selectedActivity ? activityData.filter(item => item.activity === selectedActivity) : activityData;
+        // Filter the data based on the selected activity_id for this row
+        const selectedActivityID = selectedActivityIDs[index];
+        const filteredActivityData = selectedActivityID ? activityData.filter(item => item.activity_id === selectedActivityID) : activityData;
 
         // Sort activities in activityData based on time of the first image in each activity
         activityData.sort((a, b) => 
@@ -189,13 +188,14 @@ const TimelineTab = ({ data }) => {
                                     </h3>
                                     <img alt='location-icon' src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
                                     <img alt='activity-icon' src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
+                                    
                                     <ActivityBar
                                         data={activityData}
                                         visibility={typeOfIndex[index] === 1 ? "visible" : "hidden"}
-                                        onActivitySelect={(activity) => {
-                                            const newSelectedActivities = [...selectedActivities];
-                                            newSelectedActivities[index] = activity;
-                                            setSelectedActivities(newSelectedActivities);
+                                        onActivitySelect={(activity_id) => {
+                                            const newSelectedActivityIDs = [...selectedActivityIDs];
+                                            newSelectedActivityIDs[index] = activity_id;
+                                            setSelectedActivityIDs(newSelectedActivityIDs);
                                         }} 
                                     />
                                 </div>
@@ -225,7 +225,6 @@ const TimelineTab = ({ data }) => {
                                             {filteredActivityData[0].images.map((imageItem) => (
                                                 <ImageSingle
                                                     image={imageItem}
-                                                    title={filteredActivityData[0].activity}
                                                 />
                                             ))}
                                         </div>

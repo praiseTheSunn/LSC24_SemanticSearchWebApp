@@ -3,7 +3,7 @@ import './imageSingle.css';
 import AnImage from './AnImage';
 
 // instead of ImageGroup, now create a new component called ImageSingle
-const ImageSingle = ({ image, title }) => {
+const ImageSingle = ({ image }) => {
 
     return (
         <div className="relative image-group p-0.5 flex-col flex bg-white my-1"
@@ -17,10 +17,7 @@ const ImageSingle = ({ image, title }) => {
             }}
             >
                 <AnImage src={image.img_link} date={image.date} time={image.time} />
-            </div>            
-            <div className='inline-flex items-center w-full justify-center h-[36px] max-w-[180px]'>
-                <h2 className="title truncate" title={title}>{title}</h2>
-            </div>
+            </div>    
         </div>
     );
 }
