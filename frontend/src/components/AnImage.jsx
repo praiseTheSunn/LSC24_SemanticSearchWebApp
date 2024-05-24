@@ -3,7 +3,7 @@ import React from 'react';
 import { useNeighborPopup } from '../contexts/neighborPopupContext';
 import { useState } from 'react';
 
-const AnImage = ({ src, date, time, index, onDoubleClick }) => {
+const AnImage = ({ src, date, time, index, onClick }) => {
     const { openPopup } = useNeighborPopup();
     const formattedTime = `${date}  ${time}`;
 
@@ -16,7 +16,7 @@ const AnImage = ({ src, date, time, index, onDoubleClick }) => {
     return (
         <>
             {/* {showNeighborPopup && <NeighborPopup viewImage={src} />} */}
-            <div key={index} className='img-container relative w-full h-full '  onDoubleClick={() => openPopup(src)}>
+            <div key={index} className='img-container relative w-full h-full '  >
                 <style>
                     {`.img-container:hover .img-action { display: block;}`}
                 </style>
@@ -34,6 +34,7 @@ const AnImage = ({ src, date, time, index, onDoubleClick }) => {
                         src={view_icon}
                         alt={`View ${index}`}
                         className='size-7'
+                        onClick={() => openPopup(src)}
                     />
                 </div>
 

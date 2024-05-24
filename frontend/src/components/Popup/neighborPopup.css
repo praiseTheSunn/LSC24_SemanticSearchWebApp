@@ -134,13 +134,32 @@
 .image-item-neighbor {
     width: 100%; /* Chiều rộng hình ảnh sẽ chiếm toàn bộ ô của grid */
     height: auto; /* Đảm bảo tỷ lệ hình ảnh không bị méo */
-    object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng khi thay đổi kích thước */
+    /* object-fit: cover; Đảm bảo hình ảnh không bị biến dạng khi thay đổi kích thước */
     border-radius: 7px; /* Bo tròn viền hình ảnh */
     cursor: pointer;
+    object-fit: contain; /* Ensure the image scales to fit within the container */
+    max-height: 100%; /* Ensure the image does not exceed the container height */
 }
 
 .image-item-neighbor:hover {
     transform: scale(1.05); /* Phóng to hình ảnh khi hover */
     border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
     
+}
+
+/* .image-wrapper-neighbor.highlighted {
+    border: 5px solid rgb(107, 255, 74);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+} */
+
+.image-wrapper-neighbor.highlighted {
+    border: 3px solid #ffcc00; /* Highlight border */
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.8); /* Highlight shadow */
+    transform: scale(1.05); /* Slightly enlarge */
+    transition: transform 0.3s, box-shadow 0.3s, border 0.3s; /* Smooth transition */
+}
+
+.image-wrapper-neighbor.highlight {
+    border: 2px solid #FFD700;  /* Màu vàng để làm nổi bật */
+    box-shadow: 0 0 10px #FFD700;
 }
