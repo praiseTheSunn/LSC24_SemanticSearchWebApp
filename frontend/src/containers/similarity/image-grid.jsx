@@ -30,7 +30,7 @@ const ImageGrid = ({ simData, cellHeight, cell }) => {
         <div className="h-full w-full">
             <AutoSizer>
                 {({ height, width }) => {
-                    const columnWidth = width / columnCount;
+                    const columnWidth = width / columnCount - 1.5;
                     const rowHeight = cellHeight; // Making rows square by setting row height equal to column width
                     const rowCount = Math.ceil(simData.length / columnCount);
 

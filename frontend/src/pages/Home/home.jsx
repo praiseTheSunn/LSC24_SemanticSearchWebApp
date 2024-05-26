@@ -130,7 +130,7 @@ const Home = () => {
 
 
     return (
-        <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] min-w-[1500px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
+        <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
             <ToastContainer/>
             {loadingPopUp && <LoadingPopup />}
             <SearchBox
@@ -192,7 +192,7 @@ const Home = () => {
                             ))}
                         </div>
                         {selectedModeIndex === 0 && (
-                            <div className="flex flex-row w-full h-full overflow-y-auto" style={{ marginTop: "2px" }}>
+                            <div className="flex flex-row h-full overflow-y-auto" style={{ marginTop: "2px", width: "calc(100dvw - 10px)" }}>
                                 <ImageGridMemo simData={result} />
                             </div>
 
