@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DragIconList } from '../../data/icon';
 import Whiteboard from '../WhiteBoard';
 import { ObjectService } from '../../services/objectService';
-const ObjectPositionPopup = ({showPopup, setResult}) => {
+const ObjectPositionPopup = ({showPopup, setResult, setCacheResult}) => {
     const [selectedIcon, setSelectedIcon] = useState(null);
     const [selectedObjects, setSelectedObjects] = useState([]);
   
@@ -43,6 +43,7 @@ const ObjectPositionPopup = ({showPopup, setResult}) => {
       .then((response) => {
         console.log('Response:', response);
         setResult(response.data);
+        setCacheResult(response.data);
       })
       .catch((error) => {
         console.log('Error:', error);

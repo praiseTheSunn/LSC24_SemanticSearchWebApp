@@ -11,7 +11,7 @@ const AnImage = ({src, date, time, index}) => {
             <img
                 src={src}
                 alt={`Image ${index}`}
-                className=' object-contain w-full max-h-[120px] cursor-pointer'
+                className=' object-contain max-w-full h-full cursor-pointer'
                 // onClick={() => openSinggleImage(null, img_link, date, time)}
             />
             <div className='bg-black opacity-50 absolute bottom-0 right-0 hidden img-action'
@@ -27,4 +27,4 @@ const AnImage = ({src, date, time, index}) => {
     );
 }
 
-export default React.memo(AnImage);
+export default AnImage;
