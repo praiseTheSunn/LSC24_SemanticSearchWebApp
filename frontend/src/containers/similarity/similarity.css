@@ -2,7 +2,7 @@
   /* image-grid.css */
 .image-item {
     /* width: 200px; Chiều rộng hình ảnh sẽ chiếm toàn bộ ô của grid */
-    height: auto; /* Đảm bảo tỷ lệ hình ảnh không bị méo */
+    /* height: auto; Đảm bảo tỷ lệ hình ảnh không bị méo */
     object-fit: cover; /* Đảm bảo hình ảnh không bị biến dạng khi thay đổi kích thước */
     border-radius: 7px; /* Bo tròn viền hình ảnh */
     transition: transform 0.3s ease; /* Tạo hiệu ứng chuyển động mềm mại */

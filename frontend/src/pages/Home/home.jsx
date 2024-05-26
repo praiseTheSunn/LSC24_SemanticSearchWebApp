@@ -51,6 +51,7 @@ const Home = () => {
     
     // Handle input changes for each key
     const handleFilterChange = (key, value) => {
+        console.log('key', key, value);
         setSearchTerms((prevTerms) => ({
         ...prevTerms,
         [key]: value
@@ -140,6 +141,7 @@ const Home = () => {
                 setModel={setModel}
                 setMode={setMode}
                 handleFilterChange={handleFilterChange}
+                setCacheResult={setCacheResult}
             />
             <div
                 className="flex w-full justify-start relative"

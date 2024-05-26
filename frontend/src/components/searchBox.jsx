@@ -4,7 +4,7 @@ import { MessagePopup, ObjectPositionPopup } from '.';
 import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
 
-const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const { setDisplayedImages} = useSelectedImages();
@@ -172,7 +172,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                 </div>
                 <div className='relative flex-row flex flex-nowrap'>
                     <img src={ObjectPosIcon} alt = 'object_pos_icon' className='ml-3 mt-2 size-9 cursor-pointer relative' onClick={() => openObjPosPopup()}/>
-                    <ObjectPositionPopup showPopup={showObjectPosPopup} setResult={setResult}/>
+                    <ObjectPositionPopup setCacheResult={setCacheResult} showPopup={showObjectPosPopup} setResult={setResult}/>
                 </div>
                 
                 
