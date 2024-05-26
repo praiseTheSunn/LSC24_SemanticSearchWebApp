@@ -2,7 +2,6 @@ import React from 'react';
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { AnImage } from '../../components';
-import './similarity.css';
 
 const ImageGrid = ({ simData, cellHeight, cell }) => {
     cellHeight = cellHeight ? cellHeight : 120; // Default cell height
@@ -17,7 +16,7 @@ const ImageGrid = ({ simData, cellHeight, cell }) => {
 
         return (
             <div style={style} >
-                <div className="h-full image-item overflow-hidden w-full">
+                <div className="h-full overflow-hidden p-0.5">
                     <AnImage key={index} src={data.img_link} date={data.date} index={index} time={data.time} />
                 </div>
             </div>

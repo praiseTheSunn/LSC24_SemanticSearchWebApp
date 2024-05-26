@@ -12,11 +12,13 @@ import Fuse from 'fuse.js';
 import { ToastContainer, toast } from 'react-toastify';
 import { useSelectedImages } from '../../contexts/selectedImageContext';
 import 'react-toastify/dist/ReactToastify.css';
+import MetadataTab from '../../containers/metadata/metadataTab';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
     { level: "Timeline", bg: TrapoziedBgGray2 },
     { level: "Location", bg: TrapoziedBgGray3 },
+    { level: "VQA", bg: TrapoziedBgGray3 },
 ];
 
 const Mode = [
@@ -93,21 +95,22 @@ const Home = () => {
     const ImageGridMemo = React.memo(ImageGrid);
 
     window.document.addEventListener('keydown', function(event) {
-        if (event.ctrlKey) {
+        if (event.altKey) {
             switch (event.key) {
-                case 's':
-                case 'S':
+                case '1':
                     setSelectedTabIndex(0);
                     event.preventDefault(); // Prevent default action (if needed)
                     break;
-                case 'd':
-                case 'D':
+                case '2':
                     setSelectedTabIndex(1);
                     event.preventDefault(); // Prevent default action (if needed)
                     break;
-                case 'f':
-                case 'F':
+                case '3':
                     setSelectedTabIndex(2);
+                    event.preventDefault(); // Prevent default action (if needed)
+                    break;
+                case '4':
+                    setSelectedTabIndex(3);
                     event.preventDefault(); // Prevent default action (if needed)
                     break;
             }
@@ -126,7 +129,7 @@ const Home = () => {
             console.log('error', error);
           });
         }
-      }, [query, model, mode]);
+    }, [query, model, mode]);
 
 
     return (
@@ -215,6 +218,11 @@ const Home = () => {
                     selectedTabIndex === 2 && (
                         // <ImageCluster data={timelineData} />
                         <MapTab className="flex flex-row" style={{marginTop: "12px"}} data = {result} />
+                    )
+                }
+                {
+                    selectedTabIndex === 3 && (
+                        <MetadataTab data={result} />
                     )
                 }
             </div>
