@@ -8,6 +8,7 @@ import ImageGrid from '../../containers/similarity/image-grid';
 import MapTab from '../../containers/location/mapTab';
 import { SimialrityAdvancedGrid } from '../../containers';
 import imageService from '../../services/imageService';
+import MetadataTab from '../../containers/metadata/metadataTab';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -169,6 +170,11 @@ const Home = ({selectedFilters}) => {
                     selectedTabIndex === 2 && (
                         // <ImageCluster data={timelineData} />
                         <MapTab className="flex flex-row" style={{marginTop: "12px"}} data = {result} />
+                    )
+                }
+                {
+                    selectedTabIndex === 3 && (
+                        <MetadataTab data={result} />
                     )
                 }
             </div>
