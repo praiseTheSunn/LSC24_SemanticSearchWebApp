@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 const Dropdown = ({ label, displayItems, valueItems, setData }) => {
     const [isOpen, setIsOpen] = useState(false);
-    const [currentItem, setCurrentItem] = useState(label);
+    const [currentItem, setCurrentItem] = useState(displayItems[0]);
 
     const toggleDropdown = () => {
         setIsOpen(!isOpen);
