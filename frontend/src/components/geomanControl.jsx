@@ -9,8 +9,6 @@ import * as L from "leaflet";
 const GeomanControl = ({data, setData, dataSrc}) => {
   const map = useMap();
 
-  // const [geoFeaturesState, setGeoFeaturesState] = useState(null);
-
   // default icon
   const defaultIcon = L.icon({
     iconUrl: require('../assets/close.png'),
@@ -59,7 +57,7 @@ const GeomanControl = ({data, setData, dataSrc}) => {
           console.log("median", medianLat, medianLng)
           map.setView([medianLat, medianLng], 13);  // You can adjust the zoom level as needed
         }
-      });
+      }, []);
 
   useEffect(() => {
     // received geofeatures from parent
@@ -140,9 +138,6 @@ const GeomanControl = ({data, setData, dataSrc}) => {
   // process bounding box events
   map.on('pm:create', (e) => {  
     var feature = e.layer.toGeoJSON();
-    // if (geoFeaturesState === null) {
-    //   return;
-    // }
     if (dataSrc === null) {
       return;
     }
