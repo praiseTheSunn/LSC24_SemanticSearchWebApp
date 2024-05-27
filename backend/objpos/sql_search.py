@@ -46,6 +46,8 @@ class ImageScore(BaseModel):
     activity_id: int
     event_id:int
     location_id: int
+    object_tags: str
+    day_of_week: str
 
 class Database:
     def __init__(self, db_url):
@@ -87,7 +89,8 @@ async def search_images(objects: List[ObjectData], limit: int = 1000):
 
     for obj in objects:
         await cursor.execute('''SELECT filepath, top_left_x, top_left_y, bottom_right_x, bottom_right_y, 
-                                       date, time, location, new_lat, new_lng, caption, ocr, activity, activity_id, event_id, location_id
+                                       date, time, location, new_lat, new_lng, caption, ocr, activity, activity_id, 
+                                        event_id, location_id, object_tags, day_of_week
                                 FROM joined_data
                                 WHERE object_name = ? AND
                                 top_left_x <= ? AND bottom_right_x >= ? AND
@@ -119,7 +122,9 @@ async def search_images(objects: List[ObjectData], limit: int = 1000):
                         "activity": image[12],
                         "activity_id": image[13],
                         "event_id": image[14],
-                        "location_id": image[15]
+                        "location_id": image[15],
+                        "object_tags": image[16],
+                        "day_of_week": image[17]
                     }
                 # print(image_scores[filepath]["activity_id"])
                 image_scores[filepath]["score"] += area
@@ -142,6 +147,8 @@ async def search_images(objects: List[ObjectData], limit: int = 1000):
         "activity_id": img[1]["activity_id"],
         "event_id": img[1]["event_id"],
         "location_id": img[1]["location_id"],
+        "object_tags": img[1]["object_tags"],
+        "day_of_week": img[1]["day_of_week"]
     } for img in sorted_images[:limit]]
     
     return matching_images
