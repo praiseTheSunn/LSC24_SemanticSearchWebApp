@@ -1,5 +1,6 @@
 import view_icon from '../assets/view_icon.png';
 import React from 'react';
+
 const AnImage = ({src, date, time, index}) => {
     const formattedTime = `${date}  ${time}`;
     return (
@@ -19,7 +20,10 @@ const AnImage = ({src, date, time, index}) => {
                 className='  max-w-full h-full cursor-pointer mx-auto  image-item-img bg-white'
                 // onClick={() => openSinggleImage(null, img_link, date, time)}
             />
-            <div className='bg-black opacity-50 absolute bottom-0 right-0 hidden img-action'
+            <div className='bg-black opacity-50 absolute bottom-0 right-0 img-action z-50'
+            style={{
+                display: 'none'
+            }}
             // onClick={}
             >
                 <img
