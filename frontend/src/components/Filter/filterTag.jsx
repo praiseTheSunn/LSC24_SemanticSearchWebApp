@@ -19,7 +19,7 @@ const FilterTag = ({index, filter, onIconClick}) => {
                         borderRadius: '3px',
                         backgroundColor: `${filter.status === 1 ? 'rgb(29, 162, 3)' : 'rgb(211, 0, 0)'}`
                     }}
-                    onClick={() => onIconClick(index)}></div>
+                    onClick={() => onIconClick(index, filter.category, filterValue)}></div>
                 </div>
             </div>
         </div>
