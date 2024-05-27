@@ -42,43 +42,48 @@ const Home = () => {
     const { loadingPopUp } = usePopUp();
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
+    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
     const handleTabClick = (index) => {
         setSelectedTabIndex(index);
     };
     const { displayedImages } = useSelectedImages();
     const [result, setResult] = useState([]);
     const [cacheResult, setCacheResult] = useState([]);
-    const [searchTerms, setSearchTerms] = useState({});
+    const [searchTerms, setSearchTerms] = useState([]);
     // const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
     
     // Handle input changes for each key
     const handleFilterChange = (key, value) => {
         console.log('key', key, value);
-        setSearchTerms((prevTerms) => ({
-        ...prevTerms,
-        [key]: value
-        }));
+        setSearchTerms((prevTerms) => {
+            const updatedTerms = [...prevTerms];
+            updatedTerms.push({ category: key, value });
+            return updatedTerms;
+        });
     };
 
     useEffect(() => {
-        if (Object.keys(searchTerms).length > 0 && cacheResult.length > 0) {
+        console.log('searchTerms', searchTerms);
+        if (searchTerms.length > 0 && cacheResult.length > 0) {
             let fuseResults = cacheResult;
 
-            Object.keys(searchTerms).forEach(key => {
-                if (searchTerms[key] !== '') {
-                const fuse = new Fuse(fuseResults, { keys: [key], threshold: 0.3 });
-                fuseResults = fuse.search(searchTerms[key]).map(result => {
-                    return { ...result.item, score: result.score };
-                });
+            searchTerms.forEach((term) => {
+                if (term.value !== '') {
+                    const fuse = new Fuse(fuseResults, { keys: [term.category], threshold: 0.3 });
+                    fuseResults = fuse.search(term.value).map((result) => {
+                        return { ...result.item, score: result.score };
+                    });
                 }
             });
 
             if (fuseResults.length === 0) {
-                toast.error('No fuzzy results found'); 
+                toast.error('No fuzzy results found');
             }
 
             setResult(fuseResults);
             console.log('filteredResults', fuseResults.length, fuseResults);
+        } else if (searchTerms.length === 0) {
+            setResult(cacheResult);
         }
     }, [searchTerms, cacheResult]);
 
@@ -88,9 +93,44 @@ const Home = () => {
             setQuery('');
             setResult([]);
             setCacheResult([]);
-            setSearchTerms({});
+            setSearchTerms([]);
         }
     }, [displayedImages]);
+
+    const submit = (src) => {
+        console.log('src', src);
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Control') {
+                setIsCtrlPressed(true);
+            }
+        };
+
+        const handleKeyUp = (e) => {
+            if (e.key === 'Control') {
+                setIsCtrlPressed(false);
+            }
+        };
+
+        const handleClick = (e) => {
+            if (isCtrlPressed && e.target.classList.contains('submissible')) {
+                const src = e.target.getAttribute('src');
+                submit(src);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keyup', handleKeyUp);
+        document.addEventListener('click', handleClick);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keyup', handleKeyUp);
+            document.removeEventListener('click', handleClick);
+        };
+    }, [isCtrlPressed]);
 
     const ImageGridMemo = React.memo(ImageGrid);
 
@@ -144,6 +184,7 @@ const Home = () => {
                 setModel={setModel}
                 setMode={setMode}
                 handleFilterChange={handleFilterChange}
+                setSearchTerms={setSearchTerms}
                 setCacheResult={setCacheResult}
             />
             <div

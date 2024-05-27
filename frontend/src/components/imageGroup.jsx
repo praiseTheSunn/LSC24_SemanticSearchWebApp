@@ -1,6 +1,8 @@
 import React from 'react';
 import './imageGroup.css';
 import AnImage from './AnImage';
+import { createPortal } from 'react-dom';
+import ViewMorePopup from './Popup/viewMorePopup';
 
 const ImageGroup = ({ images, title, sortType = 0 }) => {
     if (sortType === 1){
@@ -11,12 +13,16 @@ const ImageGroup = ({ images, title, sortType = 0 }) => {
         //sort images by score
         images.sort((a, b) => b.score - a.score);
     }
-    
-    // console.log('images',title, sortType, images);
+    const [showMore, setShowMore] = React.useState(false);
 
     return (
         <div className="relative image-group p-0.5 flex-col flex bg-white my-1" 
-        style={{ boxShadow: "2px 4px 4px 0px rgba(0, 0, 0, 0.5)", maxHeight: "230px"}}>
+        style={{ boxShadow: "2px 4px 4px 0px rgba(0, 0, 0, 0.5)", maxHeight: "230px"}}
+        >   
+            {showMore && createPortal(
+                <ViewMorePopup viewImages={images} title={title} setOpenViewMore={setShowMore} />,
+                document.body
+            )}
             <div className='mb-[2px]' 
             style={{
                 width: '100%',
@@ -32,13 +38,15 @@ const ImageGroup = ({ images, title, sortType = 0 }) => {
             </div>            
             <div className="flex flex-row gap-x-0.5 w-full small-images relative justify-center">
                 <div className="small-image">
-                    <img src={images[1] && images[1].img_link ? images[1].img_link : null} className="small-image"/>
+                    <img src={images[1] && images[1].img_link ? images[1].img_link : null} className="small-image submissible"/>
                 </div>
                 <div className="small-image">
-                    <img src={images[2] && images[2].img_link ? images[2].img_link : null} className="small-image"/>
+                    <img src={images[2] && images[2].img_link ? images[2].img_link : null} className="small-image submissible"/>
                 </div>
             </div>
-            <div className='inline-flex items-center w-full justify-center h-[36px] max-w-[180px]'>
+            <div className='inline-flex items-center w-full justify-center h-[36px] max-w-[180px]'
+                onClick={() => setShowMore(!showMore)}
+            >
                 <h2 className="title truncate" title={title}>{title}</h2>
             </div>
         </div>
