@@ -5,7 +5,7 @@ import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
 import Dropdown from './dropDown'; 
 
-const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult, setSearchTerms}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const { setDisplayedImages} = useSelectedImages();
@@ -92,17 +92,18 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                 handleFilterChange('objects', value);
             } else if (input === '-c') {
                 // Handle special case
-            } else if (input.startsWith('-clip') || input.startsWith('-blip2') || input.startsWith('-beit3') || input.startsWith('-stfm')){
-                const value = input.substring(1);
-                const filter = { category: 'model', value, status: 1 };
-                setModel(value);
-                setDisplayedFilters(previousState => [...previousState, filter]);
-            } else if (input.startsWith('-mode')){
-                const value = input.substring(5);
-                const filter = { category: 'mode', value, status: 1 };
-                setMode(value);
-                setDisplayedFilters(previousState => [...previousState, filter]);
-            }         
+            } 
+            // else if (input.startsWith('-clip') || input.startsWith('-blip2') || input.startsWith('-beit3') || input.startsWith('-stfm')){
+            //     const value = input.substring(1);
+            //     const filter = { category: 'model', value, status: 1 };
+            //     setModel(value);
+            //     setDisplayedFilters(previousState => [...previousState, filter]);
+            // } else if (input.startsWith('-mode')){
+            //     const value = input.substring(5);
+            //     const filter = { category: 'mode', value, status: 1 };
+            //     setMode(value);
+            //     setDisplayedFilters(previousState => [...previousState, filter]);
+            // }         
             else{
                 const value = input;
                 const filter = { category: 'query', value, status: 1 };
@@ -169,7 +170,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                     
                 />
                 <div className='absolute left-0'>
-                   <MessagePopup displayedFilters={displayedFilters} showPopup={showMessagePopup} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
+                   <MessagePopup setSearchTerms={setSearchTerms} displayedFilters={displayedFilters} showPopup={showMessagePopup} setDisplayedFilters={setDisplayedFilters} setDisplayedImages={setDisplayedImages}/>
                 </div>
                 <div className='relative flex-row flex flex-nowrap'>
                     <img src={ObjectPosIcon} alt = 'object_pos_icon' className='ml-3 mt-2 size-9 cursor-pointer relative' onClick={() => openObjPosPopup()}/>
