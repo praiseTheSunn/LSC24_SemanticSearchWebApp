@@ -38,13 +38,13 @@ const ImageGroup = ({ images, title, sortType = 0 }) => {
             </div>            
             <div className="flex flex-row gap-x-0.5 w-full small-images relative justify-center">
                 <div className="small-image">
-                    <img src={images[1] && images[1].img_link ? images[1].img_link : null} className="small-image"/>
+                    <img src={images[1] && images[1].img_link ? images[1].img_link : null} className="small-image submissible"/>
                 </div>
                 <div className="small-image">
-                    <img src={images[2] && images[2].img_link ? images[2].img_link : null} className="small-image"/>
+                    <img src={images[2] && images[2].img_link ? images[2].img_link : null} className="small-image submissible"/>
                 </div>
             </div>
-            <div className='inline-flex items-center w-full justify-center h-[36px] max-w-[160px]'
+            <div className='inline-flex items-center w-full justify-center h-[36px] max-w-[180px]'
                 onClick={() => setShowMore(!showMore)}
             >
                 <h2 className="title truncate" title={title}>{title}</h2>

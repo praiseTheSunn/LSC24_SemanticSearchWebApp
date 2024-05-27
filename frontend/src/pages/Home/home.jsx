@@ -42,6 +42,7 @@ const Home = () => {
     const { loadingPopUp } = usePopUp();
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
+    const [isCtrlPressed, setIsCtrlPressed] = useState(false);
     const handleTabClick = (index) => {
         setSelectedTabIndex(index);
     };
@@ -95,6 +96,41 @@ const Home = () => {
             setSearchTerms([]);
         }
     }, [displayedImages]);
+
+    const submit = (src) => {
+        console.log('src', src);
+    };
+
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.key === 'Control') {
+                setIsCtrlPressed(true);
+            }
+        };
+
+        const handleKeyUp = (e) => {
+            if (e.key === 'Control') {
+                setIsCtrlPressed(false);
+            }
+        };
+
+        const handleClick = (e) => {
+            if (isCtrlPressed && e.target.classList.contains('submissible')) {
+                const src = e.target.getAttribute('src');
+                submit(src);
+            }
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        document.addEventListener('keyup', handleKeyUp);
+        document.addEventListener('click', handleClick);
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+            document.removeEventListener('keyup', handleKeyUp);
+            document.removeEventListener('click', handleClick);
+        };
+    }, [isCtrlPressed]);
 
     const ImageGridMemo = React.memo(ImageGrid);
 
