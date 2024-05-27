@@ -8,102 +8,6 @@ import { useSelectedImages } from '../../contexts/selectedImageContext'
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-//     // Display viewImage , fetch API to get neibors of viewImage, display neighbors in a list
-//     // Link doc cua API: http://34.124.236.208:8001/docs
-//     // Tạo service mới cho API get neighbor
-
-// const NeighborPopup = ({ viewImage, onClose }) => {
-//     const [neighborsData, setNeighborsData] = useState(null);
-//     const viewImageRef = useRef(null);
-
-//     useEffect(() => {
-//         imageService.getNeighbors(viewImage).then((response) => {
-//             console.log('image neighbors', response.data);
-//             setNeighborsData(response.data.response);
-//         });
-//     }, [viewImage]);
-
-//     console.log('neighborsData in popup', neighborsData);
-
-//     const Cell = ({ columnIndex, rowIndex, style }) => {
-//         const index = rowIndex * columnCount + columnIndex;
-//         const data = neighborsData[index];
-//         if (!data) return null;
-
-//         const { img_link, date, time } = data;
-//         const formattedTime = `${date} ${time}`;
-//         const isHighlighted = img_link === viewImage;
-
-
-//         return (// add padding to the image
-//             <div className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`} style={style} ref={img_link === viewImage ? viewImageRef : null}>
-//                 <div className='overlay-neighbor'>{formattedTime}</div>
-//                 <img src={img_link} alt={`Image ${index}`} className='image-item-neighbor' />
-//             </div>
-//         );
-//     };
-
-//     const columnCount = 6; // Number of columns in the grid
-//     const rowCount = neighborsData ? Math.ceil(neighborsData.length / columnCount) : 0;
-//     const itemSize = 180; // Size of each cell in the grid
-
-//     useEffect(() => {
-//         if (viewImageRef.current) {
-//             viewImageRef.current.scrollIntoView({
-//                 behavior: 'smooth',
-//                 block: 'center',
-//             });
-//         }
-//     }, [neighborsData, viewImage]);
-
-//     return (
-//         <div className='neighbor-popup-container'>
-//             <div className='popup-content-background row'>
-//                 <div className='neighbor-image-container col h-full w-full'>
-//                     <h1>Neighbors</h1>
-//                     {neighborsData ? (
-//                         <AutoSizer>
-//                             {({ height, width }) => {
-//                                 const columnWidth = width / columnCount;
-//                                 const rowHeight = 130; // Making rows square by setting row height equal to column width
-//                                 const rowCount = Math.ceil(neighborsData.length / columnCount);
-
-//                                 return (
-//                                     <>
-
-//                                     <br/>
-//                                     <Grid
-//                                         columnCount={columnCount}
-//                                         columnWidth={columnWidth}
-//                                         height={height}
-//                                         rowCount={rowCount}
-//                                         rowHeight={rowHeight}
-//                                         width={width}
-//                                     >
-//                                         {Cell}
-//                                     </Grid>
-//                                     </>
-
-//                                     )
-//                             }}
-//                         </AutoSizer>
-//                     ) : (
-//                         <div>Loading neighbors...</div>
-//                     )}
-
-//                 </div>
-
-//                 <div className='close-button-container'>
-//                     <img src={closeIcon} className='close-popup-button' onClick={() => onClose(true)} />
-//                 </div>
-//             </div>
-//         </div>
-//     );
-// };
-
-// export default NeighborPopup;
-
-
 const NeighborPopup = ({ viewImage, onClose }) => {
     const [neighborsData, setNeighborsData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
@@ -117,12 +21,16 @@ const NeighborPopup = ({ viewImage, onClose }) => {
         try {
             const response = await imageService.getNeighbors(imageId, pageNum);
             const newNeighbors = response.data.response;
+            const middleIndex = Math.floor(newNeighbors.length / 2);
+            const frontNeighbors = newNeighbors.slice(0, middleIndex);
+            const backNeighbors = newNeighbors.slice(middleIndex);
 
             setNeighborsData(prev => {
-                if (position === 'start') {
-                    return [...newNeighbors, ...prev];
+                if (imageId === viewImage) return newNeighbors;
+                else if (position === 'start') {
+                    return [...frontNeighbors, ...prev];
                 } else {
-                    return [...prev, ...newNeighbors];
+                    return [...prev, ...backNeighbors];
                 }
             });
         } catch (error) {
@@ -152,6 +60,7 @@ const NeighborPopup = ({ viewImage, onClose }) => {
 
         if (scrollDirection === 'backward' && scrollTop === 0 && !isLoading) {
             const firstImage = neighborsData[0]?.img_link;
+            console.log('firstImage', firstImage);
             if (firstImage) {
                 fetchNeighbors(firstImage, 1, 'start');
             }
@@ -163,6 +72,7 @@ const NeighborPopup = ({ viewImage, onClose }) => {
                 const { scrollHeight, clientHeight } = grid._outerRef;
                 if (scrollTop + clientHeight >= scrollHeight) {
                     const lastImage = neighborsData[neighborsData.length - 1]?.img_link;
+                    console.log('lastImage', lastImage);
                     if (lastImage) {
                         fetchNeighbors(lastImage, 1, 'end');
                     }
@@ -192,7 +102,7 @@ const NeighborPopup = ({ viewImage, onClose }) => {
         );
     };
 
-    const columnCount = 6; // Number of columns in the grid
+    const columnCount = 7; // Number of columns in the grid
     const itemSize = 180; // Size of each cell in the grid
 
     return (
