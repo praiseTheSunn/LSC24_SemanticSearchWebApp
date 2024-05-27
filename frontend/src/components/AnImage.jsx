@@ -17,7 +17,7 @@ const AnImage = ({src, date, time, index}) => {
                 src={src}
                 alt={`Image ${index}`}
                 // className=' object-contain w-full max-h-[140px] cursor-pointer'
-                className='  max-w-full h-full cursor-pointer mx-auto  image-item-img bg-white'
+                className='  max-w-full h-full cursor-pointer mx-auto  image-item-img bg-white submissible'
                 // onClick={() => openSinggleImage(null, img_link, date, time)}
             />
             <div className='bg-black opacity-50 absolute bottom-0 right-0 img-action z-50'
