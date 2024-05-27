@@ -44,7 +44,7 @@ const ImageGroup = ({ images, title, sortType = 0 }) => {
                     <img src={images[2] && images[2].img_link ? images[2].img_link : null} className="small-image"/>
                 </div>
             </div>
-            <div className='inline-flex items-center w-full justify-center h-[36px] max-w-[180px]'
+            <div className='inline-flex items-center w-full justify-center h-[36px] max-w-[160px]'
                 onClick={() => setShowMore(!showMore)}
             >
                 <h2 className="title truncate" title={title}>{title}</h2>
