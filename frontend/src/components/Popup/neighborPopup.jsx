@@ -7,6 +7,7 @@ import imageService from '../../services/imageService'
 import { useSelectedImages } from '../../contexts/selectedImageContext'
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
+import { AnImage } from '../../components';
 
 const NeighborPopup = ({ viewImage, onClose }) => {
     const [neighborsData, setNeighborsData] = useState([]);
@@ -58,7 +59,8 @@ const NeighborPopup = ({ viewImage, onClose }) => {
         const scrollDirection = scrollTop < previousScrollTop.current ? 'backward' : 'forward';
         previousScrollTop.current = scrollTop;
         console.log("scrollTop: ", scrollTop)
-        if (scrollDirection === 'backward' && scrollTop <= 300 && !isLoading) {
+        // if (scrollDirection === 'backward' && scrollTop <= 300 && !isLoading) {
+        if (scrollDirection === 'backward' && scrollTop === 0 && !isLoading) {
             const firstImage = neighborsData[0]?.img_link;
             console.log('firstImage', firstImage);
             if (firstImage) {
@@ -90,14 +92,30 @@ const NeighborPopup = ({ viewImage, onClose }) => {
         const formattedTime = `${date} ${time}`;
         const isHighlighted = img_link === viewImage;
 
+        // return (
+        //     <div
+        //         className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
+        //         style={{ ...style, padding: '10px', boxSizing: 'border-box' }}
+        //         ref={isHighlighted ? viewImageRef : null}
+        //     >
+        //         <div className='overlay-neighbor'>{formattedTime}</div>
+        //         <img src={img_link} alt={`Image ${index}`} className='image-item-neighbor' />
+        //     </div>
+        // );
         return (
-            <div
-                className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
-                style={{ ...style, padding: '10px', boxSizing: 'border-box' }}
+            <div style={style} className={`max-h-[142px] image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
                 ref={isHighlighted ? viewImageRef : null}
             >
-                <div className='overlay-neighbor'>{formattedTime}</div>
-                <img src={img_link} alt={`Image ${index}`} className='image-item-neighbor' />
+                <div className="h-auto image-item overflow-hidden" >
+                    <AnImage 
+                        key={index} 
+                        src={data.img_link} 
+                        date={data.date} 
+                        index={index} 
+                        time={data.time} 
+                        // onDoubleClick={() => handleDoubleClick(data.img_link)}
+                    />
+                </div>
             </div>
         );
     };
