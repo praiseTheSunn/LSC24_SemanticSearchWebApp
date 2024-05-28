@@ -17,7 +17,7 @@ const RichImageGrid = ({ simData }) => {
             <div style={style} className="grid grid-cols-3 grid-rows-1 gap-1 pr-3 p-1">
                 {/* <div className="h-auto image-item overflow-hidden"> */}
                 <div className="w-full h-full col-span-2  ">
-                    <AnImage  key={index} src={data.img_link} date={data.date} index={index} time={data.time} />
+                    <AnImage  key={index} data={data} index={index} />
                     
                 </div>
                 <div className="w-full h-full col-span-1">

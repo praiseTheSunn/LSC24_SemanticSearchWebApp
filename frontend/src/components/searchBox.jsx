@@ -4,6 +4,7 @@ import { MessagePopup, ObjectPositionPopup } from '.';
 import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
 import Dropdown from './dropDown'; 
+import { usePopUp } from '../contexts/popUpContext';
 
 const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult, setSearchTerms}) => {
     const [textareaValue, setTextareaValue] = useState('');
@@ -14,6 +15,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
     const objPosPopup = useRef(null);
     const [showMessagePopup, setShowMessagePopup] = useState(false);
     const [showObjectPosPopup, setShowObjectPosPopup] = useState(false);
+    const { setLoadingPopUp } = usePopUp();
 
     useEffect(() => {
         messagePopup.current = document.querySelector('.messagePopup');
@@ -87,30 +89,19 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                 handleFilterChange('ocr', value);
             } else if (input.startsWith('-obj ')) {
                 const value = input.substring(5);
-                const filter = { category: 'objects', value, status: 1 };
+                const filter = { category: 'object_tags', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
-                handleFilterChange('objects', value);
+                handleFilterChange('object_tags', value);
             } else if (input === '-c') {
                 // Handle special case
-            } 
-            // else if (input.startsWith('-clip') || input.startsWith('-blip2') || input.startsWith('-beit3') || input.startsWith('-stfm')){
-            //     const value = input.substring(1);
-            //     const filter = { category: 'model', value, status: 1 };
-            //     setModel(value);
-            //     setDisplayedFilters(previousState => [...previousState, filter]);
-            // } else if (input.startsWith('-mode')){
-            //     const value = input.substring(5);
-            //     const filter = { category: 'mode', value, status: 1 };
-            //     setMode(value);
-            //     setDisplayedFilters(previousState => [...previousState, filter]);
-            // }         
+            }      
             else{
                 const value = input;
                 const filter = { category: 'query', value, status: 1 };
                 // console.log('input', input);
                 setQuery(value);
                 setDisplayedFilters(previousState => [...previousState, filter]);
-               
+                setLoadingPopUp(true);
             }
             setTextareaValue('');
             setDisplayedImages(true);
