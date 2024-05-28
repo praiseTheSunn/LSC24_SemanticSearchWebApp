@@ -209,7 +209,7 @@ const TimelineTab = ({ data }) => {
                                             <ImageGroupMemorized
                                                 sortType={1}
                                                 images={locationItem.images}
-                                                title={locationItem.images[0].location}
+                                                title={locationItem.images[0].location_displayed}
                                             />
                                         </div>
                                     ))}
