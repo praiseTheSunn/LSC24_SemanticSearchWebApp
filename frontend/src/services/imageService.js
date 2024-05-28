@@ -5,10 +5,10 @@ const getImage = (url) => {
     return http.get(`/image/${url}`, { responseType: 'arraybuffer' });
 }
 
-const getImages = (text) => {
+const getImages = (text, model, mode) => {
    
-    return http.post(`/search/search_with_text_query`, {  mode: "smt-3m-dtin",
-    model: "clip", text_query: text });
+    return http.post(`/search/search_with_text_query`, {  mode: mode,
+    model: model, text_query: text });
 }
 
 const getSimilarImages = (url) => {

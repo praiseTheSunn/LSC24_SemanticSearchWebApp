@@ -19,10 +19,10 @@ const TimelineTab = ({ data }) => {
     const [dates, setDates] = useState([]);
     const [locationBasedData, setLocationBasedData] = useState({});
     const [activityBasedData, setActivityBasedData] = useState({});
-    const [selectedActivities, setSelectedActivities] = useState([]);
+    const [selectedActivityIDs, setSelectedActivityIDs] = useState([]);
     useEffect(() => {
-        const initialSelectedActivities = dates.map(() => null);
-        setSelectedActivities(initialSelectedActivities);
+        const initialSelectedActivityIDs = dates.map(() => null);
+        setSelectedActivityIDs(initialSelectedActivityIDs);
     }, [dates]);
     const listRef = useRef(null);
 
@@ -78,15 +78,18 @@ const TimelineTab = ({ data }) => {
         const activityDataMap = new Map();
 
         data.forEach((item) => {
+            if (item.date === '2019-01-12') {
+                console.log('item', item);
+            }
             // Location-based data
             if (!locationDataMap.has(item.date)) {
                 locationDataMap.set(item.date, []);
             }
             const locationData = locationDataMap.get(item.date);
-            if (!locationData.some((data) => data.location === item.location)) {
-                locationData.push({ location: item.location, images: [item] });
+            if (!locationData.some((data) => data.location_id === item.location_id)) {
+                locationData.push({ location_id: item.location_id, images: [item] });
             } else {
-                const existingLocation = locationData.find((data) => data.location === item.location);
+                const existingLocation = locationData.find((data) => data.location_id === item.location_id);
                 existingLocation.images.push(item);
             }
 
@@ -95,14 +98,22 @@ const TimelineTab = ({ data }) => {
                 activityDataMap.set(item.date, []);
             }
             const activityData = activityDataMap.get(item.date);
-            if (!activityData.some((data) => data.activity === item.activity)) {
-                activityData.push({ activity: item.activity, images: [item] });
+            if (!activityData.some((data) => data.activity_id === item.activity_id)) {
+                activityData.push({ activity_id: item.activity_id, activity: item.activity, images: [item] });
             } else {
-                const existingActivity = activityData.find((data) => data.activity === item.activity);
+                const existingActivity = activityData.find((data) => data.activity_id === item.activity_id);
                 existingActivity.images.push(item);
             }
         });
 
+        
+        //sort location_id and activity_id ascending in each date of the map
+        locationDataMap.forEach((value, key) => {
+            value.sort((a, b) => a.location_id - b.location_id);
+        });
+        activityDataMap.forEach((value, key) => {
+            value.sort((a, b) => a.activity_id - b.activity_id);
+        });
         console.log('locationDataMap', locationDataMap);
         console.log('activityDataMap', activityDataMap);
 
@@ -113,6 +124,8 @@ const TimelineTab = ({ data }) => {
         //sort dates ascending
         const dates = Array.from(locationDataMap.keys()).sort((a, b) => new Date(a) - new Date(b));
         setDates(dates);
+
+        
 
         const initialTypeOfIndex = dates.map(() => 0);
         setTypeOfIndex(initialTypeOfIndex);
@@ -146,10 +159,9 @@ const TimelineTab = ({ data }) => {
         const locationData = locationBasedData.get(currentDate) || [];
         const activityData = activityBasedData.get(currentDate) || [];
 
-        // Filter the data based on the selected activity ID for this row
-        const selectedActivity = selectedActivities[index];
-        console.log('selectedActivities', selectedActivities)
-        const filteredActivityData = selectedActivity ? activityData.filter(item => item.activity === selectedActivity) : activityData;
+        // Filter the data based on the selected activity_id for this row
+        const selectedActivityID = selectedActivityIDs[index];
+        const filteredActivityData = selectedActivityID ? activityData.filter(item => item.activity_id === selectedActivityID) : activityData;
 
         // Sort activities in activityData based on time of the first image in each activity
         activityData.sort((a, b) => 
@@ -176,13 +188,14 @@ const TimelineTab = ({ data }) => {
                                     </h3>
                                     <img alt='location-icon' src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
                                     <img alt='activity-icon' src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} style={{ marginRight: "10px", cursor: "pointer" }} onClick={() => handleChangeTypeOfIndex(index)} />
+                                    
                                     <ActivityBar
                                         data={activityData}
                                         visibility={typeOfIndex[index] === 1 ? "visible" : "hidden"}
-                                        onActivitySelect={(activity) => {
-                                            const newSelectedActivities = [...selectedActivities];
-                                            newSelectedActivities[index] = activity;
-                                            setSelectedActivities(newSelectedActivities);
+                                        onActivitySelect={(activity_id) => {
+                                            const newSelectedActivityIDs = [...selectedActivityIDs];
+                                            newSelectedActivityIDs[index] = activity_id;
+                                            setSelectedActivityIDs(newSelectedActivityIDs);
                                         }} 
                                     />
                                 </div>
@@ -192,11 +205,11 @@ const TimelineTab = ({ data }) => {
                             {typeOfIndex[index] === 0 && (
                                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
                                     {locationData.map((locationItem, locationIndex) => (
-                                        <div className='w-[180px] h-[230px]' key={locationIndex}>
+                                        <div className='w-[170px] h-[230px]' key={locationIndex}>
                                             <ImageGroupMemorized
-                                                
+                                                sortType={1}
                                                 images={locationItem.images}
-                                                title={locationItem.location}
+                                                title={locationItem.images[0].location}
                                             />
                                         </div>
                                     ))}
@@ -211,8 +224,8 @@ const TimelineTab = ({ data }) => {
                                         <div className="flex flex-row flex-wrap gap-x-2">
                                             {filteredActivityData[0].images.map((imageItem) => (
                                                 <ImageSingle
+                                                    key={imageItem.id}
                                                     image={imageItem}
-                                                    title={filteredActivityData[0].activity}
                                                 />
                                             ))}
                                         </div>
@@ -223,7 +236,8 @@ const TimelineTab = ({ data }) => {
                                                 <ImageGroupMemorized
                                                     key={activityIndex}
                                                     images={activityItem.images}
-                                                    title={activityItem.activity}
+                                                    title={activityItem.images[0].activity}
+                                                    sortType={1}
                                                 />
                                             ))}
                                         </div>

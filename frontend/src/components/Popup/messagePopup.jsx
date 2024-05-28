@@ -1,24 +1,31 @@
 import FilterTag from "../Filter/filterTag";
 
-const messagePopup = ({displayedFilters, setDisplayedFilters, setDisplayedImages, showPopup}) => {
+const messagePopup = ({displayedFilters, setDisplayedFilters, setDisplayedImages, showPopup, setSearchTerms}) => {
 
     const handleClearAll = () => {
         setDisplayedFilters([]);
         setDisplayedImages(false);
     };
 
-    const onIconClick = (index) => {
+    const onIconClick = (index, category, value) => {
         // Create a new array with updated filters
         const updatedFilters = displayedFilters.map((filter, i) => {
             if (i === index) {
                 // Toggle the status of the clicked filter
-                return { ...filter, status: filter.status === 1 ? 0 : 1 };
+                const currentStatus = filter.status;
+                if (currentStatus === 1) {
+                    setSearchTerms(prevState => prevState.filter(term => term.value !== value || term.category !== category));
+                }else{
+                    setSearchTerms(prevState => [...prevState, {category, value}]);
+                }
+
+                return { ...filter, status: currentStatus === 1 ? 0 : 1 };
             }
             return filter;
         });
         // Set the state with the updated filters
         setDisplayedFilters(updatedFilters);
-    }
+    };
 
     return (
         <div className='filter-container messagePopup'
@@ -55,8 +62,7 @@ const messagePopup = ({displayedFilters, setDisplayedFilters, setDisplayedImages
                     ))}
                     
                     <div className='filter-instruction bg-white w-full h-auto mt-4' style={{ borderRadius: '7px', padding: '10px 20px'}}>
-                        -sl ... : semantic location <br/>
-                        -lc ... : location category<br/>
+                        -lo ... : location<br/>
                         -t ... : time<br/>
                         -ocr ... : OCR text<br/>
                         -obj ... : Object Detection<br/>

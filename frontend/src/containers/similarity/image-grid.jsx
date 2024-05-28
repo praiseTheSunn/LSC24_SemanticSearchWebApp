@@ -7,7 +7,6 @@ import './similarity.css';
 import NeighborPopup from '../../components/Popup/neighborPopup';
 import imageService from '../../services/imageService';
 
-const ImageGrid = ({ simData }) => {
     const columnCount = 9; // Number of columns in the grid
 
     const [showNeighborPopup, setShowNeighborPopup] = useState(false);
@@ -56,12 +55,14 @@ const ImageGrid = ({ simData }) => {
         );
     };
 
+    cell = cell ? cell : Cell;
+
     return (
         <div className="h-full w-full">
             <AutoSizer>
                 {({ height, width }) => {
-                    const columnWidth = width / columnCount;
-                    const rowHeight = 130; // Making rows square by setting row height equal to column width
+                    const columnWidth = width / columnCount - 1.5;
+                    const rowHeight = cellHeight; // Making rows square by setting row height equal to column width
                     const rowCount = Math.ceil(simData.length / columnCount);
 
                     return (
@@ -74,7 +75,7 @@ const ImageGrid = ({ simData }) => {
                             rowHeight={rowHeight}
                             width={width}
                         >
-                            {Cell}
+                            {cell}
                         </Grid>
                         {/* {showNeighborPopup && 
                             <NeighborPopup 
