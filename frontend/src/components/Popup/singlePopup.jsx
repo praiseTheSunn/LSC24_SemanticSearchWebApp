@@ -1,94 +1,151 @@
 import './singlePopup.css'
 import closeIcon from '../../assets/close.png'
 import bcn from '../../assets/bcn.png'
-import NeighborPopup from './neighborPopup'
-import React, {useRef, useState, useEffect } from 'react';
-import imageService from '../../services/imageService';
-import ImageInList from '../Image/imageInList';
-import { useSelectedImages } from '../../contexts/selectedImageContext';
-import { usePopUp } from '../../contexts/popUpContext';
+import ImageInList from '../Image/imageInList'
+import { useRef, useEffect, useState, useCallback  } from 'react'
+import imageService from '../../services/imageService'
+import { useSelectedImages } from '../../contexts/selectedImageContext'
+import { FixedSizeGrid as Grid } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
+const SinglePopup = ({viewImage, onClose}) => {
+    const [neighborsData, setNeighborsData] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [hasScrolled, setHasScrolled] = useState(false);
+    const viewImageRef = useRef(null);
+    const gridRef = useRef(null);
+    const previousScrollTop = useRef(0);
 
-const SinglePopup = ({viewImage, openSinggleImage}) => {
-    // Display viewImage , fetch API to get similars of viewImage, display neighbors in a list
-    // Link doc cua API: http://34.124.236.208:8001/docs
-    // Tạo service mới cho API get neighbor
-    const { setSimilarPopUp, neighborPopUp, setNeighborPopUp } = usePopUp();
-
-    const [similarImages, setSimilarImages] = useState([]);
-    const containerRef = useRef(null);
-
-    //Fetch the similar images when the viewImage.path changes
-    
-    useEffect(() => {
-        
-    }, [similarImages]);
-
-    const { selectedImages, addSelectedImage, removeSelectedImage } = useSelectedImages();
-
-    
-
-    const handleImageClick = (imageUrl, m_img) => {
-        const fileName = imageUrl.split('\\').pop();
-        console.log('selectedImages',selectedImages);
-        if(selectedImages.some(image => image.url.includes(fileName))){
-            removeSelectedImage(fileName);
-            const updatedImages = activeSimilarImages.map((record) => {
-                if (record.path === imageUrl) {
-                    return { ...record, status: 0 };
-                }
-                return record;
-            });
-        }else{
-            addSelectedImage(fileName, m_img);
-            const updatedImages = activeSimilarImages.map((record) => {
-                if (record.path === imageUrl) {
-                    return { ...record, status: 1 };
-                }
-                return record;
-            });
+    const fetchNeighbors = useCallback(async (imageId) => {
+        setIsLoading(true);
+        try {
+            const response = await imageService.getSimilarImages2Image(imageId);
+            const newNeighbors = response.data.response;
+            setNeighborsData(newNeighbors);
+            return newNeighbors;
+            // setNeighborsData(prev => {
+            //     if (position === 'start') {
+            //         return [...newNeighbors, ...prev];
+            //     } else {
+            //         return [...prev, ...newNeighbors];
+            //     }
+            // });
+        } catch (error) {
+            console.error('Error fetching Similar Images:', error);
+        } finally {
+            setIsLoading(false);
         }
-    }    
+    }, []);
+
+    useEffect(() => {
+        const imageList = [viewImage];
+        fetchNeighbors(imageList, "stfm");
+    }, [viewImage, fetchNeighbors]);
+
+    useEffect(() => {
+        if (viewImageRef.current && !hasScrolled) {
+            viewImageRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'center',
+            });
+            setHasScrolled(true);
+        }
+    }, [neighborsData, viewImage, hasScrolled]);
+
+    const handleScroll = ({ scrollTop }) => {
+        const scrollDirection = scrollTop < previousScrollTop.current ? 'backward' : 'forward';
+        previousScrollTop.current = scrollTop;
+
+        if (scrollDirection === 'backward' && scrollTop === 0 && !isLoading) {
+            const firstImage = neighborsData[0]?.img_link;
+            const firstImageList = firstImage ? [firstImage] : [];
+            
+            console.log('firstImage', firstImage);
+            console.log('firstImageList', firstImageList);
+
+            if (firstImageList) {
+                fetchNeighbors(firstImageList, "stfm");
+            }
+        }
+
+        // if (scrollDirection === 'forward' && !isLoading) {
+        //     const grid = gridRef.current;
+        //     if (grid) {
+        //         const { scrollHeight, clientHeight } = grid._outerRef;
+        //         if (scrollTop + clientHeight >= scrollHeight) {
+        //             const lastImage = neighborsData[neighborsData.length - 1]?.img_link;
+        //             if (lastImage) {
+        //                 fetchNeighbors(lastImage, );
+        //             }
+        //         }
+        //     }
+        // }
+    };
+
+    const Cell = ({ columnIndex, rowIndex, style }) => {
+        const index = rowIndex * columnCount + columnIndex;
+        const data = neighborsData[index];
+        if (!data) return null;
+
+        const { img_link, date, time } = data;
+        const formattedTime = `${date} ${time}`;
+        const isHighlighted = img_link === viewImage;
+
+        return (
+            <div
+                className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
+                style={{ ...style, padding: '10px', boxSizing: 'border-box' }}
+                ref={isHighlighted ? viewImageRef : null}
+            >
+                <div className='overlay-neighbor'>{formattedTime}</div>
+                <img src={img_link} alt={`Image ${index}`} className='image-item-neighbor' />
+            </div>
+        );
+    };
+
+    const columnCount = 6; // Number of columns in the grid
+    const itemSize = 180; // Size of each cell in the grid
 
     return (
-        <div className='single-popup-container'>
-            {neighborPopUp && <NeighborPopup openSinggleImage={openSinggleImage} viewImage={viewImage} />}
+        <div className='neighbor-popup-container'>
             <div className='popup-content-background row'>
-                <div className='single-popup-image-container col'>
-                    <div className='single-img-wrapper'>
-                        <div className='img-info'>
-                            <span>{viewImage.date}</span>
-                            <span>{viewImage.time}</span>
-                        </div>
-                        <img src={viewImage.image} alt='single-popup'/>
-                    </div>
-                    
-                    <div className='button-container'>
-                        <button className='btn btn-primary' onClick={() => {setNeighborPopUp(true)}}>Neighbors</button>
-                        <button style={{backgroundColor : viewImage.status === 1 ? 'red' :''}} className='btn btn-success' onClick={() => handleSelectClick()}>{viewImage.status === 1 ? 'Unselct' :'Select'}</button>
-                    </div>
+                <div className='neighbor-image-container col h-full w-full'>
+                    <h1>Single</h1>
+                    <br />
+                    {neighborsData.length > 0 ? (
+                        <AutoSizer>
+                            {({ height, width }) => {
+                                const columnWidth = width / columnCount;
+                                const rowHeight = 130; // Making rows square by setting row height equal to column width
+                                const rowCount = Math.ceil(neighborsData.length / columnCount);
+
+                                return (
+                                    <Grid
+                                        columnCount={columnCount}
+                                        columnWidth={columnWidth}
+                                        height={height}
+                                        rowCount={rowCount}
+                                        rowHeight={rowHeight}
+                                        width={width}
+                                        // onScroll={({ scrollTop }) => handleScroll({ scrollTop })}
+                                        ref={gridRef}
+                                    >
+                                        {Cell}
+                                    </Grid>
+                                )
+                            }}
+                        </AutoSizer>
+                    ) : (
+                        <div>Loading neighbors...</div>
+                    )}
                 </div>
-                <div className='similar-image-container col'>
-                    <h4>Similars</h4>
-                    <div className='similar-images-list-wrapper' ref={containerRef}>
-                        <div className='similar-images-list' >
-                            {activeSimilarImages.map((image, index) => {
-                                return <ImageInList key={index} record={image} index={index} 
-                                handleImageClick={handleImageClick} openSinggleImage={openSinggleImage}
-                                setImageUrls={setActiveSimilarImages}
-                                />; 
-                            })}
-                        </div>
-                    </div>
-                    
-                </div>
+
                 <div className='close-button-container'>
-                    <img src={closeIcon} className='close-popup-button' onClick={() => setSimilarPopUp(false)}/>
+                    <img src={closeIcon} className='close-popup-button' onClick={() => onClose(true)} />
                 </div>
-                
             </div>
         </div>
     );
-}
+};
 
 export default SinglePopup;

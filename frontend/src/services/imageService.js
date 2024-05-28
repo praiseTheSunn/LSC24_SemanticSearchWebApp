@@ -24,11 +24,20 @@ const getNeighbors = (url) => {
     });
 }
 
+const getSimilarImages2Image = (url) => {
+    console.log('similarImages2Image_api: ', url);
+    return http.post(`/explore/explore_similar_images`, {
+        "image_urls": url,  
+        "model": "stfm"
+    });
+}
+
 const imageService = {
     getImage,
     getImages,
     getSimilarImages,
-    getNeighbors
+    getNeighbors,
+    getSimilarImages2Image
 };
 
 export default imageService;
