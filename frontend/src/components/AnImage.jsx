@@ -1,10 +1,19 @@
 import view_icon from '../assets/view_icon.png';
 import React from 'react';
 
-const AnImage = ({src, date, time, index}) => {
+const AnImage = ({data, index}) => {
+    const src = data && data.img_link ? data.img_link : null;
+    const date = data && data.date ? data.date : null;
+    const time = data && data.time ? data.time : null;
     const formattedTime = `${date}  ${time}`;
+    const json_data = JSON.stringify(data);
     return (
-        <div key={index} className='an-img-container relative w-full h-full hover:z-50 hover:scale-105 overflow-hidden rounded-xl transition-transform duration-300 ease-in-out' >
+        <div key={index} 
+        className='an-img-container relative w-full h-full hover:z-50 hover:scale-105 overflow-hidden rounded-xl transition-transform duration-300 ease-in-out' 
+        data-tooltip-id="tooltip_img"
+        data-tooltip-content={json_data}
+        data-tooltip-variant='dark'
+        >
             <style>
                 {`.an-img-container:hover .img-action { display: block;}`}
                 {'.an-img-container:hover  .image-item-img { border: 2px solid rgb(0, 47, 255); }'}
