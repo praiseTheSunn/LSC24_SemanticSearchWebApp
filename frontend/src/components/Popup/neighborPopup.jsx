@@ -57,8 +57,8 @@ const NeighborPopup = ({ viewImage, onClose }) => {
     const handleScroll = ({ scrollTop }) => {
         const scrollDirection = scrollTop < previousScrollTop.current ? 'backward' : 'forward';
         previousScrollTop.current = scrollTop;
-
-        if (scrollDirection === 'backward' && scrollTop === 0 && !isLoading) {
+        console.log("scrollTop: ", scrollTop)
+        if (scrollDirection === 'backward' && scrollTop <= 300 && !isLoading) {
             const firstImage = neighborsData[0]?.img_link;
             console.log('firstImage', firstImage);
             if (firstImage) {
