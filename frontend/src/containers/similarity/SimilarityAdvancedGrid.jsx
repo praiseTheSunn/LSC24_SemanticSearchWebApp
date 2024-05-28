@@ -14,7 +14,7 @@ const SimialrityAdvancedGrid = ({ data, tabindex }) => {
         const timeDataMap = new Map();
 
         data.forEach((item) => {
-            const location = item.location;
+            const location = item.location_displayed;
             if (!locationDataMap.has(location)) {
                 locationDataMap.set(location, []);
             }
@@ -47,7 +47,7 @@ const SimialrityAdvancedGrid = ({ data, tabindex }) => {
             <div style={{ ...style, padding: '0 5px' }} className="image-cell">
                 <ImageGroupMemoized
                     images={item}
-                    title={tabindex === 2 ? item[0]?.location : item[0]?.date}
+                    title={tabindex === 2 ? item[0]?.location_displayed : item[0]?.date}
                 />
             </div>
         );

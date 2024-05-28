@@ -3,9 +3,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DragIconList } from '../../data/icon';
 import Whiteboard from '../WhiteBoard';
 import { ObjectService } from '../../services/objectService';
+import { usePopUp } from '../../contexts/popUpContext';
 const ObjectPositionPopup = ({showPopup, setResult, setCacheResult}) => {
     const [selectedIcon, setSelectedIcon] = useState(null);
     const [selectedObjects, setSelectedObjects] = useState([]);
+    const { setLoadingPopUp } = usePopUp();
   
     const handleIconClick = (icon) => {
       setSelectedIcon(icon);
@@ -38,12 +40,13 @@ const ObjectPositionPopup = ({showPopup, setResult, setCacheResult}) => {
         }
         query.push(new_element);
       }
-
+      setLoadingPopUp(true);
       ObjectService.searchObjectPosition(query)
       .then((response) => {
         console.log('Response:', response);
         setResult(response.data);
         setCacheResult(response.data);
+        setLoadingPopUp(false);
       })
       .catch((error) => {
         console.log('Error:', error);

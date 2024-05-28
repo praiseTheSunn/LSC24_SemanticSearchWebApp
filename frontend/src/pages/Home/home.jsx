@@ -99,7 +99,12 @@ const Home = () => {
     }, [displayedImages]);
 
     const submit = (src) => {
-        console.log('src', src);
+        // Parse the filename from the file path
+        let filename = src.split('/').pop();
+        // Remove the file extension
+        filename = src.split('/').pop().split('.')[0];
+        console.log('filename', filename);
+        toast.success(`Submit: ${filename}`);
     };
 
     useEffect(() => {
