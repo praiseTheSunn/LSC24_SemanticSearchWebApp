@@ -18,7 +18,7 @@ const AnImage = ({ src, date, time, index, onClick }) => {
     return (
         <>
             {/* {showNeighborPopup && <NeighborPopup viewImage={src} />} */}
-            <div key={index} className='img-container relative w-full h-full ' onClick={() => openSinglePopup(src)}>
+            <div key={index} className='img-container relative w-full h-full ' >
                 <style>
                     {`.img-container:hover .img-action { display: block;}`}
                 </style>
@@ -28,6 +28,7 @@ const AnImage = ({ src, date, time, index, onClick }) => {
                     alt={`Image ${index}`}
                     className=' object-contain w-full max-h-[120px] cursor-pointer'
                     // onDoubleClick={handleDoubleClick}
+                    onClick={() => openSinglePopup(src)}
                 />
                 <div className='bg-black opacity-50 absolute bottom-0 right-0 hidden img-action'
                 // onClick={}
