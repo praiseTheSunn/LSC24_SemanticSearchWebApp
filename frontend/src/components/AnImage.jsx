@@ -6,7 +6,7 @@ const AnImage = ({src, date, time, index}) => {
     return (
         <div key={index} className='an-img-container relative w-full h-full hover:z-50 hover:scale-105 overflow-hidden rounded-xl transition-transform duration-300 ease-in-out' >
             <style>
-                {`.an-img-container:hover .img-action { display: block;}`}
+                {`.an-img-container:hover .img-action-eye { display: block;}`}
                 {'.an-img-container:hover  .image-item-img { border: 2px solid rgb(0, 47, 255); }'}
                 {/* {'.an-img-container:hover .info-item { transform: scale(1.05);  }'} */}
                 {/* {'an-img-container:hover .image-item-img {  }'} */}
@@ -20,10 +20,10 @@ const AnImage = ({src, date, time, index}) => {
                 className='  max-w-full h-full cursor-pointer mx-auto  image-item-img bg-white submissible'
                 // onClick={() => openSinggleImage(null, img_link, date, time)}
             />
-            <div className='bg-black opacity-50 absolute bottom-0 right-0 img-action z-50'
-            style={{
-                display: 'none'
-            }}
+            <div className='bg-black opacity-50 absolute bottom-0 right-0 img-action-eye z-50 hidden'
+            // style={{
+            //     display: 'none'
+            // }}
             // onClick={}
             >
                 <img
