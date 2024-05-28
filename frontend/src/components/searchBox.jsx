@@ -92,7 +92,13 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                 const filter = { category: 'object_tags', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
                 handleFilterChange('object_tags', value);
-            } else if (input === '-c') {
+            } else if (input.startsWith('-act ')) {
+                const value = input.substring(5);
+                const filter = { category: 'activity', value, status: 1 };
+                setDisplayedFilters(previousState => [...previousState, filter]);
+                handleFilterChange('activity', value);
+            }
+            else if (input === '-c') {
                 // Handle special case
             }      
             else{
