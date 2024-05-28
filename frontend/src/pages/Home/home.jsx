@@ -15,6 +15,10 @@ import 'react-toastify/dist/ReactToastify.css';
 import MetadataTab from '../../containers/metadata/metadataTab';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css'
+
+// will delete 
+import evalService from '../../services/evalService';
+
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
     { level: "Timeline", bg: TrapoziedBgGray2 },
@@ -62,6 +66,26 @@ const Home = () => {
             return updatedTerms;
         });
     };
+
+    // will delete
+    useEffect(() => {
+        var userName = "lscteam051"
+        var pw = "DWGg6wVM6PKMHVh"
+        var sesId = "KHqtYMAFM8dezoBOpyrWzZAKAzjVwLeG"
+        var evalId = "a18a94c9-0ef8-4077-a407-d4abdaa9f18a"
+        var fileName = "20190623_184439_000"
+        evalService.submitFile(evalId, sesId, fileName).then((response) => {
+            console.log('response', response);
+        })
+        .catch((error) => {
+            console.log('error', error);
+        });
+        // evalService.getEvaluationId(sesId).then((response) => {
+        //     console.log('response', response);
+        // }).catch((error) => {
+        //     console.log('error', error);
+        // });
+    }, []);
 
     useEffect(() => {
         console.log('searchTerms', searchTerms);
