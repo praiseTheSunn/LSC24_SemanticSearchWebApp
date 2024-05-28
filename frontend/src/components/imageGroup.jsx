@@ -31,7 +31,7 @@ const ImageGroup = ({ images, title, sortType = 0 }) => {
                 minWidth: '160px'
             }}
             >
-                <AnImage src={images[0] && images[0].img_link ? images[0].img_link : null} date={images[0].date} time={images[0].time} />
+                <AnImage data={images[0]} />
                 {/* <img src={images[0] && images[0].img_link ? images[0].img_link : null} style={{
                     
                 }}/> */}

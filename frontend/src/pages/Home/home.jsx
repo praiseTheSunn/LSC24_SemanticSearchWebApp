@@ -13,7 +13,8 @@ import { ToastContainer, toast } from 'react-toastify';
 import { useSelectedImages } from '../../contexts/selectedImageContext';
 import 'react-toastify/dist/ReactToastify.css';
 import MetadataTab from '../../containers/metadata/metadataTab';
-
+import { Tooltip } from 'react-tooltip';
+import 'react-tooltip/dist/react-tooltip.css'
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
     { level: "Timeline", bg: TrapoziedBgGray2 },
@@ -39,7 +40,7 @@ const Home = () => {
     const [query, setQuery] = useState('');
     const [model, setModel] = useState('clip');
     const [mode, setMode] = useState('smt-3m-dtin');
-    const { loadingPopUp } = usePopUp();
+    const { loadingPopUp, setLoadingPopUp } = usePopUp();
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
     const [isCtrlPressed, setIsCtrlPressed] = useState(false);
@@ -164,6 +165,7 @@ const Home = () => {
             console.log('response.data', query, model, mode, response.data.response[0]);
             setResult(response.data.response);
             setCacheResult(response.data.response);
+            setLoadingPopUp(false);
           })
           .catch((error) => {
             console.log('error', error);
@@ -176,6 +178,33 @@ const Home = () => {
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
             <ToastContainer/>
             {loadingPopUp && <LoadingPopup />}
+            <Tooltip id='tooltip_img' place="top" 
+                style={{zIndex: "999999"}}
+                render={(content) => {
+                    // console.log('content', content.content);
+                    const tooltipData = content.content ? JSON.parse(content.content) : null;
+                    return(
+                        (tooltipData && (
+                            <div className="w-full h-full p-2" >
+                                <p><strong>Activity:</strong> {tooltipData.activity}</p>
+                                {/* <p><strong>Activity ID:</strong> {tooltipData.activity_id}</p> */}
+                                <p><strong>Caption:</strong> {tooltipData.caption}</p>
+                                <p><strong>Date:</strong> {tooltipData.date}</p>
+                                <p><strong>Time:</strong> {tooltipData.time}</p>
+                                <p><strong>Day of Week:</strong> {tooltipData.day_of_week}</p>
+                                {/* <p><strong>Event ID:</strong> {tooltipData.event_id}</p> */}
+                                <p><strong>Location:</strong> {tooltipData.location_displayed}</p>
+                                {/* <p><strong>Location ID:</strong> {tooltipData.location_id}</p> */}
+                                {/* <p><strong>Latitude:</strong> {tooltipData.new_lat}</p>
+                                <p><strong>Longitude:</strong> {tooltipData.new_lng}</p> */}
+                                <p><strong>Object Tags:</strong> {tooltipData.object_tags}</p>
+                                <p><strong>OCR:</strong> {tooltipData.ocr}</p>
+                                <p><strong>Score:</strong> {tooltipData.score}</p>
+                            </div>
+                         ))
+                    )
+                }}
+            />
             <SearchBox
                 displayedFilters={displayedFilters}
                 setDisplayedFilters={setDisplayedFilters}

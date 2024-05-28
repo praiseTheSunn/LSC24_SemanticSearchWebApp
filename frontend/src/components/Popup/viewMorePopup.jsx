@@ -17,7 +17,7 @@ const ViewMorePopup = ({ viewImages, title, setOpenViewMore, columnCount, rowToD
 
         return (
             <div className="w-full max-h-full object-contain p-1" style={style}>
-                <AnImage  key={index} src={data.img_link} date={data.date} index={index} time={data.time} />
+                <AnImage  key={index} data={data} index={index} />
                 
             </div>            
         );
