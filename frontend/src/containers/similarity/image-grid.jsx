@@ -17,7 +17,7 @@ const ImageGrid = ({ simData, cellHeight, cell }) => {
         return (
             <div style={style} >
                 <div className="h-full overflow-hidden p-0.5">
-                    <AnImage key={index} src={data.img_link} date={data.date} index={index} time={data.time} />
+                    <AnImage key={index} data={data} index={index} />
                 </div>
             </div>
         );

@@ -16,7 +16,7 @@ const ImageSingle = ({ image }) => {
                 minWidth: '160px',
             }}
             >
-                <AnImage src={image.img_link} date={image.date} time={image.time} />
+                <AnImage data={image} />
             </div>    
         </div>
     );
