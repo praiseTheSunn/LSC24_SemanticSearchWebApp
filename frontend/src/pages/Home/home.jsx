@@ -58,6 +58,7 @@ const Home = () => {
     const [result, setResult] = useState([]);
     const [cacheResult, setCacheResult] = useState([]);
     const [searchTerms, setSearchTerms] = useState([]);
+    const [submitText, setSubmitText] = useState('');
     // const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
     
     // Handle input changes for each key
@@ -198,6 +199,20 @@ const Home = () => {
         }
     }, [query, model, mode]);
 
+    useEffect(() => {
+        if (submitText !== '') {
+            evalService.submitText(evaluationId, localStorage.getItem('session'), submitText)
+            .then((response) => {
+                toast.success('Text submitted');
+                setSubmitText('');
+            })
+            .catch((error) => {
+                toast.error('Error submitting text');
+                console.log('error', error);
+            });
+        }
+    }, [submitText]);
+
 
     return (
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
@@ -246,6 +261,7 @@ const Home = () => {
                 handleFilterChange={handleFilterChange}
                 setSearchTerms={setSearchTerms}
                 setCacheResult={setCacheResult}
+                setSubmitText={setSubmitText}
             />
             <div
                 className="flex w-full justify-start relative"
