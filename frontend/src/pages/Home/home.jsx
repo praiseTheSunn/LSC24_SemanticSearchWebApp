@@ -128,11 +128,11 @@ const Home = () => {
 
         evalService.submitFile(evalId, sesId, filename).then((response) => {
             console.log('response', response);
-            toast.success(`Submit: ${filename}`);
+            toast.success(`Submit: ${filename}` + response.data.submission ? response.data.submission : '');
         })
         .catch((error) => {
             console.log('error', error);
-            toast.error(`ERROR: ${filename}`);
+            toast.error(`ERROR: ${filename + ': ' + error}`);
         });
 
         
@@ -213,7 +213,7 @@ const Home = () => {
         if (submitText !== '') {
             evalService.submitText(evaluationId, localStorage.getItem('session'), submitText)
             .then((response) => {
-                toast.success('Text submitted');
+                toast.success('Text submitted: ' + response.data.submission ? response.data.submission : '');
                 setSubmitText('');
                 console.log('response', response);
             })
