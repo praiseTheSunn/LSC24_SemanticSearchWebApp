@@ -1,5 +1,8 @@
+import { createPortal } from 'react-dom';
 import view_icon from '../assets/view_icon.png';
-import React from 'react';
+import React, { useState } from 'react';
+import NeighborPopup from './Popup/neighborPopup';
+import SinglePopup from './Popup/singlePopup';
 
 const AnImage = ({data, index}) => {
     const src = data && data.img_link ? data.img_link : null;
@@ -7,13 +10,27 @@ const AnImage = ({data, index}) => {
     const time = data && data.time ? data.time : null;
     const formattedTime = `${date}  ${time}`;
     const json_data = JSON.stringify(data);
+
+    const [neighborPopUp, setNeighborPopUp] = useState(false);
+    const [similarPopup, setSimilarPopUp] = useState(false);
+
     return (
         <div key={index} 
         className='an-img-container relative w-full h-full hover:z-50 hover:scale-105 overflow-hidden rounded-xl transition-transform duration-300 ease-in-out' 
         data-tooltip-id="tooltip_img"
         data-tooltip-content={json_data}
         data-tooltip-variant='dark'
+        onDoubleClick={() => setSimilarPopUp(true)}
         >
+            {neighborPopUp && createPortal(
+                <NeighborPopup viewImage={data.img_link} onClose={() => setNeighborPopUp(false)} />,
+                document.body
+            )}
+            {similarPopup && createPortal(
+                <SinglePopup viewImage={data.img_link} onClose={() => setSimilarPopUp(false)} />,
+                document.body
+            )    
+            }
             <style>
                 {`.an-img-container:hover .img-action-eye { display: block;}`}
                 {'.an-img-container:hover  .image-item-img { border: 2px solid rgb(0, 47, 255); }'}
@@ -30,10 +47,7 @@ const AnImage = ({data, index}) => {
                 // onClick={() => openSinggleImage(null, img_link, date, time)}
             />
             <div className='bg-black opacity-50 absolute bottom-0 right-0 img-action-eye z-50 hidden'
-            // style={{
-            //     display: 'none'
-            // }}
-            // onClick={}
+           onClick={() => setNeighborPopUp(true)}
             >
                 <img
                     src={view_icon}
