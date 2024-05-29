@@ -64,9 +64,11 @@ const messagePopup = ({displayedFilters, setDisplayedFilters, setDisplayedImages
                     <div className='filter-instruction bg-white w-full h-auto mt-4' style={{ borderRadius: '7px', padding: '10px 20px'}}>
                         -lo ... : location<br/>
                         -t ... : time<br/>
+                        -d ... : date<br/>
+                        -act ... : activity<br/>
                         -ocr ... : OCR text<br/>
                         -obj ... : Object Detection<br/>
-                        -c : Turn on caption search<br/>
+                        -text ... : Submit text<br/>
                     </div>
                 </div>
             </div>
