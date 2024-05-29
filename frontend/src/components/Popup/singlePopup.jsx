@@ -126,7 +126,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
 
     useEffect(() => {
         const imageList = [viewImage];
-        fetchSimilars(imageList, "stfm");
+        fetchSimilars(imageList);
     }, [viewImage, fetchSimilars]);
 
     const Cell = ({ columnIndex, rowIndex, style }) => {
@@ -159,18 +159,18 @@ const SinglePopup = ({ viewImage, onClose }) => {
     return (
         <div className='single-popup-container'>
             <div className='popup-content-background row'>
-                <div className='single-images-container col h-full w-full'>
+                <div className='single-images-container col w-full pt-3 pb-5 h-[90%]'>
                     <h1>Similar Images</h1>
                     <br />
-                    <div className='single-image-container'>
-                        <div className='left-column'>
+                    <div className='single-image-container h-full'>
+                        <div className='left-column max-h-full'>
                             <img src={viewImage} alt='single-popup' className='centered-image'/>
                         </div>
-                        <div className='right-column'>
+                        <div className='right-column max-h-full'>
                             {singlePopupData.length > 0 ? (
                                 <AutoSizer>
                                     {({ height, width }) => {
-                                        const columnWidth = width / columnCount;
+                                        const columnWidth = width / columnCount - 1.5;
                                         const rowHeight = 130; // Making rows square by setting row height equal to column width
                                         const rowCount = Math.ceil(singlePopupData.length / columnCount);
 
