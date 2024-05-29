@@ -88,7 +88,7 @@ const NeighborPopup = ({ viewImage, onClose }) => {
         const { img_link } = data;
         const isHighlighted = img_link === viewImage;
         return (
-            <div style={style} className={`max-h-[142px] image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
+            <div style={style} className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
                 ref={isHighlighted ? viewImageRef : null}
             >
                 <div className="h-full overflow-hidden p-0.5" >
