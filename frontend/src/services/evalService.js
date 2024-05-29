@@ -20,11 +20,11 @@ const submitFile = (evaluationId, sesId, fileName) => {
 }
 
 const submitText = (evaluationId, sesId, text) => {
-    return eval_http.post(`/api/v2/submit/${evaluationId}`, { answerSets: {
-        answers: {
-            text: text
-        }
-    } }, { headers: { SESSIONID: sesId } });
+    return eval_http.post(`/api/v2/submit/${evaluationId}?session=${sesId}`, { 'answerSets': [{
+        'answers': [{
+            'text': text
+        }]
+}]})
 }
 
 const evalService = {
