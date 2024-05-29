@@ -5,6 +5,8 @@ import { ObjectPosIcon } from '../assets';
 import imageService from '../services/imageService';
 import Dropdown from './dropDown'; 
 import { usePopUp } from '../contexts/popUpContext';
+import EvaluationBox from './evaluationBox';
+import ToggableComponent from './toggleEvaluationBox';
 
 const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult, setSearchTerms}) => {
     const [textareaValue, setTextareaValue] = useState('');
@@ -190,6 +192,10 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                     valueItems={['smt', 'smt-mm-dtin', 'smt-3m-dtin']}
                     setData={setMode}
                     />
+                </div>
+                <div className='ml-3 mt-2 w-500 float-right'
+                style={{ zIndex: 9999 }}> 
+                    <ToggableComponent />
                 </div>
             </div>
         // {/* </div> */}

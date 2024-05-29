@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
@@ -15,6 +15,11 @@ import 'react-toastify/dist/ReactToastify.css';
 import MetadataTab from '../../containers/metadata/metadataTab';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css'
+
+// will delete 
+import evalService from '../../services/evalService';
+import { EvaluationContext } from '../../contexts/EvaluationContext';
+
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
     { level: "Timeline", bg: TrapoziedBgGray2 },
@@ -33,7 +38,7 @@ const Mode = [
 
 
 const Home = () => {
-    
+    const { evaluationId } = useContext(EvaluationContext);
     // console.log('selectedFilters in home', selectedFilters);
 
     const [displayedFilters, setDisplayedFilters] = useState([]);
@@ -44,6 +49,8 @@ const Home = () => {
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
     const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+    const [windowHeigt, setWindowHeight] = useState(window.innerHeight);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const handleTabClick = (index) => {
         setSelectedTabIndex(index);
     };
@@ -99,12 +106,25 @@ const Home = () => {
     }, [displayedImages]);
 
     const submit = (src) => {
+        var sesId = localStorage.getItem('session');
+        var evalId = evaluationId;
+
         // Parse the filename from the file path
         let filename = src.split('/').pop();
         // Remove the file extension
         filename = src.split('/').pop().split('.')[0];
         console.log('filename', filename);
-        toast.success(`Submit: ${filename}`);
+
+        evalService.submitFile(evalId, sesId, filename).then((response) => {
+            console.log('response', response);
+            toast.success(`Submit: ${filename}`);
+        })
+        .catch((error) => {
+            console.log('error', error);
+            toast.error(`ERROR: ${filename}`);
+        });
+
+        
     };
 
     useEffect(() => {
@@ -183,11 +203,17 @@ const Home = () => {
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
             <ToastContainer/>
             {loadingPopUp && <LoadingPopup />}
-            <Tooltip id='tooltip_img' place="top" 
-                style={{zIndex: "999999"}}
+            <Tooltip id='tooltip_img'  
+                style={{zIndex: "9999999", position:"fixed", top: "0", right:"0"}}
+                positionStrategy='fixed'
+                // anchorSelect='.tooltip-display'
+                place='bottom'
+                // position={{x: 0, y: 0}}
+                position={{x: windowWidth, y: 0}}
                 render={(content) => {
                     // console.log('content', content.content);
                     const tooltipData = content.content ? JSON.parse(content.content) : null;
+                    console.log('tooltipData', tooltipData);
                     return(
                         (tooltipData && (
                             <div className="w-full h-full p-2" >
@@ -202,8 +228,8 @@ const Home = () => {
                                 {/* <p><strong>Location ID:</strong> {tooltipData.location_id}</p> */}
                                 {/* <p><strong>Latitude:</strong> {tooltipData.new_lat}</p>
                                 <p><strong>Longitude:</strong> {tooltipData.new_lng}</p> */}
-                                <p><strong>Object Tags:</strong> {tooltipData.object_tags}</p>
-                                <p><strong>OCR:</strong> {tooltipData.ocr}</p>
+                                <p style={{wordBreak: "break-word", maxWidth:"500px"}}><strong>Object Tags:</strong> {tooltipData.object_tags}</p>
+                                <p style={{wordBreak: "break-word", maxWidth:"500px"}}><strong>OCR:</strong> {tooltipData.ocr}</p>
                                 <p><strong>Score:</strong> {tooltipData.score}</p>
                             </div>
                          ))

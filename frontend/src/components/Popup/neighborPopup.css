@@ -50,7 +50,6 @@
 
 .neighbor-popup-container .neighbor-image-container{
     max-height: 90%;
-    width: 100%;
     flex-grow: 0;
     flex-shrink: 0;
     flex-basis: auto;

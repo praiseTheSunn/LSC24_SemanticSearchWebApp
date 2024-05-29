@@ -145,10 +145,8 @@ const SinglePopup = ({ viewImage, onClose }) => {
                 <div className="h-auto image-item overflow-hidden" >
                     <AnImage
                         key={index}
-                        src={data.img_link}
-                        date={data.date}
                         index={index}
-                        time={data.time}
+                        data={data}
                     />
                 </div>
             </div>
