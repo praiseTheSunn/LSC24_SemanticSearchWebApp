@@ -16,9 +16,15 @@ import MetadataTab from '../../containers/metadata/metadataTab';
 import { Tooltip } from 'react-tooltip';
 import 'react-tooltip/dist/react-tooltip.css'
 
-// will delete 
+// Evaluation
 import evalService from '../../services/evalService';
 import { EvaluationContext } from '../../contexts/EvaluationContext';
+
+// Popup
+import NeighborPopup from '../../components/Popup/neighborPopup';
+import SinglePopup from '../../components/Popup/singlePopup';
+// import { usePopUp } from '../contexts/popUpContext';
+import { createPortal } from 'react-dom';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -61,6 +67,10 @@ const Home = () => {
     const [submitText, setSubmitText] = useState('');
     // const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
     
+    const {neighborPopUp, setNeighborPopUp} = usePopUp();
+    const {similarPopUp, setSimilarPopUp} = usePopUp();
+    const {currentImage, setCurrentImage} = usePopUp();
+
     // Handle input changes for each key
     const handleFilterChange = (key, value) => {
         console.log('key', key, value);
@@ -217,8 +227,9 @@ const Home = () => {
 
     return (
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
-            <ToastContainer/>
+            <ToastContainer style={{zIndex: "99999999"}}/>
             {loadingPopUp && <LoadingPopup />}
+
             <Tooltip id='tooltip_img'  
                 style={{zIndex: "9999999", position:"fixed", top: "0", right:"0"}}
                 positionStrategy='fixed'
@@ -252,6 +263,15 @@ const Home = () => {
                     )
                 }}
             />
+                        {neighborPopUp && createPortal(
+                <NeighborPopup viewImage={neighborPopUp.img_link} onClose={() => setNeighborPopUp(null)} />,
+                document.body
+            )}
+            {similarPopUp && createPortal(
+                <SinglePopup viewImage={similarPopUp.img_link} onClose={() => setSimilarPopUp(null)} />,
+                document.body
+            )    
+            }
             <SearchBox
                 displayedFilters={displayedFilters}
                 setDisplayedFilters={setDisplayedFilters}
@@ -346,6 +366,7 @@ const Home = () => {
             </div>
 
         </div>
+        
     );
 };
 
