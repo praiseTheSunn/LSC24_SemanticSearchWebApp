@@ -49,6 +49,8 @@ const Home = () => {
     const [selectedTabIndex, setSelectedTabIndex] = useState(0);
     const [selectedModeIndex, setSelectedModeIndex] = useState(0);
     const [isCtrlPressed, setIsCtrlPressed] = useState(false);
+    const [windowHeigt, setWindowHeight] = useState(window.innerHeight);
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const handleTabClick = (index) => {
         setSelectedTabIndex(index);
     };
@@ -67,32 +69,6 @@ const Home = () => {
             return updatedTerms;
         });
     };
-
-    // will delete
-    useEffect(() => {
-        // var userName = "lscteam051"
-        // var pw = "DWGg6wVM6PKMHVh"
-        // var sesId = "KHqtYMAFM8dezoBOpyrWzZAKAzjVwLeG"
-        // var evalId = "a18a94c9-0ef8-4077-a407-d4abdaa9f18a"
-        // var fileName = "20190623_184439_000"
-        // evalService.submitFile(evalId, sesId, fileName).then((response) => {
-        //     console.log('response', response);
-        // })
-        // .catch((error) => {
-        //     console.log('error', error);
-        // });
-        // evalService.getEvaluationId(sesId).then((response) => {
-        //     console.log('response', response);
-        // }).catch((error) => {
-        //     console.log('error', error);
-        // });
-        // evalService.login("lscteam051", "DWGg6wVM6PKMHVh").then((response) => {
-        //     console.log('response', response);
-        //     localStorage.setItem('session', response.data.sessionId);
-        // }).catch((error) => {
-        //     console.log('error logging', error);
-        // });
-    }, []);
 
     useEffect(() => {
         console.log('searchTerms', searchTerms);
@@ -145,7 +121,7 @@ const Home = () => {
         })
         .catch((error) => {
             console.log('error', error);
-            toast.success(`ERROR: ${filename}`);
+            toast.error(`ERROR: ${filename}`);
         });
 
         
@@ -227,11 +203,17 @@ const Home = () => {
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
             <ToastContainer/>
             {loadingPopUp && <LoadingPopup />}
-            <Tooltip id='tooltip_img' place="top" 
-                style={{zIndex: "999999"}}
+            <Tooltip id='tooltip_img'  
+                style={{zIndex: "9999999", position:"fixed", top: "0", right:"0"}}
+                positionStrategy='fixed'
+                // anchorSelect='.tooltip-display'
+                place='bottom'
+                // position={{x: 0, y: 0}}
+                position={{x: windowWidth, y: 0}}
                 render={(content) => {
                     // console.log('content', content.content);
                     const tooltipData = content.content ? JSON.parse(content.content) : null;
+                    console.log('tooltipData', tooltipData);
                     return(
                         (tooltipData && (
                             <div className="w-full h-full p-2" >
@@ -246,8 +228,8 @@ const Home = () => {
                                 {/* <p><strong>Location ID:</strong> {tooltipData.location_id}</p> */}
                                 {/* <p><strong>Latitude:</strong> {tooltipData.new_lat}</p>
                                 <p><strong>Longitude:</strong> {tooltipData.new_lng}</p> */}
-                                <p><strong>Object Tags:</strong> {tooltipData.object_tags}</p>
-                                <p><strong>OCR:</strong> {tooltipData.ocr}</p>
+                                <p style={{wordBreak: "break-word", maxWidth:"500px"}}><strong>Object Tags:</strong> {tooltipData.object_tags}</p>
+                                <p style={{wordBreak: "break-word", maxWidth:"500px"}}><strong>OCR:</strong> {tooltipData.ocr}</p>
                                 <p><strong>Score:</strong> {tooltipData.score}</p>
                             </div>
                          ))

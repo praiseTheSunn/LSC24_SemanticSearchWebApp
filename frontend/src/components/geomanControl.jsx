@@ -40,7 +40,7 @@ const GeomanControl = ({data, setData, dataSrc}) => {
 
   useEffect(() => {
         // Calculate the median of the markers' positions
-        const validData = data.filter(d => d.new_lat !== null && d.new_lng !== null);
+        const validData = dataSrc.filter(d => d.new_lat !== null && d.new_lng !== null);
         if (validData.length > 0) {
           const latitudes = validData.map(d => d.new_lat).sort((a, b) => a - b);
           const longitudes = validData.map(d => d.new_lng).sort((a, b) => a - b);
@@ -57,7 +57,7 @@ const GeomanControl = ({data, setData, dataSrc}) => {
           console.log("median", medianLat, medianLng)
           map.setView([medianLat, medianLng], 13);  // You can adjust the zoom level as needed
         }
-      }, []);
+      }, [dataSrc]);
 
   useEffect(() => {
     // received geofeatures from parent
