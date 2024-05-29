@@ -229,7 +229,7 @@ const Home = () => {
                 render={(content) => {
                     // console.log('content', content.content);
                     const tooltipData = content.content ? JSON.parse(content.content) : null;
-                    console.log('tooltipData', tooltipData);
+                    // console.log('tooltipData', tooltipData);
                     return(
                         (tooltipData && (
                             <div className="w-full h-full p-2" >
