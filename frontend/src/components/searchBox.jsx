@@ -8,7 +8,7 @@ import { usePopUp } from '../contexts/popUpContext';
 import EvaluationBox from './evaluationBox';
 import ToggableComponent from './toggleEvaluationBox';
 
-const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult, setSearchTerms}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult, setSearchTerms, setSubmitText}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const { setDisplayedImages} = useSelectedImages();
@@ -99,6 +99,12 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                 const filter = { category: 'activity', value, status: 1 };
                 setDisplayedFilters(previousState => [...previousState, filter]);
                 handleFilterChange('activity', value);
+            }
+            else if (input.startsWith('-text ')) {
+                const value = input.substring(6);
+                const filter = { category: 'SUBMIT TEXT', value, status: 1 };
+                setDisplayedFilters(previousState => [...previousState, filter]);
+                setSubmitText(value);
             }
             else if (input === '-c') {
                 // Handle special case
