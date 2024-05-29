@@ -4,7 +4,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { AnImage } from '../../components';
 
 const ImageGrid = ({ simData, cellHeight, cell }) => {
-    cellHeight = cellHeight ? cellHeight : 120; // Default cell height
+    cellHeight = cellHeight ? cellHeight : 125; // Default cell height
 
     const columnCount = 9; // Number of columns in the grid
 

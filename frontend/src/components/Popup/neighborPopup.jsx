@@ -1,10 +1,6 @@
-import './neighborPopup.css'
 import closeIcon from '../../assets/close.png'
-import bcn from '../../assets/bcn.png'
-import ImageInList from '../Image/imageInList'
 import { useRef, useEffect, useState, useCallback  } from 'react'
 import imageService from '../../services/imageService'
-import { useSelectedImages } from '../../contexts/selectedImageContext'
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { AnImage } from '../../components';
@@ -22,6 +18,7 @@ const NeighborPopup = ({ viewImage, onClose }) => {
         try {
             const response = await imageService.getNeighbors(imageId, pageNum);
             const newNeighbors = response.data.response;
+            console.log(newNeighbors);
             const middleIndex = Math.floor(newNeighbors.length / 2);
             const frontNeighbors = newNeighbors.slice(0, middleIndex);
             const backNeighbors = newNeighbors.slice(middleIndex);
@@ -88,76 +85,62 @@ const NeighborPopup = ({ viewImage, onClose }) => {
         const data = neighborsData[index];
         if (!data) return null;
 
-        const { img_link, date, time } = data;
-        const formattedTime = `${date} ${time}`;
+        const { img_link } = data;
         const isHighlighted = img_link === viewImage;
-
-        // return (
-        //     <div
-        //         className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
-        //         style={{ ...style, padding: '10px', boxSizing: 'border-box' }}
-        //         ref={isHighlighted ? viewImageRef : null}
-        //     >
-        //         <div className='overlay-neighbor'>{formattedTime}</div>
-        //         <img src={img_link} alt={`Image ${index}`} className='image-item-neighbor' />
-        //     </div>
-        // );
         return (
             <div style={style} className={`max-h-[142px] image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
                 ref={isHighlighted ? viewImageRef : null}
             >
-                <div className="h-auto image-item overflow-hidden" >
+                <div className="h-full overflow-hidden p-0.5" >
                     <AnImage 
                         key={index} 
-                        src={data.img_link} 
-                        date={data.date} 
                         index={index} 
-                        time={data.time} 
-                        // onDoubleClick={() => handleDoubleClick(data.img_link)}
+                        data={data}
                     />
                 </div>
             </div>
         );
     };
 
-    const columnCount = 7; // Number of columns in the grid
+    const columnCount = 8; // Number of columns in the grid
     const itemSize = 180; // Size of each cell in the grid
 
     return (
-        <div className='neighbor-popup-container'>
-            <div className='popup-content-background row'>
-                <div className='neighbor-image-container col h-full w-full'>
-                    <h1>Neighbors</h1>
-                    <br />
-                    {neighborsData.length > 0 ? (
-                        <AutoSizer>
-                            {({ height, width }) => {
-                                const columnWidth = width / columnCount;
-                                const rowHeight = 130; // Making rows square by setting row height equal to column width
-                                const rowCount = Math.ceil(neighborsData.length / columnCount);
+        <div className='fixed top-0 left-0 flex flex-col justify-center items-center bg-black bg-opacity-50 h-full w-full' style={{zIndex:"1000000"}}>
+            <div className='relative flex flex-row items-center w-[90%] h-[90%] bg-white rounded-2xl'>
+                <div className='max-h-[90%] h-full w-full overflow-y-hidden flex-shrink-0 flex-grow-0 flex-auto'>
+                    <h1 className='font-bold text-center max-h-[600px]'>Neighbors</h1>
+                    <div className='w-full h-full'>
+                        {neighborsData.length > 0 ? (
+                            <AutoSizer>
+                                {({ height, width }) => {
+                                    const columnWidth = width / columnCount;
+                                    const rowHeight = 130; // Making rows square by setting row height equal to column width
+                                    const rowCount = Math.ceil(neighborsData.length / columnCount);
 
-                                return (
-                                    <Grid
-                                        columnCount={columnCount}
-                                        columnWidth={columnWidth}
-                                        height={height}
-                                        rowCount={rowCount}
-                                        rowHeight={rowHeight}
-                                        width={width}
-                                        onScroll={({ scrollTop }) => handleScroll({ scrollTop })}
-                                        ref={gridRef}
-                                    >
-                                        {Cell}
-                                    </Grid>
-                                )
-                            }}
-                        </AutoSizer>
-                    ) : (
-                        <div>Loading neighbors...</div>
-                    )}
+                                    return (
+                                        <Grid
+                                            columnCount={columnCount}
+                                            columnWidth={columnWidth}
+                                            height={height}
+                                            rowCount={rowCount}
+                                            rowHeight={rowHeight}
+                                            width={width}
+                                            onScroll={({ scrollTop }) => handleScroll({ scrollTop })}
+                                            ref={gridRef}
+                                        >
+                                            {Cell}
+                                        </Grid>
+                                    )
+                                }}
+                            </AutoSizer>
+                        ) : (
+                            <div>Loading neighbors...</div>
+                        )}
+                    </div>
                 </div>
 
-                <div className='close-button-container'>
+                <div className='absolute top-[-1.7%] right-[-0.7%] w-8 h-8 bg-white rounded-full flex justify-center items-center cursor-pointer p-[5px]' onClick={() => onClose(true)}>
                     <img src={closeIcon} className='close-popup-button' onClick={() => onClose(true)} />
                 </div>
             </div>
