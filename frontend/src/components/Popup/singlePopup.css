@@ -138,7 +138,7 @@
 }
 
 .single-popup-container .single-images-container{
-    max-height: 90%;
+    /* max-height: 90%; */
     width: 100%;
     flex-grow: 0;
     flex-shrink: 0;
@@ -148,7 +148,7 @@
 
 .single-image-container{
     display: flex;
-    height: 100vh; /* Full height of the viewport */
+    
 }
 
 .left-column {
