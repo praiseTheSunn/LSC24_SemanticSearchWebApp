@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
 import { SearchBox } from '../../components';
@@ -18,6 +18,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 
 // will delete 
 import evalService from '../../services/evalService';
+import { EvaluationContext } from '../../contexts/EvaluationContext';
 
 const LevelList = [
     { level: "Similarity", bg: TrapoziedBgGrayLeft },
@@ -37,7 +38,7 @@ const Mode = [
 
 
 const Home = () => {
-    
+    const { evaluationId } = useContext(EvaluationContext);
     // console.log('selectedFilters in home', selectedFilters);
 
     const [displayedFilters, setDisplayedFilters] = useState([]);
@@ -69,21 +70,27 @@ const Home = () => {
 
     // will delete
     useEffect(() => {
-        var userName = "lscteam051"
-        var pw = "DWGg6wVM6PKMHVh"
-        var sesId = "KHqtYMAFM8dezoBOpyrWzZAKAzjVwLeG"
-        var evalId = "a18a94c9-0ef8-4077-a407-d4abdaa9f18a"
-        var fileName = "20190623_184439_000"
-        evalService.submitFile(evalId, sesId, fileName).then((response) => {
-            console.log('response', response);
-        })
-        .catch((error) => {
-            console.log('error', error);
-        });
+        // var userName = "lscteam051"
+        // var pw = "DWGg6wVM6PKMHVh"
+        // var sesId = "KHqtYMAFM8dezoBOpyrWzZAKAzjVwLeG"
+        // var evalId = "a18a94c9-0ef8-4077-a407-d4abdaa9f18a"
+        // var fileName = "20190623_184439_000"
+        // evalService.submitFile(evalId, sesId, fileName).then((response) => {
+        //     console.log('response', response);
+        // })
+        // .catch((error) => {
+        //     console.log('error', error);
+        // });
         // evalService.getEvaluationId(sesId).then((response) => {
         //     console.log('response', response);
         // }).catch((error) => {
         //     console.log('error', error);
+        // });
+        // evalService.login("lscteam051", "DWGg6wVM6PKMHVh").then((response) => {
+        //     console.log('response', response);
+        //     localStorage.setItem('session', response.data.sessionId);
+        // }).catch((error) => {
+        //     console.log('error logging', error);
         // });
     }, []);
 
@@ -123,12 +130,25 @@ const Home = () => {
     }, [displayedImages]);
 
     const submit = (src) => {
+        var sesId = localStorage.getItem('session');
+        var evalId = evaluationId;
+
         // Parse the filename from the file path
         let filename = src.split('/').pop();
         // Remove the file extension
         filename = src.split('/').pop().split('.')[0];
         console.log('filename', filename);
-        toast.success(`Submit: ${filename}`);
+
+        evalService.submitFile(evalId, sesId, filename).then((response) => {
+            console.log('response', response);
+            toast.success(`Submit: ${filename}`);
+        })
+        .catch((error) => {
+            console.log('error', error);
+            toast.success(`ERROR: ${filename}`);
+        });
+
+        
     };
 
     useEffect(() => {
