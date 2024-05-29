@@ -1,20 +1,43 @@
-import React, { useState, useContext } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import evalService from '../services/evalService';
 import { EvaluationContext } from '../contexts/EvaluationContext';
 import { toast } from 'react-toastify';
 
 const EvaluationBox = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const {username, setUsername} = useContext(EvaluationContext)
+  const {password, setPassword} = useContext(EvaluationContext)
+  // const [username, setUsername] = useState('');
+  // const [password, setPassword] = useState('');
   const { evaluationId, setEvaluationId } = useContext(EvaluationContext);
   const [text, setText] = useState('');
 
   const [loginState, setLoginState] = useState("Login");
 
+  useEffect(() => {
+    const session = localStorage.getItem('session');
+    const username = localStorage.getItem('username');
+    const password = localStorage.getItem('password');
+    if (session && username && password) {
+      setLoginState("Logout");
+    }
+    if (evaluationId) {
+      console.log('evaluationId', evaluationId);
+      setEvaluationId(evaluationId);
+    }
+    if (username) {
+      setUsername(username);
+    }
+    if (password) {
+      setPassword(password);
+    }
+  }, [])
+
   const handleButtonClick = () => {
     evalService.login(username, password).then((response) => {
         console.log('response', response);
         localStorage.setItem('session', response.data.sessionId);
+        localStorage.setItem('username', username);
+        localStorage.setItem('password', password);
         setLoginState("Logout");
         toast.success('Login successful');
     }).catch((error) => {
