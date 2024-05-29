@@ -13,6 +13,7 @@ const AnImage = ({data, index}) => {
 
     const [neighborPopUp, setNeighborPopUp] = useState(false);
     const [similarPopup, setSimilarPopUp] = useState(false);
+    const [imageLink, setImageLink] = useState(data.img_link);
 
     return (
         <div key={index} 
@@ -23,11 +24,11 @@ const AnImage = ({data, index}) => {
         onDoubleClick={() => setSimilarPopUp(true)}
         >
             {neighborPopUp && createPortal(
-                <NeighborPopup viewImage={data.img_link} onClose={() => setNeighborPopUp(false)} />,
+                <NeighborPopup viewImage={imageLink} onClose={() => setNeighborPopUp(false)} />,
                 document.body
             )}
             {similarPopup && createPortal(
-                <SinglePopup viewImage={data.img_link} onClose={() => setSimilarPopUp(false)} />,
+                <SinglePopup viewImage={imageLink} onClose={() => setSimilarPopUp(false)} />,
                 document.body
             )    
             }
@@ -44,7 +45,7 @@ const AnImage = ({data, index}) => {
                 alt={`Image ${index}`}
                 // className=' object-contain w-full max-h-[140px] cursor-pointer'
                 className='  max-w-full h-full cursor-pointer mx-auto  image-item-img bg-white submissible'
-                // onClick={() => openSinggleImage(null, img_link, date, time)}
+                onClick={() => setImageLink(src)}
             />
             <div className='bg-black opacity-50 absolute bottom-0 right-0 img-action-eye z-50 hidden'
            onClick={() => setNeighborPopUp(true)}
