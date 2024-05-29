@@ -1,8 +1,9 @@
 import { createPortal } from 'react-dom';
 import view_icon from '../assets/view_icon.png';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import NeighborPopup from './Popup/neighborPopup';
 import SinglePopup from './Popup/singlePopup';
+import { usePopUp } from '../contexts/popUpContext';
 
 const AnImage = ({data, index}) => {
     const src = data && data.img_link ? data.img_link : null;
@@ -11,8 +12,9 @@ const AnImage = ({data, index}) => {
     const formattedTime = `${date}  ${time}`;
     const json_data = JSON.stringify(data);
 
-    const [neighborPopUp, setNeighborPopUp] = useState(false);
-    const [similarPopup, setSimilarPopUp] = useState(false);
+    const {neighborPopUp, setNeighborPopUp} = usePopUp();
+    const {similarPopUp, setSimilarPopUp} = usePopUp();
+    // const {currentImage, setCurrentImage} = usePopUp();
 
     return (
         <div key={index} 
@@ -20,9 +22,16 @@ const AnImage = ({data, index}) => {
         data-tooltip-id="tooltip_img"
         data-tooltip-content={json_data}
         data-tooltip-variant='dark'
-        onDoubleClick={() => setSimilarPopUp(true)}
+        onDoubleClick={() => {
+            setSimilarPopUp(data);
+            setNeighborPopUp(null);
+            console.log('double clicked', data, similarPopUp);
+            // setCurrentImage(data);
+        }
+        }
+        
         >
-            {neighborPopUp && createPortal(
+            {/* {neighborPopUp && createPortal(
                 <NeighborPopup viewImage={data.img_link} onClose={() => setNeighborPopUp(false)} />,
                 document.body
             )}
@@ -30,7 +39,7 @@ const AnImage = ({data, index}) => {
                 <SinglePopup viewImage={data.img_link} onClose={() => setSimilarPopUp(false)} />,
                 document.body
             )    
-            }
+            } */}
             <style>
                 {`.an-img-container:hover .img-action-eye { display: block;}`}
                 {'.an-img-container:hover  .image-item-img { border: 2px solid rgb(0, 47, 255); }'}
@@ -47,7 +56,7 @@ const AnImage = ({data, index}) => {
                 // onClick={() => openSinggleImage(null, img_link, date, time)}
             />
             <div className='bg-black opacity-50 absolute bottom-0 right-0 img-action-eye z-50 hidden'
-           onClick={() => setNeighborPopUp(true)}
+           onClick={() => {setNeighborPopUp(data); setSimilarPopUp(null)}}
             >
                 <img
                     src={view_icon}
