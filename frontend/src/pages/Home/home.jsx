@@ -205,6 +205,7 @@ const Home = () => {
             .then((response) => {
                 toast.success('Text submitted');
                 setSubmitText('');
+                console.log('response', response);
             })
             .catch((error) => {
                 toast.error('Error submitting text');
