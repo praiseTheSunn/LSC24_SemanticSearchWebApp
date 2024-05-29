@@ -199,7 +199,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                     setData={setMode}
                     />
                 </div>
-                <div className='ml-3 mt-2 w-500 float-right'
+                <div className='ml-3 mt-2 top-0'
                 style={{ zIndex: 9999 }}> 
                     <ToggableComponent />
                 </div>
