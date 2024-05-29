@@ -9,7 +9,7 @@
     height: 100%;
     width: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 100;
+    z-index: 10000000;
 }
 
 .neighbor-popup-container .popup-content-background{
@@ -17,8 +17,8 @@
     flex-direction: row;
     justify-content: center;
     align-items: center;
-    width: 95%;
-    height: 92%;
+    width: 80%;
+    height: 80%;
     background-color: white;
     border-radius: 20px;
     position: fixed;
@@ -57,7 +57,7 @@
     overflow-y: hidden;
 }
 
-.neighbor-popup-container .neighbor-image-container h4{
+.neighbor-popup-container .neighbor-image-container h1{
     font-family:  Tahoma;
     font-weight: 700;
     text-align: center;
@@ -81,7 +81,7 @@
 
 .neighbor-popup-container .neighbor-images-list{
     display: grid;
-    grid-template-columns: repeat(9, 1fr); /* 7 columns */
+    grid-template-columns: repeat(9, 1fr); 
     grid-gap: 0px;
     padding-right: 5px;
     overflow-y: auto;
@@ -100,4 +100,66 @@
 
 .neighbor-popup-container .img-container:hover{
     background-color: #000dc1;
+}
+
+.grid-neighbor {
+    margin-left: 2.5%;
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(7, 1fr); /* 7 cột với chiều rộng bằng nhau */
+    grid-gap: 10px; /* Khoảng cách giữa các hình ảnh */
+    overflow-y: auto;
+    height: 400px;
+    position: relative;
+    /* height: 400px; Adjust height as needed */
+    /* flex: 1; */
+}
+
+.image-wrapper-neighbor {
+    position: relative;
+    display: inline-block;
+}
+
+.overlay-neighbor {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Màu nền với độ trong suốt */
+    color: white; /* Màu chữ */
+    padding: 5px; /* Khoảng cách từ lề */
+    z-index: 1; /* Đảm bảo overlay hiển thị phía trên hình ảnh */
+    border-top-left-radius: 10px; /* Bo tròn viền overlay */
+}
+
+.image-item-neighbor {
+    width: 100%; /* Chiều rộng hình ảnh sẽ chiếm toàn bộ ô của grid */
+    height: auto; /* Đảm bảo tỷ lệ hình ảnh không bị méo */
+    /* object-fit: cover; Đảm bảo hình ảnh không bị biến dạng khi thay đổi kích thước */
+    border-radius: 7px; /* Bo tròn viền hình ảnh */
+    cursor: pointer;
+    object-fit: contain; /* Ensure the image scales to fit within the container */
+    max-height: 100%; /* Ensure the image does not exceed the container height */
+}
+
+.image-item-neighbor:hover {
+    transform: scale(1.05); /* Phóng to hình ảnh khi hover */
+    border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
+    
+}
+
+/* .image-wrapper-neighbor.highlighted {
+    border: 5px solid rgb(107, 255, 74);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+} */
+
+.image-wrapper-neighbor.highlighted {
+    border: 3px solid #ffcc00; /* Highlight border */
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.8); /* Highlight shadow */
+    transform: scale(1.05); /* Slightly enlarge */
+    transition: transform 0.3s, box-shadow 0.3s, border 0.3s; /* Smooth transition */
+}
+
+.image-wrapper-neighbor.highlight {
+    border: 2px solid #FFD700;  /* Màu vàng để làm nổi bật */
+    box-shadow: 0 0 10px #FFD700;
 }
