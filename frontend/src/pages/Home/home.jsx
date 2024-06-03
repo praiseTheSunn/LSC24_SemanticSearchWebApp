@@ -125,6 +125,7 @@ const Home = () => {
         // Remove the file extension
         filename = src.split('/').pop().split('.')[0];
         console.log('filename', filename);
+        toast.info(`Submitting: ${filename}`);
 
         evalService.submitFile(evalId, sesId, filename).then((response) => {
             console.log('response', response);
