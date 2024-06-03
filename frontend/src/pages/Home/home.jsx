@@ -129,7 +129,7 @@ const Home = () => {
 
         evalService.submitFile(evalId, sesId, filename).then((response) => {
             console.log('response', response);
-            toast.success(`Submit: ${filename}` + response.data.submission ? response.data.submission : '');
+            toast.success(`Submit: ${filename} ${response.data.submission ? response.data.submission : ''}`);
         })
         .catch((error) => {
             console.log('error', error);
