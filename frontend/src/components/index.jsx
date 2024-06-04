@@ -21,3 +21,5 @@ export { default as ObjectPositionPopup } from './Popup/objectPositioningPopup.j
 
 export { default as AnImage } from './AnImage.jsx';
 export { default as ViewMorePopup } from './Popup/viewMorePopup.jsx';
+
+export { default as ObjectDetail } from './ObjectDetail.jsx';
