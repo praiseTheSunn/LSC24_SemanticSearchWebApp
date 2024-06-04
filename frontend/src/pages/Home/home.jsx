@@ -268,7 +268,7 @@ const Home = () => {
                 document.body
             )}
             {similarPopUp && createPortal(
-                <SinglePopup viewImage={similarPopUp.img_link} onClose={() => setSimilarPopUp(null)} />,
+                <SinglePopup viewImage={similarPopUp} onClose={() => setSimilarPopUp(null)} />,
                 document.body
             )    
             }
