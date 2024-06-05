@@ -95,8 +95,6 @@
 
 import './singlePopup.css'
 import closeIcon from '../../assets/close.png'
-import bcn from '../../assets/bcn.png'
-import ImageInList from '../Image/imageInList'
 import { useRef, useEffect, useState, useCallback } from 'react'
 import imageService from '../../services/imageService'
 import { useSelectedImages } from '../../contexts/selectedImageContext'
@@ -159,20 +157,22 @@ const SinglePopup = ({ viewImage, onClose }) => {
     return (
         <div className='single-popup-container'>
             <div className='popup-content-background row'>
-                <div className='single-images-container col w-full pt-3 pb-5 h-[90%]'>
+                <div className='single-images-container col h-full'>
                     <h1>Similar Images</h1>
                     <br />
-                    <div className='single-image-container h-full'>
-                        <div className='left-column max-h-full'>
-                            <div className='img-show'>
-                                <img src={viewImage.img_link} alt='single-popup' className='centered-image' />
+                    <div className='flex h-full'>
+                        <div className='left-column'>
+                            <div className='flex justify-center'>
+                                <div className='object-contain max-h-[400px] w-auto'>
+                                    <AnImage data={viewImage} isDisplayTooltip={false} isZoomOnHover={false} />
+                                </div>
                             </div>
-                            <div className='img-info row'>
+                            <div className='img-info row pl-10 pt-2'>
                                 <ObjectDetail viewImage={viewImage} />
                             </div>
                         </div>
-                        <div className='right-column max-h-full'>
-                            {/* {singlePopupData.length > 0 ? (
+                        <div className='w-[760px] bg-[#d0d0d0] max-h-full'>
+                            {singlePopupData.length > 0 ? (
                                 <AutoSizer>
                                     {({ height, width }) => {
                                         const columnWidth = width / columnCount - 1.5;
@@ -196,8 +196,8 @@ const SinglePopup = ({ viewImage, onClose }) => {
                                 </AutoSizer>
                             ) : (
                                 <div>Loading Similar Images...</div>
-                            )} */}
-                            <div>Loading Similar Images...</div>
+                            )}
+                            {/* <div>Loading Similar Images...</div> */}
                         </div>
 
                     </div>

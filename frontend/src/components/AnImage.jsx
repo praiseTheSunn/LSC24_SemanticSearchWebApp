@@ -2,12 +2,17 @@ import view_icon from '../assets/view_icon.png';
 import React from 'react';
 import { usePopUp } from '../contexts/popUpContext';
 
-const AnImage = ({data, index}) => {
+const AnImage = ({data, index, isDisplayTooltip, isZoomOnHover}) => {
+    isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true;
+    isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true;
+
     const src = data && data.img_link ? data.img_link : null;
     const date = data && data.date ? data.date : null;
     const time = data && data.time ? data.time : null;
     const formattedTime = `${date}  ${time}`;
-    const json_data = JSON.stringify(data);
+    const json_data = isDisplayTooltip ? JSON.stringify(data) : null;
+
+    
 
     const {neighborPopUp, setNeighborPopUp} = usePopUp();
     const {similarPopUp, setSimilarPopUp} = usePopUp();
@@ -15,35 +20,28 @@ const AnImage = ({data, index}) => {
 
     return (
         <div key={index} 
-        className='an-img-container relative w-full h-full hover:z-50 hover:scale-105 overflow-hidden rounded-xl transition-transform duration-300 ease-in-out' 
+        className={`an-img-container relative w-full h-full ${isZoomOnHover ? 'hover:z-50 hover:scale-105 transition-transform duration-300 ease-in-out' : ""}  overflow-hidden rounded-xl`} 
         data-tooltip-id="tooltip_img"
         data-tooltip-content={json_data}
         data-tooltip-variant='dark'
         onDoubleClick={() => {
             setSimilarPopUp(data);
             setNeighborPopUp(null);
-            console.log('double clicked', data, similarPopUp);
-            // setCurrentImage(data);
+            // console.log('double clicked', data, similarPopUp);
         }
         }
         
         >
-            {/* {neighborPopUp && createPortal(
-                <NeighborPopup viewImage={data.img_link} onClose={() => setNeighborPopUp(false)} />,
-                document.body
-            )}
-            {similarPopup && createPortal(
-                <SinglePopup viewImage={imageLink} onClose={() => setSimilarPopUp(false)} />,
-                document.body
-            )    
-            } */}
-            <style>
-                {`.an-img-container:hover .img-action-eye { display: block;}`}
-                {'.an-img-container:hover  .image-item-img { border: 2px solid rgb(0, 47, 255); }'}
-                {/* {'.an-img-container:hover .info-item { transform: scale(1.05);  }'} */}
-                {/* {'an-img-container:hover .image-item-img {  }'} */}
+            {isZoomOnHover && (
+                <style>
+                    {`.an-img-container:hover .img-action-eye { display: block;}`}
+                    {'.an-img-container:hover  .image-item-img { border: 2px solid rgb(0, 47, 255); }'}
+                    {/* {'.an-img-container:hover .info-item { transform: scale(1.05);  }'} */}
+                    {/* {'an-img-container:hover .image-item-img {  }'} */}
 
-            </style>
+                </style>
+            )}
+            
             <div className='info-item text-xs text-white bg-black opacity-60 absolute top-0 left-0 py-1'>{formattedTime}</div>
             <img
                 src={src}
