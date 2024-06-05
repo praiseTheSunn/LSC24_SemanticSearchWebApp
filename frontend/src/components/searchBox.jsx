@@ -163,7 +163,7 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                     }}
                     value={textareaValue}
                     onChange={handleTextareaChange}
-                   
+                    autoComplete='on'
                     placeholder="Search here then Enter..."
                     className='search-textarea'
                     rows={2}
