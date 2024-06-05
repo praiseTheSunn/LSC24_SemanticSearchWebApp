@@ -91,10 +91,11 @@ const GeomanControl = ({data, setData, dataSrc}) => {
       const marker = L.marker([clusterLat, clusterLng], { icon: defaultIcon });
   
       // Construct scrollable popup content
-    const clusterPopupContent = `<div style="width: 200px; max-height: 200px; overflow-y: auto;">` +
-    cluster.map(d => `<img src='${d.img_link}' max-width='300px' height='500px' />`).join('<br/>') +
-    `</div>`;
+      const clusterPopupContent = `<div style="width: 200px; max-height: 200px; overflow-y: auto;">` +
+      `<img src='${cluster[0].img_link}' max-width='300px' height='500px' />` +
+      `</div>`;
       marker.bindPopup(clusterPopupContent);
+  
   
       marker.on('mouseover', function (e) {
         this.openPopup();
@@ -103,18 +104,19 @@ const GeomanControl = ({data, setData, dataSrc}) => {
       marker.on('click', function (e) {
         // Retrieve data associated with the clicked marker
         const clickedMarkerData = clusters[clusterKey];
+        setData(clickedMarkerData);
         console.log("clickedMarkerData", clickedMarkerData);
-        console.log("prevClickItem", prevClickItem)
-        if (JSON.stringify(prevClickItem) === JSON.stringify(clickedMarkerData)) {
-          console.log("clicked same marker");
-          setData(dataSrc);
-          setPrevClickItem(null);
-          return;
-        }
-        else {
-          console.log("clicked different marker");
-        }
-        setPrevClickItem(clickedMarkerData);
+        // console.log("prevClickItem", prevClickItem)
+        // if (JSON.stringify(prevClickItem) === JSON.stringify(clickedMarkerData)) {
+        //   console.log("clicked same marker");
+        //   setData(dataSrc);
+        //   setPrevClickItem(null);
+        //   return;
+        // }
+        // else {
+        //   console.log("clicked different marker");
+        // }
+        // setPrevClickItem(clickedMarkerData);
       });
   
       marker.addTo(map);
@@ -124,12 +126,12 @@ const GeomanControl = ({data, setData, dataSrc}) => {
   
   }, [data]);
   
-  useEffect(() => {
-    if (prevClickItem === null) {
-      return;
-    }
-    setData(prevClickItem)
-  }, [prevClickItem]);
+  // useEffect(() => {
+  //   if (prevClickItem === null) {
+  //     return;
+  //   }
+  //   setData(prevClickItem)
+  // }, [prevClickItem]);
 
   // process bounding box events
   map.on('pm:create', (e) => {  
@@ -153,6 +155,10 @@ const GeomanControl = ({data, setData, dataSrc}) => {
     }
     setData(newData);
 
+  });
+
+  map.on('click', function(e) {        
+    setData(dataSrc);
   });
 
   map.on('pm:remove', (e) => {
