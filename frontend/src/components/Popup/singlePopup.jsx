@@ -19,14 +19,14 @@
 //     const containerRef = useRef(null);
 
 //     //Fetch the similar images when the viewImage.path changes
-    
+
 //     useEffect(() => {
-        
+
 //     }, [similarImages]);
 
 //     const { selectedImages, addSelectedImage, removeSelectedImage } = useSelectedImages();
 
-    
+
 
 //     const handleImageClick = (imageUrl, m_img) => {
 //         const fileName = imageUrl.split('\\').pop();
@@ -62,7 +62,7 @@
 //                         </div>
 //                         <img src={viewImage.image} alt='single-popup'/>
 //                     </div>
-                    
+
 //                     <div className='button-container'>
 //                         <button className='btn btn-primary' onClick={() => {setNeighborPopUp(true)}}>Neighbors</button>
 //                         <button style={{backgroundColor : viewImage.status === 1 ? 'red' :''}} className='btn btn-success' onClick={() => handleSelectClick()}>{viewImage.status === 1 ? 'Unselct' :'Select'}</button>
@@ -80,12 +80,12 @@
 //                             })}
 //                         </div>
 //                     </div>
-                    
+
 //                 </div>
 //                 <div className='close-button-container'>
 //                     <img src={closeIcon} className='close-popup-button' onClick={() => setSimilarPopUp(false)}/>
 //                 </div>
-                
+
 //             </div>
 //         </div>
 //     );
@@ -102,7 +102,7 @@ import imageService from '../../services/imageService'
 import { useSelectedImages } from '../../contexts/selectedImageContext'
 import { FixedSizeGrid as Grid } from 'react-window';
 import AutoSizer from 'react-virtualized-auto-sizer';
-import { AnImage } from '../../components';
+import { AnImage, ObjectDetail } from '../../components';
 
 const SinglePopup = ({ viewImage, onClose }) => {
     const [singlePopupData, setsinglePopupData] = useState([]);
@@ -125,7 +125,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
     }, []);
 
     useEffect(() => {
-        const imageList = [viewImage];
+        const imageList = [viewImage.img_link];
         fetchSimilars(imageList);
     }, [viewImage, fetchSimilars]);
 
@@ -136,7 +136,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
 
         const { img_link, date, time } = data;
         const formattedTime = `${date} ${time}`;
-        const isHighlighted = img_link === viewImage;
+        const isHighlighted = img_link === viewImage.img_link;
 
         return (
             <div style={style} className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
@@ -164,10 +164,15 @@ const SinglePopup = ({ viewImage, onClose }) => {
                     <br />
                     <div className='single-image-container h-full'>
                         <div className='left-column max-h-full'>
-                            <img src={viewImage} alt='single-popup' className='centered-image'/>
+                            <div className='img-show'>
+                                <img src={viewImage.img_link} alt='single-popup' className='centered-image' />
+                            </div>
+                            <div className='img-info row'>
+                                <ObjectDetail viewImage={viewImage} />
+                            </div>
                         </div>
                         <div className='right-column max-h-full'>
-                            {singlePopupData.length > 0 ? (
+                            {/* {singlePopupData.length > 0 ? (
                                 <AutoSizer>
                                     {({ height, width }) => {
                                         const columnWidth = width / columnCount - 1.5;
@@ -191,7 +196,8 @@ const SinglePopup = ({ viewImage, onClose }) => {
                                 </AutoSizer>
                             ) : (
                                 <div>Loading Similar Images...</div>
-                            )}
+                            )} */}
+                            <div>Loading Similar Images...</div>
                         </div>
 
                     </div>
