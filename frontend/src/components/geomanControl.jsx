@@ -3,12 +3,9 @@ import { useEffect, useState } from "react";
 import { useMap } from "react-leaflet";
 import * as turf from '@turf/turf'
 import * as L from "leaflet";
-// import 'leaflet.markercluster';
-
 
 const GeomanControl = ({data, setData, dataSrc}) => {
   const map = useMap();
-  const [isClicked, setIsClicked] = useState(false);
   const [prevClickItem, setPrevClickItem] = useState(null);
 
   // default icon
@@ -30,15 +27,6 @@ const GeomanControl = ({data, setData, dataSrc}) => {
     drawCircle: false,
     drawCircleMarker: false,
   }); 
-
-  function getImageUrl(filename) {
-    const baseUrl = "http://34.124.236.208/img_lsc/";
-    const date = filename.slice(0, 8);  // Extract the date from the filename
-    const year = date.slice(0, 4);
-    const month = date.slice(4, 6);
-    const day = date.slice(6, 8);
-    return `${baseUrl}${year}${month}/${day}/${filename}.webp`;
-  }
 
   useEffect(() => {
         // Calculate the median of the markers' positions
@@ -111,26 +99,23 @@ const GeomanControl = ({data, setData, dataSrc}) => {
       marker.on('mouseover', function (e) {
         this.openPopup();
       });
-  
-      // marker.on('mouseout', function (e) {
-      //   this.closePopup();
-      // });
 
       marker.on('click', function (e) {
         // Retrieve data associated with the clicked marker
         const clickedMarkerData = clusters[clusterKey];
-        setPrevClickItem(clusterKey);
         console.log("clickedMarkerData", clickedMarkerData);
-        // Do something with the data, for example, update state
-        setIsClicked(!isClicked);
-        setData(!isClicked ? dataSrc : clickedMarkerData);
-        
+        console.log("prevClickItem", prevClickItem)
+        if (JSON.stringify(prevClickItem) === JSON.stringify(clickedMarkerData)) {
+          console.log("clicked same marker");
+          setData(dataSrc);
+          setPrevClickItem(null);
+          return;
+        }
+        else {
+          console.log("clicked different marker");
+        }
+        setPrevClickItem(clickedMarkerData);
       });
-
-      marker.getPopup().on('remove', function() {
-        //Your code here
-        // setData(dataSrc);
-    });
   
       marker.addTo(map);
     }
@@ -139,6 +124,12 @@ const GeomanControl = ({data, setData, dataSrc}) => {
   
   }, [data]);
   
+  useEffect(() => {
+    if (prevClickItem === null) {
+      return;
+    }
+    setData(prevClickItem)
+  }, [prevClickItem]);
 
   // process bounding box events
   map.on('pm:create', (e) => {  
@@ -167,8 +158,6 @@ const GeomanControl = ({data, setData, dataSrc}) => {
   map.on('pm:remove', (e) => {
     setData(dataSrc);;
   });
-
-
 
   return null;
 };
