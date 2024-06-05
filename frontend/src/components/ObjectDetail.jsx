@@ -1,8 +1,9 @@
 import React from 'react';
 
-const ObjectDetail = ({ viewImage }) => {
+const ObjectDetail = ({ viewImage, className }) => {
+  className = className || '';
   return (
-    <div>
+    <div className={className}>
       <div><strong>Activity: </strong>{viewImage.activity}</div>
       <div><strong>Caption: </strong>{viewImage.caption}</div>
       <div><strong>Date: </strong>{viewImage.date}</div>

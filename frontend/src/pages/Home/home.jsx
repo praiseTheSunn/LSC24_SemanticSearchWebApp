@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { usePopUp } from '../../contexts/popUpContext';
 import LoadingPopup from '../../components/Popup/loadingPopup';
-import { SearchBox } from '../../components';
+import { ObjectDetail, SearchBox } from '../../components';
 import { TrapoziedBgGray2, TrapoziedBgGray3, TrapoziedBgGrayLeft, SimilarityIcon, SimilarityIconActive, TimelineIcon, TimelineIconActive, LocationIcon, LocationIconActive } from '../../assets';
 import TimelineTab from '../../containers/timeline/timelineTab';
 import ImageGrid from '../../containers/similarity/image-grid';
@@ -244,22 +244,7 @@ const Home = () => {
                     // console.log('tooltipData', tooltipData);
                     return(
                         (tooltipData && (
-                            <div className="w-full h-full p-2" >
-                                <p><strong>Activity:</strong> {tooltipData.activity}</p>
-                                {/* <p><strong>Activity ID:</strong> {tooltipData.activity_id}</p> */}
-                                <p><strong>Caption:</strong> {tooltipData.caption}</p>
-                                <p><strong>Date:</strong> {tooltipData.date}</p>
-                                <p><strong>Time:</strong> {tooltipData.time}</p>
-                                <p><strong>Day of Week:</strong> {tooltipData.day_of_week}</p>
-                                {/* <p><strong>Event ID:</strong> {tooltipData.event_id}</p> */}
-                                <p><strong>Location:</strong> {tooltipData.location_displayed}</p>
-                                {/* <p><strong>Location ID:</strong> {tooltipData.location_id}</p> */}
-                                {/* <p><strong>Latitude:</strong> {tooltipData.new_lat}</p>
-                                <p><strong>Longitude:</strong> {tooltipData.new_lng}</p> */}
-                                <p style={{wordBreak: "break-word", maxWidth:"500px"}}><strong>Object Tags:</strong> {tooltipData.object_tags}</p>
-                                <p style={{wordBreak: "break-word", maxWidth:"500px"}}><strong>OCR:</strong> {tooltipData.ocr}</p>
-                                <p><strong>Score:</strong> {tooltipData.score}</p>
-                            </div>
+                            <ObjectDetail viewImage={tooltipData} className={'w-full h-full p-2'} />
                          ))
                     )
                 }}
