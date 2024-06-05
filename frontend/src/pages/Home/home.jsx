@@ -44,6 +44,7 @@ const Mode = [
 
 
 const Home = () => {
+    const sesId = localStorage.getItem('session');
     const { evaluationId } = useContext(EvaluationContext);
     // console.log('selectedFilters in home', selectedFilters);
 
@@ -117,7 +118,7 @@ const Home = () => {
     }, [displayedImages]);
 
     const submit = (src) => {
-        var sesId = localStorage.getItem('session');
+        
         var evalId = evaluationId;
 
         // Parse the filename from the file path
@@ -144,6 +145,32 @@ const Home = () => {
             if (e.key === 'Control') {
                 setIsCtrlPressed(true);
             }
+            if (e.altKey) {
+                switch (e.key) {
+                    case '1':
+                        setSelectedTabIndex(0);
+                        e.preventDefault();
+                        break;
+                    case '2':
+                        setSelectedTabIndex(1);
+                        e.preventDefault();
+                        break;
+                    case '3':
+                        setSelectedTabIndex(2);
+                        e.preventDefault();
+                        break;
+                    case '4':
+                        setSelectedTabIndex(3);
+                        e.preventDefault();
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (e.key === 'Escape') {
+                setNeighborPopUp(false);
+                setSimilarPopUp(false);
+            }
         };
 
         const handleKeyUp = (e) => {
@@ -158,6 +185,7 @@ const Home = () => {
                 submit(src);
             }
         };
+        // console.log('isCtrlPressed', isCtrlPressed);
 
         document.addEventListener('keydown', handleKeyDown);
         document.addEventListener('keyup', handleKeyUp);
@@ -168,36 +196,7 @@ const Home = () => {
             document.removeEventListener('keyup', handleKeyUp);
             document.removeEventListener('click', handleClick);
         };
-    }, [isCtrlPressed]);
-
-    const ImageGridMemo = React.memo(ImageGrid);
-
-    window.document.addEventListener('keydown', function(event) {
-        if (event.altKey) {
-            switch (event.key) {
-                case '1':
-                    setSelectedTabIndex(0);
-                    event.preventDefault(); // Prevent default action (if needed)
-                    break;
-                case '2':
-                    setSelectedTabIndex(1);
-                    event.preventDefault(); // Prevent default action (if needed)
-                    break;
-                case '3':
-                    setSelectedTabIndex(2);
-                    event.preventDefault(); // Prevent default action (if needed)
-                    break;
-                case '4':
-                    setSelectedTabIndex(3);
-                    event.preventDefault(); // Prevent default action (if needed)
-                    break;
-            }
-        }
-        else if (event.key === 'Escape') {
-            setNeighborPopUp(false);
-            setSimilarPopUp(false);
-        }
-    });
+    }, [isCtrlPressed, setNeighborPopUp, setSimilarPopUp]);
 
     useEffect(() => {
         if (query !== '') {
@@ -228,7 +227,7 @@ const Home = () => {
             });
         }
     }, [submitText]);
-
+    console.log('result');
 
     return (
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
@@ -253,13 +252,10 @@ const Home = () => {
                     )
                 }}
             />
-                        {neighborPopUp && createPortal(
-                <NeighborPopup viewImage={neighborPopUp.img_link} onClose={() => setNeighborPopUp(null)} />,
-                document.body
+                {neighborPopUp && (<NeighborPopup viewImage={neighborPopUp.img_link} onClose={() => setNeighborPopUp(null)} />
             )}
-            {similarPopUp && createPortal(
-                <SinglePopup viewImage={similarPopUp} onClose={() => setSimilarPopUp(null)} />,
-                document.body
+            {similarPopUp && (
+                <SinglePopup viewImage={similarPopUp} onClose={() => setSimilarPopUp(null)} />
             )    
             }
             <SearchBox
@@ -324,7 +320,7 @@ const Home = () => {
                         </div>
                         {selectedModeIndex === 0 && (
                             <div className="flex flex-row h-full overflow-y-auto" style={{ marginTop: "2px", width: "calc(100dvw - 10px)" }}>
-                                <ImageGridMemo simData={result} />
+                                <ImageGrid simData={result} />
                             </div>
 
                         )}
