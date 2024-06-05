@@ -8,6 +8,8 @@ import * as L from "leaflet";
 
 const GeomanControl = ({data, setData, dataSrc}) => {
   const map = useMap();
+  const [isClicked, setIsClicked] = useState(false);
+  const [prevClickItem, setPrevClickItem] = useState(null);
 
   // default icon
   const defaultIcon = L.icon({
@@ -117,14 +119,17 @@ const GeomanControl = ({data, setData, dataSrc}) => {
       marker.on('click', function (e) {
         // Retrieve data associated with the clicked marker
         const clickedMarkerData = clusters[clusterKey];
+        setPrevClickItem(clusterKey);
         console.log("clickedMarkerData", clickedMarkerData);
         // Do something with the data, for example, update state
-        setData(clickedMarkerData);
+        setIsClicked(!isClicked);
+        setData(!isClicked ? dataSrc : clickedMarkerData);
+        
       });
 
       marker.getPopup().on('remove', function() {
         //Your code here
-        setData(dataSrc);
+        // setData(dataSrc);
     });
   
       marker.addTo(map);
