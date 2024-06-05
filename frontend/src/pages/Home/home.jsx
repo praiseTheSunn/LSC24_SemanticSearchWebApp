@@ -193,6 +193,10 @@ const Home = () => {
                     break;
             }
         }
+        else if (event.key === 'Escape') {
+            setNeighborPopUp(false);
+            setSimilarPopUp(false);
+        }
     });
 
     useEffect(() => {

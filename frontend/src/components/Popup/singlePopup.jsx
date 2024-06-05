@@ -76,7 +76,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
                             </div>
                         </div>
                         <div className='w-[60%] bg-[#d0d0d0] max-h-full'>
-                            {singlePopupData.length > 0 ? (
+                            {singlePopupData && singlePopupData.length > 0 ? (
                                 <AutoSizer>
                                     {({ height, width }) => {
                                         const columnWidth = width / columnCount - 1.5;
@@ -99,6 +99,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
                                     }}
                                 </AutoSizer>
                             ) : (
+                                singlePopupData == null ? (<div>No Similar Images Found</div>) :
                                 <div>Loading Similar Images...</div>
                             )}
                             {/* <div>Loading Similar Images...</div> */}
