@@ -1,4 +1,4 @@
-.single-popup-container{
+.single-popup-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -12,7 +12,7 @@
     z-index: 10000;
 }
 
-.single-popup-container .popup-content-background{
+.single-popup-container .popup-content-background {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -24,7 +24,7 @@
     position: fixed;
 }
 
-.single-popup-container .close-button-container{
+.single-popup-container .close-button-container {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -40,7 +40,7 @@
     z-index: 10000;
 }
 
-.single-popup-container .close-popup-button{
+.single-popup-container .close-popup-button {
     cursor: pointer;
     position: relative;
     height: 100%;
@@ -48,7 +48,7 @@
     z-index: 1000;
 }
 
-.single-popup-container .single-popup-image-container{
+.single-popup-container .single-popup-image-container {
     height: 90%;
     display: flex;
     flex-direction: column;
@@ -84,7 +84,7 @@
     margin-left: 50px;
 } */
 
-.single-popup-container .similar-image-container{
+.single-popup-container .similar-image-container {
     max-height: 90%;
     width: 65%;
     flex-grow: 0;
@@ -94,13 +94,13 @@
 }
 
 .single-popup-container .similar-image-container .similar-images-container h4 {
-    font-family:  Tahoma;
+    font-family: Tahoma;
     font-weight: 700;
     text-align: center;
     max-height: 600px;
 }
 
-.single-popup-container .similar-images-list-wrapper{
+.single-popup-container .similar-images-list-wrapper {
     max-height: 550px;
     width: 100%;
     overflow-y: auto;
@@ -108,14 +108,14 @@
     position: relative;
 }
 
-.single-popup-container .similar-image{
+.single-popup-container .similar-image {
     object-fit: contain;
     height: 100%;
     width: 100%;
 }
 
 
-.single-popup-container .similar-images-list{
+.single-popup-container .similar-images-list {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
     grid-gap: 0px;
@@ -123,21 +123,21 @@
     overflow-y: auto;
 }
 
-.single-popup-container .img-container{
+.single-popup-container .img-container {
     padding: 3px;
     border-radius: 5px;
 }
 
-.single-popup-container .similar-img-wrapper{
+.single-popup-container .similar-img-wrapper {
     border-radius: 5px;
     overflow: hidden;
 }
 
-.single-popup-container .img-container:hover{
+.single-popup-container .img-container:hover {
     background-color: #000dc1;
 }
 
-.single-popup-container .single-images-container{
+.single-popup-container .single-images-container {
     /* max-height: 90%; */
     width: 100%;
     flex-grow: 0;
@@ -146,37 +146,69 @@
     overflow-y: hidden;
 }
 
-.single-image-container{
+.single-image-container {
     display: flex;
-    
+
 }
+
 
 .left-column {
     flex: 1;
-    background-color: #f0f0f0; /* Light grey background */
+    /* grid-template-rows: 1fr 1fr; */
+    flex-direction: column;
+    background-color: #f0f0f0;
+    overflow-y: auto;
+    /* Light grey background */
 }
 
-.left-column .image-container {
+/* .left-column .image-container {
     display: flex;
+    flex: 1;
     justify-content: center;
     align-items: center;
-    height: 100vh; /* Full height of the viewport */
-    width: 100%; /* Full width of the container */
-    background-color: #f0f0f0; /* Optional: background color for visibility */
-}
+    height: 100vh; 
+    width: 100%;
+    background-color: #f0f0f0;
+} */
 
 .centered-image {
-    max-width: 100%;
+    width: 100%;
     max-height: 100%;
+    object-fit: contain;
+    display: flex;
+}
+
+.img-show{
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: center;
+}
+
+.img-info {
+    display: flex;
+    position: relative;
+    flex: 1;
+    top: 0;
+    left: 0;
+    /* text-align: center; */
+    padding: 10px;
+    background-color: #f0f0f0;
+    overflow-y: scroll;
+}
+
+.row {
+    --bs-gutter-x: 0rem;
 }
 
 .right-column {
     flex: 2;
-    background-color: #d0d0d0; /* Slightly darker grey background */
+    background-color: #d0d0d0;
+    /* Slightly darker grey background */
 }
 
-.single-popup-container .single-images-container h1{
-    font-family:  Tahoma;
+.single-popup-container .single-images-container h1 {
+    font-family: Tahoma;
     font-weight: 700;
     text-align: center;
     max-height: 600px;
@@ -186,8 +218,10 @@
     margin-left: 2.5%;
     width: 100%;
     display: grid;
-    grid-template-columns: repeat(7, 1fr); /* 7 cột với chiều rộng bằng nhau */
-    grid-gap: 10px; /* Khoảng cách giữa các hình ảnh */
+    grid-template-columns: repeat(7, 1fr);
+    /* 7 cột với chiều rộng bằng nhau */
+    grid-gap: 10px;
+    /* Khoảng cách giữa các hình ảnh */
     overflow-y: auto;
     height: 400px;
     position: relative;
@@ -205,27 +239,39 @@
     top: 0;
     left: 0;
     font-size: 12px;
-    background-color: rgba(0, 0, 0, 0.5); /* Màu nền với độ trong suốt */
-    color: white; /* Màu chữ */
-    padding: 5px; /* Khoảng cách từ lề */
-    z-index: 1; /* Đảm bảo overlay hiển thị phía trên hình ảnh */
-    border-top-left-radius: 10px; /* Bo tròn viền overlay */
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Màu nền với độ trong suốt */
+    color: white;
+    /* Màu chữ */
+    padding: 5px;
+    /* Khoảng cách từ lề */
+    z-index: 1;
+    /* Đảm bảo overlay hiển thị phía trên hình ảnh */
+    border-top-left-radius: 10px;
+    /* Bo tròn viền overlay */
 }
 
 .image-item-neighbor {
-    width: 100%; /* Chiều rộng hình ảnh sẽ chiếm toàn bộ ô của grid */
-    height: auto; /* Đảm bảo tỷ lệ hình ảnh không bị méo */
+    width: 100%;
+    /* Chiều rộng hình ảnh sẽ chiếm toàn bộ ô của grid */
+    height: auto;
+    /* Đảm bảo tỷ lệ hình ảnh không bị méo */
     /* object-fit: cover; Đảm bảo hình ảnh không bị biến dạng khi thay đổi kích thước */
-    border-radius: 7px; /* Bo tròn viền hình ảnh */
+    border-radius: 7px;
+    /* Bo tròn viền hình ảnh */
     cursor: pointer;
-    object-fit: contain; /* Ensure the image scales to fit within the container */
-    max-height: 100%; /* Ensure the image does not exceed the container height */
+    object-fit: contain;
+    /* Ensure the image scales to fit within the container */
+    max-height: 100%;
+    /* Ensure the image does not exceed the container height */
 }
 
 .image-item-neighbor:hover {
-    transform: scale(1.05); /* Phóng to hình ảnh khi hover */
-    border: 2px solid rgb(0, 47, 255); /* Hiển thị khung hình ảnh in đậm khi hover */
-    
+    transform: scale(1.05);
+    /* Phóng to hình ảnh khi hover */
+    border: 2px solid rgb(0, 47, 255);
+    /* Hiển thị khung hình ảnh in đậm khi hover */
+
 }
 
 /* .image-wrapper-neighbor.highlighted {
@@ -234,14 +280,19 @@
 } */
 
 .image-wrapper-neighbor.highlighted {
-    border: 3px solid #ffcc00; /* Highlight border */
-    box-shadow: 0 0 10px rgba(255, 204, 0, 0.8); /* Highlight shadow */
-    transform: scale(1.05); /* Slightly enlarge */
-    transition: transform 0.3s, box-shadow 0.3s, border 0.3s; /* Smooth transition */
+    border: 3px solid #ffcc00;
+    /* Highlight border */
+    box-shadow: 0 0 10px rgba(255, 204, 0, 0.8);
+    /* Highlight shadow */
+    transform: scale(1.05);
+    /* Slightly enlarge */
+    transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
+    /* Smooth transition */
 }
 
 .image-wrapper-neighbor.highlight {
-    border: 2px solid #FFD700;  /* Màu vàng để làm nổi bật */
+    border: 2px solid #FFD700;
+    /* Màu vàng để làm nổi bật */
     box-shadow: 0 0 10px #FFD700;
 }
 
