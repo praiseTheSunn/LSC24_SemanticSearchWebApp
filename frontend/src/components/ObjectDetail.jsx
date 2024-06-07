@@ -12,6 +12,7 @@ const ObjectDetail = ({ viewImage, className }) => {
       <div><strong>Location: </strong>{viewImage.location_displayed}</div>
       <div><strong>Object tags: </strong>{viewImage.object_tags}</div>
       <div><strong>OCR: </strong>{viewImage.ocr}</div>
+      <div>Location: {viewImage.location}</div>
     </div>
   );
 };
