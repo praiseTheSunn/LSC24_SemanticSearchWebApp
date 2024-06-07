@@ -143,6 +143,16 @@ const Home = () => {
         evalService.submitFile(evalId, sesId, filename).then((response) => {
             console.log('response', response);
             toast.success(`Submit: ${filename} ${response.data.submission ? response.data.submission : ''}`);
+            if (response?.data?.submission && response?.data?.submission === "CORRECT"){
+                evalService.submitFile(evalId, localStorage.getItem("sessionCentral"), filename).then((response) => {
+                    console.log('response', response);
+                    toast.success(`Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}`);
+                })
+                .catch((error) => {
+                    console.log('error', error);
+                    toast.error(`ERROR FOR CENTRAL: ${filename + ': ' + error}`);
+                });
+            }
         })
         .catch((error) => {
             console.log('error', error);
