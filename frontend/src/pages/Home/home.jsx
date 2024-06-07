@@ -86,11 +86,23 @@ const Home = () => {
         console.log('searchTerms', searchTerms);
         if (searchTerms.length > 0 && cacheResult.length > 0) {
             let fuseResults = cacheResult;
+            console.log('fuseResults', fuseResults.length, fuseResults);
 
             searchTerms.forEach((term) => {
                 if (term.value !== '') {
-                    const fuse = new Fuse(fuseResults, { keys: [term.category], threshold: 0.3 });
+                    console.log('term', term.category, term.value);
+                    const fuse = new Fuse(fuseResults, { keys: [term.category], includeScore: true, threshold: 0.6, distance: 10000});
                     fuseResults = fuse.search(term.value).map((result) => {
+                        // console.log('result', result.score, result.item.score, result.item.date, result.matches);
+                        // // Print character at each index of the matches
+                        // result.matches.forEach((match) => {
+                        //     console.log('match', match);
+                        //     console.log('match.indices', match.indices);
+                        //     match.indices.forEach((index) => {
+                        //         console.log('index', index);
+                        //         console.log('char', result.item[term.category][index[0]]);
+                        //     });
+                        // });
                         return { ...result.item, score: result.score };
                     });
                 }
