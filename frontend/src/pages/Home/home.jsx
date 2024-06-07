@@ -83,14 +83,14 @@ const Home = () => {
     };
 
     useEffect(() => {
-        console.log('searchTerms', searchTerms);
+        // console.log('searchTerms', searchTerms);
         if (searchTerms.length > 0 && cacheResult.length > 0) {
             let fuseResults = cacheResult;
             console.log('fuseResults', fuseResults.length, fuseResults);
 
             searchTerms.forEach((term) => {
                 if (term.value !== '') {
-                    console.log('term', term.category, term.value);
+                    // console.log('term', term.category, term.value);
                     const fuse = new Fuse(fuseResults, { keys: [term.category], includeScore: true, threshold: 0.6, distance: 10000});
                     fuseResults = fuse.search(term.value).map((result) => {
                         // console.log('result', result.score, result.item.score, result.item.date, result.matches);
