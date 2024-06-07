@@ -100,6 +100,12 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
                 setDisplayedFilters(previousState => [...previousState, filter]);
                 handleFilterChange('activity', value);
             }
+            else if (input.startsWith('-dow ')) {
+                const value = input.substring(5);
+                const filter = { category: 'day_of_week', value, status: 1 };
+                setDisplayedFilters(previousState => [...previousState, filter]);
+                handleFilterChange('day_of_week', value);
+            }            
             else if (input.startsWith('-text ')) {
                 const value = input.substring(6);
                 const filter = { category: 'SUBMIT TEXT', value, status: 1 };

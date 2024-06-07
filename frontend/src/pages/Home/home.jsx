@@ -83,14 +83,14 @@ const Home = () => {
     };
 
     useEffect(() => {
-        console.log('searchTerms', searchTerms);
+        // console.log('searchTerms', searchTerms);
         if (searchTerms.length > 0 && cacheResult.length > 0) {
             let fuseResults = cacheResult;
             console.log('fuseResults', fuseResults.length, fuseResults);
 
             searchTerms.forEach((term) => {
                 if (term.value !== '') {
-                    console.log('term', term.category, term.value);
+                    // console.log('term', term.category, term.value);
                     const fuse = new Fuse(fuseResults, { keys: [term.category], includeScore: true, threshold: 0.6, distance: 10000});
                     fuseResults = fuse.search(term.value).map((result) => {
                         // console.log('result', result.score, result.item.score, result.item.date, result.matches);
@@ -143,6 +143,16 @@ const Home = () => {
         evalService.submitFile(evalId, sesId, filename).then((response) => {
             console.log('response', response);
             toast.success(`Submit: ${filename} ${response.data.submission ? response.data.submission : ''}`);
+            if (response?.data?.submission && response?.data?.submission === "CORRECT"){
+                evalService.submitFile(evalId, localStorage.getItem("sessionCentral"), filename).then((response) => {
+                    console.log('response', response);
+                    toast.success(`Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}`);
+                })
+                .catch((error) => {
+                    console.log('error', error);
+                    toast.error(`ERROR FOR CENTRAL: ${filename + ': ' + error}`);
+                });
+            }
         })
         .catch((error) => {
             console.log('error', error);
@@ -243,7 +253,7 @@ const Home = () => {
 
     return (
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
-            <ToastContainer style={{zIndex: "99999999"}}/>
+            <ToastContainer style={{zIndex: "99999999"}} autoClose={2000}/>
             {loadingPopUp && <LoadingPopup />}
 
             <Tooltip id='tooltip_img'  
