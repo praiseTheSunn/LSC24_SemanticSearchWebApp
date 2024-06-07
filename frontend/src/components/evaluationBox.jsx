@@ -40,6 +40,14 @@ const EvaluationBox = () => {
         localStorage.setItem('password', password);
         setLoginState("Logout");
         toast.success('Login successful');
+        evalService.login("lscteam051", "DWGg6wVM6PKMHVh").then((response) => {
+          console.log('response', response);
+          localStorage.setItem('sessionCentral', response.data.sessionId);
+          toast.success('Login CENTRAL successful');
+        }).catch((error) => {
+          console.log('error logging', error);
+          toast.error('Login CENTRAL failed');
+        });
     }).catch((error) => {
         console.log('error logging', error);
         toast.error('Login failed');
