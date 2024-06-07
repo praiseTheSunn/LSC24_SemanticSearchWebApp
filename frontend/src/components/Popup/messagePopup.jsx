@@ -69,6 +69,7 @@ const messagePopup = ({displayedFilters, setDisplayedFilters, setDisplayedImages
                         -ocr ... : OCR text<br/>
                         -obj ... : Object Detection<br/>
                         -text ... : Submit text<br/>
+                        -dow ... : Day of week<br/>
                     </div>
                 </div>
             </div>
