@@ -253,7 +253,7 @@ const Home = () => {
 
     return (
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
-            <ToastContainer style={{zIndex: "99999999"}}/>
+            <ToastContainer style={{zIndex: "99999999"}} autoClose={2000}/>
             {loadingPopUp && <LoadingPopup />}
 
             <Tooltip id='tooltip_img'  
