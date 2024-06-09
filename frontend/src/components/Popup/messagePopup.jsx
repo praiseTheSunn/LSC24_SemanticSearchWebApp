@@ -65,11 +65,12 @@ const messagePopup = ({displayedFilters, setDisplayedFilters, setDisplayedImages
                         -lo ... : location<br/>
                         -t ... : time<br/>
                         -d ... : date<br/>
+                        -dow ... : Day of week<br/>
                         -act ... : activity<br/>
                         -ocr ... : OCR text<br/>
                         -obj ... : Object Detection<br/>
                         -text ... : Submit text<br/>
-                        -dow ... : Day of week<br/>
+                        -file ... : Submit file name<br/>
                     </div>
                 </div>
             </div>
