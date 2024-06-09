@@ -7,8 +7,10 @@ import Dropdown from './dropDown';
 import { usePopUp } from '../contexts/popUpContext';
 import EvaluationBox from './evaluationBox';
 import ToggableComponent from './toggleEvaluationBox';
+import { toast } from 'react-toastify';
+import evalService from '../services/evalService';
 
-const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult, setSearchTerms, setSubmitText}) => {
+const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, setModel, setMode, handleFilterChange, setCacheResult, setSearchTerms, setSubmitText, setSubmitFilename}) => {
     const [textareaValue, setTextareaValue] = useState('');
     const [textareaHeight, setTextareaHeight] = useState('60px');
     const { setDisplayedImages} = useSelectedImages();
@@ -114,7 +116,13 @@ const SearchBox = ({displayedFilters, setDisplayedFilters, setQuery, setResult, 
             }
             else if (input === '-c') {
                 // Handle special case
-            }      
+            }    
+            else if (input.startsWith('-file ')){
+                const filename = input.substring(6);
+                const filter = { category: 'file', value: filename, status: 1 };
+                setDisplayedFilters(previousState => [...previousState, filter]);
+                setSubmitFilename(filename);
+            }
             else{
                 const value = input;
                 const filter = { category: 'query', value, status: 1 };
