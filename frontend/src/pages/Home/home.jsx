@@ -259,6 +259,7 @@ const Home = () => {
                 positionStrategy='fixed'
                 // anchorSelect='.tooltip-display'
                 place='bottom'
+                // clickable={true}
                 // position={{x: 0, y: 0}}
                 position={{x: windowWidth, y: 0}}
                 render={(content) => {
