@@ -66,6 +66,7 @@ const Home = () => {
     const [cacheResult, setCacheResult] = useState([]);
     const [searchTerms, setSearchTerms] = useState([]);
     const [submitText, setSubmitText] = useState('');
+    const [submitFilename, setSubmitFilename] = useState('');
     // const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
     
     const {neighborPopUp, setNeighborPopUp} = usePopUp();
@@ -93,16 +94,6 @@ const Home = () => {
                     // console.log('term', term.category, term.value);
                     const fuse = new Fuse(fuseResults, { keys: [term.category], includeScore: true, threshold: 0.6, distance: 10000});
                     fuseResults = fuse.search(term.value).map((result) => {
-                        // console.log('result', result.score, result.item.score, result.item.date, result.matches);
-                        // // Print character at each index of the matches
-                        // result.matches.forEach((match) => {
-                        //     console.log('match', match);
-                        //     console.log('match.indices', match.indices);
-                        //     match.indices.forEach((index) => {
-                        //         console.log('index', index);
-                        //         console.log('char', result.item[term.category][index[0]]);
-                        //     });
-                        // });
                         return { ...result.item, score: result.score };
                     });
                 }
@@ -130,7 +121,6 @@ const Home = () => {
     }, [displayedImages]);
 
     const submit = (src) => {
-        
         var evalId = evaluationId;
 
         // Parse the filename from the file path
@@ -249,6 +239,14 @@ const Home = () => {
             });
         }
     }, [submitText]);
+
+    useEffect(() => {
+        if (submitFilename !== '') {
+            submit(submitFilename);
+            setSubmitFilename('');
+        }
+    }, [submitFilename]);
+
     console.log('result');
 
     return (
@@ -291,6 +289,7 @@ const Home = () => {
                 setSearchTerms={setSearchTerms}
                 setCacheResult={setCacheResult}
                 setSubmitText={setSubmitText}
+                setSubmitFilename={setSubmitFilename}
             />
             <div
                 className="flex w-full justify-start relative"
