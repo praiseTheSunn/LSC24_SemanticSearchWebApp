@@ -65,7 +65,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
                     <h1 className='py-2'>Similar Images</h1>
                     {/* <br /> */}
                     <div className='flex h-full'>
-                        <div className='left-column'>
+                        <div className='left-column overflow-auto'>
                             <div className='flex justify-center'>
                                 <div className='object-contain max-h-[420px] w-auto'>
                                     <AnImage data={viewImage} isDisplayTooltip={false} isZoomOnHover={false} />
