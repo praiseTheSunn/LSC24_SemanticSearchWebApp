@@ -234,7 +234,7 @@ const Home = () => {
                 console.log('response', response);
             })
             .catch((error) => {
-                toast.error('Error submitting text');
+                toast.error(`Error submit TEXT: ${error.message}`);
                 console.log('error', error);
             });
         }
