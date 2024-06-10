@@ -87,7 +87,7 @@ const Home = () => {
         // console.log('searchTerms', searchTerms);
         if (searchTerms.length > 0 && cacheResult.length > 0) {
             let fuseResults = cacheResult;
-            console.log('fuseResults', fuseResults.length, fuseResults);
+            // console.log('fuseResults', fuseResults.length, fuseResults);
 
             searchTerms.forEach((term) => {
                 if (term.value !== '') {
@@ -104,7 +104,7 @@ const Home = () => {
             }
 
             setResult(fuseResults);
-            console.log('filteredResults', fuseResults.length, fuseResults);
+            console.log('filteredResults', fuseResults.length);
         } else if (searchTerms.length === 0) {
             setResult(cacheResult);
         }
@@ -247,7 +247,7 @@ const Home = () => {
         }
     }, [submitFilename]);
 
-    console.log('result');
+    // console.log('result');
 
     return (
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
