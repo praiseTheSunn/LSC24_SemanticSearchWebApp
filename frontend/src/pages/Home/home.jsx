@@ -232,6 +232,18 @@ const Home = () => {
                 toast.success('Text submitted: ' + response.data.submission ? response.data.submission : '');
                 setSubmitText('');
                 console.log('response', response);
+                if (response?.data && response?.data?.submission === "CORRECT"){
+                    evalService.submitText(evaluationId, localStorage.getItem("sessionCentral"), submitText)
+                    .then((response) => {
+                        toast.success('Text submitted: ' + response.data.submission ? response.data.submission : '');
+                        setSubmitText('');
+                        console.log('response', response);
+                    })
+                    .catch((error) => {
+                        toast.error(`Error submit TEXT: ${error.message}`);
+                        console.log('error', error);
+                    });
+                }
             })
             .catch((error) => {
                 toast.error(`Error submit TEXT: ${error.message}`);
@@ -251,7 +263,7 @@ const Home = () => {
 
     return (
         <div className='home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative' style={{ backgroundColor: "#F5F5F5"}}>
-            <ToastContainer style={{zIndex: "99999999"}} autoClose={2000}/>
+            <ToastContainer style={{zIndex: "99999999"}} autoClose={2000} limit={3}/>
             {loadingPopUp && <LoadingPopup />}
 
             <Tooltip id='tooltip_img'  
