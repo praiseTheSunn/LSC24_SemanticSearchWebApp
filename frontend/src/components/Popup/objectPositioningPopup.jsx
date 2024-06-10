@@ -29,7 +29,7 @@ const ObjectPositionPopup = ({showPopup, setResult, setCacheResult}) => {
     const handleQuery = () => {
       const query = [];
       for (const obj of selectedObjects) {
-        console.log('Object:', obj);
+        // console.log('Object:', obj);
         const obj_coor = obj.rect;
         const new_element = {
           "object_name": obj.icon.name.charAt(0).toUpperCase() + obj.icon.name.slice(1),
@@ -43,7 +43,7 @@ const ObjectPositionPopup = ({showPopup, setResult, setCacheResult}) => {
       setLoadingPopUp(true);
       ObjectService.searchObjectPosition(query)
       .then((response) => {
-        console.log('Response:', response);
+        // console.log('Response:', response);
         setResult(response.data);
         setCacheResult(response.data);
         setLoadingPopUp(false);
