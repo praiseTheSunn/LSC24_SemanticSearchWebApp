@@ -134,8 +134,8 @@ const ToggableComponent = () => {
         {isVisible ? 'Hide' : 'Show'} Login
       </button> */}
       <div className="fixed top-5 right-5 w-10" onClick={toggleVisibility}>
-      <svg id="hamburger" className="Header__toggle-svg" viewbox="0 0 60 40">
-				<g stroke="#138BC3" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <svg id="hamburger" className="Header__toggle-svg" viewBox="0 0 60 40">
+				<g stroke="#138BC3" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
 					<path id="top-line" d="M10,10 L50,10 Z"></path>
 					<path id="middle-line" d="M10,20 L50,20 Z"></path>
 					<path id="bottom-line" d="M10,30 L50,30 Z"></path>
