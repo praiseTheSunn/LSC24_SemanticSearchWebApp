@@ -36,7 +36,6 @@ class GetRequest(BaseModel):
 async def search_milvus(data: SearchRequest):
     milvus_collection = data.model + "_"
     text_embedding = data.embedding
-    print(len(text_embedding))
     header = {
         'Access-Control-Allow-Origin': '*'
     }

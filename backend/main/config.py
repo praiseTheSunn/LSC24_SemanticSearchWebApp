@@ -3,6 +3,6 @@ ID_ELASTICSEARCH = "eyJ2ZXIiOiI4LjEzLjAiLCJhZHIiOlsiMTcyLjE5LjAuMjo5MjAwIl0sImZn
 
 EMBEDDING_CLIP = "../../data/embeddings/clip"
 
-METADATA_CAPTION_PATH = "elastic_search/metadata/metadata_caption.csv"
-METADATA_PATH = "../data/metadata_response_6.csv"
+METADATA_CAPTION_PATH = "../data/caption/metadata_caption.csv"
+METADATA_PATH = "../data/metadata/metadata_response_6.csv"
 
