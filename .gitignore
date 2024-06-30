@@ -60,3 +60,16 @@ startFrontend.bat
 /backend/objpos/image_data.db
 /backend/objpos/metadata.db
 /backend/objpos/joined_data.db
+
+# data
+/backend/data
+/backend/garbage
+
+# embedding_compute
+/backend/embedding_compute/model/
+
+# milvus
+/backend/milvus/volumes
+
+# main
+/backend/main/elastic_search/http_ca.crt
