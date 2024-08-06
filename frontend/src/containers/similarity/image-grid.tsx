@@ -1,14 +1,21 @@
-import React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import { AnImage } from '../../components'
 
-const ImageGrid = ({ simData, cellHeight, cell }) => {
+const ImageGrid = ({ simData, cellHeight, cell } : {
+  simData: any[],
+  cellHeight?: number,
+  cell?: any
+}) => {
   cellHeight = cellHeight ? cellHeight : 125 // Default cell height
 
   const columnCount = 9 // Number of columns in the grid
 
-  const Cell = ({ columnIndex, rowIndex, style }) => {
+  const Cell = ({ columnIndex, rowIndex, style } : {
+    columnIndex: number,
+    rowIndex: number,
+    style: React.CSSProperties
+  }) => {
     const index = rowIndex * columnCount + columnIndex
     if (index >= simData.length) return null // Ensure not to exceed simData length
 

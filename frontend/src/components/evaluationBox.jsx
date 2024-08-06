@@ -1,17 +1,28 @@
 import React, { useEffect, useState, useContext } from 'react'
 import { toast } from 'react-toastify'
-import { EvaluationContext } from '../contexts/EvaluationContext'
 import evalService from '../services/evalService'
+import { appActions, evaluationActions, useAppDispatch } from '../AppState'
+import { useCallback } from 'react'
+import { useSelector } from 'react-redux'
+import { isNil } from 'lodash'
 
 const EvaluationBox = () => {
-  const { username, setUsername } = useContext(EvaluationContext)
-  const { password, setPassword } = useContext(EvaluationContext)
-  // const [username, setUsername] = useState('');
-  // const [password, setPassword] = useState('');
-  const { evaluationId, setEvaluationId } = useContext(EvaluationContext)
+ 
   const [text, setText] = useState('')
 
   const [loginState, setLoginState] = useState('Login')
+
+  const dispatch = useAppDispatch()
+  const isEvaluationIdNull = useSelector((state) => state.evaluation.evaluationId, isNil)
+  const setEvaluationId = useCallback((evaluationId) => {
+    dispatch(evaluationActions.setEvaluationId(evaluationId))
+  }, [dispatch])
+  const setUsername = useCallback((username) => {
+    dispatch(evaluationActions.setUsername(username))
+  }, [dispatch])
+  const setPassword = useCallback((password) => {
+    dispatch(evaluationActions.setPassword(password))
+  }, [dispatch])
 
   useEffect(() => {
     const session = localStorage.getItem('session')
@@ -19,10 +30,6 @@ const EvaluationBox = () => {
     const password = localStorage.getItem('password')
     if (session && username && password) {
       setLoginState('Logout')
-    }
-    if (evaluationId) {
-      console.log('evaluationId', evaluationId)
-      setEvaluationId(evaluationId)
     }
     if (username) {
       setUsername(username)
@@ -57,17 +64,6 @@ const EvaluationBox = () => {
       .catch((error) => {
         console.log('error logging', error)
         toast.error('Login failed')
-      })
-  }
-
-  const handleButtonClickSubmitText = () => {
-    evalService
-      .submitText(evaluationId, localStorage.getItem('session'), text)
-      .then((response) => {
-        console.log('response', response)
-      })
-      .catch((error) => {
-        console.log('error submitting text', error)
       })
   }
 

@@ -18,16 +18,11 @@ import { SimialrityAdvancedGrid } from '../../containers'
 import MapTab from '../../containers/location/mapTab'
 import ImageGrid from '../../containers/similarity/image-grid'
 import TimelineTab from '../../containers/timeline/timelineTab'
-import { usePopUp } from '../../contexts/popUpContext'
-import { useSelectedImages } from '../../contexts/selectedImageContext'
 import imageService from '../../services/imageService'
 import 'react-toastify/dist/ReactToastify.css'
 import { Tooltip } from 'react-tooltip'
 import MetadataTab from '../../containers/metadata/metadataTab'
 import 'react-tooltip/dist/react-tooltip.css'
-
-import { EvaluationContext } from '../../contexts/EvaluationContext'
-// Evaluation
 import evalService from '../../services/evalService'
 
 // import { usePopUp } from '../contexts/popUpContext';
