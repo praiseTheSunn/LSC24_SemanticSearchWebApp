@@ -1,14 +1,13 @@
 // src/ToggableComponent.js
-import React, { useState } from 'react';
-import EvaluationBox from './evaluationBox';
-
+import React, { useState } from 'react'
+import EvaluationBox from './evaluationBox'
 
 const ToggableComponent = () => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false)
 
   const toggleVisibility = () => {
-    setIsVisible(!isVisible);
-  };
+    setIsVisible(!isVisible)
+  }
 
   // const styles = {
   //   hamburgerBefore: {
@@ -51,15 +50,12 @@ const ToggableComponent = () => {
   //   },
   // };
 
-  const [isClicked, setIsClicked] = useState(false);
-
-  
+  const [isClicked, setIsClicked] = useState(false)
 
   return (
     <React.Fragment>
       <style>
-        {
-          `
+        {`
           svg {
             width: 50px;
             height: 40px;
@@ -71,7 +67,9 @@ const ToggableComponent = () => {
             transform-box: fill-box;
             transform-origin: center;
           }
-          ${isVisible ? ` svg {
+          ${
+            isVisible
+              ? ` svg {
             #top-line {
               animation: down-rotate 0.6s ease-out both;
             }
@@ -81,7 +79,9 @@ const ToggableComponent = () => {
             #middle-line {
               animation: hide 0.6s ease-out forwards;
             }
-          }` :``}
+          }`
+              : ''
+          }
          
           
           @keyframes up-rotate {
@@ -127,32 +127,35 @@ const ToggableComponent = () => {
               opacity: 0;
             }
           }
-          `
-        }
+          `}
       </style>
       {/* <button onClick={toggleVisibility} className="inline-flex justify-center w-full rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500  ring-2 ring-blue-500">
         {isVisible ? 'Hide' : 'Show'} Login
       </button> */}
       <div className="fixed top-5 right-5 w-10" onClick={toggleVisibility}>
-      <svg id="hamburger" className="Header__toggle-svg" viewBox="0 0 60 40">
-				<g stroke="#138BC3" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round">
-					<path id="top-line" d="M10,10 L50,10 Z"></path>
-					<path id="middle-line" d="M10,20 L50,20 Z"></path>
-					<path id="bottom-line" d="M10,30 L50,30 Z"></path>
-				</g>
-			</svg>
+        <svg id="hamburger" className="Header__toggle-svg" viewBox="0 0 60 40">
+          <g
+            stroke="#138BC3"
+            strokeWidth="4"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path id="top-line" d="M10,10 L50,10 Z" />
+            <path id="middle-line" d="M10,20 L50,20 Z" />
+            <path id="bottom-line" d="M10,30 L50,30 Z" />
+          </g>
+        </svg>
       </div>
       {isVisible && (
         <div
-        className="fixed w-50 top-14 right-5 mt-2 w-full rounded-md shadow-lg p-2 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
-        
-        style={{ zIndex: 9999 }}
+          className="fixed w-50 top-14 right-5 mt-2 w-full rounded-md shadow-lg p-2 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none"
+          style={{ zIndex: 9999 }}
         >
-        <EvaluationBox/>
+          <EvaluationBox />
         </div>
       )}
     </React.Fragment>
-  );
-};
+  )
+}
 
-export default ToggableComponent;
+export default ToggableComponent
