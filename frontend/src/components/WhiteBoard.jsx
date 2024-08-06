@@ -1,55 +1,61 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react'
 
-const Whiteboard = ({ selectedIcon, onDraw, onClear, setIsClear, setSelecObjects }) => {
-  const [drawing, setDrawing] = useState(false);
-  const [startPos, setStartPos] = useState(null);
-  const [rect, setRect] = useState(null);
-  const [drawnItems, setDrawnItems] = useState([]);
-  const whiteboardRef = useRef(null);
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+const Whiteboard = ({
+  selectedIcon,
+  onDraw,
+  onClear,
+  setIsClear,
+  setSelecObjects,
+}) => {
+  const [drawing, setDrawing] = useState(false)
+  const [startPos, setStartPos] = useState(null)
+  const [rect, setRect] = useState(null)
+  const [drawnItems, setDrawnItems] = useState([])
+  const whiteboardRef = useRef(null)
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
 
   useEffect(() => {
     const updateCursorPosition = (e) => {
-      setCursorPosition({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', updateCursorPosition);
+      setCursorPosition({ x: e.clientX, y: e.clientY })
+    }
+    window.addEventListener('mousemove', updateCursorPosition)
     return () => {
-      window.removeEventListener('mousemove', updateCursorPosition);
-    };
-  }, []);
+      window.removeEventListener('mousemove', updateCursorPosition)
+    }
+  }, [])
 
   useEffect(() => {
     if (onClear) {
-      setDrawnItems([]);
-      setIsClear(false);
+      setDrawnItems([])
+      setIsClear(false)
     }
-  }, [onClear]);
+  }, [onClear])
 
   useEffect(() => {
-    setSelecObjects(drawnItems);
-  }, [drawnItems]);
+    setSelecObjects(drawnItems)
+  }, [drawnItems])
 
   const handleMouseDown = (e) => {
     if (selectedIcon) {
-      const rect = whiteboardRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      setStartPos({ x, y });
-      setDrawing(true);
+      const rect = whiteboardRef.current.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      setStartPos({ x, y })
+      setDrawing(true)
     }
-  };
+  }
 
   const handleMouseMove = (e) => {
     if (drawing && startPos) {
-      const rect = whiteboardRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const whiteboardWidth = whiteboardRef.current.offsetWidth;
-      const whiteboardHeight = whiteboardRef.current.offsetHeight;
-      const x_percent = (e.clientX - rect.left) / whiteboardWidth ;
-      const y_percent = (e.clientY - rect.top) / whiteboardHeight ;
-      const startX = startPos.x / whiteboardWidth ;
-      const startY = startPos.y / whiteboardHeight ;
+      const rect = whiteboardRef.current.getBoundingClientRect()
+      const x = e.clientX - rect.left
+      const y = e.clientY - rect.top
+      const whiteboardWidth = whiteboardRef.current.offsetWidth
+      const whiteboardHeight = whiteboardRef.current.offsetHeight
+      const x_percent = (e.clientX - rect.left) / whiteboardWidth
+      const y_percent = (e.clientY - rect.top) / whiteboardHeight
+      const startX = startPos.x / whiteboardWidth
+      const startY = startPos.y / whiteboardHeight
 
       setRect({
         x: Math.min(x, startPos.x),
@@ -60,20 +66,20 @@ const Whiteboard = ({ selectedIcon, onDraw, onClear, setIsClear, setSelecObjects
         left: Math.min(x_percent, startX),
         bottom: Math.max(y_percent, startY),
         right: Math.max(x_percent, startX),
-      });
+      })
     }
-  };
+  }
 
   const handleMouseUp = () => {
     if (drawing && rect) {
-      const newItem = { rect, icon: selectedIcon };
-      setDrawnItems([...drawnItems, newItem]);
-      onDraw(newItem); // Pass the drawn item to the parent component
-      setDrawing(false);
-      setStartPos(null);
-      setRect(null);
+      const newItem = { rect, icon: selectedIcon }
+      setDrawnItems([...drawnItems, newItem])
+      onDraw(newItem) // Pass the drawn item to the parent component
+      setDrawing(false)
+      setStartPos(null)
+      setRect(null)
     }
-  };
+  }
 
   return (
     <div
@@ -160,7 +166,7 @@ const Whiteboard = ({ selectedIcon, onDraw, onClear, setIsClear, setSelecObjects
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Whiteboard;
+export default Whiteboard

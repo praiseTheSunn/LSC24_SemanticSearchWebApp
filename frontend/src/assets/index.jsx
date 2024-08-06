@@ -1,17 +1,17 @@
-export { default as TrapoziedBgGrayLeft } from './trapoziedBgGrayLeft.svg';
-export { default as TrapoziedBgGray1 } from './trapoziedBgGray1.svg';
-export { default as TrapoziedBgGray2 } from './trapoziedBgGray2.svg';
-export { default as TrapoziedBgGray3 } from './trapoziedBgGray3.svg';
-export { default as TrapoziedBgGray4 } from './trapoziedBgGray4.svg';
-export { default as TrapoziedBgGray5 } from './trapoziedBgGray5.svg';
-export { default as LocationIcon } from './LocationIcon.svg';
-export { default as ActivityIcon } from './ActivityIcon.svg';
-export { default as LocationIconActive } from './LocationIconActive.svg';
-export { default as ActivityIconActive } from './ActivityIconActive.svg';
-export { default as SimilarityIcon } from './SimilarityIcon.svg';
-export { default as SimilarityIconActive } from './SimilarityIconActive.svg';
-export { default as TimelineIcon} from './TimelineIcon.svg';
-export { default as TimelineIconActive} from './TimelineIconActive.svg';
+export { default as TrapoziedBgGrayLeft } from './trapoziedBgGrayLeft.svg'
+export { default as TrapoziedBgGray1 } from './trapoziedBgGray1.svg'
+export { default as TrapoziedBgGray2 } from './trapoziedBgGray2.svg'
+export { default as TrapoziedBgGray3 } from './trapoziedBgGray3.svg'
+export { default as TrapoziedBgGray4 } from './trapoziedBgGray4.svg'
+export { default as TrapoziedBgGray5 } from './trapoziedBgGray5.svg'
+export { default as LocationIcon } from './LocationIcon.svg'
+export { default as ActivityIcon } from './ActivityIcon.svg'
+export { default as LocationIconActive } from './LocationIconActive.svg'
+export { default as ActivityIconActive } from './ActivityIconActive.svg'
+export { default as SimilarityIcon } from './SimilarityIcon.svg'
+export { default as SimilarityIconActive } from './SimilarityIconActive.svg'
+export { default as TimelineIcon } from './TimelineIcon.svg'
+export { default as TimelineIconActive } from './TimelineIconActive.svg'
 
 export { default as BicycleIcon } from './obj_icons/Bicycle.svg'
 export { default as CarIcon } from './obj_icons/car.svg'
@@ -28,4 +28,4 @@ export { default as ShirtIcon } from './obj_icons/T-Shirt.svg'
 export { default as TrousersIcon } from './obj_icons/Trousers.svg'
 export { default as TrafficLightIcon } from './obj_icons/Traffic Light.svg'
 
-export { default as ObjectPosIcon } from './objectPosIcon.svg';
+export { default as ObjectPosIcon } from './objectPosIcon.svg'
