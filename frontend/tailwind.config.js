@@ -4,7 +4,7 @@ module.exports = {
   darkMode: 'class',
   theme: {
     placeholderColor: {
-      'primary': '#737373 ',
+      primary: '#737373 ',
     },
     fontFamily: {
       display: ['Open Sans', 'sans-serif'],
@@ -12,17 +12,17 @@ module.exports = {
     },
     extend: {
       colors: {
-        'primary': '#4ACAEA',
-        'secondary': '#438BFF',
-        'dark1': '#1A1A1A',
-        'lightGray': '#D7D7D7',
-        'red': '#FF543E',
-        'blueLight': '#98E2F5',
-        'gray': '#737373',
-        'blueDark': '#26627F',
-        'lighterGray': '#F2F2F2',
-        'darkerGray': '#EAEAEA',
-        'blue': '#438BFF',
+        primary: '#4ACAEA',
+        secondary: '#438BFF',
+        dark1: '#1A1A1A',
+        lightGray: '#D7D7D7',
+        red: '#FF543E',
+        blueLight: '#98E2F5',
+        gray: '#737373',
+        blueDark: '#26627F',
+        lighterGray: '#F2F2F2',
+        darkerGray: '#EAEAEA',
+        blue: '#438BFF',
       },
       fontSize: {
         14: '14px',
@@ -35,7 +35,7 @@ module.exports = {
         'half-transparent': 'rgba(0, 0, 0, 0.5)',
       },
       display: {
-        'hidden': 'none',
+        hidden: 'none',
       },
       borderWidth: {
         1: '1px',
@@ -59,10 +59,9 @@ module.exports = {
         590: '590px',
       },
       backgroundImage: {
-        'hero-pattern':
-          "url('https://i.ibb.co/MkvLDfb/Rectangle-4389.png')",
+        'hero-pattern': "url('https://i.ibb.co/MkvLDfb/Rectangle-4389.png')",
       },
     },
   },
   plugins: [],
-};
+}
