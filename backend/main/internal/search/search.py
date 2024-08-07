@@ -34,7 +34,6 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         if mode == "smt-dtout":
             results_semantic = search_semantic(model, text_embedding)   
             results_datetime = search_datetime(text_query)
-            print(len(results_semantic["urls"]), len(results_datetime["urls"]))
             combined = combine_score.get_combined_scores_datetime([results_semantic], results_datetime)
             return prepare_response(combined["urls"], combined["scores"])
 
@@ -42,6 +41,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         if mode == "smt-mm-dtin":
             results_semantic = search_semantic(model, text_embedding)
             results_multimatch_datetime = search_multimatch_datetime(text_query)
+            print(f"Metadata search scores: {results_multimatch_datetime['scores'][:20]}")
             combined = combine_score.get_combined_scores([results_semantic, results_multimatch_datetime])
             return prepare_response(combined["urls"], combined["scores"])
         

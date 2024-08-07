@@ -16,9 +16,9 @@ dependencies:
   - bottleneck=1.3.7=py310ha9d4c09_0
   - brotli-python=1.0.9=py310h6a678d5_8
   - bzip2=1.0.8=h5eee18b_6
-  - ca-certificates=2024.6.2=hbcca054_0
+  - ca-certificates=2024.7.2=h06a4308_0
   - catalogue=2.0.10=py310h06a4308_0
-  - certifi=2024.6.2=py310h06a4308_0
+  - certifi=2024.7.4=py310h06a4308_0
   - cffi=1.16.0=py310h5eee18b_1
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - click=8.1.7=py310h06a4308_0
@@ -95,6 +95,7 @@ dependencies:
   - python-tzdata=2023.3=pyhd3eb1b0_0
   - python_abi=3.10=2_cp310
   - pytz=2024.1=py310h06a4308_0
+  - pyyaml=6.0.1=py310h5eee18b_0
   - pyzmq=25.1.2=py310h6a678d5_0
   - readline=8.2=h5eee18b_0
   - requests=2.32.2=py310h06a4308_0
@@ -128,6 +129,7 @@ dependencies:
   - weasel=0.3.4=py310h06a4308_0
   - wheel=0.43.0=py310h06a4308_0
   - xz=5.4.6=h5eee18b_1
+  - yaml=0.2.5=h7b6447c_0
   - yarl=1.9.3=py310h5eee18b_0
   - zeromq=4.3.5=h6a678d5_0
   - zipp=3.19.2=pyhd8ed1ab_0

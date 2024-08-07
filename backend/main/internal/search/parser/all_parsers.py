@@ -4,9 +4,9 @@ import setup
 import textblob
 from internal.search.parser import time_helpers
 
-def parse_objects_tags(text_query: str) -> str:
+def parse_object_tags(text_query: str) -> str:
     """
-    Parse the objects_tags field of the query
+    Parse the object_tags field of the query
     """
     # Process our query
     doc = setup.nlp(text_query)
@@ -23,9 +23,9 @@ def parse_objects_tags(text_query: str) -> str:
 
 
 
-def parse_place(text_query: str) -> str:
+def parse_location(text_query: str) -> str:
     """
-    Parse the place field of the query
+    Parse the location field of the query
     """
     doc = setup.nlp(text_query)
     results = []
