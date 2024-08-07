@@ -1,7 +1,4 @@
-// image-cluster.jsx
 
-// import './image-cluster.css';
-// import './similarity.css';
 import React, { useEffect, useState } from 'react'
 
 const ImageCluster = ({
@@ -9,6 +6,11 @@ const ImageCluster = ({
   smallImage1,
   smallImage2,
   location_name,
+} : {
+  bigImage: string
+  smallImage1: string
+  smallImage2: string
+  location_name: string
 }) => {
   return (
     <div className="image-cluster-container">

@@ -8,8 +8,7 @@ def compute_embedding(text_query: str, model: str):
         return None
     if model == 'clip':
         text_query_tokens = open_clip.tokenize(text_query)
-        with torch.no_grad(), torch.cuda.amp.autocast():
-            text_embedding = setup.clip_model.encode_text(text_query_tokens)
+        text_embedding = setup.clip_model.encode_text(text_query_tokens)
         return text_embedding
     if model == 'blip2':
         txt = setup.blip2_txt_processors["eval"](text_query)

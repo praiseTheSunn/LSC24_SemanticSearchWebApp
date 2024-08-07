@@ -5,8 +5,6 @@ import imageService from '../services/imageService'
 // import LazyLoad from 'react-lazy-load';
 
 import close_icon from '../assets/close.png'
-import SinglePopup from '../components/Popup/singlePopup'
-import { usePopUp } from '../contexts/popUpContext'
 import ImageInList from './Image/imageInList'
 
 const RightPanel = ({ query, filters, setDisplayedFilters }) => {
@@ -284,11 +282,12 @@ const RightPanel = ({ query, filters, setDisplayedFilters }) => {
         />
       )}
       <div className="submit-button-area">
-        <button className="btn btn-primary submit-button" onClick={handleClick}>
+        <button type='button' className="btn btn-primary submit-button" onClick={handleClick}>
           Submit
         </button>
         <span className="submit-button-text">Selected: {getSize()}</span>
         <button
+          type="button"
           className="btn btn-danger"
           onClick={() => removeAllSelected()}
           style={{ marginLeft: '20px' }}

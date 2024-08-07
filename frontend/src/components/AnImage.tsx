@@ -1,6 +1,7 @@
 import React from 'react'
 import view_icon from '../assets/view_icon.png'
-import { usePopUp } from '../contexts/popUpContext'
+import { useAppDispatch, useAppSelector, appActions } from '../AppState'
+import { isNil } from 'lodash'
 
 const AnImage = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
   isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true
@@ -12,9 +13,30 @@ const AnImage = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
   const formattedTime = `${date}  ${time}`
   const json_data = isDisplayTooltip ? JSON.stringify(data) : null
 
-  const { neighborPopUp, setNeighborPopUp } = usePopUp()
-  const { similarPopUp, setSimilarPopUp } = usePopUp()
-  // const {currentImage, setCurrentImage} = usePopUp();
+  const dispatch = useAppDispatch()
+  const isNeighborPopupOpened = useAppSelector(
+    (state) => state.app.neighborPopUpData,
+    isNil,
+  )
+  const isSimilarPopupOpened = useAppSelector(
+    (state) => state.app.isDrawerExpanded,
+    isNil,
+  )
+  const toggleNeighborPopup = React.useCallback((data) => {
+    if (isNeighborPopupOpened) {
+      dispatch(appActions.closeNeighborPopUp(data))
+    } else {
+      dispatch(appActions.openNeighborPopUp(data))
+    }
+  }, [dispatch, isNeighborPopupOpened])
+  const toggleSimilarPopup = React.useCallback((data) => {
+    if (isSimilarPopupOpened) {
+      dispatch(appActions.closeSimilarPopUp(data))
+    } else {
+      dispatch(appActions.openSimilarPopUp(data))
+    }
+  }, [dispatch, isSimilarPopupOpened])
+  
 
   return (
     <div
@@ -23,10 +45,10 @@ const AnImage = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
       data-tooltip-id="tooltip_img"
       data-tooltip-content={json_data}
       data-tooltip-variant="dark"
-      onDoubleClick={() => {
-        setSimilarPopUp(data)
-        setNeighborPopUp(null)
-        // console.log('double clicked', data, similarPopUp);
+      onDoubleClick={(e) => {
+        e.preventDefault()
+        toggleSimilarPopup(data)
+        toggleNeighborPopup(null)
       }}
     >
       {isZoomOnHover && (
@@ -35,8 +57,6 @@ const AnImage = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
           {
             '.an-img-container:hover  .image-item-img { border: 2px solid rgb(0, 47, 255); }'
           }
-          {/* {'.an-img-container:hover .info-item { transform: scale(1.05);  }'} */}
-          {/* {'an-img-container:hover .image-item-img {  }'} */}
         </style>
       )}
 
@@ -45,17 +65,19 @@ const AnImage = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
       </div>
       <img
         src={src}
-        alt={`Image ${index}`}
+        alt={`${index}`}
         // className=' object-contain w-full max-h-[140px] cursor-pointer'
         className="  max-w-full h-full cursor-pointer mx-auto  image-item-img bg-white submissible"
         // onClick={() => setImageLink(src)}
       />
       <div
         className="bg-black opacity-50 absolute bottom-0 right-0 img-action-eye z-50 hidden"
-        onClick={() => {
-          setNeighborPopUp(data)
-          setSimilarPopUp(null)
+        onClick={(e) => {
+          e.preventDefault()
+          toggleNeighborPopup(data)
+          toggleSimilarPopup(null)
         }}
+        {...spread}
       >
         <img src={view_icon} alt={`View ${index}`} className="size-7" />
       </div>
