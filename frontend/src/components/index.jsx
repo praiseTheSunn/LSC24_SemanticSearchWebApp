@@ -19,7 +19,7 @@ export { default as Whiteboard } from './WhiteBoard.jsx'
 export { default as DragIcon } from './DragIcon.jsx'
 export { default as ObjectPositionPopup } from './Popup/objectPositioningPopup.jsx'
 
-export { default as AnImage } from './AnImage.jsx'
+export { default as AnImage } from './AnImage.tsx'
 export { default as ViewMorePopup } from './Popup/viewMorePopup.jsx'
 
 export { default as ObjectDetail } from './ObjectDetail.jsx'

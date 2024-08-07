@@ -42,6 +42,9 @@ async def search_milvus(data: SearchRequest):
     response = setup.milvus_client.search(collection_name=milvus_collection, data=text_embedding, limit=1000)
 
     return JSONResponse(content={"response": response}, headers=header)
+
+
+
 @app.post("/get_embeddings")
 async def get_embeddings(data: GetRequest):
     collection_name = data.collection_name
