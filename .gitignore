@@ -73,3 +73,6 @@ startFrontend.bat
 
 # main
 /backend/main/elastic_search/http_ca.crt
+
+# configs (secret)
+/backend/configs

@@ -1,53 +1,46 @@
-import config
+import os
+import yaml
 
-# # MILVUS
-# from pymilvus import connections, utility, MilvusException, Collection
-# connections.connect(host="localhost", port="19530")
+def load_config(config_path: str):
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
-# try:
-#     collection_names = utility.list_collections()
-#     print("List of collections: ", collection_names)
-#     for collection_name in collection_names:
-        
-#         collection = Collection(collection_name)
-#         print("collection.num_entities", collection.num_entities)
-#         break
-#     #     collection.load()
-#     #     print("Collection info: ", collection)
-# except MilvusException as e:
-#     print(e)
+dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/lsc24_config.yaml')   # Default to lsc24_config.yaml
+dataset_config = load_config(dataset_config_file)
+system_config_file = os.getenv('SYSTEM_CONFIG', '../configs/system_config.yaml')   # Default to system_config.yaml
+system_config = load_config(system_config_file)
 
-# from pymilvus import MilvusClient, DataType
-# CLUSTER_ENDPOINT = "http://localhost:19530"
-# TOKEN = "root:Milvus"
-# milvus_client = MilvusClient(uri=CLUSTER_ENDPOINT, token=TOKEN)
 
 # ELASTICSEARCH
 import urllib3
 urllib3.disable_warnings()
 
 from elasticsearch import Elasticsearch
-es_client = Elasticsearch(f"https://elastic:{config.PASSWORD_ELASTICSEARCH}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
+password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
+es_client = Elasticsearch(f"https://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
 es_client.info()
+
 
 # SPACY
 import spacy
 # nlp = spacy.load(config.NLP_MODEL_PATH)
 nlp = spacy.load('en_core_web_sm')
 
+
 # PARSER
 from internal.search.parser import constants
 from internal.search.parser import time_helpers
 from internal.search.parser import all_parsers
 
+
 # EXPLORE: list of image urls
 import pandas as pd
 print("Waiting to count total number of images...")
 
-metadata_caption = pd.read_csv(config.METADATA_CAPTION_PATH)
+metadata_caption = pd.read_csv(dataset_config['metadata_caption_file_path'])
 image_urls = sorted(metadata_caption['id'].tolist())
 print(f"Length of image_urls: {len(image_urls)}")
 
-metadata_rows = pd.read_csv(config.METADATA_PATH)
+metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
 metadata_rows.set_index('image_link', inplace=True)
 print(f"Length of metadata_rows: {len(metadata_rows)}")

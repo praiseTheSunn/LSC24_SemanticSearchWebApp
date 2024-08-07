@@ -142,6 +142,8 @@ def extract_date_time_entities(text_query: str) -> tuple[list[str], list[str]]:
             date_entities.append(ent.text.strip())
         elif ent.label_ == "TIME":
             time_entities.append(ent.text.strip())
+    print("Date entities: ", date_entities)
+    print("Time entities: ", time_entities)
     return date_entities, time_entities
 
 # ----------------------------------------------------------------------------------------------------------
