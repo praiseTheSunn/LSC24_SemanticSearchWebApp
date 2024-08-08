@@ -63,8 +63,8 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         # Mode: (semantic + 3 matches) x datetime
         if mode == "smt-3m-dtout":
             results_semantic = search_semantic(model, text_embedding)
-            results_objects_tags = search_match_objects_tags(text_query)
-            results_place = search_match_place(text_query)
+            results_objects_tags = search_match_object_tags(text_query)
+            results_place = search_match_location(text_query)
             results_caption = search_match_caption(text_query)
             results_datetime = search_datetime(text_query)
             combined = combine_score.get_combined_scores_datetime([results_semantic, results_objects_tags, results_place, results_caption], results_datetime)
