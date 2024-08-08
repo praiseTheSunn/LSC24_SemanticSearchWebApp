@@ -8,6 +8,7 @@ import numpy as np
 
 
 import setup
+from setup import dataset_config
 
 app = FastAPI(
     docs_url = "/docs", 
@@ -34,7 +35,7 @@ class GetRequest(BaseModel):
 # Include the routes
 @app.post("/search_milvus")
 async def search_milvus(data: SearchRequest):
-    milvus_collection = data.model + "_"
+    milvus_collection = dataset_config['dataset_name'] + "_" + data.model
     text_embedding = data.embedding
     header = {
         'Access-Control-Allow-Origin': '*'

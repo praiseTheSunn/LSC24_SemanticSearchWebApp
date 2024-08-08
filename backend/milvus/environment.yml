@@ -10,7 +10,7 @@ dependencies:
   - asttokens=2.4.1=pyhd8ed1ab_0
   - blas=1.0=mkl
   - bzip2=1.0.8=h5eee18b_6
-  - ca-certificates=2024.6.2=hbcca054_0
+  - ca-certificates=2024.7.2=h06a4308_0
   - click=8.1.7=py310h06a4308_0
   - comm=0.2.2=pyhd8ed1ab_0
   - debugpy=1.6.7=py310h6a678d5_0
@@ -60,6 +60,7 @@ dependencies:
   - pygments=2.18.0=pyhd8ed1ab_0
   - python=3.10.14=h955ad1f_1
   - python_abi=3.10=2_cp310
+  - pyyaml=6.0.1=py310h5eee18b_0
   - pyzmq=25.1.2=py310h6a678d5_0
   - readline=8.2=h5eee18b_0
   - setuptools=69.5.1=py310h06a4308_0
@@ -78,6 +79,7 @@ dependencies:
   - wcwidth=0.2.13=pyhd8ed1ab_0
   - wheel=0.43.0=py310h06a4308_0
   - xz=5.4.6=h5eee18b_1
+  - yaml=0.2.5=h7b6447c_0
   - zeromq=4.3.5=h6a678d5_0
   - zipp=3.19.2=pyhd8ed1ab_0
   - zlib=1.2.13=h5eee18b_1
