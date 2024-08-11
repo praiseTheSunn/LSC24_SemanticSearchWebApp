@@ -4,7 +4,7 @@ import * as L from 'leaflet'
 import { useEffect, useState } from 'react'
 import { useMap } from 'react-leaflet'
 
-const GeomanControl = ({ data, setData, dataSrc }) => {
+const GeomanControl = ({ data, setData, dataSrc } : { data: JSON[], setData: React.Dispatch<React.SetStateAction<JSON[]>>, dataSrc: JSON[] }) => {
   const map = useMap()
   const [prevClickItem, setPrevClickItem] = useState(null)
 

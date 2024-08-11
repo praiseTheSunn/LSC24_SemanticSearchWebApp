@@ -1,13 +1,14 @@
-import React from 'react'
+import type React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import { AnImage } from '../../components'
-import './richSimilarity.css'
+// import './richSimilarity.css'
 
-const RichImageGrid = ({ simData }) => {
+
+const RichImageGrid = ({ simData }: { simData: JSON[] }) => {
   const columnCount = 3 // Number of columns in the grid
 
-  const Cell = ({ columnIndex, rowIndex, style }) => {
+  const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
     const index = rowIndex * columnCount + columnIndex
     if (index >= simData.length) return null // Ensure not to exceed simData length
 
