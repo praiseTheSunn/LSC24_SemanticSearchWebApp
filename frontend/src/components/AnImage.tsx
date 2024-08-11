@@ -3,7 +3,14 @@ import view_icon from '../assets/view_icon.png'
 import { useAppDispatch, useAppSelector, appActions } from '../AppState'
 import { isNil } from 'lodash'
 
-const AnImage = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
+interface AnImageProps {
+  data: any
+  index?: number
+  isDisplayTooltip?: boolean
+  isZoomOnHover?: boolean
+}
+
+const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
   isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true
 

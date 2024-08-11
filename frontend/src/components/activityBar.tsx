@@ -2,6 +2,17 @@ import { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css'
 
+interface Activity {
+  images: any[];
+  [key: string]: any; // To allow any other properties
+}
+
+interface ActivityBarProps {
+  data: Activity[];
+  visibility: any;
+  onActivitySelect: (activity_id: any ) => void
+}
+
 // create a map from activity to color code
 // const activityColorMap = {
 //     "Breakfast": "#2f3f8f",
@@ -10,7 +21,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 //     "Dancing": "#ffff00",
 // }
 
-const activityColorMap = {
+const activityColorMap: { [key: string]: string } = {
   'driving car': '#800000',
   'working on computer': '#9a6324',
   eating: '#808000',
@@ -23,7 +34,7 @@ const activityColorMap = {
   Other: '#f58231',
 }
 
-const ActivityBar = ({ data, visibility, onActivitySelect }) => {
+const ActivityBar: React.FC<ActivityBarProps> = ({ data, visibility, onActivitySelect }) => {
   const imageCounts = data.map((entity) => `${entity.images.length}`)
   const resultString = imageCounts.map((item) => `${item}fr`).join(' ')
   if (data) {
@@ -43,7 +54,7 @@ const ActivityBar = ({ data, visibility, onActivitySelect }) => {
   useEffect(() => {
     console.log('bestImg', bestImg)
   }, [bestImg])
-  const handleActivityClick = (activity_id, bestImg, index) => {
+  const handleActivityClick = (activity_id: any, bestImg: any, index: any) => {
     if (clickedIndex !== index) {
       setClickedIndex(index)
       onActivitySelect(activity_id)
@@ -52,6 +63,8 @@ const ActivityBar = ({ data, visibility, onActivitySelect }) => {
       onActivitySelect(null)
     }
   }
+  // convert the handleActivityClick function to TypeScript
+  // const handleActivityClick = (activity_id: string, bestImg: string, index: number) => {
 
   return (
     <div
@@ -77,7 +90,7 @@ const ActivityBar = ({ data, visibility, onActivitySelect }) => {
               {content ? content : 'undefined'}
             </span>
             <img
-              src={activeAnchor?.getAttribute('data-tooltip-img') || null}
+              src={activeAnchor?.getAttribute('data-tooltip-img') || ''}
               alt="activity"
               className="w-[110px] h-[80px] object-contain"
             />

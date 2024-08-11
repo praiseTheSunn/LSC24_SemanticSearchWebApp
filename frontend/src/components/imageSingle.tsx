@@ -2,8 +2,12 @@ import React from 'react'
 import './imageSingle.css'
 import AnImage from './AnImage'
 
+interface ImageSingleProps {
+  image: any;
+}
+
 // instead of ImageGroup, now create a new component called ImageSingle
-const ImageSingle = ({ image }) => {
+const ImageSingle: React.FC<ImageSingleProps> = ({ image }) => {
   return (
     <div
       className="relative image-group p-0.5 flex-col flex bg-white my-1"
