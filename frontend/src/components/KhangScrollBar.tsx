@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 
 interface KhangScrollBarProps {
-  dates: any[]
-  setSelectedDate: (date: any) => void
+  dates: string[]
+  setSelectedDate: (date: string) => void
 }
 
 const KhangScrollBar: React.FC<KhangScrollBarProps> = ({ dates, setSelectedDate }) => {

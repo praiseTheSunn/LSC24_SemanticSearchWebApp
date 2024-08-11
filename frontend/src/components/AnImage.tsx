@@ -2,9 +2,10 @@ import React from 'react'
 import view_icon from '../assets/view_icon.png'
 import { useAppDispatch, useAppSelector, appActions } from '../AppState'
 import { isNil } from 'lodash'
+import type { ImageRecord } from '../types/image'
 
 interface AnImageProps {
-  data: any
+  data: ImageRecord
   index?: number
   isDisplayTooltip?: boolean
   isZoomOnHover?: boolean

@@ -1,9 +1,10 @@
 import React from 'react'
 import './imageSingle.css'
 import AnImage from './AnImage'
+import type { ImageRecord } from '../types/image'
 
 interface ImageSingleProps {
-  image: any;
+  image: ImageRecord;
 }
 
 // instead of ImageGroup, now create a new component called ImageSingle

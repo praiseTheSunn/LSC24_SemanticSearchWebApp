@@ -3,9 +3,10 @@ import './imageGroup.css'
 import { createPortal } from 'react-dom'
 import AnImage from './AnImage'
 import ViewMorePopup from './Popup/viewMorePopup'
+import type { ImageRecord } from '../types/image'
 
 interface ImageGroupProps {
-  images: any[]
+  images: ImageRecord[]
   title: string
   sortType?: number
 }
