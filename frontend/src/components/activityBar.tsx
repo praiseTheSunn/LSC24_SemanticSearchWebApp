@@ -1,16 +1,17 @@
 import { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css'
+import type { ImageRecord, VisibilityType } from '../types/image'
 
 interface Activity {
-  images: any[];
-  [key: string]: any; // To allow any other properties
+  images: ImageRecord[];
+  [key: string]: any;         // To allow any other properties
 }
 
 interface ActivityBarProps {
   data: Activity[];
-  visibility: any;
-  onActivitySelect: (activity_id: any ) => void
+  visibility: VisibilityType;
+  onActivitySelect: (activity_id: number | null) => void
 }
 
 // create a map from activity to color code
@@ -50,11 +51,11 @@ const ActivityBar: React.FC<ActivityBarProps> = ({ data, visibility, onActivityS
   }, [bestImg])
 
   // xu ly viec click vao 1 activity nao do
-  const [clickedIndex, setClickedIndex] = useState(null)
+  const [clickedIndex, setClickedIndex] = useState<number | null>(null)
   useEffect(() => {
     console.log('bestImg', bestImg)
   }, [bestImg])
-  const handleActivityClick = (activity_id: any, bestImg: any, index: any) => {
+  const handleActivityClick = (activity_id: number | null, bestImg: any, index: number | null) => {
     if (clickedIndex !== index) {
       setClickedIndex(index)
       onActivitySelect(activity_id)
