@@ -25,8 +25,8 @@ def search_semantic(model: str, text_embedding):
     }
     response = requests.post("http://localhost:8004/search_milvus", json=data, headers=headers)
     raw_results = response.json()
-    urls = [entity['id'] for entity in raw_results['response'][0]]
-    scores = [entity['distance'] for entity in raw_results['response'][0]]
+    urls = [entity['id'] for entity in raw_results['response'][0][-1:0:-1]]
+    scores = [entity['distance'] for entity in raw_results['response'][0][-1:0:-1]]
     print("Scores: ", scores)
     return {
         "urls": urls,
