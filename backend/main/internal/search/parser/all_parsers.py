@@ -56,3 +56,10 @@ def parse_date_time(text_query: str) -> tuple[int, int]:
     # return the result
     print("Datetime parsed: ", date1, time1, date2, time2)
     return date1, time1, date2, time2
+
+
+def parse_ocr(text_query: str) -> str:
+    """
+    Parse the ocr field of the query
+    """
+    return " ".join([text for text in text_query.split('"')[1::2]])

@@ -35,11 +35,11 @@ from internal.search.parser import all_parsers
 
 # EXPLORE: list of image urls
 import pandas as pd
-print("Waiting to count total number of images...")
+print("Waiting to count total number of metadata records...")
 
-metadata_caption = pd.read_csv(dataset_config['metadata_caption_file_path'])
-image_urls = sorted(metadata_caption['id'].tolist())
-print(f"Length of image_urls: {len(image_urls)}")
+# metadata_caption = pd.read_csv(dataset_config['metadata_caption_file_path'])
+# image_urls = sorted(metadata_caption['id'].tolist())
+# print(f"Length of image_urls: {len(image_urls)}")
 
 metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
 metadata_rows.set_index('image_link', inplace=True)

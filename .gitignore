@@ -70,6 +70,7 @@ startFrontend.bat
 
 # milvus
 /backend/milvus/volumes
+/backend/milvus/utils/crawl_aic
 
 # main
 /backend/main/elastic_search/http_ca.crt

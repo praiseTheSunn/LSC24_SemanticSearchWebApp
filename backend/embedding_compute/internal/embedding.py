@@ -1,11 +1,16 @@
 import setup
 import open_clip
+import clip
 import torch 
 from model.beit3 import beit3
 
 def compute_embedding(text_query: str, model: str):
     if text_query == None or model == None:
         return None
+    if model == 'clip_v32':
+        text_query_tokens = clip.tokenize(text_query)
+        text_embedding = setup.clip_v32_model.encode_text(text_query_tokens)
+        return text_embedding
     if model == 'clip':
         text_query_tokens = open_clip.tokenize(text_query)
         text_embedding = setup.clip_model.encode_text(text_query_tokens)

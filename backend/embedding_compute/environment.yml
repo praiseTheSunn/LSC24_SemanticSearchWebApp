@@ -53,6 +53,7 @@ dependencies:
       - certifi==2024.6.2
       - cfgv==3.4.0
       - charset-normalizer==3.3.2
+      - clip==1.0
       - cloudpathlib==0.18.1
       - confection==0.1.5
       - contexttimer==0.3.3
