@@ -16,7 +16,8 @@ router = APIRouter(
 @router.post("/text")
 async def compute_text_embedding(data: dict):    
     text_query = data["text_query"]
-    model = data["model"]
+    # model = data["model"]
+    model = "clip_v32"
     print(f"Computing text embedding using {model}: ", text_query)
     header = {
         'Access-Control-Allow-Origin': '*'

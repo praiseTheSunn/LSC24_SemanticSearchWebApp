@@ -224,6 +224,7 @@ def search_3match_datetime(text_query: str):
     # parse other metadata
     parsed_object_tags = all_parsers.parse_object_tags(text_query)
     parsed_location = all_parsers.parse_location(text_query)
+    parsed_ocr = all_parsers.parse_ocr(text_query)
 
     response = setup.es_client.search(
         index=index_name,
@@ -276,7 +277,7 @@ def search_3match_datetime(text_query: str):
                     {
                         "match": {
                             "ocr": {
-                                "query": text_query,
+                                "query": parsed_ocr,
                                 "fuzziness": "AUTO",
                             }                              
                         }
