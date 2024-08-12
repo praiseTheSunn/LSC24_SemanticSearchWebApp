@@ -7,7 +7,7 @@ import {
   type FetchBaseQueryMeta,
   retry,
 } from '@reduxjs/toolkit/query'
-import { OBJ_POS_API_URL } from '../types/constants'
+import { OBJ_POS_API_URL, BASE_API_URL } from '../types/constants'
 
 export type QueryFn = BaseQueryFn<
   string | FetchArgs,

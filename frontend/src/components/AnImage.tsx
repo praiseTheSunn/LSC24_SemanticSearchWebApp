@@ -1,8 +1,8 @@
 import React from 'react'
 import view_icon from '../assets/view_icon.png'
 import { useAppDispatch, useAppSelector, appActions } from '../AppState'
-import { isNil } from 'lodash'
 import type { ImageRecord } from '../types/image'
+import { isNil, spread } from 'lodash'
 
 interface AnImageProps {
   data: ImageRecord
@@ -15,7 +15,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
   isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true
 
-  const src = data?.img_link ? data.img_link : null
+  const src = data?.img_link ? data.img_link : undefined
   const date = data?.date ? data.date : null
   const time = data?.time ? data.time : null
   const formattedTime: string = `${date}  ${time}`;
@@ -27,13 +27,13 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
     isNil,
   );
   const isSimilarPopupOpened: boolean = useAppSelector(
-    (state) => state.app.isDrawerExpanded,
+    (state) => state.app.similarPopUpData,
     isNil,
   );
 
   const toggleNeighborPopup = React.useCallback((data: any) => {
     if (isNeighborPopupOpened) {
-      dispatch(appActions.closeNeighborPopUp(data));
+      dispatch(appActions.closeNeighborPopUp());
     } else {
       dispatch(appActions.openNeighborPopUp(data));
     }
@@ -41,7 +41,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
 
   const toggleSimilarPopup = React.useCallback((data: any) => {
     if (isSimilarPopupOpened) {
-      dispatch(appActions.closeSimilarPopUp(data));
+      dispatch(appActions.closeSimilarPopUp());
     } else {
       dispatch(appActions.openSimilarPopUp(data));
     }
@@ -84,6 +84,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
           toggleNeighborPopup(data);
           toggleSimilarPopup(null);
         }}
+        {...spread}
 
       >
         <img src={view_icon} alt={`View ${index}`} className="size-7" />

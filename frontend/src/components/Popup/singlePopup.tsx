@@ -3,16 +3,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import closeIcon from '../../assets/close.png'
-import { AnImage, ObjectDetail } from '../../components'
+import { AnImage, ObjectDetail } from '..'
 import imageService from '../../services/imageService'
+import React from 'react'
 
-const SinglePopup = ({ viewImage, onClose }) => {
+const SinglePopup = ({ viewImage, onClose } : {viewImage: any, onClose: any}) => {
   const [singlePopupData, setsinglePopupData] = useState([])
   const [isLoading, setIsLoading] = useState(false)
   const viewImageRef = useRef(null)
   const gridRef = useRef(null)
 
-  const fetchSimilars = useCallback(async (imageId) => {
+  const fetchSimilars = useCallback(async (imageId: number) => {
     setIsLoading(true)
     try {
       const response = await imageService.getSimilarImages2Image(imageId)
@@ -31,7 +32,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
     fetchSimilars(imageList)
   }, [viewImage, fetchSimilars])
 
-  const Cell = ({ columnIndex, rowIndex, style }) => {
+  const Cell = ({ columnIndex, rowIndex, style } : {columnIndex: number, rowIndex:number, style: any}) => {
     const index = rowIndex * columnCount + columnIndex
     const data = singlePopupData[index]
     if (!data) return null
@@ -116,6 +117,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
           <img
             src={closeIcon}
             className="close-popup-button"
+            alt="close button"
             onClick={() => onClose(true)}
           />
         </div>

@@ -1,5 +1,6 @@
 import axios from 'axios'
-const baseURL = process.env.REACT_APP_BASE_URL
+import { BASE_API_URL } from '../types/constants'
+const baseURL = "aaa"
 
 if (!baseURL) {
   throw new Error('REACT_APP_BASE_URL is not defined in the .env file')

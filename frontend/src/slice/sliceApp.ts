@@ -5,30 +5,24 @@ const initialState: AppState = {
   isLoadingPopUpOpen: false,
   neighborPopUpData: null,
   similarPopUpData: null,
+  displayedImages: [],
 }
 
 export const sliceApp = createSlice({
   name: 'sliceApp',
   initialState,
   reducers: {
-    openLoadingPopUp: (state, action) => {
-      state.isLoadingPopUpOpen = true
-
+    setLoadingPopUp: (state, action) => {
+      state.isLoadingPopUpOpen = action.payload
     },
-    closeLoadingPopUp: (state) => {
-      state.isLoadingPopUpOpen = false
-    },
-    openNeighborPopUp: (state, action) => {
+    setNeighborPopupData: (state, action) => {
       state.neighborPopUpData = action.payload
     },
-    closeNeighborPopUp: (state) => {
-      state.neighborPopUpData = null
-    },
-    openSimilarPopUp: (state, action) => {
+    setSimilarPopupData: (state, action) => {
       state.similarPopUpData = action.payload
     },
-    closeSimilarPopUp: (state) => {
-      state.similarPopUpData = null
+    setDisplayedImages: (state, action) => {
+      state.displayedImages = action.payload
     },
   },
 })

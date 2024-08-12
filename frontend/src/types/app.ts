@@ -19,6 +19,7 @@ export type AppState = {
   isLoadingPopUpOpen: boolean
   neighborPopUpData: any
   similarPopUpData: any
+  displayedImages: string[]
 }
 
 export type EvaluationState = {

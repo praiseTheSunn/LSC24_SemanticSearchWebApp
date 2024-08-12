@@ -1,14 +1,11 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { toast } from 'react-toastify'
-import { MessagePopup, ObjectPositionPopup } from '.'
-import { ObjectPosIcon } from '../assets'
-import { usePopUp } from '../contexts/popUpContext'
+import { useEffect, useRef, useState } from 'react'
+// import { ObjectPosIcon } from '../assets'
+// import { usePopUp } from '../contexts/popUpContext'
 import { useSelectedImages } from '../contexts/selectedImageContext'
-import evalService from '../services/evalService'
-import imageService from '../services/imageService'
 import Dropdown from './dropDown'
-import EvaluationBox from './evaluationBox'
 import ToggableComponent from './toggleEvaluationBox'
+import { Box } from '@mui/material'
+import { MessagePopup, ObjectPositionPopup } from '.'
 
 const SearchBox = ({
   displayedFilters,
@@ -22,21 +19,33 @@ const SearchBox = ({
   setSearchTerms,
   setSubmitText,
   setSubmitFilename,
+} : {
+  displayedFilters: any;
+  setDisplayedFilters: any;
+  setQuery: any;
+  setResult: any;
+  setModel: any;
+  setMode: any;
+  handleFilterChange: any;
+  setCacheResult: any;
+  setSearchTerms: any;
+  setSubmitText: any;
+  setSubmitFilename: any;
 }) => {
   const [textareaValue, setTextareaValue] = useState('')
   const [textareaHeight, setTextareaHeight] = useState('60px')
-  const { setDisplayedImages } = useSelectedImages()
+  // const { setDisplayedImages } = useSelectedImages()
   const [isFocus, setIsFocus] = useState(false)
-  const messagePopup = useRef(null)
-  const objPosPopup = useRef(null)
+  const messagePopup = useRef<HTMLElement | null>(null)
+  const objPosPopup = useRef<HTMLElement | null>(null)
   const [showMessagePopup, setShowMessagePopup] = useState(false)
   const [showObjectPosPopup, setShowObjectPosPopup] = useState(false)
-  const { setLoadingPopUp } = usePopUp()
+  // const { setLoadingPopUp } = usePopUp()
 
   useEffect(() => {
     messagePopup.current = document.querySelector('.messagePopup')
     objPosPopup.current = document.querySelector('.objectPosPopup')
-    const handleClickOutside = (event) => {
+    const handleClickOutside = (event: any) => {
       if (
         messagePopup.current &&
         !messagePopup.current.contains(event.target)
@@ -55,7 +64,7 @@ const SearchBox = ({
     }
   }, [])
 
-  const handleTextareaChange = (event) => {
+  const handleTextareaChange = (event: any) => {
     setTextareaValue(event.target.value)
     // Automatically adjust height based on content if it exceeds the current height
     if (event.target.scrollHeight > event.target.clientHeight) {
@@ -68,7 +77,7 @@ const SearchBox = ({
     setTextareaHeight('60px')
   }
 
-  const handleTextareaFocus = (event) => {
+  const handleTextareaFocus = (event: any) => {
     //check if the text area has content
     if (event.target.value) {
       setTextareaHeight(`${event.target.scrollHeight}px`)
@@ -78,7 +87,7 @@ const SearchBox = ({
     setIsFocus(true)
   }
 
-  const handleEnter = (event) => {
+  const handleEnter = (event: any) => {
     if (event.key === 'Enter') {
       // setDisplayedImages(false);
       event.preventDefault() // Prevent default behavior
@@ -87,60 +96,60 @@ const SearchBox = ({
       if (input.startsWith('-lo ')) {
         const value = input.substring(4)
         const filter = { category: 'location', value, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('location', value)
       } else if (input.startsWith('-t ')) {
         const value = input.substring(3)
         const filter = { category: 'time', value, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('time', value)
       } else if (input.startsWith('-d ')) {
         const value = input.substring(3)
         const filter = { category: 'date', value, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('date', value)
       } else if (input.startsWith('-ocr ')) {
         const value = input.substring(5)
         const filter = { category: 'ocr', value, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('ocr', value)
       } else if (input.startsWith('-obj ')) {
         const value = input.substring(5)
         const filter = { category: 'object_tags', value, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('object_tags', value)
       } else if (input.startsWith('-act ')) {
         const value = input.substring(5)
         const filter = { category: 'activity', value, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('activity', value)
       } else if (input.startsWith('-dow ')) {
         const value = input.substring(5)
         const filter = { category: 'day_of_week', value, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('day_of_week', value)
       } else if (input.startsWith('-text ')) {
         const value = input.substring(6)
         const filter = { category: 'SUBMIT TEXT', value, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         setSubmitText(value)
       } else if (input === '-c') {
         // Handle special case
       } else if (input.startsWith('-file ')) {
         const filename = input.substring(6)
         const filter = { category: 'file', value: filename, status: 1 }
-        setDisplayedFilters((previousState) => [...previousState, filter])
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
         setSubmitFilename(filename)
       } else {
         const value = input
         const filter = { category: 'query', value, status: 1 }
         // console.log('input', input);
         setQuery(value)
-        setDisplayedFilters((previousState) => [...previousState, filter])
-        setLoadingPopUp(true)
+        setDisplayedFilters((previousState: any) => [...previousState, filter])
+        // setLoadingPopUp(true)
       }
       setTextareaValue('')
-      setDisplayedImages(true)
+      // setDisplayedImages(true)
       setShowMessagePopup(true)
     }
   }
@@ -196,12 +205,14 @@ const SearchBox = ({
           displayedFilters={displayedFilters}
           showPopup={showMessagePopup}
           setDisplayedFilters={setDisplayedFilters}
-          setDisplayedImages={setDisplayedImages}
+          // setDisplayedImages={setDisplayedImages}
+
         />
       </div>
       <div className="relative flex-row flex flex-nowrap">
-        <img
-          src={ObjectPosIcon}
+        <Box
+          component="img"
+          // src={ObjectPosIcon}
           alt="object_pos_icon"
           className="ml-3 mt-2 size-9 cursor-pointer relative"
           onClick={() => openObjPosPopup()}

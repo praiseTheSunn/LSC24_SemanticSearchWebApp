@@ -1,9 +1,20 @@
 import './App.css'
+import React from 'react'
 import Routers from './Routers/Routers'
+import { StoreProvider } from './AppState'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 function App() {
   return (
-    <Routers />
+    <StoreProvider>
+      <ToastContainer
+        style={{ zIndex: '99999999' }}
+        autoClose={2000}
+        limit={3}
+      />
+      <Routers />
+    </StoreProvider>
   )
 }
 
