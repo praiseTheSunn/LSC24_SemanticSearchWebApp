@@ -1,6 +1,6 @@
 import axios from 'axios'
 const http_obj = axios.create({
-  baseURL: 'http://34.124.236.208:8000/',
+  baseURL: '',
   headers: {
     'Content-type': 'application/json',
   },
