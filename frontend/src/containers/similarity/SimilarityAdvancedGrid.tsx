@@ -1,28 +1,23 @@
-import React, { useEffect, useState, memo, FC } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeGrid as Grid } from 'react-window';
 import { ImageGroup } from '../../components';
 import './similarity.css';
-
-interface Item {
-  location_displayed: string;
-  date: string;
-  score: number;
-}
+import React, { useEffect, useState } from 'react';
+import type { ImageRecord } from '../../types/image';
 
 interface SimialrityAdvancedGridProps {
-  data: Item[];
+  data: ImageRecord[];
   tabindex: number;
 }
 
-const SimialrityAdvancedGrid: FC<SimialrityAdvancedGridProps> = ({ data, tabindex }) => {
-  const ImageGroupMemoized = memo(ImageGroup);
-  const [locationBasedData, setLocationBasedData] = useState<Item[][]>([]);
-  const [timeBasedData, setTimeBasedData] = useState<Item[][]>([]);
+const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({ data, tabindex }) => {
+  const ImageGroupMemoized = React.memo(ImageGroup);
+  const [locationBasedData, setLocationBasedData] = useState<ImageRecord[][]>([]);
+  const [timeBasedData, setTimeBasedData] = useState<ImageRecord[][]>([]);
 
   useEffect(() => {
-    const locationDataMap = new Map<string, Item[]>();
-    const timeDataMap = new Map<string, Item[]>();
+    const locationDataMap = new Map<string, ImageRecord[]>();
+    const timeDataMap = new Map<string, ImageRecord[]>();
 
     // data.forEach((item) => {
     //   const location = item.location_displayed;
@@ -79,7 +74,7 @@ const SimialrityAdvancedGrid: FC<SimialrityAdvancedGridProps> = ({ data, tabinde
 
   const cellRenderer = ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
     const displayData = tabindex === 2 ? locationBasedData : timeBasedData;
-    const item = displayData?.[rowIndex * glob_columnCount + columnIndex];
+    const item: ImageRecord[] = displayData?.[rowIndex * glob_columnCount + columnIndex];
     if (!item) return null;
 
     return (

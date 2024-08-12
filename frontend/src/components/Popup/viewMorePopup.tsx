@@ -10,11 +10,17 @@ const ViewMorePopup = ({
   setOpenViewMore,
   columnCount,
   rowToDisplay,
+} : {
+  viewImages: any;
+  title: string;
+  setOpenViewMore: any;
+  columnCount?: number;
+  rowToDisplay?: number;
 }) => {
   columnCount = columnCount ? columnCount : 8 // Number of columns in the grid
   rowToDisplay = rowToDisplay ? rowToDisplay : 4 // Number of rows to display in the grid
 
-  const Cell = ({ columnIndex, rowIndex, style }) => {
+  const Cell = ({ columnIndex, rowIndex, style } : { columnIndex: number; rowIndex: number, style: any }) => {
     const index = rowIndex * columnCount + columnIndex
     if (index >= viewImages.length) return null // Ensure not to exceed simData length
 

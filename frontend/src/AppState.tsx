@@ -1,3 +1,4 @@
+import type React from 'react'
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
 import { useRef } from 'react'
 import {
@@ -10,6 +11,7 @@ import { Provider } from 'react-redux'
 import { sliceApp } from './slice/sliceApp'
 import { evaluationSlice } from './slice/evalutionSlice'
 import { ObjectPosApi } from './services/objectApi'
+
 
 const makeStore = () => {
   return configureStore({

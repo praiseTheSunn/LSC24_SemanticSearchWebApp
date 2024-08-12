@@ -1,1 +1,1 @@
-export { default as SimialrityAdvancedGrid } from './similarity/SimilarityAdvancedGrid.jsx'
+export { default as SimialrityAdvancedGrid } from './similarity/SimilarityAdvancedGrid.tsx'

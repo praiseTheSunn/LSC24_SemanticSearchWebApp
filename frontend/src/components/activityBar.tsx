@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css'
 import type { ImageRecord, VisibilityType } from '../types/image'
+import type React from 'react'
 
 interface Activity {
   images: ImageRecord[];

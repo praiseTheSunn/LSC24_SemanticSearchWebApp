@@ -1,8 +1,6 @@
-// Icon.jsx
-import React from 'react'
 import { useDrag } from 'react-dnd'
 
-const DragIcon = ({ name, source }) => {
+const DragIcon = ({ name, source } : {name: string, source: any}) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'icon',
     item: { name, source },

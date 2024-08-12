@@ -5,6 +5,7 @@ import { appActions, evaluationActions, useAppDispatch } from '../AppState'
 import { useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { isNil } from 'lodash'
+import type { EvaluationState } from '../types/app'
 
 const EvaluationBox = () => {
  
@@ -13,14 +14,14 @@ const EvaluationBox = () => {
   const [loginState, setLoginState] = useState('Login')
 
   const dispatch = useAppDispatch()
-  const isEvaluationIdNull = useSelector((state) => state.evaluation.evaluationId, isNil)
+  const isEvaluationIdNull = useSelector((state: EvaluationState) => state.evaluation.evaluationId, isNil)
   const setEvaluationId = useCallback((evaluationId) => {
     dispatch(evaluationActions.setEvaluationId(evaluationId))
   }, [dispatch])
-  const setUsername = useCallback((username) => {
+  const setUsername = useCallback((username: string) => {
     dispatch(evaluationActions.setUsername(username))
   }, [dispatch])
-  const setPassword = useCallback((password) => {
+  const setPassword = useCallback((password: string) => {
     dispatch(evaluationActions.setPassword(password))
   }, [dispatch])
 
@@ -39,38 +40,38 @@ const EvaluationBox = () => {
     }
   }, [])
 
-  const handleButtonClick = () => {
-    evalService
-      .login(username, password)
-      .then((response) => {
-        console.log('response', response)
-        localStorage.setItem('session', response.data.sessionId)
-        localStorage.setItem('username', username)
-        localStorage.setItem('password', password)
-        setLoginState('Logout')
-        toast.success('Login successful')
-        evalService
-          .login('lscteam051', 'DWGg6wVM6PKMHVh')
-          .then((response) => {
-            console.log('response', response)
-            localStorage.setItem('sessionCentral', response.data.sessionId)
-            toast.success('Login CENTRAL successful')
-          })
-          .catch((error) => {
-            console.log('error logging', error)
-            toast.error('Login CENTRAL failed')
-          })
-      })
-      .catch((error) => {
-        console.log('error logging', error)
-        toast.error('Login failed')
-      })
-  }
+  // const handleButtonClick = () => {
+  //   evalService
+  //     .login(username, password)
+  //     .then((response) => {
+  //       console.log('response', response)
+  //       localStorage.setItem('session', response.data.sessionId)
+  //       localStorage.setItem('username', username)
+  //       localStorage.setItem('password', password)
+  //       setLoginState('Logout')
+  //       toast.success('Login successful')
+  //       evalService
+  //         .login('lscteam051', 'DWGg6wVM6PKMHVh')
+  //         .then((response) => {
+  //           console.log('response', response)
+  //           localStorage.setItem('sessionCentral', response.data.sessionId)
+  //           toast.success('Login CENTRAL successful')
+  //         })
+  //         .catch((error) => {
+  //           console.log('error logging', error)
+  //           toast.error('Login CENTRAL failed')
+  //         })
+  //     })
+  //     .catch((error) => {
+  //       console.log('error logging', error)
+  //       toast.error('Login failed')
+  //     })
+  // }
 
   return (
     <div className="grid grid-cols-3 gap-2 w-auto h-auto">
       {/* <div className=" "> */}
-      <input
+      {/* <input
         type="text"
         placeholder="Username"
         className="col-span-1 rounded-lg pl-2 bg-slate-300"
@@ -97,7 +98,7 @@ const EvaluationBox = () => {
         className="col-span-3 rounded-lg pl-2 z-100 bg-slate-300"
         value={evaluationId}
         onChange={(e) => setEvaluationId(e.target.value)}
-      />
+      /> */}
       {/* <input
           type="text"
           placeholder="Text"

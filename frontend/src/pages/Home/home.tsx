@@ -1,6 +1,6 @@
 import Fuse from 'fuse.js'
 import React, { useEffect, useState, useContext } from 'react'
-import { ToastContainer, toast } from 'react-toastify'
+import {  toast } from 'react-toastify'
 import {
   LocationIcon,
   LocationIconActive,
@@ -13,23 +13,25 @@ import {
   TrapoziedBgGrayLeft,
 } from '../../assets'
 import { ObjectDetail, SearchBox } from '../../components'
-import LoadingPopup from '../../components/Popup/loadingPopup'
-import { SimialrityAdvancedGrid } from '../../containers'
 import MapTab from '../../containers/location/mapTab'
 import ImageGrid from '../../containers/similarity/image-grid'
 import TimelineTab from '../../containers/timeline/timelineTab'
-import imageService from '../../services/imageService'
-import 'react-toastify/dist/ReactToastify.css'
+// import imageService from '../../services/imageService'
 import { Tooltip } from 'react-tooltip'
 import MetadataTab from '../../containers/metadata/metadataTab'
 import 'react-tooltip/dist/react-tooltip.css'
-import evalService from '../../services/evalService'
+// import evalService from '../../services/evalService'
+
 
 // import { usePopUp } from '../contexts/popUpContext';
 import { createPortal } from 'react-dom'
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
+import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
+import { isNil } from 'lodash'
+import LoadingPopup from '../../components/Popup/loadingPopup'
+import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
 
 const LevelList = [
   { level: 'Similarity', bg: TrapoziedBgGrayLeft },
@@ -48,39 +50,59 @@ const Mode = [
 
 const Home = () => {
   const sesId = localStorage.getItem('session')
-  const { evaluationId } = useContext(EvaluationContext)
+  // const { evaluationId } = useContext(EvaluationContext)
+  const evaluationId = 0
   // console.log('selectedFilters in home', selectedFilters);
 
   const [displayedFilters, setDisplayedFilters] = useState([])
   const [query, setQuery] = useState('')
   const [model, setModel] = useState('clip')
   const [mode, setMode] = useState('smt-3m-dtin')
-  const { loadingPopUp, setLoadingPopUp } = usePopUp()
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const [selectedModeIndex, setSelectedModeIndex] = useState(0)
   const [isCtrlPressed, setIsCtrlPressed] = useState(false)
   const [windowHeigt, setWindowHeight] = useState(window.innerHeight)
   const [windowWidth, setWindowWidth] = useState(window.innerWidth)
-  const handleTabClick = (index) => {
+  const handleTabClick = (index: number) => {
     setSelectedTabIndex(index)
   }
-  const { displayedImages } = useSelectedImages()
-  const [result, setResult] = useState([])
+  const [result, setResult] = useState<any[]>([])
   const [cacheResult, setCacheResult] = useState([])
-  const [searchTerms, setSearchTerms] = useState([])
+  const [searchTerms, setSearchTerms] = useState<{category: string, value: string}[]>([])
   const [submitText, setSubmitText] = useState('')
   const [submitFilename, setSubmitFilename] = useState('')
-  // const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
 
-  const { neighborPopUp, setNeighborPopUp } = usePopUp()
-  const { similarPopUp, setSimilarPopUp } = usePopUp()
-  const { currentImage, setCurrentImage } = usePopUp()
+  const dispatch = useAppDispatch();
+  const neighborPopupData: any = useAppSelector(
+    (state) => state.app.neighborPopUpData
+  );
+  const similarPopupData: any = useAppSelector(
+    (state) => state.app.similarPopUpData
+  );
+  const isLoadingPopupOpened: boolean = useAppSelector(
+    (state) => state.app.isLoadingPopUpOpen
+  );
+  const displayedImages: string[] = useAppSelector(
+    (state) => state.app.displayedImages
+  );
+
+  const toggleLoadingPopup = React.useCallback((data: boolean) => {
+    dispatch(appActions.setLoadingPopUp(data));
+  }, [dispatch]);
+
+  const toggleNeighborPopup = React.useCallback((data: any) => {
+    dispatch(appActions.setNeighborPopupData(data));
+  }, [dispatch]);
+
+  const toggleSimilarPopup = React.useCallback((data: any) => {
+    dispatch(appActions.setSimilarPopupData(data));
+  }, [dispatch]);
 
   // Handle input changes for each key
-  const handleFilterChange = (key, value) => {
+  const handleFilterChange = (key: string, value: string) => {
     console.log('key', key, value)
     setSearchTerms((prevTerms) => {
-      const updatedTerms = [...prevTerms]
+      const updatedTerms: {category: string, value: string}[] = [...prevTerms]
       updatedTerms.push({ category: key, value })
       return updatedTerms
     })
@@ -89,10 +111,10 @@ const Home = () => {
   useEffect(() => {
     // console.log('searchTerms', searchTerms);
     if (searchTerms.length > 0 && cacheResult.length > 0) {
-      let fuseResults = cacheResult
+      let fuseResults: any[] = cacheResult
       // console.log('fuseResults', fuseResults.length, fuseResults);
 
-      searchTerms.forEach((term) => {
+      for (const term of searchTerms) {
         if (term.value !== '') {
           // console.log('term', term.category, term.value);
           const fuse = new Fuse(fuseResults, {
@@ -101,11 +123,11 @@ const Home = () => {
             threshold: 0.6,
             distance: 10000,
           })
-          fuseResults = fuse.search(term.value).map((result) => {
-            return { ...result.item, score: result.score }
+          fuseResults = fuse.search(String(term.value)).map((result: any) => {
+            return { ...result.item, score: result.score } as any;
           })
         }
-      })
+      }
 
       if (fuseResults.length === 0) {
         toast.error('No fuzzy results found')
@@ -128,176 +150,171 @@ const Home = () => {
     }
   }, [displayedImages])
 
-  const submit = (src) => {
-    const evalId = evaluationId
+  // const submit = (src: string) => {
+  //   if (src === '') {
+  //     return
+  //   }
+  //   const evalId = evaluationId
 
-    // Parse the filename from the file path
-    let filename = src.split('/').pop()
-    // Remove the file extension
-    filename = src.split('/').pop().split('.')[0]
-    console.log('filename', filename)
-    toast.info(`Submitting: ${filename}`)
+  //   // Parse the filename from the file path
+  //   const filenameWithExt = src.split('/').pop()
+  //   // Remove the file extension
+  //   const filename = filenameWithExt ? filenameWithExt.split('.')[0] : ''
+  //   console.log('filename', filename)
+  //   toast.info(`Submitting: ${filename}`)
 
-    evalService
-      .submitFile(evalId, sesId, filename)
-      .then((response) => {
-        console.log('response', response)
-        toast.success(
-          `Submit: ${filename} ${response.data.submission ? response.data.submission : ''}`,
-        )
-        if (
-          response?.data?.submission &&
-          response?.data?.submission === 'CORRECT'
-        ) {
-          evalService
-            .submitFile(
-              evalId,
-              localStorage.getItem('sessionCentral'),
-              filename,
-            )
-            .then((response) => {
-              console.log('response', response)
-              toast.success(
-                `Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}`,
-              )
-            })
-            .catch((error) => {
-              console.log('error', error)
-              toast.error(`ERROR FOR CENTRAL: ${`${filename}: ${error}`}`)
-            })
-        }
-      })
-      .catch((error) => {
-        console.log('error', error)
-        toast.error(`ERROR: ${`${filename}: ${error}`}`)
-      })
-  }
+  //   evalService
+  //     .submitFile(evalId, sesId, filename)
+  //     .then((response: ApiResponse) => {
+  //       console.log('response', response)
+  //       toast.success(
+  //         `Submit: ${filename} ${response.data.submission ? response.data.submission : ''}`,
+  //       )
+  //       if (
+  //         response?.data?.submission &&
+  //         response?.data?.submission === 'CORRECT'
+  //       ) {
+  //         evalService
+  //           .submitFile(
+  //             evalId,
+  //             localStorage.getItem('sessionCentral'),
+  //             filename,
+  //           )
+  //           .then((response: ApiResponse) => {
+  //             console.log('response', response)
+  //             toast.success(
+  //               `Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}`,
+  //             )
+  //           })
+  //           .catch((error: ApiError) => {
+  //             console.log('error', error)
+  //             toast.error(`ERROR FOR CENTRAL: ${`${filename}: ${error}`}`)
+  //           })
+  //       }
+  //     })
+  //     .catch((error: ApiError) => {
+  //       console.log('error', error)
+  //       toast.error(`ERROR: ${`${filename}: ${error}`}`)
+  //     })
+  // }
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Control') {
-        setIsCtrlPressed(true)
-      }
-      if (e.altKey) {
-        switch (e.key) {
-          case '1':
-            setSelectedTabIndex(0)
-            e.preventDefault()
-            break
-          case '2':
-            setSelectedTabIndex(1)
-            e.preventDefault()
-            break
-          case '3':
-            setSelectedTabIndex(2)
-            e.preventDefault()
-            break
-          case '4':
-            setSelectedTabIndex(3)
-            e.preventDefault()
-            break
-          default:
-            break
-        }
-      }
-      if (e.key === 'Escape') {
-        setNeighborPopUp(false)
-        setSimilarPopUp(false)
-      }
-    }
+  // useEffect(() => {
+  //   const handleKeyDown = (e: KeyboardEvent) => {
+  //     if (e.key === 'Control') {
+  //       setIsCtrlPressed(true)
+  //     }
+  //     if (e.altKey) {
+  //       switch (e.key) {
+  //         case '1':
+  //           setSelectedTabIndex(0)
+  //           e.preventDefault()
+  //           break
+  //         case '2':
+  //           setSelectedTabIndex(1)
+  //           e.preventDefault()
+  //           break
+  //         case '3':
+  //           setSelectedTabIndex(2)
+  //           e.preventDefault()
+  //           break
+  //         case '4':
+  //           setSelectedTabIndex(3)
+  //           e.preventDefault()
+  //           break
+  //         default:
+  //           break
+  //       }
+  //     }
+  //     if (e.key === 'Escape') {
+  //       setNeighborPopUp(false)
+  //       setSimilarPopUp(false)
+  //     }
+  //   }
 
-    const handleKeyUp = (e) => {
-      if (e.key === 'Control') {
-        setIsCtrlPressed(false)
-      }
-    }
+  //   const handleKeyUp = (e: KeyboardEvent) => {
+  //     if (e.key === 'Control') {
+  //       setIsCtrlPressed(false)
+  //     }
+  //   }
 
-    const handleClick = (e) => {
-      if (isCtrlPressed && e.target.classList.contains('submissible')) {
-        const src = e.target.getAttribute('src')
-        submit(src)
-      }
-    }
-    // console.log('isCtrlPressed', isCtrlPressed);
+  //   const handleClick = (e: MouseEvent) => {
+  //     if (isCtrlPressed && (e.target as HTMLElement).classList.contains('submissible')) {
+  //       const src =(e.target as HTMLElement).getAttribute('src')
+  //       submit(src as string)
+  //     }
+  //   }
+  //   // console.log('isCtrlPressed', isCtrlPressed);
 
-    document.addEventListener('keydown', handleKeyDown)
-    document.addEventListener('keyup', handleKeyUp)
-    document.addEventListener('click', handleClick)
+  //   document.addEventListener('keydown', handleKeyDown)
+  //   document.addEventListener('keyup', handleKeyUp)
+  //   document.addEventListener('click', handleClick)
 
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.removeEventListener('keyup', handleKeyUp)
-      document.removeEventListener('click', handleClick)
-    }
-  }, [isCtrlPressed, setNeighborPopUp, setSimilarPopUp])
+  //   return () => {
+  //     document.removeEventListener('keydown', handleKeyDown)
+  //     document.removeEventListener('keyup', handleKeyUp)
+  //     document.removeEventListener('click', handleClick)
+  //   }
+  // }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
 
   useEffect(() => {
     if (query !== '') {
       console.log('query', query, model, mode)
-      imageService
-        .getImages(query, model, mode)
-        .then((response) => {
-          console.log(
-            'response.data',
-            query,
-            model,
-            mode,
-            response.data.response[0],
-          )
-          setResult(response.data.response)
-          setCacheResult(response.data.response)
-          setLoadingPopUp(false)
-        })
-        .catch((error) => {
-          console.log('error', error)
-        })
+      // imageService
+      //   .getImages(query, model, mode)
+      //   .then((response: ApiResponse) => {
+      //     console.log(
+      //       'response.data',
+      //       query,
+      //       model,
+      //       mode,
+      //       response.data.response[0],
+      //     )
+      //     setResult(response.data.response)
+      //     setCacheResult(response.data.response)
+      //     toggleLoadingPopup(false)
+      //   })
+      //   .catch((error: ApiError) => {
+      //     console.log('error', error)
+      //   })
     }
   }, [query, model, mode])
 
   useEffect(() => {
     if (submitText !== '') {
-      evalService
-        .submitText(evaluationId, localStorage.getItem('session'), submitText)
-        .then((response) => {
-          toast.success(
-            `Text submitted: ${response.data.submission}`
-              ? response.data.submission
-              : '',
-          )
-          setSubmitText('')
-          console.log('response', response)
-          if (response?.data && response?.data?.submission === 'CORRECT') {
-            evalService
-              .submitText(
-                evaluationId,
-                localStorage.getItem('sessionCentral'),
-                submitText,
-              )
-              .then((response) => {
-                toast.success(
-                  `Text submitted: ${response.data.submission}`
-                    ? response.data.submission
-                    : '',
-                )
-                setSubmitText('')
-                console.log('response', response)
-              })
-              .catch((error) => {
-                toast.error(`Error submit TEXT: ${error.message}`)
-                console.log('error', error)
-              })
-          }
-        })
-        .catch((error) => {
-          toast.error(`Error submit TEXT: ${error.message}`)
-          console.log('error', error)
-        })
+      // evalService
+      //   .submitText(evaluationId, localStorage.getItem('session'), submitText)
+      //   .then((response: ApiResponse) => {
+      //     toast.success(`Text submitted: ${response.data.submission}`)
+      //     setSubmitText('')
+      //     console.log('response', response)
+      //     if (response?.data && response?.data?.submission === 'CORRECT') {
+      //       evalService
+      //         .submitText(
+      //           evaluationId,
+      //           localStorage.getItem('sessionCentral'),
+      //           submitText,
+      //         )
+      //         .then((response: ApiResponse) => {
+      //           toast.success(`Text submitted: ${response.data.submission}`)
+      //           setSubmitText('')
+      //           console.log('response', response)
+      //         })
+      //         .catch((error: ApiError) => {
+      //           toast.error(`Error submit TEXT: ${error.message}`)
+      //           console.log('error', error)
+      //         })
+      //     }
+      //   })
+      //   .catch((error: ApiError) => {
+      //     toast.error(`Error submit TEXT: ${error.message}`)
+      //     console.log('error', error)
+      //   })
     }
   }, [submitText])
 
   useEffect(() => {
     if (submitFilename !== '') {
-      submit(submitFilename)
+      // submit(submitFilename)
       setSubmitFilename('')
     }
   }, [submitFilename])
@@ -309,12 +326,7 @@ const Home = () => {
       className="home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative"
       style={{ backgroundColor: '#F5F5F5' }}
     >
-      <ToastContainer
-        style={{ zIndex: '99999999' }}
-        autoClose={2000}
-        limit={3}
-      />
-      {loadingPopUp && <LoadingPopup />}
+      {isLoadingPopupOpened && <LoadingPopup />}
 
       <Tooltip
         id="tooltip_img"
@@ -341,16 +353,16 @@ const Home = () => {
           )
         }}
       />
-      {neighborPopUp && (
+      {neighborPopupData && (
         <NeighborPopup
-          viewImage={neighborPopUp.img_link}
-          onClose={() => setNeighborPopUp(null)}
+          viewImage={neighborPopupData.img_link}
+          onClose={() => toggleNeighborPopup(null)}
         />
       )}
-      {similarPopUp && (
+      {similarPopupData && (
         <SinglePopup
-          viewImage={similarPopUp}
-          onClose={() => setSimilarPopUp(null)}
+          viewImage={similarPopupData}
+          onClose={() => toggleNeighborPopup(null)}
         />
       )}
       <SearchBox
@@ -377,6 +389,7 @@ const Home = () => {
         {LevelList.map((item, index) => (
           <button
             key={index}
+            type='button'
             className={`font-base font-bold py-1.5 grid-tab text-gray border-white ${index === selectedTabIndex ? 'active' : ''}`}
             style={{
               width: '197px',
@@ -412,6 +425,7 @@ const Home = () => {
               {Mode.map((item, index) => (
                 <button
                   key={index}
+                  type='button'
                   className={`font-base font-bold text-gray border-white ${
                     index === selectedModeIndex ? 'active' : ''
                   }`}

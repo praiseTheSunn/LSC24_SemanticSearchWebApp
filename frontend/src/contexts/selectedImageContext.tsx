@@ -5,10 +5,10 @@ const SelectedImagesContext = createContext(0)
 
 export const useSelectedImages = () => useContext(SelectedImagesContext)
 
-export const SelectedImagesProvider = ({ children }) => {
-  const [selectedImages, setSelectedImages] = useState([])
+export const SelectedImagesProvider = ({ children } : { children: any}) => {
+  const [selectedImages, setSelectedImages] = useState<any[]>([])
 
-  const addSelectedImage = (imageUrl, image) => {
+  const addSelectedImage = (imageUrl: string, image: any) => {
     console.log('adding', imageUrl)
     setSelectedImages((prevImages) => [
       ...prevImages,
@@ -16,7 +16,7 @@ export const SelectedImagesProvider = ({ children }) => {
     ])
   }
 
-  const removeSelectedImage = (imageUrl) => {
+  const removeSelectedImage = (imageUrl: string) => {
     setSelectedImages((prevImages) =>
       prevImages.filter((img) => img.url !== imageUrl),
     )

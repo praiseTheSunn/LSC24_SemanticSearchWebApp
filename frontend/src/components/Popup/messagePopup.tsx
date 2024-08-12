@@ -12,9 +12,9 @@ const messagePopup = ({
     setDisplayedImages(false)
   }
 
-  const onIconClick = (index, category, value) => {
+  const onIconClick = (index: number, category: string, value: any) => {
     // Create a new array with updated filters
-    const updatedFilters = displayedFilters.map((filter, i) => {
+    const updatedFilters = displayedFilters.map((filter: any, i: number) => {
       if (i === index) {
         // Toggle the status of the clicked filter
         const currentStatus = filter.status

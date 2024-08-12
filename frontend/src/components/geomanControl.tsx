@@ -1,8 +1,8 @@
-import './geomanControl.css'
 import * as turf from '@turf/turf'
 import * as L from 'leaflet'
 import { useEffect, useState } from 'react'
 import { useMap } from 'react-leaflet'
+import type React from 'react'
 
 const GeomanControl = ({ data, setData, dataSrc } : { data: JSON[], setData: React.Dispatch<React.SetStateAction<JSON[]>>, dataSrc: JSON[] }) => {
   const map = useMap()
