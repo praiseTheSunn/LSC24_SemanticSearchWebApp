@@ -1,6 +1,18 @@
 import { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css'
+import type { ImageRecord, VisibilityType } from '../types/image'
+
+interface Activity {
+  images: ImageRecord[];
+  [key: string]: any;         // To allow any other properties
+}
+
+interface ActivityBarProps {
+  data: Activity[];
+  visibility: VisibilityType;
+  onActivitySelect: (activity_id: number | null) => void
+}
 
 // create a map from activity to color code
 // const activityColorMap = {
@@ -10,7 +22,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 //     "Dancing": "#ffff00",
 // }
 
-const activityColorMap = {
+const activityColorMap: { [key: string]: string } = {
   'driving car': '#800000',
   'working on computer': '#9a6324',
   eating: '#808000',
@@ -23,7 +35,7 @@ const activityColorMap = {
   Other: '#f58231',
 }
 
-const ActivityBar = ({ data, visibility, onActivitySelect }) => {
+const ActivityBar: React.FC<ActivityBarProps> = ({ data, visibility, onActivitySelect }) => {
   const imageCounts = data.map((entity) => `${entity.images.length}`)
   const resultString = imageCounts.map((item) => `${item}fr`).join(' ')
   if (data) {
@@ -39,11 +51,11 @@ const ActivityBar = ({ data, visibility, onActivitySelect }) => {
   }, [bestImg])
 
   // xu ly viec click vao 1 activity nao do
-  const [clickedIndex, setClickedIndex] = useState(null)
+  const [clickedIndex, setClickedIndex] = useState<number | null>(null)
   useEffect(() => {
     console.log('bestImg', bestImg)
   }, [bestImg])
-  const handleActivityClick = (activity_id, bestImg, index) => {
+  const handleActivityClick = (activity_id: number | null, bestImg: any, index: number | null) => {
     if (clickedIndex !== index) {
       setClickedIndex(index)
       onActivitySelect(activity_id)
@@ -52,6 +64,8 @@ const ActivityBar = ({ data, visibility, onActivitySelect }) => {
       onActivitySelect(null)
     }
   }
+  // convert the handleActivityClick function to TypeScript
+  // const handleActivityClick = (activity_id: string, bestImg: string, index: number) => {
 
   return (
     <div
@@ -77,7 +91,7 @@ const ActivityBar = ({ data, visibility, onActivitySelect }) => {
               {content ? content : 'undefined'}
             </span>
             <img
-              src={activeAnchor?.getAttribute('data-tooltip-img') || null}
+              src={activeAnchor?.getAttribute('data-tooltip-img') || ''}
               alt="activity"
               className="w-[110px] h-[80px] object-contain"
             />

@@ -1,7 +1,12 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 
-const KhangScrollBar = ({ dates, setSelectedDate }) => {
+interface KhangScrollBarProps {
+  dates: string[]
+  setSelectedDate: (date: string) => void
+}
+
+const KhangScrollBar: React.FC<KhangScrollBarProps> = ({ dates, setSelectedDate }) => {
   const [interval, setInterval] = useState(
     dates.length /
       (dates.length > 10 ? (dates.length * 10) / 100 : dates.length),
