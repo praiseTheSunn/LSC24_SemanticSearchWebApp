@@ -3,8 +3,15 @@ import './imageGroup.css'
 import { createPortal } from 'react-dom'
 import AnImage from './AnImage'
 import ViewMorePopup from './Popup/viewMorePopup'
+import type { ImageRecord } from '../types/image'
 
-const ImageGroup = ({ images, title, sortType = 0 }) => {
+interface ImageGroupProps {
+  images: ImageRecord[]
+  title: string
+  sortType?: number
+}
+
+const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) => {
   if (sortType === 1) {
     // sort images by time string
     images.sort((a, b) => a.time.localeCompare(b.time))

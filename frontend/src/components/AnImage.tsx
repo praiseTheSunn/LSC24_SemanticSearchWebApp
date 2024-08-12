@@ -1,19 +1,20 @@
-import React, { FC } from 'react';
-import view_icon from '../assets/view_icon.png';
-import { useAppDispatch, useAppSelector, appActions } from '../AppState';
-import { isNil } from 'lodash';
+import React from 'react'
+import view_icon from '../assets/view_icon.png'
+import { useAppDispatch, useAppSelector, appActions } from '../AppState'
+import { isNil } from 'lodash'
+import type { ImageRecord } from '../types/image'
 
-export interface AnImageProps {
-  data: any;
-  index?: number;
-  isDisplayTooltip?: boolean;
-  isZoomOnHover?: boolean;
+interface AnImageProps {
+  data: ImageRecord
+  index?: number
+  isDisplayTooltip?: boolean
+  isZoomOnHover?: boolean
 }
 
-const AnImage: FC<AnImageProps> = ({ data, index, isDisplayTooltip = true, isZoomOnHover = true }) => {
-  // const src: string | null = data?.img_link ? data.img_link : null;
-  // const date: string | null = data?.date ? data.date : null;
-  // const time: string | null = data?.time ? data.time : null;
+const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
+  isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true
+  isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true
+
   const src = data?.img_link ? data.img_link : null
   const date = data?.date ? data.date : null
   const time = data?.time ? data.time : null
