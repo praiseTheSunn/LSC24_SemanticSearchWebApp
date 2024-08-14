@@ -5,8 +5,8 @@ import { TimelineTabLocationAllData, TimelineTabActivityAllData } from '../types
 const initialState: TimelineState = {
   selectedDate: null,
   inHoldMode: false,
-  locationBasedData: {},
-  activityBasedData: {},
+//   locationBasedData: {},
+//   activityBasedData: {},
 }
 
 export const sliceTimeline = createSlice({
