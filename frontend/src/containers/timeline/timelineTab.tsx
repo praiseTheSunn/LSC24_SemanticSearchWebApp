@@ -1,4 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react'
+import { useAppDispatch, useAppSelector, timelineActions } from '../../AppState'
+import { ImageRecord, TimelineTabActivityData, TimelineTabLocationData, TimelineTabActivityRowData, TimelineTabLocationRowData, TimelineTabActivityAllData, TimelineTabLocationAllData } from '../../types/image'
+
 import {
   AutoSizer,
   CellMeasurer,
@@ -15,7 +18,6 @@ import KhangScrollBar from '../../components/KhangScrollBar'
 import ImageGroup from '../../components/imageGroup'
 import ImageSingle from '../../components/imageSingle'
 import ActivityBar from '../../components/activityBar'
-import type { ImageRecord, TimelineTabActivityRowData, TimelineTabActivityData, TimelineTabLocationRowData, TimelineTabLocationData } from '../../types/image'
 
 interface TimelineTabProps {
   data: ImageRecord[]
@@ -24,21 +26,52 @@ interface TimelineTabProps {
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
 const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
-  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])              //0 location, 1 activity
-  // State to track whether the button is held down
-  const [holdActive, setHoldActive] = useState(false)
+  const dispatch = useAppDispatch()
+  const selectedDate: string | null = useAppSelector(
+    (state) => state.timeline.selectedDate
+  )
+  const inHoldMode: boolean = useAppSelector(
+    (state) => state.timeline.inHoldMode
+  )
+  // const locationBasedData: TimelineTabLocationAllData = useAppSelector(
+  //   (state) => state.timeline.locationBasedData
+  // )
+  // const activityBasedData: TimelineTabActivityAllData = useAppSelector(
+  //   (state) => state.timeline.activityBasedData
+  // )
+
+  const assignSelectedDate = React.useCallback((data: string | null) => {
+    dispatch(timelineActions.setSelectedDate(data));
+  }, [dispatch]);
+
+  const assignInHoldMode = React.useCallback((data: boolean) => {
+    dispatch(timelineActions.setInHoldMode(data));
+  }, [dispatch]);
+
+  // const assignLocationBasedData = React.useCallback((data: TimelineTabLocationAllData) => {
+  //   dispatch(timelineActions.setLocationBasedData(data));
+  // }, [dispatch]);
+
+  // const assignActivityBasedData = React.useCallback((data: TimelineTabActivityAllData) => {
+  //   dispatch(timelineActions.setActivityBasedData(data));
+  // }, [dispatch]);
+
+
+  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])               // 0 location, 1 activity  
+  const [holdActive, setHoldActive] = useState(false)                         // State to track whether the button is held down
   const [holdTimer, setHoldTimer] = useState<string | number | ReturnType<typeof setTimeout> | undefined>(undefined)
-  const [selectedDate, setSelectedDate] = useState(null)
-  const [inHoldMode, setInHoldMode] = useState(false)
   const [dates, setDates] = useState<string[]>([])
-  const [locationBasedData, setLocationBasedData] = useState<TimelineTabLocationRowData>({})
-  const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityRowData>({})
   const [selectedActivityIDs, setSelectedActivityIDs] = useState<(number | null)[]>([])
+  // const [selectedDate, setSelectedDate] = useState(null)
+  // const [inHoldMode, setInHoldMode] = useState(false)
+  const [locationBasedData, setLocationBasedData] = useState<TimelineTabLocationAllData>(new Map())
+  const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAllData>(new Map())
 
   useEffect(() => {
     const initialSelectedActivityIDs = dates.map(() => null)
     setSelectedActivityIDs(initialSelectedActivityIDs)
   }, [dates])
+
   const listRef = useRef(null)
 
   const ImageGroupMemorized = React.memo(ImageGroup)
@@ -47,6 +80,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
     fixedWidth: true,
     defaultHeight: 250,
   })
+
 
   // Handler for mouse down event
   const handleMouseDown = () => {
@@ -65,12 +99,14 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
     setHoldTimer(timer)
   }
 
+
   // Handler for mouse up event
   const handleMouseUp = () => {
     // Clear the timer and reset hold state
     clearTimeout(holdTimer)
     setHoldActive(false)
   }
+
 
   // Handler for mouse leave event
   const handleMouseLeave = () => {
@@ -79,75 +115,84 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
     setHoldActive(false)
   }
 
+
   // Function to perform when click and hold is triggered
   const doClickAndHoldAction = () => {
     console.log('Action to perform after hold')
     // Add any action you want to execute here
-    setInHoldMode(true)
+    assignInHoldMode(true)
   }
+
 
   useEffect(() => {
     // Parse data into location-based and activity-based data
-    const locationDataMap = new Map()
-    const activityDataMap = new Map()
+    const locationDataByDate: TimelineTabLocationAllData = new Map()
+    const activityDataByDate: TimelineTabActivityAllData = new Map()
 
-    data.forEach((item) => {
-      if (item.date === '2019-01-12') {
-        console.log('item', item)
-      }
+    for (const dataRecord of data) {
+      const date = dataRecord.date
+      const location_id = dataRecord.location_id
+      const location = dataRecord.location_displayed
+      const activity_id = dataRecord.activity_id
+      const activity = dataRecord.activity
+
       // Location-based data
-      if (!locationDataMap.has(item.date)) {
-        locationDataMap.set(item.date, [])
+      const rowLocationData = locationDataByDate.get(date)        
+      // case: the date is not in the map yet   
+      if (rowLocationData === undefined) {
+        locationDataByDate.set(date, new Map<number, TimelineTabLocationData>())
+        locationDataByDate.get(date)?.set(location_id, { location, images: [dataRecord] })
       }
-      const locationData = locationDataMap.get(item.date)
-      if (!locationData.some((data: TimelineTabLocationData) => data.location_id === item.location_id)) {
-        locationData.push({ location_id: item.location_id, images: [item] })
-      } else {
-        const existingLocation = locationData.find(
-          (data: TimelineTabLocationData) => data.location_id === item.location_id,
-        )
-        existingLocation.images.push(item)
+      else {
+        const singleLocationData = rowLocationData.get(location_id)
+        // case: the date is already in the map but the location_id is not in the array yet
+        if (singleLocationData === undefined) {
+          rowLocationData.set(location_id, { location, images: [dataRecord] })
+        }
+        // case: the location_id is already in the array
+        else {
+          singleLocationData.images.push(dataRecord)
+        }
       }
 
       // Activity-based data
-      if (!activityDataMap.has(item.date)) {
-        activityDataMap.set(item.date, [])
+      const rowActivityData = activityDataByDate.get(date)
+      // case: the date is not in the map yet      
+      if (rowActivityData === undefined) {
+        activityDataByDate.set(date, new Map<number, TimelineTabActivityData>())
+        activityDataByDate.get(date)?.set(activity_id, { activity, images: [dataRecord] })
       }
-      const activityData = activityDataMap.get(item.date)
-      if (!activityData.some((data: TimelineTabActivityData) => data.activity_id === item.activity_id)) {
-        activityData.push({
-          activity_id: item.activity_id,
-          activity: item.activity,
-          images: [item],
-        })
-      } else {
-        const existingActivity = activityData.find(
-          (data: TimelineTabActivityData) => data.activity_id === item.activity_id,
-        )
-        existingActivity.images.push(item)
+      else {
+        const singleActivityData = rowActivityData.get(activity_id)
+        // case: the date is already in the map but the activity_id is not in the array yet
+        if (singleActivityData === undefined) {
+          rowActivityData.set(activity_id, { activity, images: [dataRecord] })
+        }
+        // case: the activity_id is already in the array
+        else {
+          singleActivityData.images.push(dataRecord)
+        }
       }
-    })
+    }
 
-    // in each date of the map, sort location_id and activity_id ascending 
-    Object.keys(locationDataMap).forEach((key) => {
-      locationDataMap.get(key).sort((a: TimelineTabLocationData, b: TimelineTabLocationData) =>
-        a.location_id - b.location_id
-      );
-    });
-    Object.keys(activityDataMap).forEach((key) => {
-      activityDataMap.get(key).sort((a: TimelineTabActivityData, b: TimelineTabActivityData) =>
-        a.activity_id - b.activity_id
-      );
-    });
-    console.log('locationDataMap', locationDataMap)
-    console.log('activityDataMap', activityDataMap)
+    // in each date of the locationDataByDate and activityDataByDate, sort location_id/activity ascending 
+    for (const [_, rowLocationData] of locationDataByDate) {
+      const sortedLocationData = new Map([...rowLocationData.entries()].sort((a, b) => a[0] - b[0]))
+      locationDataByDate.set(_, sortedLocationData)
+    }
+    for (const [_, rowActivityData] of activityDataByDate) {
+      const sortedActivityData = new Map([...rowActivityData.entries()].sort((a, b) => a[0] - b[0]))
+      activityDataByDate.set(_, sortedActivityData)
+    }    
+    console.log('sorted locationDataByDate', locationDataByDate)
+    console.log('sorted activityDataByDate', activityDataByDate)
 
     // Update state
-    setLocationBasedData(locationDataMap)
-    setActivityBasedData(activityDataMap)
+    setLocationBasedData(locationDataByDate)
+    setActivityBasedData(activityDataByDate)
 
     // sort dates ascending
-    const dates = Array.from(locationDataMap.keys()).sort(
+    const dates = Array.from(locationDataByDate.keys()).sort(
       (a, b) => new Date(a).getDate() - new Date(b).getDate(),
     )
     setDates(dates)
@@ -180,23 +225,25 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
 
   const renderRow = ( index: number, key: any, style: any, parent: any, isScrolling: boolean ) => {
     const currentDate = dates[index]
-    const locationData = locationBasedData[currentDate] || []
-    const activityData = activityBasedData[currentDate] || []
+    const rowLocationData: TimelineTabLocationRowData = locationBasedData.get(currentDate) || new Map()
+    const rowActivityData: TimelineTabActivityRowData = activityBasedData.get(currentDate) || new Map()
 
     // Filter the data based on the selected activity_id for this row
     const selectedActivityID = selectedActivityIDs[index]
-    const filteredActivityData = selectedActivityID
-      ? activityData.filter((item: TimelineTabActivityData) => item.activity_id === selectedActivityID)
-      : activityData
+    const filteredActivityData: TimelineTabActivityRowData = selectedActivityID
+      ? new Map<number, TimelineTabActivityData>([
+          [selectedActivityID, rowActivityData.get(selectedActivityID) as TimelineTabActivityData]
+        ])
+      : rowActivityData;
 
-    // Sort activities in activityData based on time of the first image in each activity
-    activityData.sort(
-      (a: TimelineTabActivityData, b: TimelineTabActivityData) => {
-        const minTimeA = Math.min(...a.images.map(img => Number(img.time)));
-        const minTimeB = Math.min(...b.images.map(img => Number(img.time)));
-        return minTimeA - minTimeB;
-      }
-    );
+    // // Sort activities in rowActivityData based on time of the first image in each activity
+    // rowActivityData.sort(
+    //   (a: TimelineTabActivityData, b: TimelineTabActivityData) => {
+    //     const minTimeA = Math.min(...a.images.map(img => Number(img.time)));
+    //     const minTimeB = Math.min(...b.images.map(img => Number(img.time)));
+    //     return minTimeA - minTimeB;
+    //   }
+    // );
 
     return (
       <CellMeasurer
@@ -257,7 +304,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
                   />
 
                   <ActivityBar
-                    data={activityData}
+                    rowData={rowActivityData}
                     visibility={typeOfIndex[index] === 1 ? 'visible' : 'hidden'}
                     onActivitySelect={(activity_id) => {
                       const newSelectedActivityIDs = [...selectedActivityIDs]
@@ -271,12 +318,12 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
               {/* Location data */}
               {typeOfIndex[index] === 0 && (
                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
-                  {locationData.map((locationItem, locationIndex) => (
-                    <div className="w-[170px] h-[230px]" key={locationIndex}>
+                  {Array.from(rowLocationData.entries()).map(([location_id, location_item]) => (
+                    <div className="w-[170px] h-[230px]" key={location_id}>
                       <ImageGroupMemorized
                         sortType={1}
-                        images={locationItem.images}
-                        title={locationItem.images[0].location_displayed}
+                        images={location_item.images}
+                        title={location_item.location}
                       />
                     </div>
                   ))}
@@ -286,26 +333,25 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
               {/* Activity data */}
               {typeOfIndex[index] === 1 && (
                 <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
-                  {filteredActivityData.length === 1 ? (
+                  {filteredActivityData.size === 1 ? (
                     // If there is only one activity, display all images in a single row
                     <div className="flex flex-row flex-wrap gap-x-2">
-                      {filteredActivityData[0].images.map((imageItem) => (
+                      {Array.from(filteredActivityData.values())[0].images.map((imageItem: ImageRecord) => (
                         <ImageSingle key={imageItem.id} image={imageItem} />
                       ))}
                     </div>
                   ) : (
                     // Otherwise, display images in ImageGroups
                     <div className="flex flex-row flex-wrap gap-x-2">
-                      {filteredActivityData.map(
-                        (activityItem, activityIndex) => (
+                      {Array.from(filteredActivityData.entries()).map(([activity_id, activity_item]) => (
+                        <div className="w-[170px] h-[230px]" key={activity_id}>
                           <ImageGroupMemorized
-                            key={activityIndex}
-                            images={activityItem.images}
-                            title={activityItem.images[0].activity}
                             sortType={1}
+                            images={activity_item.images}
+                            title={activity_item.activity}
                           />
-                        ),
-                      )}
+                        </div>
+                      ))}
                     </div>
                   )}
                 </div>
@@ -318,7 +364,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
   }
 
   useEffect(() => {
-    setInHoldMode(false)
+    assignInHoldMode(false)
   }, [selectedDate])
 
   return (
@@ -327,9 +373,9 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
         {inHoldMode && (
           <div
             className="bg-white absolute top-0 left-0 opacity-95 w-full h-full z-20 pl-[0.7%]"
-            onClick={() => setInHoldMode(false)}
+            onClick={() => assignInHoldMode(false)}
           >
-            <KhangScrollBar dates={dates} setSelectedDate={setSelectedDate} />
+            <KhangScrollBar dates={dates} setSelectedDate={assignSelectedDate} />
           </div>
         )}
         <div

@@ -22,6 +22,13 @@ export type AppState = {
   displayedImages: string[]
 }
 
+export type TimelineState = {
+  selectedDate: string | null
+  inHoldMode: boolean
+  // locationBasedData: any
+  // activityBasedData: any
+}
+
 export type EvaluationState = {
   evaluationId: null | string,
   username: string,
