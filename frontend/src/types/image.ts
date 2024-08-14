@@ -13,21 +13,18 @@ export type ImageRecord = {
 export type VisibilityType = 'visible' | 'hidden' | 'collapse';
 
 export type TimelineTabActivityData = {
-    activity_id: number
+    // activity_id: number
     activity: string
     images: ImageRecord[]
 }
+export type TimelineTabActivityRowData = Map<number, TimelineTabActivityData>
+export type TimelineTabActivityAllData = Map<string, TimelineTabActivityRowData>
+
 
 export type TimelineTabLocationData = {
-    location_id: number
+    // location_id: number
     location: string
     images: ImageRecord[]
 }
-
-export type TimelineTabActivityRowData = {
-    [key: string]: TimelineTabActivityData[]
-}
-
-export type TimelineTabLocationRowData = {
-    [key: string]: TimelineTabLocationData[]
-}
+export type TimelineTabLocationRowData = Map<number, TimelineTabLocationData>
+export type TimelineTabLocationAllData = Map<string, TimelineTabLocationRowData>
