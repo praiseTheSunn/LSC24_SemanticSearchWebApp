@@ -32,6 +32,8 @@ import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import { isNil } from 'lodash'
 import LoadingPopup from '../../components/Popup/loadingPopup'
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
+import type { SearchTermType } from '../../types/search'
+import { ClickAwayListener } from '@mui/material'
 
 const LevelList = [
   { level: 'Similarity', bg: TrapoziedBgGrayLeft },
@@ -55,9 +57,9 @@ const Home = () => {
   // console.log('selectedFilters in home', selectedFilters);
 
   const [displayedFilters, setDisplayedFilters] = useState([])
-  const [query, setQuery] = useState('')
-  const [model, setModel] = useState('clip')
-  const [mode, setMode] = useState('smt-3m-dtin')
+  const [query, setQuery] = useState<string>('')
+  const [model, setModel] = useState<string>('clip')
+  const [mode, setMode] = useState<string>('smt-3m-dtin')
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const [selectedModeIndex, setSelectedModeIndex] = useState(0)
   const [isCtrlPressed, setIsCtrlPressed] = useState(false)
@@ -68,10 +70,11 @@ const Home = () => {
   }
   const [result, setResult] = useState<any[]>([])
   const [cacheResult, setCacheResult] = useState([])
-  const [searchTerms, setSearchTerms] = useState<{category: string, value: string}[]>([])
+  const [searchTerms, setSearchTerms] = useState<SearchTermType[]>([])
   const [submitText, setSubmitText] = useState('')
   const [submitFilename, setSubmitFilename] = useState('')
 
+  
   const dispatch = useAppDispatch();
   const neighborPopupData: any = useAppSelector(
     (state) => state.app.neighborPopUpData
@@ -89,6 +92,7 @@ const Home = () => {
   const toggleLoadingPopup = React.useCallback((data: boolean) => {
     dispatch(appActions.setLoadingPopUp(data));
   }, [dispatch]);
+  
 
   const toggleNeighborPopup = React.useCallback((data: any) => {
     dispatch(appActions.setNeighborPopupData(data));
@@ -362,7 +366,7 @@ const Home = () => {
       {similarPopupData && (
         <SinglePopup
           viewImage={similarPopupData}
-          onClose={() => toggleNeighborPopup(null)}
+          onClose={() => toggleSimilarPopup(null)}
         />
       )}
       <SearchBox
@@ -378,6 +382,8 @@ const Home = () => {
         setSubmitText={setSubmitText}
         setSubmitFilename={setSubmitFilename}
       />
+      
+      
       <div
         className="flex w-full justify-start relative"
         style={{

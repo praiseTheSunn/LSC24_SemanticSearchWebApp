@@ -1,7 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { ObjPosQuery } from ".";
+import { ObjPosQuery, query } from ".";
 import type { ObjPosParams, ObjPosResponse } from "./interface";
-
 
 export const ObjectPosApi = createApi({
   reducerPath: "ObjectPosApi",
@@ -17,6 +16,9 @@ export const ObjectPosApi = createApi({
             body: params,
           }
         },
+        transformResponse: (response: any) => {
+          return response.data;
+        },
         providesTags: (result) =>
           result
             ? [
@@ -31,3 +33,4 @@ export const ObjectPosApi = createApi({
     }
   }
 })
+
