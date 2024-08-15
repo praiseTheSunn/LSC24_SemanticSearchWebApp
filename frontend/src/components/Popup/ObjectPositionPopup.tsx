@@ -35,7 +35,6 @@ const ObjectPositionPopup = ({ showPopup, setResult, setCacheResult }
   }) => {
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([]);
-  // const { setLoadingPopUp } = usePopUp();
   const [isClear, setIsClear] = useState(false);
   const [trigger, result]  = useLazyGetObjectsByPositionQuery();
   const { data, error, isError, isFetching } = result;
