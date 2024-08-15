@@ -1,13 +1,29 @@
-import { useEffect, useRef, useState } from 'react'
-// import { ObjectPosIcon } from '../assets'
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState, forwardRef } from 'react'
+import { ObjectPosIcon } from '../assets'
 // import { usePopUp } from '../contexts/popUpContext'
 import { useSelectedImages } from '../contexts/selectedImageContext'
 import Dropdown from './dropDown'
 import ToggableComponent from './toggleEvaluationBox'
-import { Box } from '@mui/material'
+import { Box, ClickAwayListener, Paper } from '@mui/material'
 import { MessagePopup, ObjectPositionPopup } from '.'
+import type { SearchTermType } from '../types/search' 
 
-const SearchBox = ({
+type SearchBoxProps =
+{
+  displayedFilters: any;
+  setDisplayedFilters: any;
+  setQuery: any;
+  setResult: any;
+  setModel: Dispatch<SetStateAction<string>>;
+  setMode: Dispatch<SetStateAction<string>>;
+  handleFilterChange: any;
+  setCacheResult: any;
+  setSearchTerms: Dispatch<SetStateAction<SearchTermType[]>>;
+  setSubmitText: Dispatch<SetStateAction<string>>;
+  setSubmitFilename: Dispatch<SetStateAction<string>>;
+}
+
+const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   displayedFilters,
   setDisplayedFilters,
   setQuery,
@@ -19,40 +35,21 @@ const SearchBox = ({
   setSearchTerms,
   setSubmitText,
   setSubmitFilename,
-} : {
-  displayedFilters: any;
-  setDisplayedFilters: any;
-  setQuery: any;
-  setResult: any;
-  setModel: any;
-  setMode: any;
-  handleFilterChange: any;
-  setCacheResult: any;
-  setSearchTerms: any;
-  setSubmitText: any;
-  setSubmitFilename: any;
-}) => {
+}, ref) => {
   const [textareaValue, setTextareaValue] = useState('')
   const [textareaHeight, setTextareaHeight] = useState('60px')
   // const { setDisplayedImages } = useSelectedImages()
   const [isFocus, setIsFocus] = useState(false)
   const messagePopup = useRef<HTMLElement | null>(null)
   const objPosPopup = useRef<HTMLElement | null>(null)
-  const [showMessagePopup, setShowMessagePopup] = useState(false)
   const [showObjectPosPopup, setShowObjectPosPopup] = useState(false)
+  const [showMessagePopup, setShowMessagePopup] = useState(false)
   // const { setLoadingPopUp } = usePopUp()
 
   useEffect(() => {
     messagePopup.current = document.querySelector('.messagePopup')
     objPosPopup.current = document.querySelector('.objectPosPopup')
     const handleClickOutside = (event: any) => {
-      if (
-        messagePopup.current &&
-        !messagePopup.current.contains(event.target)
-      ) {
-        setShowMessagePopup(false)
-        // console.log('messagePopup', messagePopup);
-      }
       if (objPosPopup.current && !objPosPopup.current.contains(event.target)) {
         setShowObjectPosPopup(false)
         // console.log('objPosPopup', objPosPopup);
@@ -82,9 +79,9 @@ const SearchBox = ({
     if (event.target.value) {
       setTextareaHeight(`${event.target.scrollHeight}px`)
     }
-    setShowMessagePopup(true)
     // console.log('messagePopup', messagePopup);
     setIsFocus(true)
+    setShowMessagePopup(true)
   }
 
   const handleEnter = (event: any) => {
@@ -160,9 +157,9 @@ const SearchBox = ({
 
   return (
     // <div className='left-filter-container'>
-    <div
-      className="text-query-container flex-row"
-      style={{
+    <Box
+      className="text-query-container"
+      sx={{
         width: 'auto',
         height: '50px',
         paddingBottom: '5px',
@@ -173,56 +170,78 @@ const SearchBox = ({
         marginBottom: '10px',
       }}
     >
-      <textarea
-        style={{
-          height: textareaHeight,
-          width: '286px',
-          display: 'block',
+      <ClickAwayListener onClickAway={() => setShowMessagePopup(false)}>
+        <div>
+          <textarea
+            style={{
+              height: textareaHeight,
+              width: '286px',
+              display: 'block',
+              position: 'relative',
+              boxShadow: '2px 3px #c8c5c5 ',
+              border: 'solid 1.9px #636262',
+              borderRadius: '10px',
+              overflow: 'hidden',
+              zIndex: '10',
+              paddingLeft: '7px',
+              paddingTop: '5px',
+            }}
+            value={textareaValue}
+            onChange={handleTextareaChange}
+            autoComplete="on"
+            placeholder="Search here then Enter..."
+            className="search-textarea"
+            rows={2}
+            onKeyDown={handleEnter}
+            // onMouseEnter={() => messagePopup.current.classList.remove('hidden')}
+            onBlur={handleTextareaBlur}
+            onFocus={(e) => handleTextareaFocus(e)}
+          />
+          <Paper 
+          elevation={3}
+          sx={{
+            position: 'absolute',
+            left: '0',
+            top: '10px',
+          }}>
+            <MessagePopup
+              setSearchTerms={setSearchTerms}
+              displayedFilters={displayedFilters}
+              showPopup={showMessagePopup}
+              setDisplayedFilters={setDisplayedFilters}
+            />
+            
+          </Paper>
+          
+        </div>
+      </ClickAwayListener>
+      <Box
+        sx={{
           position: 'relative',
-          boxShadow: '2px 3px #c8c5c5 ',
-          border: 'solid 1.9px #636262',
-          borderRadius: '10px',
-          overflow: 'hidden',
-          zIndex: '10',
-          paddingLeft: '7px',
-          paddingTop: '5px',
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'nowrap',
         }}
-        value={textareaValue}
-        onChange={handleTextareaChange}
-        autoComplete="on"
-        placeholder="Search here then Enter..."
-        className="search-textarea"
-        rows={2}
-        onKeyDown={handleEnter}
-        // onMouseEnter={() => messagePopup.current.classList.remove('hidden')}
-        onBlur={handleTextareaBlur}
-        onFocus={(e) => handleTextareaFocus(e)}
-        onMouseLeave={() => (isFocus ? {} : setShowMessagePopup(false))}
-      />
-      <div className="absolute left-0">
-        <MessagePopup
-          setSearchTerms={setSearchTerms}
-          displayedFilters={displayedFilters}
-          showPopup={showMessagePopup}
-          setDisplayedFilters={setDisplayedFilters}
-          // setDisplayedImages={setDisplayedImages}
-
-        />
-      </div>
-      <div className="relative flex-row flex flex-nowrap">
+      >
         <Box
           component="img"
-          // src={ObjectPosIcon}
+          src={ObjectPosIcon}
           alt="object_pos_icon"
           className="ml-3 mt-2 size-9 cursor-pointer relative"
           onClick={() => openObjPosPopup()}
+          sx={{
+            marginLeft: '3px',
+            marginTop: '2px',
+            cursor: 'pointer',
+            position: 'relative',
+          }}
         />
         <ObjectPositionPopup
           setCacheResult={setCacheResult}
           showPopup={showObjectPosPopup}
           setResult={setResult}
         />
-      </div>
+      </Box>
       <div className="ml-3 mt-2">
         <Dropdown
           // className='ml-300'
@@ -248,9 +267,9 @@ const SearchBox = ({
       <div className="ml-3 mt-2 top-0" style={{ zIndex: 9999 }}>
         <ToggableComponent />
       </div>
-    </div>
+    </Box>
     // {/* </div> */}
   )
-}
+})
 
 export default SearchBox

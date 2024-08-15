@@ -14,6 +14,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.13.0
         version: 11.13.0(@emotion/react@11.13.0(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1)
+      '@fontsource/roboto':
+        specifier: ^5.0.14
+        version: 5.0.14
       '@geoman-io/leaflet-geoman-free':
         specifier: ^2.16.0
         version: 2.17.0(leaflet@1.9.4)
@@ -378,6 +381,9 @@ packages:
 
   '@floating-ui/utils@0.2.6':
     resolution: {integrity: sha512-0KI3zGxIUs1KDR/pjQPdJH4Z8nGBm0yJ5WRoRfdw1Kzeh45jkIfA0rmD0kBF6fKHH+xaH7g8y4jIXyAV5MGK3g==}
+
+  '@fontsource/roboto@5.0.14':
+    resolution: {integrity: sha512-zHAxlTTm9RuRn9/StwclFJChf3z9+fBrOxC3fw71htjHP1BgXNISwRjdJtAKAmMe5S2BzgpnjkQR93P9EZYI/Q==}
 
   '@geoman-io/leaflet-geoman-free@2.17.0':
     resolution: {integrity: sha512-vAY9tKB2I/Ui8d3QUBuebWnunI2sGjsfAUTXMMcf5UpISvPz67io4hpbKXid9GNsW6P4LGv1+ZzrmkpM78GzHA==}
@@ -3489,6 +3495,8 @@ snapshots:
       '@floating-ui/utils': 0.2.6
 
   '@floating-ui/utils@0.2.6': {}
+
+  '@fontsource/roboto@5.0.14': {}
 
   '@geoman-io/leaflet-geoman-free@2.17.0(leaflet@1.9.4)':
     dependencies:
