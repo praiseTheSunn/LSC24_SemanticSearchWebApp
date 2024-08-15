@@ -215,33 +215,36 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           
         </div>
       </ClickAwayListener>
-      <Box
-        sx={{
-          position: 'relative',
-          display: 'flex',
-          flexDirection: 'row',
-          flexWrap: 'nowrap',
-        }}
-      >
+      <ClickAwayListener onClickAway={() => setShowObjectPosPopup(false)}>
         <Box
-          component="img"
-          src={ObjectPosIcon}
-          alt="object_pos_icon"
-          className="ml-3 mt-2 size-9 cursor-pointer relative"
-          onClick={() => openObjPosPopup()}
           sx={{
-            marginLeft: '3px',
-            marginTop: '2px',
-            cursor: 'pointer',
             position: 'relative',
+            display: 'flex',
+            flexDirection: 'row',
+            flexWrap: 'nowrap',
           }}
-        />
-        <ObjectPositionPopup
-          setCacheResult={setCacheResult}
-          showPopup={showObjectPosPopup}
-          setResult={setResult}
-        />
-      </Box>
+        >
+          <Box
+            component="img"
+            src={ObjectPosIcon}
+            alt="object_pos_icon"
+            onClick={() => openObjPosPopup()}
+            sx={{
+              marginLeft: '3px',
+              marginTop: '2px',
+              cursor: 'pointer',
+              position: 'relative',
+              width: "2.25rem",
+              height: "2.25rem",
+            }}
+          />
+          <ObjectPositionPopup
+            setCacheResult={setCacheResult}
+            showPopup={showObjectPosPopup}
+            setResult={setResult}
+          />
+        </Box>
+      </ClickAwayListener>
       <div className="ml-3 mt-2">
         <Dropdown
           // className='ml-300'
