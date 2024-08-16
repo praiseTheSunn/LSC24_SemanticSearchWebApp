@@ -92,7 +92,7 @@ const ObjectPositionPopup = () => {
       setResult(data);
       setCacheResult(data);
     }
-  }, [isFetching, isError, error, data, setLoadingPopUp, setResult, setCacheResult]);
+  }, [isFetching, isError, error, data]);
 
   return (
     <Box

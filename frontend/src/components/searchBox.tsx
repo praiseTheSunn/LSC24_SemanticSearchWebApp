@@ -1,13 +1,13 @@
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState, forwardRef, useCallback } from 'react'
 import { ObjectPosIcon } from '../assets'
 // import { usePopUp } from '../contexts/popUpContext'
-import { useSelectedImages } from '../contexts/selectedImageContext'
 import Dropdown from './dropDown'
 import ToggableComponent from './toggleEvaluationBox'
 import { Box, ClickAwayListener, Paper } from '@mui/material'
 import { MessagePopup, ObjectPositionPopup } from '.'
 import type { QueryPayload, SearchTermType } from '../types/search' 
 import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery } from '../AppState'
+import type { ImageRecord } from '../types/image'
 
 type SearchBoxProps =
 {
@@ -35,7 +35,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   const objPosPopup = useRef<HTMLElement | null>(null)
   
   const [trigger, result ] = useLazyGetImagesQuery();
-  const { isFetching } = result;
+  const { data, error, isError, isFetching } = result;
   // const { setLoadingPopUp } = usePopUp()
 
   const dispatch = useAppDispatch()
@@ -59,6 +59,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   }, [dispatch])
   const setObjectPosPopup = useCallback((value: boolean) => {
     dispatch(appActions.setObjPosPopUp(value))
+  }, [dispatch])
+  const setResult = useCallback((value: ImageRecord[]) => {
+    dispatch(appActions.setAppImageData(value))
+  }, [dispatch])
+  const setCacheResult = useCallback((value: ImageRecord[]) => {
+    dispatch(appActions.setCacheData(value))
   }, [dispatch])
 
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
@@ -156,11 +162,20 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
 
   useEffect(() => {
     if (isFetching) {
-      setLoadingPopup('Fetching ...')
-    }else{
-      setLoadingPopup('')
+      setLoadingPopup('Fetching object result...');
     }
-  }, [isFetching, setLoadingPopup])
+    
+    if (isError) {
+      console.error('Error:', error);
+      setLoadingPopup('Error: fetching object result');
+    }
+  
+    if (data && !isFetching) {
+      setLoadingPopup('');
+      setResult(data);
+      setCacheResult(data);
+    }
+  }, [isFetching, isError, error, data]);
 
   return (
     // <div className='left-filter-container'>
