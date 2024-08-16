@@ -1,6 +1,6 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { ObjPosQuery, query } from ".";
-import type { ObjPosParams, ObjPosResponse } from "./interface";
+import { ObjPosQuery } from ".";
+import type { ApiResponse, ObjPosParams, ObjPosResponse } from '../types/api';
 
 export const ObjectPosApi = createApi({
   reducerPath: "ObjectPosApi",
@@ -16,7 +16,7 @@ export const ObjectPosApi = createApi({
             body: params,
           }
         },
-        transformResponse: (response: any) => {
+        transformResponse: (response: ApiResponse) => {
           return response.data;
         },
         providesTags: (result) =>

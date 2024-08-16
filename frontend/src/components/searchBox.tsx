@@ -1,4 +1,4 @@
-import { type Dispatch, type SetStateAction, useEffect, useRef, useState, forwardRef } from 'react'
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState, forwardRef, useCallback } from 'react'
 import { ObjectPosIcon } from '../assets'
 // import { usePopUp } from '../contexts/popUpContext'
 import { useSelectedImages } from '../contexts/selectedImageContext'
@@ -6,18 +6,14 @@ import Dropdown from './dropDown'
 import ToggableComponent from './toggleEvaluationBox'
 import { Box, ClickAwayListener, Paper } from '@mui/material'
 import { MessagePopup, ObjectPositionPopup } from '.'
-import type { SearchTermType } from '../types/search' 
+import type { QueryPayload, SearchTermType } from '../types/search' 
+import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery } from '../AppState'
 
 type SearchBoxProps =
 {
   displayedFilters: any;
   setDisplayedFilters: any;
-  setQuery: any;
-  setResult: any;
-  setModel: Dispatch<SetStateAction<string>>;
-  setMode: Dispatch<SetStateAction<string>>;
   handleFilterChange: any;
-  setCacheResult: any;
   setSearchTerms: Dispatch<SetStateAction<SearchTermType[]>>;
   setSubmitText: Dispatch<SetStateAction<string>>;
   setSubmitFilename: Dispatch<SetStateAction<string>>;
@@ -26,12 +22,7 @@ type SearchBoxProps =
 const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   displayedFilters,
   setDisplayedFilters,
-  setQuery,
-  setResult,
-  setModel,
-  setMode,
   handleFilterChange,
-  setCacheResult,
   setSearchTerms,
   setSubmitText,
   setSubmitFilename,
@@ -42,24 +33,35 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   const [isFocus, setIsFocus] = useState(false)
   const messagePopup = useRef<HTMLElement | null>(null)
   const objPosPopup = useRef<HTMLElement | null>(null)
-  const [showObjectPosPopup, setShowObjectPosPopup] = useState(false)
-  const [showMessagePopup, setShowMessagePopup] = useState(false)
+  
+  const [trigger, result ] = useLazyGetImagesQuery();
+  const { isFetching } = result;
   // const { setLoadingPopUp } = usePopUp()
 
-  useEffect(() => {
-    messagePopup.current = document.querySelector('.messagePopup')
-    objPosPopup.current = document.querySelector('.objectPosPopup')
-    const handleClickOutside = (event: any) => {
-      if (objPosPopup.current && !objPosPopup.current.contains(event.target)) {
-        setShowObjectPosPopup(false)
-        // console.log('objPosPopup', objPosPopup);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
+  const dispatch = useAppDispatch()
+  const setQuery = useCallback((value: string) => {
+    const newPayload = { ...queryPayload, text_query: value }
+    dispatch(appActions.setQueryPayload(newPayload))
+  }, [dispatch])
+  const setMode = useCallback((value: string) => {
+    const newPayload = { ...queryPayload, mode: value }
+    dispatch(appActions.setQueryPayload(newPayload))
+  }, [dispatch])
+  const setModel = useCallback((value: string) => {
+    const newPayload = { ...queryPayload, model: value }
+    dispatch(appActions.setQueryPayload(newPayload))
+  }, [dispatch])
+  const setLoadingPopup = useCallback((value: string) => {
+    dispatch(appActions.setLoadingPopUp(value))
+  }, [dispatch])
+  const setMessagePopup = useCallback((value: boolean) => {
+    dispatch(appActions.setMessagePopUp(value))
+  }, [dispatch])
+  const setObjectPosPopup = useCallback((value: boolean) => {
+    dispatch(appActions.setObjPosPopUp(value))
+  }, [dispatch])
+
+  const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
   const handleTextareaChange = (event: any) => {
     setTextareaValue(event.target.value)
@@ -81,7 +83,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
     }
     // console.log('messagePopup', messagePopup);
     setIsFocus(true)
-    setShowMessagePopup(true)
+    setMessagePopup(true)
   }
 
   const handleEnter = (event: any) => {
@@ -142,18 +144,23 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
         const filter = { category: 'query', value, status: 1 }
         // console.log('input', input);
         setQuery(value)
+        trigger({ text_query: value, mode: queryPayload.mode, model: queryPayload.model })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
         // setLoadingPopUp(true)
       }
       setTextareaValue('')
       // setDisplayedImages(true)
-      setShowMessagePopup(true)
+      setMessagePopup(true)
     }
   }
 
-  const openObjPosPopup = () => {
-    setShowObjectPosPopup(true)
-  }
+  useEffect(() => {
+    if (isFetching) {
+      setLoadingPopup('Fetching ...')
+    }else{
+      setLoadingPopup('')
+    }
+  }, [isFetching, setLoadingPopup])
 
   return (
     // <div className='left-filter-container'>
@@ -162,15 +169,14 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
       sx={{
         width: 'auto',
         height: '50px',
-        paddingBottom: '5px',
         display: 'flex',
         position: 'relative',
-        marginTop: '10px',
-        marginLeft: '10px',
-        marginBottom: '10px',
+        paddingTop: '10px',
+        paddingLeft: '10px',
+        paddingBottom: '15px',
       }}
     >
-      <ClickAwayListener onClickAway={() => setShowMessagePopup(false)}>
+      <ClickAwayListener onClickAway={() => setMessagePopup(false)}>
         <div>
           <textarea
             style={{
@@ -201,13 +207,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           elevation={3}
           sx={{
             position: 'absolute',
-            left: '0',
-            top: '10px',
+            left: '10px',
+            top: '20px',
           }}>
             <MessagePopup
               setSearchTerms={setSearchTerms}
               displayedFilters={displayedFilters}
-              showPopup={showMessagePopup}
               setDisplayedFilters={setDisplayedFilters}
             />
             
@@ -215,7 +220,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           
         </div>
       </ClickAwayListener>
-      <ClickAwayListener onClickAway={() => setShowObjectPosPopup(false)}>
+      <ClickAwayListener onClickAway={() => setObjectPosPopup(false)}>
         <Box
           sx={{
             position: 'relative',
@@ -228,7 +233,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
             component="img"
             src={ObjectPosIcon}
             alt="object_pos_icon"
-            onClick={() => openObjPosPopup()}
+            onClick={() => setObjectPosPopup(true)}
             sx={{
               marginLeft: '3px',
               marginTop: '2px',
@@ -238,14 +243,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
               height: "2.25rem",
             }}
           />
-          <ObjectPositionPopup
-            setCacheResult={setCacheResult}
-            showPopup={showObjectPosPopup}
-            setResult={setResult}
-          />
+          <ObjectPositionPopup/>
         </Box>
       </ClickAwayListener>
-      <div className="ml-3 mt-2">
+      <Box
+        sx={{ marginLeft: '12px', marginTop: '8px' }}
+        >
         <Dropdown
           // className='ml-300'
           label="Model"
@@ -253,7 +256,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           valueItems={['clip', 'blip2', 'beit3', 'stfm']}
           setData={setModel}
         />
-      </div>
+      </Box>
       <div className="ml-3 mt-2">
         <Dropdown
           // className='ml-10'

@@ -1,13 +1,15 @@
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import { AnImage } from '../../components'
+import { useAppSelector } from '../../AppState'
 
-const ImageGrid = ({ simData, cellHeight, cell } : {
-  simData: any[],
+const ImageGrid = ({ cellHeight, cell } : {
   cellHeight?: number,
   cell?: any
 }) => {
   cellHeight = cellHeight ? cellHeight : 125 // Default cell height
+
+  const simData = useAppSelector((state) => state.app.data);
 
   const columnCount = 9 // Number of columns in the grid
 
