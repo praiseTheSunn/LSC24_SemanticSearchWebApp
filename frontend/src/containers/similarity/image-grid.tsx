@@ -9,8 +9,6 @@ const ImageGrid = ({ cellHeight, cell } : {
 }) => {
   cellHeight = cellHeight ? cellHeight : 125 // Default cell height
 
-  const simData = useAppSelector((state) => state.app.data);
-
   const columnCount = 9 // Number of columns in the grid
 
   const Cell = ({ columnIndex, rowIndex, style } : {
