@@ -1,0 +1,42 @@
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { ImageQuery } from ".";
+import type { ImageRecord } from "../types/image";
+import type { ApiResponse, QueryParams } from "../types/api";
+
+export const ImageApi = createApi({
+  reducerPath: "ImageApi",
+  baseQuery: ImageQuery,
+  tagTypes: ["Image"],
+  endpoints(builder){
+    return {
+      getImages: builder.query<ImageRecord[], QueryParams>({
+        query: (params) => {
+          return {
+            url: "/search/search_with_text_query",
+            method: "POST",
+            body: params,
+          }
+        },
+        transformResponse: (response: ApiResponse) => {
+          console.log('Response:', response);
+          if (response.response) {
+            return response.response;
+          }
+          
+          return response.data;
+        },
+        providesTags: (result) =>
+          result
+            ? [
+                ...result.map(({ img_link }) => ({
+                  type: 'Image' as const,
+                  id: img_link,
+                })),
+                { type: 'Image', id: 'LIST' },
+              ]
+            : [{ type: 'Image', id: 'LIST' }],
+      }),
+    }
+  }
+})
+

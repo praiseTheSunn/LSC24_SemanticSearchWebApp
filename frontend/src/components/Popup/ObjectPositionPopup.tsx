@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Button, Grid, IconButton } from '@mui/material';
 // import { usePopUp } from '../../contexts/popUpContext';
 import { DragIconList } from '../../data/icon';
 // import { ObjectService } from '../../services/objectService';
 import Whiteboard from '../WhiteBoard';
-import { appActions, useAppDispatch, useLazyGetObjectsByPositionQuery } from '../../AppState';
-import { set } from 'lodash';
+import { appActions, useAppDispatch, useAppSelector, useLazyGetObjectsByPositionQuery } from '../../AppState';
+import type { ImageRecord } from '../../types/image';
+import type { ObjPosResponse } from '../../types/api';
 
 export interface DrawnItem {
   rect: Rect;
@@ -26,22 +27,26 @@ export interface Icon {
   name: string;
 }
 
-const ObjectPositionPopup = ({ showPopup, setResult, setCacheResult } 
-  : 
-  {
-    showPopup: boolean;
-    setResult: (result: any) => void;
-    setCacheResult: (result: any) => void;
-  }) => {
+const ObjectPositionPopup = () => {
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([]);
   const [isClear, setIsClear] = useState(false);
   const [trigger, result]  = useLazyGetObjectsByPositionQuery();
   const { data, error, isError, isFetching } = result;
+  
   const dispatch = useAppDispatch();
-  const setLoadingPopUp = (loading: boolean) => {
-    dispatch(appActions.setLoadingPopUp(loading));
-  }
+  const setLoadingPopUp = useCallback((message: string) => {
+    dispatch(appActions.setLoadingPopUp(message));
+  }, [dispatch]);
+  const setResult = useCallback((data: ImageRecord[]) => {
+    dispatch(appActions.setAppImageData(data));
+  }, [dispatch]);
+  const setCacheResult = useCallback((data: ObjPosResponse[]) => {
+    dispatch(appActions.setCacheData(data));
+  }, [dispatch]);
+
+  const showPopup = useAppSelector((state) => state.app.isObjPosPopUpOpen);
+
 
   const handleIconClick = (icon: Icon) => {
     setSelectedIcon(icon);
@@ -58,14 +63,6 @@ const ObjectPositionPopup = ({ showPopup, setResult, setCacheResult }
     setIsClear(true);
   };
 
-  useEffect(() => {
-    if (data){
-      setLoadingPopUp(false);
-      setResult(data);
-      setCacheResult(data);
-    }
-  }, [data]); 
-
   const handleQuery = () => {
     const query = selectedObjects.map((obj: DrawnItem) => {
       const { rect: obj_coor, icon } = obj;
@@ -80,23 +77,22 @@ const ObjectPositionPopup = ({ showPopup, setResult, setCacheResult }
     trigger(query);
   };
 
-  if (isFetching) {
-    setLoadingPopUp(true);
-    return (
-      <div>
-        Fetching object result
-      </div>
-    )
-  }
+  useEffect(() => {
+    if (isFetching) {
+      setLoadingPopUp('Fetching object result...');
+    }
+    
+    if (isError) {
+      console.error('Error:', error);
+      setLoadingPopUp('Error: fetching object result');
+    }
   
-  if (isError) {
-    console.error('Error:', error);
-    return (
-      <div>
-        Error fetching object result
-      </div>
-    )
-  }
+    if (data && !isFetching) {
+      setLoadingPopUp('');
+      setResult(data);
+      setCacheResult(data);
+    }
+  }, [isFetching, isError, error, data, setLoadingPopUp, setResult, setCacheResult]);
 
   return (
     <Box

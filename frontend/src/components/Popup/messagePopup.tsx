@@ -3,12 +3,12 @@ import { Box, Button, Paper, Typography, List, ListItem } from '@mui/material';
 import type { Dispatch, SetStateAction } from 'react';
 import type { FilterTagType, SearchTermType } from '../../types/search';
 import FilterTag from '../Filter/filterTag';
+import { useAppSelector } from '../../AppState';
 
 interface MessagePopupProps {
   displayedFilters: FilterTagType[];
   setDisplayedFilters: Dispatch<SetStateAction<FilterTagType[]>>;
   setDisplayedImages?: (displayed: boolean) => void;
-  showPopup: boolean;
   setSearchTerms: Dispatch<SetStateAction<SearchTermType[]>>;
 }
 
@@ -17,13 +17,14 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(({
   displayedFilters,
   setDisplayedFilters,
   setDisplayedImages,
-  showPopup,
   setSearchTerms,
 }, ref) => {
   const handleClearAll = () => {
     setDisplayedFilters([]);
     if (setDisplayedImages) setDisplayedImages(false);
   };
+
+  const showPopup = useAppSelector((state) => state.app.isMessagePopUpOpen);
 
   const onIconClick = (index: number, category: string, value: any) => {
     const updatedFilters = displayedFilters.map((filter: any, i: number) => {
@@ -74,7 +75,7 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(({
       <Box height="100%" display="flex" flexDirection="column" flexWrap="wrap" alignContent="center">
         <List>
           {displayedFilters.map((filter, index) => (
-            <ListItem key={`${filter.category}-${filter.value}`} disableGutters disablePadding>
+            <ListItem key={`${filter.category}-${filter.value}-${index}`} disableGutters disablePadding>
               <FilterTag filter={filter} index={index} onIconClick={onIconClick} />
             </ListItem>
           ))}

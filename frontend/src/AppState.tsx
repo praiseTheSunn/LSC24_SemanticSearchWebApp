@@ -11,6 +11,7 @@ import { Provider } from 'react-redux'
 import { sliceApp } from './slice/sliceApp'
 import { evaluationSlice } from './slice/evalutionSlice'
 import { ObjectPosApi } from './services/objectApi'
+import { ImageApi } from './services/imageApi'
 
 
 const makeStore = () => {
@@ -19,9 +20,11 @@ const makeStore = () => {
       app: sliceApp.reducer,
       [evaluationSlice.reducerPath]: evaluationSlice.reducer,
       [ObjectPosApi.reducerPath]: ObjectPosApi.reducer,
+      [ImageApi.reducerPath]: ImageApi.reducer,
     }),
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat([
       ObjectPosApi.middleware,
+      ImageApi.middleware,
     ]),
   })
 }
@@ -47,3 +50,7 @@ export const evaluationActions = evaluationSlice.actions
 export const {
   useLazyGetObjectsByPositionQuery
 } = ObjectPosApi
+
+export const {
+  useLazyGetImagesQuery
+} = ImageApi
