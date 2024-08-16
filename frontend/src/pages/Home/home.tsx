@@ -1,5 +1,5 @@
 import Fuse, { FuseResult } from 'fuse.js'
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useCallback } from 'react'
 import {  toast } from 'react-toastify'
 import {
   LocationIcon,
@@ -98,6 +98,13 @@ const Home = () => {
     dispatch(appActions.setAppImageData(data));
   }, [dispatch]);
 
+  const queryPayload = useAppSelector((state) => state.app.queryPayload);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const setQuery = useCallback((query: string) => {
+    const newPayload = { ...queryPayload, text_query: query }
+    dispatch(appActions.setQueryPayload(newPayload));
+  }, [dispatch]);
+
   
 
   const toggleNeighborPopup = React.useCallback((data: ImageRecord | null | undefined) => {
@@ -118,6 +125,7 @@ const Home = () => {
     })
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // console.log('searchTerms', searchTerms);
     if (searchTerms.length > 0) {
@@ -148,9 +156,11 @@ const Home = () => {
     } else if (searchTerms.length === 0) {
       setImageData(cacheData)
     }
-  }, [searchTerms, setImageData])
+  }, [searchTerms])
 
-  useEffect(() => {
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
     if (!displayedImages) {
       setDisplayedFilters([])
       setQuery('')
@@ -158,7 +168,7 @@ const Home = () => {
       setCacheResult([])
       setSearchTerms([])
     }
-  }, [displayedImages, setImageData, setCacheResult])
+  }, [displayedImages])
 
   // const submit = (src: string) => {
   //   if (src === '') {
@@ -330,7 +340,6 @@ const Home = () => {
           const tooltipData = content.content
             ? JSON.parse(content.content)
             : null
-          // console.log('tooltipData', tooltipData);
           return (
             tooltipData && (
               <ObjectDetail
@@ -407,13 +416,18 @@ const Home = () => {
       >
         {selectedTabIndex === 0 && (
           <div className="flex flex-col w-full h-full">
-            <div
+            <Box
               className="flex justify-start items-center"
-              style={{ paddingTop: '10px' }}
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                paddingTop: '10px',
+              }}
             >
               {Mode.map((item, index) => (
                 <button
-                  key={index}
+                  key={item.mode}
                   type='button'
                   className={`font-base font-bold text-gray border-white ${
                     index === selectedModeIndex ? 'active' : ''
@@ -430,7 +444,7 @@ const Home = () => {
                   onClick={() => setSelectedModeIndex(index)}
                 />
               ))}
-            </div>
+            </Box>
             {selectedModeIndex === 0 && (
               <div
                 className="flex flex-row h-full overflow-y-auto"
