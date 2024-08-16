@@ -23,7 +23,7 @@ const LocationTimeline = ({ data } : { data: any }) => {
   // State to track whether the button is held down
   const [holdActive, setHoldActive] = useState(false)
   const [holdTimer, setHoldTimer] = useState(null)
-  const [selectedDate, setSelectedDate] = useState(null)
+  const [selectedDate, setSelectedDate] = useState<string | null>(null)
   const [inHoldMode, setInHoldMode] = useState(false)
   const [dates, setDates] = useState([])
   const [locationBasedData, setLocationBasedData] = useState({})
