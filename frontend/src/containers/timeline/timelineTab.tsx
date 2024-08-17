@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector, timelineActions } from '../../AppState'
-import { ImageRecord, TimelineTabActivityData, TimelineTabLocationData, TimelineTabActivityRowData, TimelineTabLocationRowData, TimelineTabActivityAllData, TimelineTabLocationAllData } from '../../types/image'
+
 
 import {
   AutoSizer,
@@ -20,53 +20,14 @@ import KhangScrollBar from '../../components/KhangScrollBar'
 import ImageGroup from '../../components/imageGroup'
 import ImageSingle from '../../components/imageSingle'
 import ActivityBar from '../../components/activityBar'
-import type {  TimelineTabActivityRowData, TimelineTabActivityData, TimelineTabLocationRowData, TimelineTabLocationData } from '../../types/image'
-import { useAppSelector } from '../../AppState'
+import type {  ImageRecord, TimelineTabActivityRowData, TimelineTabActivityData, TimelineTabLocationRowData, TimelineTabLocationData, TimelineTabActivityAllData, TimelineTabLocationAllData } from '../../types/image'
 import { Box } from '@mui/material'
-
-interface TimelineTabProps {
-  data: ImageRecord[]
-}
 
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
 const TimelineTab = () => {
-  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])              //0 location, 1 activity
-  // State to track whether the button is held down
-  const [holdActive, setHoldActive] = useState(false)
-const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
-  const dispatch = useAppDispatch()
-  const selectedDate: string | null = useAppSelector(
-    (state) => state.timeline.selectedDate
-  )
-  const inHoldMode: boolean = useAppSelector(
-    (state) => state.timeline.inHoldMode
-  )
-  // const locationBasedData: TimelineTabLocationAllData = useAppSelector(
-  //   (state) => state.timeline.locationBasedData
-  // )
-  // const activityBasedData: TimelineTabActivityAllData = useAppSelector(
-  //   (state) => state.timeline.activityBasedData
-  // )
-
-  const assignSelectedDate = React.useCallback((data: string | null) => {
-    dispatch(timelineActions.setSelectedDate(data));
-  }, [dispatch]);
-
-  const assignInHoldMode = React.useCallback((data: boolean) => {
-    dispatch(timelineActions.setInHoldMode(data));
-  }, [dispatch]);
-
-  // const assignLocationBasedData = React.useCallback((data: TimelineTabLocationAllData) => {
-  //   dispatch(timelineActions.setLocationBasedData(data));
-  // }, [dispatch]);
-
-  // const assignActivityBasedData = React.useCallback((data: TimelineTabActivityAllData) => {
-  //   dispatch(timelineActions.setActivityBasedData(data));
-  // }, [dispatch]);
-
-
-  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])               // 0 location, 1 activity  
+  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])               //0 location, 1 activity
+  // State to track whether the button is held down 
   const [holdActive, setHoldActive] = useState(false)                         // State to track whether the button is held down
   const [holdTimer, setHoldTimer] = useState<string | number | ReturnType<typeof setTimeout> | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<string|null>(null)
@@ -83,9 +44,8 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
     const initialSelectedActivityIDs = dates.map(() => null)
     setSelectedActivityIDs(initialSelectedActivityIDs)
   }, [dates])
-  const listRef = useRef<List | null>(null)
 
-  const listRef = useRef(null)
+  const listRef = useRef<List | null>(null)
 
   const ImageGroupMemorized = React.memo(ImageGroup)
 
@@ -133,7 +93,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
   const doClickAndHoldAction = () => {
     console.log('Action to perform after hold')
     // Add any action you want to execute here
-    assignInHoldMode(true)
+    setInHoldMode(true)
   }
 
 
@@ -379,7 +339,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
   }
 
   useEffect(() => {
-    assignInHoldMode(false)
+    setInHoldMode(false)
   }, [selectedDate])
 
   return (
@@ -414,14 +374,9 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
               paddingLeft: '0.7%',
             }}
             onClick={() => setInHoldMode(false)}
-          <div
-            className="bg-white absolute top-0 left-0 opacity-95 w-full h-full z-20 pl-[0.7%]"
-            onClick={() => assignInHoldMode(false)}
           >
             <KhangScrollBar dates={dates} setSelectedDate={setSelectedDate} />
           </Box>
-            <KhangScrollBar dates={dates} setSelectedDate={assignSelectedDate} />
-          </div>
         )}
         <Box
           sx={{
