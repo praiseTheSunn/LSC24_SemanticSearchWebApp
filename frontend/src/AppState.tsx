@@ -52,5 +52,7 @@ export const {
 } = ObjectPosApi
 
 export const {
-  useLazyGetImagesQuery
+  useLazyGetImagesQuery,
+  useLazyGetNeighborsQuery,
+  useLazyGetSimilarsQuery
 } = ImageApi
