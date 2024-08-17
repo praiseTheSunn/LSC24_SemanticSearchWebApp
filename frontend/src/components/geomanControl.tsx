@@ -1,10 +1,18 @@
+// turf is for Javascript
 import * as turf from '@turf/turf'
 import * as L from 'leaflet'
 import { useEffect, useState } from 'react'
 import { useMap } from 'react-leaflet'
 import type React from 'react'
 
-const GeomanControl = ({ data, setData, dataSrc } : { data: JSON[], setData: React.Dispatch<React.SetStateAction<JSON[]>>, dataSrc: JSON[] }) => {
+interface locationJSON {
+  new_lat: number
+  new_lng: number
+  within: boolean
+  img_link: string
+}
+
+const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setData: React.Dispatch<React.SetStateAction<locationJSON[]>>, dataSrc: locationJSON[] }) => {
   const map = useMap()
   const [prevClickItem, setPrevClickItem] = useState(null)
 
@@ -12,9 +20,9 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: JSON[], setData: Rea
   const defaultIcon = L.icon({
     iconUrl: require('../assets/close.png'),
     iconSize: [32, 32],
-    shadowUrl: null,
-    shadowSize: null,
-    shadowAnchor: null,
+    shadowUrl: undefined,
+    shadowSize: undefined,
+    shadowAnchor: undefined,
   })
 
   // add control map
@@ -54,7 +62,7 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: JSON[], setData: Rea
       console.log('median', medianLat, medianLng)
       map.setView([medianLat, medianLng], 13) // You can adjust the zoom level as needed
     }
-  }, [dataSrc])
+  }, [dataSrc, map.setView])
 
   useEffect(() => {
     // received geofeatures from parent
@@ -74,18 +82,31 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: JSON[], setData: Rea
     const clusteringRadius = 0.01 // Example radius of 0.01 degrees
 
     // Group data into clusters based on proximity
-    const clusters = {}
-    dataSrc.forEach((d) => {
-      if (d.new_lat === null || d.new_lng === null) {
-        return
-      }
+    const clusters: { [key: string]: locationJSON[] } = {}
+    // dataSrc.forEach((d) => {
+    //   if (d.new_lat === null || d.new_lng === null) {
+    //     return
+    //   }
 
-      const clusterKey = `${Math.floor(d.new_lat / clusteringRadius)}_${Math.floor(d.new_lng / clusteringRadius)}`
-      if (!clusters[clusterKey]) {
-        clusters[clusterKey] = []
+    //   const clusterKey = `${Math.floor(d.new_lat / clusteringRadius)}_${Math.floor(d.new_lng / clusteringRadius)}`
+    //   if (!clusters[clusterKey]) {
+    //     clusters[clusterKey] = []
+    //   }
+    //   clusters[clusterKey].push(d)
+    // })
+
+    for (const d of dataSrc) {
+      if (d.new_lat === null || d.new_lng === null) {
+        continue;
       }
-      clusters[clusterKey].push(d)
-    })
+    
+      const clusterKey = `${Math.floor(d.new_lat / clusteringRadius)}_${Math.floor(d.new_lng / clusteringRadius)}`;
+      if (!clusters[clusterKey]) {
+        clusters[clusterKey] = [];
+      }
+      clusters[clusterKey].push(d);
+    }
+    
 
     // Create markers for each cluster
     for (const clusterKey in clusters) {
@@ -101,7 +122,7 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: JSON[], setData: Rea
       const clusterPopupContent = `<div style="width: 200px; max-height: 200px; overflow-y: auto;"><img src='${cluster[0].img_link}' max-width='300px' height='500px' /></div>`
       marker.bindPopup(clusterPopupContent)
 
-      marker.on('mouseover', function (e) {
+      marker.on('mouseover', (e) => {
         this.openPopup()
       })
 
@@ -125,7 +146,7 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: JSON[], setData: Rea
 
       marker.addTo(map)
     }
-  }, [data])
+  }, [data, dataSrc, map.eachLayer, map.removeLayer, setData, defaultIcon , map])  
 
   // useEffect(() => {
   //   if (prevClickItem === null) {
