@@ -1,81 +1,98 @@
-import FilterTag from '../Filter/filterTag'
+import React, { forwardRef } from 'react';
+import { Box, Button, Paper, Typography, List, ListItem } from '@mui/material';
+import type { Dispatch, SetStateAction } from 'react';
+import type { FilterTagType, SearchTermType } from '../../types/search';
+import FilterTag from '../Filter/filterTag';
+import { useAppSelector } from '../../AppState';
 
-const messagePopup = ({
+interface MessagePopupProps {
+  displayedFilters: FilterTagType[];
+  setDisplayedFilters: Dispatch<SetStateAction<FilterTagType[]>>;
+  setDisplayedImages?: (displayed: boolean) => void;
+  setSearchTerms: Dispatch<SetStateAction<SearchTermType[]>>;
+}
+
+// Forward ref to the root element
+const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(({
   displayedFilters,
   setDisplayedFilters,
   setDisplayedImages,
-  showPopup,
   setSearchTerms,
-}) => {
+}, ref) => {
   const handleClearAll = () => {
-    setDisplayedFilters([])
-    setDisplayedImages(false)
-  }
+    setDisplayedFilters([]);
+    if (setDisplayedImages) setDisplayedImages(false);
+  };
+
+  const showPopup = useAppSelector((state) => state.app.isMessagePopUpOpen);
 
   const onIconClick = (index: number, category: string, value: any) => {
-    // Create a new array with updated filters
     const updatedFilters = displayedFilters.map((filter: any, i: number) => {
       if (i === index) {
-        // Toggle the status of the clicked filter
-        const currentStatus = filter.status
+        const currentStatus = filter.status;
         if (currentStatus === 1) {
-          setSearchTerms((prevState) =>
+          setSearchTerms((prevState: SearchTermType[]) =>
             prevState.filter(
-              (term) => term.value !== value || term.category !== category,
+              (term: any) => term.value !== value || term.category !== category,
             ),
-          )
+          );
         } else {
-          setSearchTerms((prevState) => [...prevState, { category, value }])
+          setSearchTerms((prevState: SearchTermType[]) => [...prevState, { category, value }]);
         }
-
-        return { ...filter, status: currentStatus === 1 ? 0 : 1 }
+        return { ...filter, status: currentStatus === 1 ? 0 : 1 };
       }
-      return filter
-    })
-    // Set the state with the updated filters
-    setDisplayedFilters(updatedFilters)
-  }
+      return filter;
+    });
+    setDisplayedFilters(updatedFilters);
+  };
 
   return (
-    <div
-      className="filter-container messagePopup"
-      style={{
+    <Paper
+      ref={ref} // Forward the ref to the root element
+      elevation={3}
+      sx={{
         backgroundColor: 'rgb(206, 232, 255)',
-        maxHeight: showPopup ? '350px' : '0px',
-        width: showPopup ? '286px' : '0px',
+        maxHeight: showPopup ? '400px': '0px',
+        width: showPopup ? '300px' : '0px',
         minHeight: showPopup ? '250px' : '0px',
         position: 'absolute',
-        borderRadius: '20px',
-        overflow: 'scroll',
+        overflow: 'auto',
         top: '70px',
         zIndex: '10000',
+        transition: 'all 0.3s ease-in-out',
       }}
     >
-      <div className="pt-[1px] w-full sticky top-0 ">
-        <button
-          type="button"
-          className="btn btn-link clear-filter-button text-left "
-          onClick={() => handleClearAll()}
+      <Box zIndex="9999" sx={{ width: '100%', position: 'sticky', top: 0, backgroundColor: 'rgb(206, 232, 255)' }}>
+        <Button
+          size="small"
+          variant="text"
+          onClick={handleClearAll}
+          sx={{ textAlign: 'left' }}
         >
           Clear
-        </button>
-      </div>
-
-      <div className="h-full">
-        <div className="filter-item-area w-full p-[5px] flex flex-col items-center h-full">
+        </Button>
+      </Box>
+      <Box height="100%" display="flex" flexDirection="column" flexWrap="wrap" alignContent="center">
+        <List>
           {displayedFilters.map((filter, index) => (
-            <FilterTag
-              key={index}
-              filter={filter}
-              index={index}
-              onIconClick={onIconClick}
-            />
+            <ListItem key={`${filter.category}-${filter.value}-${index}`} disableGutters disablePadding>
+              <FilterTag filter={filter} index={index} onIconClick={onIconClick} />
+            </ListItem>
           ))}
-
-          <div
-            className="filter-instruction bg-white w-full h-auto mt-4"
-            style={{ borderRadius: '7px', padding: '10px 20px' }}
-          >
+        </List>
+        <Paper
+          elevation={1}
+          sx={{
+            backgroundColor: 'white',
+            width: '80%',
+            height: 'auto',
+            borderRadius: '7px',
+            p: 2,
+            mt: 1,
+            mb: 1,
+          }}
+        >
+          <Typography variant="body2" component="div">
             -lo ... : location
             <br />
             -t ... : time
@@ -93,11 +110,11 @@ const messagePopup = ({
             -text ... : Submit text
             <br />
             -file ... : Submit file name
-            <br />
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-export default messagePopup
+          </Typography>
+        </Paper>
+      </Box>
+    </Paper>
+  );
+});
+
+export default MessagePopup;

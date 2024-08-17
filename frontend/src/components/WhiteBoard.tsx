@@ -1,16 +1,14 @@
-import type React from "react"
-import { type SetStateAction, useEffect, useRef, useState } from "react"
-import { Box, IconButton, Tooltip } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import type { DrawnItem, Icon, Rect } from "./Popup/ObjectPositionPopup";
-
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import { Box, Tooltip } from '@mui/material';
+import type { SetStateAction, Dispatch } from 'react';
+import type { DrawnItem, Icon, Rect } from './Popup/ObjectPositionPopup';
 
 interface WhiteboardProps {
   selectedIcon: Icon | null;
   onDraw: (item: DrawnItem) => void;
   onClear: boolean;
-  setIsClear: React.Dispatch<SetStateAction<boolean>>;
-  setSelecObjects: React.Dispatch<SetStateAction<DrawnItem[]>>;
+  setIsClear: Dispatch<SetStateAction<boolean>>;
+  setSelecObjects: Dispatch<SetStateAction<DrawnItem[]>>;
 }
 
 const Whiteboard: React.FC<WhiteboardProps> = ({
@@ -48,125 +46,143 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     setSelecObjects(drawnItems);
   }, [drawnItems, setSelecObjects]);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (selectedIcon && whiteboardRef.current) {
-      const rect = whiteboardRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      setStartPos({ x, y });
-      setDrawing(true);
-    }
-  };
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      if (selectedIcon && whiteboardRef.current) {
+        const rect = whiteboardRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        setStartPos({ x, y });
+        setDrawing(true);
+      }
+    },
+    [selectedIcon]
+  );
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    if (drawing && startPos && whiteboardRef.current) {
-      const rect = whiteboardRef.current.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const whiteboardWidth = whiteboardRef.current.offsetWidth;
-      const whiteboardHeight = whiteboardRef.current.offsetHeight;
-      const x_percent = (e.clientX - rect.left) / whiteboardWidth;
-      const y_percent = (e.clientY - rect.top) / whiteboardHeight;
-      const startX = startPos.x / whiteboardWidth;
-      const startY = startPos.y / whiteboardHeight;
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      if (drawing && startPos && whiteboardRef.current) {
+        const rect = whiteboardRef.current.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const whiteboardWidth = whiteboardRef.current.offsetWidth;
+        const whiteboardHeight = whiteboardRef.current.offsetHeight;
+        const x_percent = (e.clientX - rect.left) / whiteboardWidth;
+        const y_percent = (e.clientY - rect.top) / whiteboardHeight;
+        const startX = startPos.x / whiteboardWidth;
+        const startY = startPos.y / whiteboardHeight;
 
-      setRect({
-        x: Math.min(x, startPos.x),
-        y: Math.min(y, startPos.y),
-        width: Math.abs(x - startPos.x),
-        height: Math.abs(y - startPos.y),
-        top: Math.min(y_percent, startY),
-        left: Math.min(x_percent, startX),
-        bottom: Math.max(y_percent, startY),
-        right: Math.max(x_percent, startX),
-      });
-    }
-  };
+        setRect({
+          x: Math.min(x, startPos.x),
+          y: Math.min(y, startPos.y),
+          width: Math.abs(x - startPos.x),
+          height: Math.abs(y - startPos.y),
+          top: Math.min(y_percent, startY),
+          left: Math.min(x_percent, startX),
+          bottom: Math.max(y_percent, startY),
+          right: Math.max(x_percent, startX),
+        });
+      }
+    },
+    [drawing, startPos]
+  );
 
-  const handleMouseUp = () => {
+  const handleMouseUp = useCallback(() => {
     if (drawing && rect && selectedIcon) {
       const newItem = { rect, icon: selectedIcon };
-      setDrawnItems([...drawnItems, newItem]);
+      setDrawnItems((prevItems) => [...prevItems, newItem]);
       onDraw(newItem); // Pass the drawn item to the parent component
       setDrawing(false);
       setStartPos(null);
       setRect(null);
     }
-  };
+  }, [drawing, rect, selectedIcon, onDraw]);
 
-  const StyledBox = styled(Box)(({ theme }) => ({
-    border: '1px solid black',
-    position: 'relative',
-    cursor: selectedIcon ? 'crosshair' : 'default',
-    width: '280px',
-    height: '200px',
-  }));
+  const drawnItemsMemo = useMemo(
+    () =>
+      drawnItems.map((item, index) => (
+        <Box
+          key={`${item.icon.name}-${index}`}
+          sx={{
+            left: item.rect.x,
+            top: item.rect.y,
+            width: item.rect.width,
+            height: item.rect.height,
+            position: 'absolute',
+            border: '1px solid blue',
+          }}
+        >
+          <img
+            src={item.icon.source}
+            alt={item.icon.name}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+        </Box>
+      )),
+    [drawnItems]
+  );
 
   return (
-    <StyledBox
+    <Box
+      sx={{
+        border: '1px solid black',
+        position: 'relative',
+        cursor: selectedIcon ? 'crosshair' : 'default',
+        width: '280px',
+        height: '200px',
+      }}
+      component="div"
       ref={whiteboardRef}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
-      <Box className="relative w-full h-full">
-        {drawnItems.map((item, index) => (
-          <Box
-            key={item.icon.name}
-            className="absolute border border-blue"
-            sx={{
-              left: item.rect.x,
-              top: item.rect.y,
-              width: item.rect.width,
-              height: item.rect.height,
-            }}
-          >
-            <img
-              src={item.icon.source}
-              alt={item.icon.name}
-              className="w-full h-full object-cover"
-            />
-          </Box>
-        ))}
+      <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
+        {drawnItemsMemo}
         {rect && (
           <Box
-            className="absolute border border-blue"
             sx={{
               left: rect.x,
               top: rect.y,
               width: rect.width,
               height: rect.height,
+              position: 'absolute',
+              border: '1px solid blue',
             }}
           >
             {selectedIcon && (
-              <img
+              <Box
+                component="img"
                 src={selectedIcon.source}
                 alt={selectedIcon.name}
-                className="w-full h-full object-cover"
+                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
               />
             )}
           </Box>
         )}
         {selectedIcon && (
           <Box
-            className="fixed z-50 pointer-events-none"
             sx={{
               left: cursorPosition.x + 2,
               top: cursorPosition.y + 2,
+              position: 'fixed',
+              zIndex: 50,
+              pointerEvents: 'none',
             }}
           >
             <Tooltip title={selectedIcon.name}>
-              <img
+              <Box
+                component="img"
                 src={selectedIcon.source}
                 alt={selectedIcon.name}
-                className="w-8 h-8 opacity-80"
+                sx={{ width: '32px', height: '32px', opacity: 0.8 }}
               />
             </Tooltip>
           </Box>
         )}
       </Box>
-    </StyledBox>
+    </Box>
   );
 };
 
-export default Whiteboard;
+export default React.memo(Whiteboard);
