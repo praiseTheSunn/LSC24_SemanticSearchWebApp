@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { useAppDispatch, useAppSelector, timelineActions } from '../../AppState'
+import { useAppDispatch, useAppSelector } from '../../AppState'
 
 
 import {
@@ -26,8 +26,7 @@ import { Box } from '@mui/material'
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
 const TimelineTab = () => {
-  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])               //0 location, 1 activity
-  // State to track whether the button is held down 
+  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])               // 0 location, 1 activity, State to track whether the button is held down 
   const [holdActive, setHoldActive] = useState(false)                         // State to track whether the button is held down
   const [holdTimer, setHoldTimer] = useState<string | number | ReturnType<typeof setTimeout> | undefined>(undefined)
   const [selectedDate, setSelectedDate] = useState<string|null>(null)
@@ -35,8 +34,6 @@ const TimelineTab = () => {
   const [dates, setDates] = useState<string[]>([])
   const [selectedActivityIDs, setSelectedActivityIDs] = useState<(number | null)[]>([])
   const data = useAppSelector((state) => state.app.data)
-  // const [selectedDate, setSelectedDate] = useState(null)
-  // const [inHoldMode, setInHoldMode] = useState(false)
   const [locationBasedData, setLocationBasedData] = useState<TimelineTabLocationAllData>(new Map())
   const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAllData>(new Map())
 
