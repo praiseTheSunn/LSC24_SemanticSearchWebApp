@@ -1,5 +1,5 @@
 import React from 'react';
-import view_icon from '../assets/view_icon.png';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import { useAppDispatch, useAppSelector, appActions } from '../AppState';
 import type { ImageRecord } from '../types/image';
 import { isNil, spread } from 'lodash';
@@ -15,7 +15,6 @@ interface AnImageProps {
 const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
   isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true;
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true;
-  console.log('izoomonhover:', isZoomOnHover);  
 
   const src = data?.img_link ? data.img_link : undefined;
   const date = data?.date ? data.date : null;
@@ -46,12 +45,15 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
       key={index}
       sx={{
         position: 'relative',
-        width: '100%',
+        width: '100% !important',
         height: '100%',
         overflow: 'hidden',
         borderRadius: '0.5rem', // For rounded corners
+        alignItems: 'center',
+        justifyContent: 'center',
+        display: 'flex',
         transition: isZoomOnHover ? 'transform 0.3s ease-in-out' : undefined,
-        transform: isZoomOnHover ? 'scale(1.05)' : undefined,
+        // transform: isZoomOnHover ? 'scale(1.05)' : undefined,
         zIndex: isZoomOnHover ? 50 : undefined,
         // Apply hover effect using a pseudo-class approach if needed
       }}
@@ -97,14 +99,15 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         }}
       />
       <Box
-        style={{
+        sx={{
           position: 'absolute',
           bottom: 0,
           right: 0,
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           opacity: 0.5,
           zIndex: 50,
-          display: 'none', // Handle hover effect using JS or CSS
+          
+          '&:hover': { display: 'block' }, // Handle hover effect using MUI sx prop
         }}
         onClick={(e) => {
           e.preventDefault();
@@ -113,7 +116,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         }}
         {...spread}
       >
-        <Box component="img" src={view_icon} alt={`View ${index}`} style={{ width: '1.75rem' }} />
+        <VisibilityOutlinedIcon style={{ width: '1.75rem', color: 'white' }} />
       </Box>
     </Box>
   );

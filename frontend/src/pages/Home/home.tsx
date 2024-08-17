@@ -459,7 +459,6 @@ const Home = () => {
                   display: 'flex',
                   flexDirection: 'row',
                   height: '100%',
-                  overflowY: 'auto',
                 }}
               >
                 <ImageGrid />
