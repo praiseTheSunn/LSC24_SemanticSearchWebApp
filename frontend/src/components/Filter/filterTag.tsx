@@ -1,42 +1,73 @@
-import React from 'react'
+import type React from 'react';
+import { Box, Typography, IconButton, Paper } from '@mui/material';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CancelIcon from '@mui/icons-material/Cancel';
 
-const FilterTag = ({ index, filter, onIconClick }) => {
-  // console.log('filter', filter);
-  const filterValue = Array.isArray(filter.value)
-    ? filter.value.join(', ')
-    : filter.value
-  return (
-    <div className="filter-tag-container h-fit w-full block" key={index}>
-      <label
-        className="gray text-sm"
-        htmlFor={`${filter.category}-${filterValue}`}
-      >
-        {filter.category}
-      </label>
-      <div
-        className={'form-control tag-content flex flex-row w-full pr-[3px] '}
-        id={`${filter.category}-${filter.value}`}
-        style={{
-          backgroundColor: `${filter.status === 1 ? 'rgb(170, 247, 155)' : 'rgb(253, 174, 174)'}`,
-        }}
-      >
-        <div className="tag-value w-full text-wrap break-all">
-          {filterValue}
-        </div>
-        <div className="icon-container flex flex-row h-[28px] w-[15px] items-center ml-[3px]">
-          <div
-            className={`${filter.status === 1 ? 'enable-icon' : 'disable-icon'} w-[10px] h-[10px] cursor-pointer`}
-            title={`${filter.status === 1 ? 'Disable' : 'Enable'}`}
-            style={{
-              borderRadius: '3px',
-              backgroundColor: `${filter.status === 1 ? 'rgb(29, 162, 3)' : 'rgb(211, 0, 0)'}`,
-            }}
-            onClick={() => onIconClick(index, filter.category, filterValue)}
-          />
-        </div>
-      </div>
-    </div>
-  )
+interface FilterTagProps {
+  index: number;
+  filter: {
+    category: string;
+    value: string | string[];
+    status: number;
+  };
+  onIconClick: (index: number, category: string, value: any) => void;
 }
 
-export default FilterTag
+const FilterTag: React.FC<FilterTagProps> = ({ index, filter, onIconClick }) => {
+  const filterValue = Array.isArray(filter.value) ? filter.value.join(', ') : filter.value;
+
+  return (
+    <Box
+      key={index}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        borderRadius: 1,
+      }}
+    >
+      <Typography
+        variant="caption"
+        color="textSecondary"
+        sx={{ mb: 0.5 }}
+      >
+        {filter.category}
+      </Typography>
+      <Paper
+        square={false}
+        elevation={0}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          backgroundColor: filter.status === 1 ? 'rgb(170, 247, 155)' : 'rgb(253, 174, 174)',
+          width: '100%',
+        }}
+      >
+        <Typography
+          variant="body2"
+          sx={{
+            flexGrow: 1,
+            wordBreak: 'break-all',
+            marginLeft: 1,
+            marginRight: 1,
+            
+          }}
+        >
+          {filterValue}
+        </Typography>
+        <IconButton
+          size="small"
+          onClick={() => onIconClick(index, filter.category, filterValue)}
+          title={filter.status === 1 ? 'Disable' : 'Enable'}
+          sx={{
+            color: filter.status === 1 ? 'rgb(29, 162, 3)' : 'rgb(211, 0, 0)',
+          }}
+        >
+          {filter.status === 1 ? <CheckCircleIcon /> :  <CancelIcon />}
+        </IconButton>
+      </Paper>
+    </Box>
+  );
+};
+
+export default FilterTag;

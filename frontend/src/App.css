@@ -40,6 +40,7 @@
 
 .grid-tab.active {
   color: #1A1A1A;
+  font-weight: bold;
   z-index: 1000 !important;
   background-image: url('./assets/trapoziedBgWhite.svg') !important;
 }
@@ -53,7 +54,8 @@
 }
 
 ::-webkit-scrollbar {
-  width: 10px;
+  max-width: 8px;
+  max-height: 8 px;
 }
 
 ::-webkit-scrollbar-track {
