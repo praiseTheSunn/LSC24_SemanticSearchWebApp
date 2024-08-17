@@ -13,6 +13,7 @@ const ImageGrid = ({ cellHeight, cell } : {
   const simData = useAppSelector((state) => state.app.data)
   const columnCount = 9 // Number of columns in the grid
 
+  const gridRowGap = '2px'
   const Cell = ({ columnIndex, rowIndex, style } : {
     columnIndex: number,
     rowIndex: number,
@@ -22,24 +23,23 @@ const ImageGrid = ({ cellHeight, cell } : {
     if (index >= simData.length) return null // Ensure not to exceed simData length
 
     const data = simData[index]
-
     return (
-      <Box style={style}>
-        <Box sx={{ height: '100%', overflow: 'hidden', padding: '0.125rem'}} >
+      <div style={style}>
+        <Box sx={{ height: `calc(${style.height}px - 2 * ${gridRowGap})`, position: 'relative', overflow: 'hidden', padding: gridRowGap}} >
           <AnImage key={index} data={data} index={index} />
         </Box>
-      </Box>
+      </div>
     )
   }
 
   cell = cell ? cell : Cell
 
   return (
-    <Box sx={{height: '100dvh', width: '100dvw'}}>
+    <Box sx={{ width: '100dvw'}}>
       <AutoSizer>
         {({ height, width }) => {
           const columnWidth = width / columnCount - 1.5
-          const rowHeight = cellHeight // Making rows square by setting row height equal to column width
+          const rowHeight = cellHeight + 2 // Making rows square by setting row height equal to column width
           const rowCount = Math.ceil(simData.length / columnCount)
 
           return (
@@ -50,6 +50,7 @@ const ImageGrid = ({ cellHeight, cell } : {
               rowCount={rowCount}
               rowHeight={rowHeight}
               width={width}
+              overscanRowCount={3}
             >
               {cell}
             </Grid>
