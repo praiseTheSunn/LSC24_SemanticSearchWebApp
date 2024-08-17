@@ -18,7 +18,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) => {
-          console.log('Response:', response);
+          // console.log('Response:', response);
           if (response.response) {
             return response.response;
           }
