@@ -21,7 +21,7 @@ import ImageGroup from '../../components/imageGroup'
 import ImageSingle from '../../components/imageSingle'
 import ActivityBar from '../../components/activityBar'
 import type {  ImageRecord, TimelineTabActivityRowData, TimelineTabActivityData, TimelineTabLocationRowData, TimelineTabLocationData, TimelineTabActivityAllData, TimelineTabLocationAllData } from '../../types/image'
-import { Box } from '@mui/material'
+import { Box, Typography, IconButton } from '@mui/material';
 
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
@@ -34,6 +34,7 @@ const TimelineTab = () => {
   const [dates, setDates] = useState<string[]>([])
   const [selectedActivityIDs, setSelectedActivityIDs] = useState<(number | null)[]>([])
   const data = useAppSelector((state) => state.app.data)
+  console.log('data', data)
   const [locationBasedData, setLocationBasedData] = useState<TimelineTabLocationAllData>(new Map())
   const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAllData>(new Map())
 
@@ -147,15 +148,19 @@ const TimelineTab = () => {
 
     // in each date of the locationDataByDate and activityDataByDate, sort location_id/activity ascending 
     for (const [_, rowLocationData] of locationDataByDate) {
-      const sortedLocationData = new Map([...rowLocationData.entries()].sort((a, b) => a[0] - b[0]))
-      locationDataByDate.set(_, sortedLocationData)
+      const rowLocationDataSorted = new Map([...rowLocationData.entries()].sort((a, b) => a[0] - b[0]))
+      locationDataByDate.set(_, rowLocationDataSorted)
     }
     for (const [_, rowActivityData] of activityDataByDate) {
-      const sortedActivityData = new Map([...rowActivityData.entries()].sort((a, b) => a[0] - b[0]))
-      activityDataByDate.set(_, sortedActivityData)
+      const rowActivityDataSorted = new Map([...rowActivityData.entries()].sort((a, b) => a[0] - b[0]))
+      activityDataByDate.set(_, rowActivityDataSorted)
     }    
-    console.log('sorted locationDataByDate', locationDataByDate)
-    console.log('sorted activityDataByDate', activityDataByDate)
+
+    // keep locationDataByDate and activityDataByDate as Map but sort the keys (dates) ascending
+    const locationDataByDateSorted = new Map([...locationDataByDate.entries()].sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime()))
+    const activityDataByDateSorted = new Map([...activityDataByDate.entries()].sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime()))
+    console.log('locationDataByDateSorted', locationDataByDateSorted)
+    console.log('activityDataByDateSorted', activityDataByDateSorted)
 
     // Update state
     setLocationBasedData(locationDataByDate)
@@ -233,27 +238,39 @@ const TimelineTab = () => {
             }}
           >
             <Box
-              sx={{ width: '25px', height: '25px', zIndex: '10', backgroundColor: 'black', marginRight: '28px', borderRadius: '9999px' }}
+              sx={{
+                width: 25,
+                height: 25,
+                zIndex: 10,
+                backgroundColor: 'black',
+                marginRight: 2,
+                borderRadius: '50%',
+              }}
             />
 
-            <div
-              className="flex flex-col mb-4 relative"
-              style={{
+            <Box
+              sx={{
                 width: '96%',
-                minHeight: '100px',
+                minHeight: 100,
                 boxShadow: '0px 2px #D7D7D7',
-                borderRadius: '10px',
+                borderRadius: 2,
                 transition: 'width 0.5s',
+                mb: 2,
+                position: 'relative',
               }}
             >
-              <div className="">
-                <div className="w-full flex flex-row">
-                  <h3
-                    className="vertical-timeline-element-title font-bold"
-                    style={{ fontSize: '22px', minWidth: '200px' }}
-                  >
-                    {currentDate}
-                  </h3>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                <Typography
+                  variant="h5"
+                  sx={{ fontWeight: 'bold', minWidth: 200 }}
+                >
+                  {currentDate}
+                </Typography>
+
+                <IconButton
+                  onClick={() => handleChangeTypeOfIndex(index)}
+                  sx={{ marginRight: 1 }}
+                >
                   <img
                     alt="location-icon"
                     src={
@@ -261,9 +278,13 @@ const TimelineTab = () => {
                         ? LocationIcon
                         : LocationIconActive
                     }
-                    style={{ marginRight: '10px', cursor: 'pointer' }}
-                    onClick={() => handleChangeTypeOfIndex(index)}
                   />
+                </IconButton>
+
+                <IconButton
+                  onClick={() => handleChangeTypeOfIndex(index)}
+                  sx={{ marginRight: 1 }}
+                >
                   <img
                     alt="activity-icon"
                     src={
@@ -271,64 +292,78 @@ const TimelineTab = () => {
                         ? ActivityIcon
                         : ActivityIconActive
                     }
-                    style={{ marginRight: '10px', cursor: 'pointer' }}
-                    onClick={() => handleChangeTypeOfIndex(index)}
                   />
+                </IconButton>
 
-                  <ActivityBar
-                    rowData={rowActivityData}
-                    visibility={typeOfIndex[index] === 1 ? 'visible' : 'hidden'}
-                    onActivitySelect={(activity_id) => {
-                      const newSelectedActivityIDs = [...selectedActivityIDs]
-                      newSelectedActivityIDs[index] = activity_id
-                      setSelectedActivityIDs(newSelectedActivityIDs)
-                    }}
-                  />
-                </div>
-              </div>
+                <ActivityBar
+                  rowData={rowActivityData}
+                  visibility={typeOfIndex[index] === 1 ? 'visible' : 'hidden'}
+                  onActivitySelect={(activity_id) => {
+                    const newSelectedActivityIDs = [...selectedActivityIDs];
+                    newSelectedActivityIDs[index] = activity_id;
+                    setSelectedActivityIDs(newSelectedActivityIDs);
+                  }}
+                />
+              </Box>
 
               {/* Location data */}
               {typeOfIndex[index] === 0 && (
-                <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
+                <Box
+                  className="image-day-images"
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    gap: 1,
+                    marginBottom: 3,
+                    marginLeft: 2,
+                  }}
+                >
                   {Array.from(rowLocationData.entries()).map(([location_id, location_item]) => (
-                    <div className="w-[170px] h-[230px]" key={location_id}>
+                    <Box sx={{ width: 170, height: 230 }} key={location_id}>
                       <ImageGroupMemorized
                         sortType={1}
                         images={location_item.images}
                         title={location_item.location}
                       />
-                    </div>
+                    </Box>
                   ))}
-                </div>
+                </Box>
               )}
 
               {/* Activity data */}
               {typeOfIndex[index] === 1 && (
-                <div className="image-day-images relative mb-3 ml-2 flex flex-row flex-wrap gap-x-2">
+                <Box 
+                  className="image-day-images"
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    gap: 1,
+                    marginBottom: 3,
+                    marginLeft: 2,
+                  }} 
+                >
                   {filteredActivityData.size === 1 ? (
-                    // If there is only one activity, display all images in a single row
-                    <div className="flex flex-row flex-wrap gap-x-2">
+                    <Box sx={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap', gap: 1 }}>
                       {Array.from(filteredActivityData.values())[0].images.map((imageItem: ImageRecord) => (
                         <ImageSingle key={imageItem.id} image={imageItem} />
                       ))}
-                    </div>
+                    </Box>
                   ) : (
-                    // Otherwise, display images in ImageGroups
-                    <div className="flex flex-row flex-wrap gap-x-2">
-                      {Array.from(filteredActivityData.entries()).map(([activity_id, activity_item]) => (
-                        <div className="w-[170px] h-[230px]" key={activity_id}>
-                          <ImageGroupMemorized
-                            sortType={1}
-                            images={activity_item.images}
-                            title={activity_item.activity}
-                          />
-                        </div>
-                      ))}
-                    </div>
+                    Array.from(filteredActivityData.entries()).map(([activity_id, activity_item]) => (
+                      <Box sx={{ width: 170, height: 230 }} key={activity_id}>
+                        <ImageGroupMemorized
+                          sortType={1}
+                          images={activity_item.images}
+                          title={activity_item.activity}
+                        />
+                      </Box>
+                    ))
                   )}
-                </div>
+                </Box>
               )}
-            </div>
+            </Box>
           </Box>
         )}
       </CellMeasurer>
