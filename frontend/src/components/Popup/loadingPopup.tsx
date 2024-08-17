@@ -1,24 +1,29 @@
+import { Box, ClickAwayListener } from '@mui/material'
+import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import './loadingPopup.css'
+import React, { useCallback } from 'react'
+
+
 
 const LoadingPopup = () => {
+  const loadingMessage = useAppSelector((state) => state.app.loadingPopUpMessage)
+  const dispatch = useAppDispatch();
+  const setLoadingPopUp = useCallback((message: string) => {
+    dispatch(appActions.setLoadingPopUp(message));
+  }, [dispatch]);
+
   return (
-    <div className="loading-popup" style={{ zIndex: '99999' }}>
-      <div className="loading-container">
-        <div className="lds-grid">
-          <div />
-          <div />
-          <div />
-          <div />
-          <div />
-          <div />
-          <div />
-          <div />
-          <div />
-        </div>
-        Please wait...
-      </div>
-    </div>
+    <Box className="loading-popup" style={{ zIndex: '99999' }}>
+      <ClickAwayListener onClickAway={() => {
+        if (loadingMessage.includes("Error")) setLoadingPopUp("")
+      }}>
+        <Box className="loading-container">
+        { !loadingMessage.includes("Error") && <span className="loader"/>}
+          {loadingMessage}
+        </Box>
+      </ClickAwayListener>
+    </Box>
   )
 }
 
-export default LoadingPopup
+export default React.memo(LoadingPopup)

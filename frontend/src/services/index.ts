@@ -27,7 +27,7 @@ const prepareHeaders = async (
   return headers
 }
 
-export const query: QueryFn = fetchBaseQuery({
+export const ImageQuery: QueryFn = fetchBaseQuery({
   baseUrl: BASE_API_URL,
   prepareHeaders,
 })
@@ -37,4 +37,4 @@ export const ObjPosQuery: QueryFn = fetchBaseQuery({
   prepareHeaders,
 })
 
-export const baseQueryWithRetry = retry(query, { maxRetries: 3 })
+export const baseQueryWithRetry = retry(ImageQuery, { maxRetries: 3 })

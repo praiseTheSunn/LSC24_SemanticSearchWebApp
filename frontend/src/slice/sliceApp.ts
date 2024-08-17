@@ -2,10 +2,15 @@ import { createSlice } from '@reduxjs/toolkit'
 import type { AppState } from '../types/app'
 
 const initialState: AppState = {
-  isLoadingPopUpOpen: false,
+  loadingPopUpMessage: '',
   neighborPopUpData: null,
   similarPopUpData: null,
+  isObjPosPopUpOpen: false,
+  isMessagePopUpOpen: false,
   displayedImages: [],
+  data: [],
+  cacheData: [],
+  queryPayload: {model: 'clip', mode: 'smt', text_query: ''},
 }
 
 export const sliceApp = createSlice({
@@ -13,7 +18,7 @@ export const sliceApp = createSlice({
   initialState,
   reducers: {
     setLoadingPopUp: (state, action) => {
-      state.isLoadingPopUpOpen = action.payload
+      state.loadingPopUpMessage = action.payload
     },
     setNeighborPopupData: (state, action) => {
       state.neighborPopUpData = action.payload
@@ -23,6 +28,21 @@ export const sliceApp = createSlice({
     },
     setDisplayedImages: (state, action) => {
       state.displayedImages = action.payload
+    },
+    setAppImageData: (state, action) => {
+      state.data = action.payload
+    },
+    setQueryPayload: (state, action) => {
+      state.queryPayload = action.payload
+    },
+    setCacheData: (state, action) => {
+      state.cacheData = action.payload
+    },
+    setObjPosPopUp: (state, action) => {
+      state.isObjPosPopUpOpen = action.payload
+    },
+    setMessagePopUp: (state, action) => {
+      state.isMessagePopUpOpen = action.payload
     },
   },
 })

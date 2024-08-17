@@ -104,7 +104,7 @@ const Scrollbar: React.FC<ScrollbarProps> = ({ dates, selectedDate, setSelectedD
       )}
       {dates.map((date, index) => (
         <Box
-          key={index}
+          key={date}
           sx={{
             width: '100px',
             position: 'absolute',

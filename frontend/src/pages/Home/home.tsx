@@ -1,5 +1,5 @@
-import Fuse from 'fuse.js'
-import React, { useEffect, useState, useContext } from 'react'
+import Fuse, { FuseResult } from 'fuse.js'
+import React, { useEffect, useState, useContext, useCallback } from 'react'
 import {  toast } from 'react-toastify'
 import {
   LocationIcon,
@@ -28,10 +28,13 @@ import { createPortal } from 'react-dom'
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
-import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
-import { isNil } from 'lodash'
+import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery } from '../../AppState'
+import { isEmpty, isNil } from 'lodash'
 import LoadingPopup from '../../components/Popup/loadingPopup'
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
+import type { SearchTermType } from '../../types/search'
+import { Box, ClickAwayListener } from '@mui/material'
+import type { ImageRecord } from '../../types/image'
 
 const LevelList = [
   { level: 'Similarity', bg: TrapoziedBgGrayLeft },
@@ -55,9 +58,6 @@ const Home = () => {
   // console.log('selectedFilters in home', selectedFilters);
 
   const [displayedFilters, setDisplayedFilters] = useState([])
-  const [query, setQuery] = useState('')
-  const [model, setModel] = useState('clip')
-  const [mode, setMode] = useState('smt-3m-dtin')
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const [selectedModeIndex, setSelectedModeIndex] = useState(0)
   const [isCtrlPressed, setIsCtrlPressed] = useState(false)
@@ -66,35 +66,52 @@ const Home = () => {
   const handleTabClick = (index: number) => {
     setSelectedTabIndex(index)
   }
-  const [result, setResult] = useState<any[]>([])
-  const [cacheResult, setCacheResult] = useState([])
-  const [searchTerms, setSearchTerms] = useState<{category: string, value: string}[]>([])
+  const [searchTerms, setSearchTerms] = useState<SearchTermType[]>([])
   const [submitText, setSubmitText] = useState('')
   const [submitFilename, setSubmitFilename] = useState('')
 
-  const dispatch = useAppDispatch();
-  const neighborPopupData: any = useAppSelector(
+  const neighborPopupData: ImageRecord | null | undefined = useAppSelector(
     (state) => state.app.neighborPopUpData
   );
-  const similarPopupData: any = useAppSelector(
+  const similarPopupData: ImageRecord | null | undefined = useAppSelector(
     (state) => state.app.similarPopUpData
   );
-  const isLoadingPopupOpened: boolean = useAppSelector(
-    (state) => state.app.isLoadingPopUpOpen
+  const loadingPopUpMessage: string = useAppSelector(
+    (state) => state.app.loadingPopUpMessage
   );
   const displayedImages: string[] = useAppSelector(
     (state) => state.app.displayedImages
   );
+  const imageDatas: ImageRecord[] = useAppSelector(
+    (state) => state.app.data
+  );
+  const cacheData: ImageRecord[] = useAppSelector(
+    (state) => state.app.cacheData
+  );
 
-  const toggleLoadingPopup = React.useCallback((data: boolean) => {
-    dispatch(appActions.setLoadingPopUp(data));
+  const dispatch = useAppDispatch();
+  const setCacheResult = React.useCallback((data: ImageRecord[]) => {
+    dispatch(appActions.setCacheData(data));
   }, [dispatch]);
 
-  const toggleNeighborPopup = React.useCallback((data: any) => {
+  const setImageData = React.useCallback((data: ImageRecord[]) => {
+    dispatch(appActions.setAppImageData(data));
+  }, [dispatch]);
+
+  const queryPayload = useAppSelector((state) => state.app.queryPayload);
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  const setQuery = useCallback((query: string) => {
+    const newPayload = { ...queryPayload, text_query: query }
+    dispatch(appActions.setQueryPayload(newPayload));
+  }, [dispatch]);
+
+  
+
+  const toggleNeighborPopup = React.useCallback((data: ImageRecord | null | undefined) => {
     dispatch(appActions.setNeighborPopupData(data));
   }, [dispatch]);
 
-  const toggleSimilarPopup = React.useCallback((data: any) => {
+  const toggleSimilarPopup = React.useCallback((data: ImageRecord | null | undefined) => {
     dispatch(appActions.setSimilarPopupData(data));
   }, [dispatch]);
 
@@ -108,10 +125,11 @@ const Home = () => {
     })
   }
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // console.log('searchTerms', searchTerms);
-    if (searchTerms.length > 0 && cacheResult.length > 0) {
-      let fuseResults: any[] = cacheResult
+    if (searchTerms.length > 0) {
+      let fuseResults: ImageRecord[] = cacheData
       // console.log('fuseResults', fuseResults.length, fuseResults);
 
       for (const term of searchTerms) {
@@ -123,8 +141,8 @@ const Home = () => {
             threshold: 0.6,
             distance: 10000,
           })
-          fuseResults = fuse.search(String(term.value)).map((result: any) => {
-            return { ...result.item, score: result.score } as any;
+          fuseResults = fuse.search(String(term.value)).map((result: FuseResult<ImageRecord>) => {
+            return { ...result.item, score: result.score } as ImageRecord;
           })
         }
       }
@@ -133,18 +151,20 @@ const Home = () => {
         toast.error('No fuzzy results found')
       }
 
-      setResult(fuseResults)
+      setImageData(fuseResults)
       console.log('filteredResults', fuseResults.length)
     } else if (searchTerms.length === 0) {
-      setResult(cacheResult)
+      setImageData(cacheData)
     }
-  }, [searchTerms, cacheResult])
+  }, [searchTerms])
 
-  useEffect(() => {
+
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+    useEffect(() => {
     if (!displayedImages) {
       setDisplayedFilters([])
       setQuery('')
-      setResult([])
+      setImageData([])
       setCacheResult([])
       setSearchTerms([])
     }
@@ -256,28 +276,6 @@ const Home = () => {
   //   }
   // }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
 
-  useEffect(() => {
-    if (query !== '') {
-      console.log('query', query, model, mode)
-      // imageService
-      //   .getImages(query, model, mode)
-      //   .then((response: ApiResponse) => {
-      //     console.log(
-      //       'response.data',
-      //       query,
-      //       model,
-      //       mode,
-      //       response.data.response[0],
-      //     )
-      //     setResult(response.data.response)
-      //     setCacheResult(response.data.response)
-      //     toggleLoadingPopup(false)
-      //   })
-      //   .catch((error: ApiError) => {
-      //     console.log('error', error)
-      //   })
-    }
-  }, [query, model, mode])
 
   useEffect(() => {
     if (submitText !== '') {
@@ -326,7 +324,7 @@ const Home = () => {
       className="home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative"
       style={{ backgroundColor: '#F5F5F5' }}
     >
-      {isLoadingPopupOpened && <LoadingPopup />}
+      {loadingPopUpMessage ? <LoadingPopup /> : null}
 
       <Tooltip
         id="tooltip_img"
@@ -342,7 +340,6 @@ const Home = () => {
           const tooltipData = content.content
             ? JSON.parse(content.content)
             : null
-          // console.log('tooltipData', tooltipData);
           return (
             tooltipData && (
               <ObjectDetail
@@ -362,25 +359,24 @@ const Home = () => {
       {similarPopupData && (
         <SinglePopup
           viewImage={similarPopupData}
-          onClose={() => toggleNeighborPopup(null)}
+          onClose={() => toggleSimilarPopup(null)}
         />
       )}
       <SearchBox
         displayedFilters={displayedFilters}
         setDisplayedFilters={setDisplayedFilters}
-        setQuery={setQuery}
-        setResult={setResult}
-        setModel={setModel}
-        setMode={setMode}
         handleFilterChange={handleFilterChange}
         setSearchTerms={setSearchTerms}
-        setCacheResult={setCacheResult}
         setSubmitText={setSubmitText}
         setSubmitFilename={setSubmitFilename}
       />
-      <div
-        className="flex w-full justify-start relative"
+      
+      
+      <Box
         style={{
+          display: 'flex',
+          justifyContent: 'flex-start',
+          position: 'relative',
           marginBottom: '-1.5px',
           paddingTop: '15px',
           paddingLeft: '15px',
@@ -388,10 +384,12 @@ const Home = () => {
       >
         {LevelList.map((item, index) => (
           <button
-            key={index}
+            key={item.level}
             type='button'
-            className={`font-base font-bold py-1.5 grid-tab text-gray border-white ${index === selectedTabIndex ? 'active' : ''}`}
+            className={`font-base grid-tab text-gray ${index === selectedTabIndex ? 'active' : ''}`}
             style={{
+              paddingTop: '0.375rem',
+              paddingBottom: '0.375rem',
               width: '197px',
               backgroundImage: `url(${item.bg})`,
               zIndex: 999 - index * 10,
@@ -406,25 +404,30 @@ const Home = () => {
             {item.level}
           </button>
         ))}
-      </div>
+      </Box>
 
-      <div
-        className="bg-white w-full"
+      <Box
         style={{
           height: 'calc(100dvh - 120px)',
           borderRadius: '5px',
           padding: '0 0 0 10px',
+          backgroundColor: '#fff',
         }}
       >
         {selectedTabIndex === 0 && (
           <div className="flex flex-col w-full h-full">
-            <div
+            <Box
               className="flex justify-start items-center"
-              style={{ paddingTop: '10px' }}
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-start',
+                alignItems: 'center',
+                paddingTop: '10px',
+              }}
             >
               {Mode.map((item, index) => (
                 <button
-                  key={index}
+                  key={item.mode}
                   type='button'
                   className={`font-base font-bold text-gray border-white ${
                     index === selectedModeIndex ? 'active' : ''
@@ -441,13 +444,13 @@ const Home = () => {
                   onClick={() => setSelectedModeIndex(index)}
                 />
               ))}
-            </div>
+            </Box>
             {selectedModeIndex === 0 && (
               <div
                 className="flex flex-row h-full overflow-y-auto"
                 style={{ marginTop: '2px', width: 'calc(100dvw - 10px)' }}
               >
-                <ImageGrid simData={result} />
+                <ImageGrid />
               </div>
             )}
             {selectedModeIndex !== 0 && (
@@ -457,24 +460,21 @@ const Home = () => {
               >
                 <SimialrityAdvancedGrid
                   tabindex={selectedModeIndex}
-                  data={result}
                 />
               </div>
             )}
           </div>
         )}
 
-        {selectedTabIndex === 1 && <TimelineTab data={result} />}
+        {selectedTabIndex === 1 && <TimelineTab />}
         {selectedTabIndex === 2 && (
           // <ImageCluster data={timelineData} />
           <MapTab
-            className="flex flex-row"
-            style={{ marginTop: '12px' }}
-            data={result}
+            style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
           />
         )}
-        {selectedTabIndex === 3 && <MetadataTab data={result} />}
-      </div>
+        {selectedTabIndex === 3 && <MetadataTab />}
+      </Box>
     </div>
   )
 }

@@ -4,6 +4,8 @@ import type {
   FetchBaseQueryError,
   FetchBaseQueryMeta,
 } from '@reduxjs/toolkit/query'
+import type { ImageRecord } from './image'
+import type { QueryPayload } from './search'
 
 export type QueryFn = BaseQueryFn<
   string | FetchArgs,
@@ -16,10 +18,15 @@ export type QueryFn = BaseQueryFn<
 export type LocalStorageAction = 'SET' | 'GET'
 
 export type AppState = {
-  isLoadingPopUpOpen: boolean
-  neighborPopUpData: any
-  similarPopUpData: any
+  loadingPopUpMessage: string
+  isObjPosPopUpOpen: boolean
+  isMessagePopUpOpen: boolean
+  neighborPopUpData: ImageRecord | null | undefined
+  similarPopUpData: ImageRecord | null | undefined
   displayedImages: string[]
+  data: ImageRecord[]
+  cacheData: ImageRecord[]
+  queryPayload: QueryPayload
 }
 
 export type EvaluationState = {
