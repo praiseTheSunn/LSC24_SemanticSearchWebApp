@@ -7,6 +7,8 @@ import {
   CellMeasurer,
   CellMeasurerCache,
   List,
+  ListRowProps,
+  ListRowRenderer,
 } from 'react-virtualized'
 import {
   ActivityIcon,
@@ -18,6 +20,9 @@ import KhangScrollBar from '../../components/KhangScrollBar'
 import ImageGroup from '../../components/imageGroup'
 import ImageSingle from '../../components/imageSingle'
 import ActivityBar from '../../components/activityBar'
+import type {  TimelineTabActivityRowData, TimelineTabActivityData, TimelineTabLocationRowData, TimelineTabLocationData } from '../../types/image'
+import { useAppSelector } from '../../AppState'
+import { Box } from '@mui/material'
 
 interface TimelineTabProps {
   data: ImageRecord[]
@@ -25,6 +30,10 @@ interface TimelineTabProps {
 
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
+const TimelineTab = () => {
+  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])              //0 location, 1 activity
+  // State to track whether the button is held down
+  const [holdActive, setHoldActive] = useState(false)
 const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
   const dispatch = useAppDispatch()
   const selectedDate: string | null = useAppSelector(
@@ -60,8 +69,11 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
   const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])               // 0 location, 1 activity  
   const [holdActive, setHoldActive] = useState(false)                         // State to track whether the button is held down
   const [holdTimer, setHoldTimer] = useState<string | number | ReturnType<typeof setTimeout> | undefined>(undefined)
+  const [selectedDate, setSelectedDate] = useState<string|null>(null)
+  const [inHoldMode, setInHoldMode] = useState(false)
   const [dates, setDates] = useState<string[]>([])
   const [selectedActivityIDs, setSelectedActivityIDs] = useState<(number | null)[]>([])
+  const data = useAppSelector((state) => state.app.data)
   // const [selectedDate, setSelectedDate] = useState(null)
   // const [inHoldMode, setInHoldMode] = useState(false)
   const [locationBasedData, setLocationBasedData] = useState<TimelineTabLocationAllData>(new Map())
@@ -71,6 +83,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
     const initialSelectedActivityIDs = dates.map(() => null)
     setSelectedActivityIDs(initialSelectedActivityIDs)
   }, [dates])
+  const listRef = useRef<List | null>(null)
 
   const listRef = useRef(null)
 
@@ -154,7 +167,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
           singleLocationData.images.push(dataRecord)
         }
       }
-
+    
       // Activity-based data
       const rowActivityData = activityDataByDate.get(date)
       // case: the date is not in the map yet      
@@ -223,7 +236,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
     setTypeOfIndex(newTypeOfIndex)
   }
 
-  const renderRow = ( index: number, key: any, style: any, parent: any, isScrolling: boolean ) => {
+  const renderRow : ListRowRenderer = ( {index, key, style, parent, isScrolling}: ListRowProps) => {
     const currentDate = dates[index]
     const rowLocationData: TimelineTabLocationRowData = locationBasedData.get(currentDate) || new Map()
     const rowActivityData: TimelineTabActivityRowData = activityBasedData.get(currentDate) || new Map()
@@ -254,14 +267,16 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
         rowIndex={index}
       >
         {({ registerChild }) => (
-          <div
+          <Box
             ref={registerChild}
-            className="flex flex-row relative"
-            style={style}
+            sx = {{...style,
+              display: 'flex',
+              flexDirection: 'row',
+              position: 'relative',
+            }}
           >
-            <div
-              className="rounded-full bg-black mr-7"
-              style={{ width: '25px', height: '25px', zIndex: '10' }}
+            <Box
+              sx={{ width: '25px', height: '25px', zIndex: '10', backgroundColor: 'black', marginRight: '28px', borderRadius: '9999px' }}
             />
 
             <div
@@ -357,7 +372,7 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
                 </div>
               )}
             </div>
-          </div>
+          </Box>
         )}
       </CellMeasurer>
     )
@@ -368,24 +383,65 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
   }, [selectedDate])
 
   return (
-    <div className="h-full w-full overflow-hidden">
-      <div className="w-full h-full mx-0 pb-0 pt-4 relative">
+    <Box
+      sx={{
+        overflow: 'hidden',
+        height: '100%',
+      }}
+    >
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          marginRight: 0,
+          marginLeft: 0,
+          paddingTop: '16px',
+          paddingBottom: 0,
+          position: 'relative',
+        }}
+       >
         {inHoldMode && (
+          <Box
+            sx={{
+              backgroundColor: 'white',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              opacity: 0.95,
+              width: '100%',
+              height: '100%',
+              zIndex: 20,
+              paddingLeft: '0.7%',
+            }}
+            onClick={() => setInHoldMode(false)}
           <div
             className="bg-white absolute top-0 left-0 opacity-95 w-full h-full z-20 pl-[0.7%]"
             onClick={() => assignInHoldMode(false)}
           >
+            <KhangScrollBar dates={dates} setSelectedDate={setSelectedDate} />
+          </Box>
             <KhangScrollBar dates={dates} setSelectedDate={assignSelectedDate} />
           </div>
         )}
-        <div
-          className="vertical-line w-[6px] h-full absolute top-0 left-[0.7%] bg-black z-10 hover:cursor-pointer"
+        <Box
+          sx={{
+            backgroundColor: 'black',
+            width: '6px',
+            height: '100%',
+            position: 'absolute',
+            top: 0,
+            left: '0.7%',
+            zIndex: 10,
+            '&:hover': {
+              cursor: 'pointer',
+            },
+          }}
           onMouseDown={handleMouseDown}
           onMouseUp={handleMouseUp}
           onMouseLeave={handleMouseLeave}
         />
         <AutoSizer>
-          {( height: number, width: number) => (
+          {( {height, width} : {height: number, width: number}) => (
             <List
               width={width}
               height={height}
@@ -400,8 +456,8 @@ const TimelineTab: React.FC<TimelineTabProps> = ({ data }) => {
             />
           )}
         </AutoSizer>
-      </div>
-    </div>
+      </Box>
+    </Box>
   )
 }
 

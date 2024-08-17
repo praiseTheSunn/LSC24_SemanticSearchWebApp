@@ -12,6 +12,7 @@ import { sliceApp } from './slice/sliceApp'
 import { sliceTimeline } from './slice/sliceTimeline'
 import { evaluationSlice } from './slice/evalutionSlice'
 import { ObjectPosApi } from './services/objectApi'
+import { ImageApi } from './services/imageApi'
 
 
 const makeStore = () => {
@@ -21,9 +22,11 @@ const makeStore = () => {
       timeline: sliceTimeline.reducer,
       [evaluationSlice.reducerPath]: evaluationSlice.reducer,
       [ObjectPosApi.reducerPath]: ObjectPosApi.reducer,
+      [ImageApi.reducerPath]: ImageApi.reducer,
     }),
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat([
       ObjectPosApi.middleware,
+      ImageApi.middleware,
     ]),
   })
 }
@@ -50,3 +53,7 @@ export const evaluationActions = evaluationSlice.actions
 export const {
   useLazyGetObjectsByPositionQuery
 } = ObjectPosApi
+
+export const {
+  useLazyGetImagesQuery
+} = ImageApi

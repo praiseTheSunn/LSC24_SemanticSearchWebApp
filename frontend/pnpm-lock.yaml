@@ -14,6 +14,9 @@ importers:
       '@emotion/styled':
         specifier: ^11.13.0
         version: 11.13.0(@emotion/react@11.13.0(@types/react@18.3.3)(react@18.3.1))(@types/react@18.3.3)(react@18.3.1)
+      '@fontsource/roboto':
+        specifier: ^5.0.14
+        version: 5.0.14
       '@geoman-io/leaflet-geoman-free':
         specifier: ^2.16.0
         version: 2.17.0(leaflet@1.9.4)
@@ -71,6 +74,9 @@ importers:
       fuse.js:
         specifier: ^7.0.0
         version: 7.0.0
+      hamburger-react:
+        specifier: ^2.5.1
+        version: 2.5.1(react@18.3.1)
       leaflet:
         specifier: ^1.9.4
         version: 1.9.4
@@ -381,6 +387,9 @@ packages:
 
   '@floating-ui/utils@0.2.6':
     resolution: {integrity: sha512-0KI3zGxIUs1KDR/pjQPdJH4Z8nGBm0yJ5WRoRfdw1Kzeh45jkIfA0rmD0kBF6fKHH+xaH7g8y4jIXyAV5MGK3g==}
+
+  '@fontsource/roboto@5.0.14':
+    resolution: {integrity: sha512-zHAxlTTm9RuRn9/StwclFJChf3z9+fBrOxC3fw71htjHP1BgXNISwRjdJtAKAmMe5S2BzgpnjkQR93P9EZYI/Q==}
 
   '@geoman-io/leaflet-geoman-free@2.17.0':
     resolution: {integrity: sha512-vAY9tKB2I/Ui8d3QUBuebWnunI2sGjsfAUTXMMcf5UpISvPz67io4hpbKXid9GNsW6P4LGv1+ZzrmkpM78GzHA==}
@@ -2047,6 +2056,11 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  hamburger-react@2.5.1:
+    resolution: {integrity: sha512-XlTIinYeYzLu76q4Vd9olwOJP0hFgAeZfJFX6tTT/ufTLhmOjI77CGFYIwGc6gcDeeT86660ZoKx3/L67vdZEw==}
+    peerDependencies:
+      react: ^16.8 || ^17 || ^18
 
   har-schema@2.0.0:
     resolution: {integrity: sha512-Oqluz6zhGX8cyRaTQlFMPw80bSJVG2x/cFb8ZPhUILGgHka9SsokCCOQgpveePerqidZOrT14ipqfJb7ILcW5Q==}
@@ -3788,6 +3802,8 @@ snapshots:
       '@floating-ui/utils': 0.2.6
 
   '@floating-ui/utils@0.2.6': {}
+
+  '@fontsource/roboto@5.0.14': {}
 
   '@geoman-io/leaflet-geoman-free@2.17.0(leaflet@1.9.4)':
     dependencies:
@@ -6058,6 +6074,10 @@ snapshots:
       get-intrinsic: 1.2.4
 
   graceful-fs@4.2.11: {}
+
+  hamburger-react@2.5.1(react@18.3.1):
+    dependencies:
+      react: 18.3.1
 
   har-schema@2.0.0: {}
 
