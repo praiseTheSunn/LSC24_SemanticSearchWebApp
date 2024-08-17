@@ -1,46 +1,48 @@
-import React from 'react'
-import './imageGroup.css'
-import { createPortal } from 'react-dom'
-import AnImage from './AnImage'
-import ViewMorePopup from './Popup/viewMorePopup'
-import type { ImageRecord } from '../types/image'
+import React from 'react';
+import { createPortal } from 'react-dom';
+import { Box, Typography, Dialog } from '@mui/material';
+import AnImage from './AnImage';
+import ViewMorePopup from './Popup/viewMorePopup';
+import type { ImageRecord } from '../types/image';
 
 interface ImageGroupProps {
-  images: ImageRecord[]
-  title: string
-  sortType?: number
+  images: ImageRecord[];
+  title: string;
+  sortType?: number;
 }
 
 const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) => {
   if (sortType === 1) {
     // sort images by time string
-    images.sort((a, b) => a.time.localeCompare(b.time))
+    images.sort((a, b) => a.time.localeCompare(b.time));
   } else {
-    //sort images by score
-    images.sort((a, b) => b.score - a.score)
+    // sort images by score
+    images.sort((a, b) => b.score - a.score);
   }
-  const [showMore, setShowMore] = React.useState(false)
+
+  const [showMore, setShowMore] = React.useState(false);
 
   return (
-    <div
-      className="relative image-group p-0.5 flex-col flex bg-white my-1"
-      style={{
+    <Box
+      className="image-group"
+      sx={{
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        p: 0.5,
+        bgcolor: 'white',
+        my: 1,
         boxShadow: '2px 4px 4px 0px rgba(0, 0, 0, 0.5)',
         maxHeight: '230px',
       }}
     >
-      {showMore &&
-        createPortal(
-          <ViewMorePopup
-            viewImages={images}
-            title={title}
-            setOpenViewMore={setShowMore}
-          />,
-          document.body,
-        )}
-      <div
-        className="mb-[2px]"
-        style={{
+      <Dialog open={showMore} onClose={() => setShowMore(false)}>
+        <ViewMorePopup viewImages={images} title={title} setOpenViewMore={setShowMore} />
+      </Dialog>
+      
+      <Box
+        sx={{
+          mb: '2px',
           width: '100%',
           height: '120px',
           objectFit: 'contain',
@@ -48,34 +50,74 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
         }}
       >
         <AnImage data={images[0]} />
-        {/* <img src={images[0] && images[0].img_link ? images[0].img_link : null} style={{
-                    
-                }}/> */}
-      </div>
-      <div className="flex flex-row gap-x-0.5 w-full small-images relative justify-center">
-        <div className="small-image">
-          <img
-            src={images[1]?.img_link ? images[1].img_link : null}
-            className="small-image submissible"
-          />
-        </div>
-        <div className="small-image">
-          <img
-            src={images[2]?.img_link ? images[2].img_link : null}
-            className="small-image submissible"
-          />
-        </div>
-      </div>
-      <div
-        className="inline-flex items-center w-full justify-center h-[36px] max-w-[180px]"
+      </Box>
+      
+      <Box
+        className="small-images"
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          gap: 0.5,
+          width: '100%',
+          justifyContent: 'center',
+        }}
+      >
+        <Box
+          className="small-image"
+          sx={{
+            width: '50%',
+            img: {
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            },
+          }}
+        >
+          {images[1]?.img_link && <img src={images[1]?.img_link} alt="small" />}
+        </Box>
+        <Box
+          className="small-image"
+          sx={{
+            width: '50%',
+            img: {
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+            },
+          }}
+        >
+          {images[2]?.img_link && <img src={images[2]?.img_link} alt="small" />}
+        </Box>
+      </Box>
+
+      <Box
+        sx={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          width: '100%',
+          justifyContent: 'center',
+          height: '36px',
+          maxWidth: '180px',
+          cursor: 'pointer',
+        }}
         onClick={() => setShowMore(!showMore)}
       >
-        <h2 className="title truncate" title={title}>
+        <Typography
+          className="title"
+          variant="subtitle2"
+          sx={{
+            textAlign: 'center',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+          title={title}
+        >
           {title}
-        </h2>
-      </div>
-    </div>
-  )
-}
+        </Typography>
+      </Box>
+    </Box>
+  );
+};
 
-export default ImageGroup
+export default ImageGroup;
