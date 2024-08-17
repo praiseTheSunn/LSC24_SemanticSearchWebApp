@@ -55,7 +55,15 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         transition: isZoomOnHover ? 'transform 0.3s ease-in-out' : undefined,
         // transform: isZoomOnHover ? 'scale(1.05)' : undefined,
         zIndex: isZoomOnHover ? 50 : undefined,
-        // Apply hover effect using a pseudo-class approach if needed
+        '&:hover': {
+          transform: isZoomOnHover ? 'scale(1.05)' : undefined,
+          "& .img-action-eye": {
+            display: isZoomOnHover ? 'block' : 'hidden',
+          },
+          "& .image-item-img": {
+            border: isZoomOnHover ? '2px solid rgb(0, 47, 255)' : undefined,
+          },
+        },
       }}
       data-tooltip-id="tooltip_img"
       data-tooltip-content={json_data}
@@ -66,12 +74,6 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         toggleNeighborPopup(null);
       }}
     >
-      {isZoomOnHover && (
-        <style>
-          {'.an-img-container:hover .img-action-eye { display: block; }'}
-          {'.an-img-container:hover .image-item-img { border: 2px solid rgb(0, 47, 255); }'}
-        </style>
-      )}
 
       <Box
         sx={{
@@ -89,6 +91,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
       <Box
         component="img"
         src={src}
+        className='image-item-img'
         alt={`${index}`}
         sx={{
           width: '100%',
@@ -106,9 +109,9 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
           backgroundColor: 'rgba(0, 0, 0, 0.5)',
           opacity: 0.5,
           zIndex: 50,
-          
-          '&:hover': { display: 'block' }, // Handle hover effect using MUI sx prop
+          display: 'none',
         }}
+        className="img-action-eye"
         onClick={(e) => {
           e.preventDefault();
           toggleNeighborPopup(data);
