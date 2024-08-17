@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react'
+import type React from 'react'
+import { useEffect, useState } from 'react'
 import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet'
 import * as L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
@@ -7,15 +8,15 @@ import '@geoman-io/leaflet-geoman-free/dist/leaflet-geoman.css'
 import GeomanControl from '../../components/geomanControl'
 import LocationTimeline from './locationTimeline'
 
-const MapTab = ({ data } : { data: JSON[] }) => {
+const MapTab = ({ data } : { data: any }) => {
   const [geojsonFeature, setGeojsonFeature] = useState([])
 
   const myIcon = L.icon({
     iconUrl: require('../../assets/close.png'),
     iconSize: [64, 64],
-    shadowUrl: null,
-    shadowSize: null,
-    shadowAnchor: null,
+    shadowUrl: undefined,
+    shadowSize: undefined,
+    shadowAnchor: undefined,
   })
 
   useEffect(() => {
@@ -35,7 +36,7 @@ const MapTab = ({ data } : { data: JSON[] }) => {
           />
           <GeomanControl
             data={geojsonFeature}
-            setData={setGeojsonFeature}
+            setData={setGeojsonFeature as React.Dispatch<React.SetStateAction<JSON[]>>}
             dataSrc={data}
           />
         </MapContainer>

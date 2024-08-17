@@ -2,10 +2,10 @@ import type React from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import { AnImage } from '../../components'
+import type { ImageRecord } from '../../types/image'
 // import './richSimilarity.css'
 
-
-const RichImageGrid = ({ simData }: { simData: JSON[] }) => {
+const RichImageGrid = ({ simData }: { simData: ImageRecord[] }) => {
   const columnCount = 3 // Number of columns in the grid
 
   const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {

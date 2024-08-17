@@ -8,6 +8,8 @@ export type ImageRecord = {
     location_displayed: string
     activity_id: number
     activity: string
+    ocr: string,
+    caption: string,
 }
 
 export type VisibilityType = 'visible' | 'hidden' | 'collapse';
