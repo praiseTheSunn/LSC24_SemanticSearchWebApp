@@ -3,6 +3,7 @@ import view_icon from '../assets/view_icon.png';
 import { useAppDispatch, useAppSelector, appActions } from '../AppState';
 import type { ImageRecord } from '../types/image';
 import { isNil, spread } from 'lodash';
+import { Box } from '@mui/material';
 
 interface AnImageProps {
   data: ImageRecord;
@@ -14,6 +15,7 @@ interface AnImageProps {
 const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
   isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true;
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true;
+  console.log('izoomonhover:', isZoomOnHover);  
 
   const src = data?.img_link ? data.img_link : undefined;
   const date = data?.date ? data.date : null;
@@ -32,25 +34,17 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
   );
 
   const toggleNeighborPopup = React.useCallback((data: any) => {
-    if (isNeighborPopupOpened) {
-      dispatch(appActions.closeNeighborPopUp());
-    } else {
-      dispatch(appActions.openNeighborPopUp(data));
-    }
+    dispatch(appActions.setNeighborPopupData(data));
   }, [dispatch, isNeighborPopupOpened]);
 
   const toggleSimilarPopup = React.useCallback((data: any) => {
-    if (isSimilarPopupOpened) {
-      dispatch(appActions.closeSimilarPopUp());
-    } else {
-      dispatch(appActions.openSimilarPopUp(data));
-    }
+    dispatch(appActions.setSimilarPopupData(data));
   }, [dispatch, isSimilarPopupOpened]);
 
   return (
-    <div
+    <Box
       key={index}
-      style={{
+      sx={{
         position: 'relative',
         width: '100%',
         height: '100%',
@@ -77,8 +71,8 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         </style>
       )}
 
-      <div
-        style={{
+      <Box
+        sx={{
           position: 'absolute',
           top: 0,
           left: 0,
@@ -89,11 +83,12 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         }}
       >
         {formattedTime}
-      </div>
-      <img
+      </Box>
+      <Box
+        component="img"
         src={src}
         alt={`${index}`}
-        style={{
+        sx={{
           width: '100%',
           height: '100%',
           objectFit: 'contain',
@@ -101,7 +96,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
           backgroundColor: 'white',
         }}
       />
-      <div
+      <Box
         style={{
           position: 'absolute',
           bottom: 0,
@@ -118,9 +113,9 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         }}
         {...spread}
       >
-        <img src={view_icon} alt={`View ${index}`} style={{ width: '1.75rem' }} />
-      </div>
-    </div>
+        <Box component="img" src={view_icon} alt={`View ${index}`} style={{ width: '1.75rem' }} />
+      </Box>
+    </Box>
   );
 };
 
