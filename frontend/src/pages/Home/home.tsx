@@ -415,9 +415,15 @@ const Home = () => {
         }}
       >
         {selectedTabIndex === 0 && (
-          <div className="flex flex-col w-full h-full">
+          <Box 
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              height: '100%',
+            }}
+          >
             <Box
-              className="flex justify-start items-center"
               sx={{
                 display: 'flex',
                 justifyContent: 'flex-start',
@@ -446,12 +452,18 @@ const Home = () => {
               ))}
             </Box>
             {selectedModeIndex === 0 && (
-              <div
-                className="flex flex-row h-full overflow-y-auto"
-                style={{ marginTop: '2px', width: 'calc(100dvw - 10px)' }}
+              <Box
+                sx={{ 
+                  marginTop: '2px', 
+                  width: 'calc(100dvw - 10px)',
+                  display: 'flex',
+                  flexDirection: 'row',
+                  height: '100%',
+                  overflowY: 'auto',
+                }}
               >
                 <ImageGrid />
-              </div>
+              </Box>
             )}
             {selectedModeIndex !== 0 && (
               <div
@@ -463,7 +475,7 @@ const Home = () => {
                 />
               </div>
             )}
-          </div>
+          </Box>
         )}
 
         {selectedTabIndex === 1 && <TimelineTab />}
