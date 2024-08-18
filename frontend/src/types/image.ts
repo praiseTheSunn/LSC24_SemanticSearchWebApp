@@ -1,20 +1,7 @@
-// import type { ObjPosResponse } from "../services/interface";
+import type { ObjPosResponse } from "./api"
 
-// export type ImageRecord = ObjPosResponse
 
-export type ImageRecord = {
-    id: number
-    img_link: string
-    date: string
-    time: string
-    score: number
-    location_id: number
-    location_displayed: string
-    activity_id: number
-    activity: string
-    ocr: string,
-    caption: string,
-}
+export type ImageRecord = ObjPosResponse
 
 export type VisibilityType = 'visible' | 'hidden' | 'collapse';
 

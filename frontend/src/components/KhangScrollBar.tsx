@@ -15,7 +15,7 @@ const KhangScrollBar = ({ dates, setSelectedDate } : KhangScrollBarProps) => {
   console.log('interval', dates[dates.length - 1], dates.length, interval)
 
   return (
-    <Box className="khang-scrollbar" sx={{ display: 'grid', backgroundColor: '#d7d7d7', width: '7px', height: '100%' }}>
+    <Box className="khang-scrollbar" sx={{ marginTop:'10px', display: 'grid', backgroundColor: '#d7d7d7', width: '7px', height: 'calc(100% - 20px)' }}>
       {dates.map((date, index) => (
         <Box
           key={date}
@@ -30,11 +30,11 @@ const KhangScrollBar = ({ dates, setSelectedDate } : KhangScrollBarProps) => {
           )}
           {
             <Box
-              className="absolute top-[40%] w-[100px] hover:font-bold"
+              className="date"
               sx={{ 
                 left: '10px',
                 position: 'absolute',
-                top: '40%',
+                top: '-7px',
                 width: '100px',
                 '&:hover': {
                   fontWeight: 'bold'
@@ -43,7 +43,7 @@ const KhangScrollBar = ({ dates, setSelectedDate } : KhangScrollBarProps) => {
             >
               {index % interval === 0 || index === dates.length - 1
                 ? date
-                : ' '}
+                : null}
             </Box>
           }
         </Box>
