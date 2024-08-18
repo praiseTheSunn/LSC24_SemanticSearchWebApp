@@ -29,7 +29,7 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
         position: 'relative',
         display: 'flex',
         flexDirection: 'column',
-        p: 0.5,
+        px: 0.5,
         bgcolor: 'white',
         my: 1,
         boxShadow: '2px 4px 4px 0px rgba(0, 0, 0, 0.5)',
@@ -57,37 +57,32 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
         sx={{
           display: 'flex',
           flexDirection: 'row',
+          maxHeight: '70px',
           gap: 0.5,
           width: '100%',
           justifyContent: 'center',
         }}
       >
-        <Box
+        {images[1]?.img_link && <Box
           className="small-image"
           sx={{
             width: '50%',
-            img: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            },
+            objectFit: 'contain',
           }}
-        >
-          {images[1]?.img_link && <img src={images[1]?.img_link} alt="small" />}
-        </Box>
-        <Box
+          component="img"
+          alt="small"
+          src={images[1]?.img_link}
+        />}
+        {images[2]?.img_link && <Box
           className="small-image"
           sx={{
             width: '50%',
-            img: {
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            },
+            objectFit: 'contain',
           }}
-        >
-          {images[2]?.img_link && <img src={images[2]?.img_link} alt="small" />}
-        </Box>
+          component="img"
+          alt="small"
+          src={images[2]?.img_link}
+        />}
       </Box>
 
       <Box
