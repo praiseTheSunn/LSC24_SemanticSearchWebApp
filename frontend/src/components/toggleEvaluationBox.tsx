@@ -61,6 +61,7 @@ const ToggableComponent = () => {
         color="#000"
         label="Show menu"
         onToggle={toggleVisibility}
+
       />
       {isVisible && <EvaluationBox />}
     </div>
