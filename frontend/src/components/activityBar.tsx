@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Tooltip } from 'react-tooltip'
 import 'react-tooltip/dist/react-tooltip.css'
-import type { ImageRecord, VisibilityType } from '../types/image'
+import type { ImageRecord, VisibilityType, TimelineTabActivityRowData, TimelineTabActivityData } from '../types/image'
 import type React from 'react'
 
 interface Activity {
@@ -10,7 +10,7 @@ interface Activity {
 }
 
 interface ActivityBarProps {
-  data: Activity[];
+  rowData: TimelineTabActivityRowData;
   visibility: VisibilityType;
   onActivitySelect: (activity_id: number | null) => void
 }
@@ -36,25 +36,27 @@ const activityColorMap: { [key: string]: string } = {
   Other: '#f58231',
 }
 
-const ActivityBar: React.FC<ActivityBarProps> = ({ data, visibility, onActivitySelect }) => {
-  const imageCounts = data.map((entity) => `${entity.images.length}`)
+const ActivityBar: React.FC<ActivityBarProps> = ({ rowData, visibility, onActivitySelect }) => {
+  // determine the width of each activity segment on the bar
+  const rowDataArray: TimelineTabActivityData[] = Array.from(rowData.values())
+  const imageCounts = rowDataArray.map((activity_item) => `${activity_item.images.length}`)
   const resultString = imageCounts.map((item) => `${item}fr`).join(' ')
-  if (data) {
-    for (let i = 0; i < data.length; i++) {
-      data[i].images.sort((a, b) => b.score - a.score)
+  if (rowData) {
+    for (const activity_item of rowDataArray) {
+      activity_item.images.sort((a, b) => b.score - a.score)
     }
   }
   // console.log('data', data);
   const [bestImg, setBestImg] = useState(null)
 
   useEffect(() => {
-    console.log('bestImg', bestImg)
+    // console.log('bestImg', bestImg)
   }, [bestImg])
 
   // xu ly viec click vao 1 activity nao do
   const [clickedIndex, setClickedIndex] = useState<number | null>(null)
   useEffect(() => {
-    console.log('bestImg', bestImg)
+    // console.log('bestImg', bestImg)
   }, [bestImg])
   const handleActivityClick = (activity_id: number | null, bestImg: any, index: number | null) => {
     if (clickedIndex !== index) {
@@ -100,11 +102,10 @@ const ActivityBar: React.FC<ActivityBarProps> = ({ data, visibility, onActivityS
         )}
       />
 
-      {data.map((data, index) => {
-        const activity_id = data.activity_id
-        const activity = data.activity
+      {Array.from(rowData.entries()).map(([activity_id, activity_item], index) => {
+        const activity = activity_item.activity
         const color = activityColorMap[activity]
-        const best_img = data.images[0].img_link
+        const best_img = activity_item.images[0].img_link
         return (
           <div
             key={index}

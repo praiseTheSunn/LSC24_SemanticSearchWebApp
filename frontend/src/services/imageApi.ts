@@ -18,7 +18,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) => {
-          console.log('Response:', response);
+          // console.log('Response:', response);
           if (response.response) {
             return response.response;
           }
@@ -36,6 +36,42 @@ export const ImageApi = createApi({
               ]
             : [{ type: 'Image', id: 'LIST' }],
       }),
+      getSimilars: builder.query<ImageRecord[], string[]>({
+        query: (urls) => ({
+          url: '/explore/explore_similar_images',
+          method: "POST",
+          body: { image_urls: urls, model: 'blip2' },
+        }),
+        providesTags: (result) =>
+          result
+            ? [
+                ...result.map(({ img_link }) => ({
+                  type: 'Image' as const,
+                  id: img_link,
+                })),
+                { type: 'Image', id: 'SIMILAR_IMAGES' },
+              ]
+            : [{ type: 'Image', id: 'SIMILAR_IMAGES' }],
+      }),
+
+      getNeighbors: builder.query<ImageRecord[], string>({
+        query: (url) => ({
+          url: '/explore/explore_neighbor_images',
+          method: "POST",
+          body: { image_url: url, span: 30 },
+        }),
+        providesTags: (result) =>
+          result
+            ? [
+                ...result.map(({ img_link }) => ({
+                  type: 'Image' as const,
+                  id: img_link,
+                })),
+                { type: 'Image', id: 'NEIGHBORS' },
+              ]
+            : [{ type: 'Image', id: 'NEIGHBORS' }],
+      }),
+
     }
   }
 })
