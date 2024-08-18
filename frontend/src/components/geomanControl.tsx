@@ -119,11 +119,11 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setD
       const marker = L.marker([clusterLat, clusterLng], { icon: defaultIcon })
 
       // Construct scrollable popup content
-      const clusterPopupContent = `<div style="width: 200px; max-height: 200px; overflow-y: auto;"><img src='${cluster[0].img_link}' max-width='300px' height='500px' /></div>`
+      const clusterPopupContent = `<div style="width: 150px; max-height: 200px; overflow-y: auto;"><img src='${cluster[0].img_link}' max-width='100px' height='100px' /></div>`
       marker.bindPopup(clusterPopupContent)
 
       marker.on('mouseover', (e) => {
-        this.openPopup()
+        marker.openPopup()
       })
 
       marker.on('click', (e) => {

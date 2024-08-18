@@ -22,7 +22,7 @@ import type { ImageRecord } from '../../types/image'
 const LocationTimeline = ({ data } : { data: ImageRecord[] }) => {
   return (
     // const [selectedDate, setSelectedDate] = useState<string | null>(null)
-    <TimelineTab data={data}/>
+    <TimelineTab/>
   )
 }
 
