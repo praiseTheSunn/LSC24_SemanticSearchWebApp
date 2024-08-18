@@ -28,7 +28,7 @@ const Dropdown = ({ label, displayItems, valueItems, setData } : DropdownProps) 
   };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="">
       <Button
         aria-controls={anchorEl ? 'menu' : undefined}
         aria-haspopup="true"
@@ -37,9 +37,11 @@ const Dropdown = ({ label, displayItems, valueItems, setData } : DropdownProps) 
         color="primary"
         sx={{
           textTransform: 'none',
-          padding: '8px 16px',
+          // padding: '8px 16px',
           fontSize: '0.875rem', // Text size equivalent to text-sm
           borderRadius: '4px', // Rounded corners
+          marginTop: '0.5rem',
+          marginRight: '0.5rem',
         }}
       >
         {currentItem}
@@ -66,7 +68,7 @@ const Dropdown = ({ label, displayItems, valueItems, setData } : DropdownProps) 
         PaperProps={{
           sx: {
             maxHeight: 300,
-            width: '200px',
+            
             zIndex: 9999,
           },
         }}
