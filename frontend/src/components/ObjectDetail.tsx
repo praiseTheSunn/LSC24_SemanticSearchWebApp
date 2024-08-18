@@ -21,44 +21,40 @@ const ObjectDetail: React.FC<ObjectDetailProps> = ({ viewImage, className }) => 
   return (
     <Box className={className}>
       <Box>
-        <Typography variant="subtitle1" component="strong">Activity: </Typography>
-        <Typography variant="body2">{viewImage.activity}</Typography>
+        <Typography variant="caption" >Activity: {viewImage.activity} </Typography>
       </Box>
       <Box>
-        <Typography variant="subtitle1" component="strong">Caption: </Typography>
-        <Typography variant="body2">{viewImage.caption}</Typography>
+        <Typography variant="caption" >Caption: {viewImage.caption} </Typography>
       </Box>
       <Box>
-        <Typography variant="subtitle1" component="strong">Date: </Typography>
-        <Typography variant="body2">{viewImage.date}</Typography>
+        <Typography variant="caption" >Date: {viewImage.date} </Typography>
       </Box>
       <Box>
-        <Typography variant="subtitle1" component="strong">Time: </Typography>
-        <Typography variant="body2">{viewImage.time}</Typography>
+        <Typography variant="caption" >Time: {viewImage.time}</Typography>
       </Box>
       <Box>
-        <Typography variant="subtitle1" component="strong">Day of week: </Typography>
-        <Typography variant="body2">{viewImage.day_of_week}</Typography>
+        <Typography variant="caption" >Day of week: {viewImage.day_of_week}</Typography>
+        
       </Box>
       <Box>
-        <Typography variant="subtitle1" component="strong">Location: </Typography>
-        <Typography variant="body2">{viewImage.location_displayed}</Typography>
+        <Typography variant="caption" >Location: {viewImage.location_displayed}</Typography>
+        
       </Box>
       <Box>
-        <Typography variant="subtitle1" component="strong">Object tags: </Typography>
-        <Typography variant="body2">{viewImage.object_tags}</Typography>
+        <Typography variant="caption" >Object tags: {viewImage.object_tags}</Typography>
+        
       </Box>
       <Box sx={{ maxWidth: 400, flexWrap: 'wrap' }}>
-        <Typography variant="subtitle1" component="strong">OCR: </Typography>
-        <Typography variant="body2">{viewImage.ocr}</Typography>
+        <Typography variant="caption" >OCR: {viewImage.ocr}</Typography>
+        
       </Box>
       <Box sx={{ maxWidth: 400, flexWrap: 'wrap' }}>
-        <Typography variant="subtitle1" component="strong">Location: </Typography>
-        <Typography variant="body2">{viewImage.location}</Typography>
+        <Typography variant="caption" >Location: {viewImage.location}</Typography>
+        
       </Box>
       <Box>
-        <Typography variant="subtitle1" component="strong">Filename: </Typography>
-        <Typography variant="body2">{viewImage.img_link?.split('/').pop()?.split('.')[0]}</Typography>
+        <Typography variant="caption" >Filename: {viewImage.img_link?.split('/').pop()?.split('.')[0]}</Typography>
+        
       </Box>
     </Box>
   );
