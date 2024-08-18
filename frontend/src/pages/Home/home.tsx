@@ -105,8 +105,6 @@ const Home = () => {
     dispatch(appActions.setQueryPayload(newPayload));
   }, [dispatch]);
 
-  
-
   const toggleNeighborPopup = React.useCallback((data: ImageRecord | null | undefined) => {
     dispatch(appActions.setNeighborPopupData(data));
   }, [dispatch]);
@@ -481,7 +479,7 @@ const Home = () => {
         {selectedTabIndex === 2 && (
           // <ImageCluster data={timelineData} />
           <MapTab
-            style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
+            // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
           />
         )}
         {selectedTabIndex === 3 && <MetadataTab />}

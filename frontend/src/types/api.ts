@@ -45,3 +45,7 @@ export type ObjPosParams = {
   bottom_right_y: number;
 }
 
+export type EvalLoginParams = {
+  username: string;
+  password: string;
+}

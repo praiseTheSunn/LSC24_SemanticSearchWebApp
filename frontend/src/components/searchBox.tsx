@@ -272,7 +272,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           setData={setModel}
         />
       </Box>
-      <div className="ml-3 mt-2">
+      <Box
+      sx={{ marginLeft: '12px', marginTop: '8px' }}
+      >
         <Dropdown
           // className='ml-10'
           label="Mode"
@@ -284,10 +286,10 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           valueItems={['smt', 'smt-mm-dtin', 'smt-3m-dtin']}
           setData={setMode}
         />
-      </div>
-      <div className="ml-3 mt-2 top-0" style={{ zIndex: 9999 }}>
+      </Box>
+      <Box sx={{ marginLeft: '12px', marginTop: '8px' }} style={{ zIndex: 9999 }}>
         <ToggableComponent />
-      </div>
+      </Box>
     </Box>
     // {/* </div> */}
   )

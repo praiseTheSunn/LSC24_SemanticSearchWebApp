@@ -7,7 +7,7 @@ import {
   type FetchBaseQueryMeta,
   retry,
 } from '@reduxjs/toolkit/query'
-import { OBJ_POS_API_URL, BASE_API_URL } from '../types/constants'
+import { OBJ_POS_API_URL, BASE_API_URL, EVAL_API_URL } from '../types/constants'
 
 export type QueryFn = BaseQueryFn<
   string | FetchArgs,
@@ -34,6 +34,11 @@ export const ImageQuery: QueryFn = fetchBaseQuery({
 
 export const ObjPosQuery: QueryFn = fetchBaseQuery({
   baseUrl: OBJ_POS_API_URL,
+  prepareHeaders,
+})
+
+export const EvalQuery: QueryFn = fetchBaseQuery({
+  baseUrl: EVAL_API_URL,
   prepareHeaders,
 })
 
