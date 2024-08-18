@@ -168,7 +168,7 @@ const TimelineTab = () => {
 
     // sort dates ascending
     const dates = Array.from(locationDataByDate.keys()).sort(
-      (a, b) => new Date(a).getDate() - new Date(b).getDate(),
+      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
     )
     setDates(dates)
 
@@ -384,7 +384,7 @@ const TimelineTab = () => {
       <Box
         sx={{
           width: '100%',
-          height: '100%',
+          height: 'calc(100% - 40px)',
           marginRight: 0,
           marginLeft: 0,
           paddingTop: '16px',

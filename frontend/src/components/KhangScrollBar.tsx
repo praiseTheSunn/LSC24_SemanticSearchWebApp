@@ -1,6 +1,6 @@
-import type React from 'react'
-import { type Dispatch, type SetStateAction, useState } from 'react';
-import { Box, Tooltip, Typography } from '@mui/material';
+import { Box } from '@mui/material';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react'
+import { Tooltip } from 'react-tooltip'
 
 interface KhangScrollBarProps {
   dates: string[];
@@ -8,60 +8,48 @@ interface KhangScrollBarProps {
 }
 
 const KhangScrollBar = ({ dates, setSelectedDate } : KhangScrollBarProps) => {
-  const interval = dates.length / (dates.length > 10 ? (dates.length * 10) / 100 : dates.length);
+  const interval = Math.round(
+    dates.length /
+      (dates.length > 10 ? 20 : dates.length)
+  )
+  console.log('interval', dates[dates.length - 1], dates.length, interval)
 
   return (
-    <Box
-      sx={{ width: '7px', height: '98%', backgroundColor: 'lightGray', display: 'grid' }}
-    >
+    <Box className="khang-scrollbar" sx={{ display: 'grid', backgroundColor: '#d7d7d7', width: '7px', height: '100%' }}>
       {dates.map((date, index) => (
         <Box
           key={date}
           className={`tooltip_${index}`}
-          sx={{
-            width: '100%',
-            height: '100%',
-            borderRadius: '10px',
-            position: 'relative',
-            cursor: 'pointer',
-            '&:hover': {
-              backgroundColor: 'red',
-            },
-          }}
+          sx={{ width: '100%', height: '100%', borderRadius: '10px', position: 'relative', '&:hover': { backgroundColor: '#ff543e' }, cursor: 'pointer' }}
           onClick={() => setSelectedDate(date)}
         >
           {!(index % interval === 0 || index === dates.length - 1) && (
-            <Tooltip title={date} placement="right">
-              <Box
-                sx={{
-                  position: 'absolute',
-                  top: '40%',
-                  left: '10px',
-                  width: '100px',
-                }}
-              >
-                <Typography variant="body2">{date}</Typography>
-              </Box>
+            <Tooltip anchorSelect={`.tooltip_${index}`} place="right">
+              {date}
             </Tooltip>
           )}
-          {(index % interval === 0 || index === dates.length - 1) && (
+          {
             <Box
-              sx={{
+              className="absolute top-[40%] w-[100px] hover:font-bold"
+              sx={{ 
+                left: '10px',
                 position: 'absolute',
                 top: '40%',
-                left: '10px',
                 width: '100px',
+                '&:hover': {
+                  fontWeight: 'bold'
+                }
               }}
             >
-              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                {date}
-              </Typography>
+              {index % interval === 0 || index === dates.length - 1
+                ? date
+                : ' '}
             </Box>
-          )}
+          }
         </Box>
       ))}
     </Box>
-  );
-};
+  )
+}
 
-export default KhangScrollBar;
+export default KhangScrollBar
