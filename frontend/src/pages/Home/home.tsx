@@ -70,7 +70,7 @@ const Home = () => {
   const [submitText, setSubmitText] = useState('')
   const [submitFilename, setSubmitFilename] = useState('')
 
-  const neighborPopupData: ImageRecord | null | undefined = useAppSelector(
+  const neighborPopupData: ImageRecord[] = useAppSelector(
     (state) => state.app.neighborPopUpData
   );
   const similarPopupData: ImageRecord | null | undefined = useAppSelector(

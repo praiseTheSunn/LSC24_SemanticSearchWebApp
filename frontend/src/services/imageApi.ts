@@ -42,6 +42,14 @@ export const ImageApi = createApi({
           method: "POST",
           body: { image_urls: urls, model: 'blip2' },
         }),
+        transformResponse: (response: ApiResponse) => {
+          // console.log('Response:', response);
+          if (response.response) {
+            return response.response;
+          }
+          
+          return response.data;
+        },
         providesTags: (result) =>
           result
             ? [
@@ -55,11 +63,19 @@ export const ImageApi = createApi({
       }),
 
       getNeighbors: builder.query<ImageRecord[], string>({
-        query: (url) => ({
+        query: (img_url) => ({
           url: '/explore/explore_neighbor_images',
           method: "POST",
-          body: { image_url: url, span: 30 },
+          body: { image_url: img_url, span: 30 },
         }),
+        transformResponse: (response: ApiResponse) => {
+          // console.log('Response:', response);
+          if (response.response) {
+            return response.response;
+          }
+          
+          return response.data;
+        },
         providesTags: (result) =>
           result
             ? [

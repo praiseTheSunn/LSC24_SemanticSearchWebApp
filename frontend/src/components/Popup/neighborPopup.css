@@ -1,3 +1,23 @@
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr); /* 7 columns */
+    gap: 15px; /* Gap between grid items */
+    width: 97%; /* Full width */
+    height: 100%; /* Full height to fit the container */
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden; /* Hide horizontal scrolling */
+    padding-left: 1%; /* Add padding around the grid */
+    /* padding-right: 10px; */
+  }
+  
+  .grid-item {
+    width: 100%; /* Full width of the grid cell */
+    height: 100%; /* Full height of the grid cell */
+    object-fit: cover; /* Ensure images cover the grid cell without distortion */
+    border-radius: 8px; /* Optional: Add rounded corners */
+  }
+  
+  
 .neighbor-popup-container{
     display: flex;
     flex-direction: column;
