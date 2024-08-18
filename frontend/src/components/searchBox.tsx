@@ -287,7 +287,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           setData={setMode}
         />
       </Box>
-      <Box sx={{ marginLeft: '12px', marginTop: '8px' }} style={{ zIndex: 9999 }}>
+      <Box sx={{ marginLeft: '12px', marginTop: '8px' }} style={{ zIndex: 100 }}>
         <ToggableComponent />
       </Box>
     </Box>
