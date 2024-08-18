@@ -10,7 +10,7 @@ interface KhangScrollBarProps {
 const KhangScrollBar = ({ dates, setSelectedDate } : KhangScrollBarProps) => {
   const interval = Math.round(
     dates.length /
-      (dates.length > 10 ? 20 : dates.length)
+      (dates.length > 10 ? 15 : dates.length)
   )
   console.log('interval', dates[dates.length - 1], dates.length, interval)
 

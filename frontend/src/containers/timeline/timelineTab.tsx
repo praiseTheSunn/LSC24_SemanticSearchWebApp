@@ -1,4 +1,4 @@
-import React, { type CSSProperties, useEffect, useRef, useState } from 'react'
+import React, { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../../AppState'
 
 
@@ -49,7 +49,7 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
 
   const cache = new CellMeasurerCache({
       fixedWidth: true,
-      defaultHeight: 250
+      defaultHeight: 258
   });
 
   // Handler for mouse down event
@@ -143,11 +143,24 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
       setTypeOfIndex(initialTypeOfIndex);
   }, [data]);
 
+  const recomputeRowHeights = useCallback(() => {
+    cache.clearAll();
+    if(listRef.current){
+      console.log('recomputeRowHeights', listRef.current);
+      listRef.current.recomputeRowHeights();
+    }
+  }, []);
+
   useEffect(() => {
-      cache.clearAll();
-      if(listRef.current)
-        listRef?.current.recomputeRowHeights();
+    recomputeRowHeights
   }, [locationBasedData, activityBasedData]);
+
+  // useEffect(() => {
+  //   window.addEventListener('resize', recomputeRowHeights);
+  //   return () => {
+  //       window.removeEventListener('resize', recomputeRowHeights);
+  //   };
+  // }, []);
 
   useEffect(() => {
       if (selectedDate && listRef.current) {
