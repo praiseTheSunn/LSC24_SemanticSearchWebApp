@@ -168,16 +168,17 @@
 
 // export default NeighborPopup;
 
-import './neighborPopup.css'
+
+import { Box } from '@mui/material'
+import { AnImage, ObjectDetail } from '..'
+import { React, FC } from 'react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
+
+import './neighborPopup.css'
 import closeIcon from '../../assets/close.png'
-import { AnImage, ObjectDetail } from '..'
-// import imageService from '../../services/imageService'
-import React from 'react'
 import { appActions, useAppDispatch, useAppSelector, useGetNeighborsQuery, useLazyGetImagesQuery } from '../../AppState'
-import { Box } from '@mui/material'
 
 const NeighborPopup = ({ viewImage, onClose, cellHeight, cell } : {viewImage: any, onClose: any, cellHeight?: number, cell?: any}) => {
   console.log('viewImage', viewImage) 
@@ -186,17 +187,78 @@ const NeighborPopup = ({ viewImage, onClose, cellHeight, cell } : {viewImage: an
   const neighborsData = !isFetching && !isError && data ? data : [];
   console.log('neighborsData', neighborsData)
 
+  const gridRowGap = '3px'
+  const Cell = ({ columnIndex, rowIndex, style } : {
+    columnIndex: number,
+    rowIndex: number,
+    style: React.CSSProperties
+  }) => {
+    const index = rowIndex * columnCount + columnIndex
+    if (index >= neighborsData.length) return null // Ensure not to exceed simData length
+
+    const data = neighborsData[index]
+    const { img_link } = data;
+    const isHighlighted = img_link === viewImage;
+    return (        
+      <div style={style} className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}>
+        <Box sx={{ height: `calc(${style.height}px - 2 * ${gridRowGap})`, position: 'relative', overflow: 'hidden', padding: gridRowGap}} >
+          <AnImage key={index} data={data} index={index} />
+        </Box>
+      </div>
+    )
+  }
+
+  cell = cell ? cell : Cell
+  const columnCount: number = 8;
+  const itemSize: number = 180;
+  const columnGap = 20; 
+  cellHeight = cellHeight ? cellHeight : 105 // Default cell height
+  
   return (
     <div className="single-popup-container">
-      <div className="popup-content-background row">
-        <div className="single-images-container col">
-          <h1 className="py-2">Neighbor Images</h1>
-          <div className="flex h-full">
-          <div className="grid-container">
-            {neighborsData.map((data: any, index: number) => (
-              <img key={index} src={data.img_link} alt={`Neighbor ${index}`} className="grid-item" />
-            ))}
-          </div>
+      <div 
+        className="popup-content-background row"
+        style={{ display: 'flex', flexDirection: 'row', backgroundColor: '#f0f0f0', padding: '1rem' }}
+      >
+        <div 
+          className="single-images-container col"
+          style={{ flexDirection: 'column', flex: 1 }}
+        >
+          <h1 
+            className="py-2"
+            style={{ paddingTop: '0.5rem', paddingBottom: '0.5rem' }}
+          >
+            Neighbor Images
+          </h1>
+          <div 
+            className="flex h-full"
+            style={{ display: 'flex', height: '80%' }}
+          >
+                  <Box sx={{ width: '95dvw'}}>
+                    <AutoSizer>
+                      {({ height, width }) => {
+                        const columnWidth = width / columnCount - 2.5
+                        const rowHeight = cellHeight + 2 // Making rows square by setting row height equal to column width
+                        const rowCount = Math.ceil(neighborsData.length / columnCount)
+
+                        return (
+                          <Grid
+                            columnCount={columnCount}
+                            columnWidth={columnWidth}
+                            height={height}
+                            rowCount={rowCount}
+                            rowHeight={rowHeight}
+                            width={width}
+                            overscanRowCount={3}
+                            style={{ gap: `${columnGap}px` }}
+                          >
+                            {cell}
+                          </Grid>
+                        )
+                      }}
+                    </AutoSizer>
+                  </Box>
+            {/* </div> */}
           </div>
         </div>
         <div className="close-button-container">
@@ -210,6 +272,7 @@ const NeighborPopup = ({ viewImage, onClose, cellHeight, cell } : {viewImage: an
       </div>
     </div>
   )
+  
 }
 
 export default NeighborPopup

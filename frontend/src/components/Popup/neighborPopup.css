@@ -3,7 +3,7 @@
     grid-template-columns: repeat(8, 1fr); /* 7 columns */
     gap: 15px; /* Gap between grid items */
     width: 97%; /* Full width */
-    height: 100%; /* Full height to fit the container */
+    max-height: 50%; 
     overflow-y: auto; /* Enable vertical scrolling */
     overflow-x: hidden; /* Hide horizontal scrolling */
     padding-left: 1%; /* Add padding around the grid */
