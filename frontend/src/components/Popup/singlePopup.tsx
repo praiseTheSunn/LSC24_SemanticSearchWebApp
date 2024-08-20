@@ -1,92 +1,112 @@
 import './singlePopup.css'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { type Dispatch, type SetStateAction, useEffect, useRef, useState, forwardRef, useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import closeIcon from '../../assets/close.png'
 import { AnImage, ObjectDetail } from '..'
-import imageService from '../../services/imageService'
+import { appActions, useAppDispatch, useAppSelector, useGetSimilarsQuery } from '../../AppState'
 import React from 'react'
+import type { ImageRecord } from '../../types/image'
+import { Box, Typography, IconButton, Paper } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 
-const SinglePopup = ({ viewImage, onClose } : {viewImage: any, onClose: any}) => {
-  const [singlePopupData, setsinglePopupData] = useState([])
-  const [isLoading, setIsLoading] = useState(false)
+const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) => {
+  const result = useGetSimilarsQuery([viewImage.img_link])
+  const { data, error, isError, isFetching } = result;
+  const SimilarData = !isFetching && !isError && data ? data : [];
+  console.log('data in here', data)
+
   const viewImageRef = useRef(null)
   const gridRef = useRef(null)
 
-  const fetchSimilars = useCallback(async (imageId: number) => {
-    setIsLoading(true)
-    try {
-      const response = await imageService.getSimilarImages2Image(imageId)
-      const newNeighbors = response.data.response
-      setsinglePopupData(newNeighbors)
-      return newNeighbors
-    } catch (error) {
-      console.error('Error fetching Similar Images:', error)
-    } finally {
-      setIsLoading(false)
-    }
-  }, [])
+  const dispatch = useAppDispatch()
+  const setSimilarImages = useCallback((images: string[]) => {
+    dispatch(appActions.setSimilarPopupData(images))
+  }, [dispatch])
+
+  const setLoadingPopup = useCallback((value: string) => {
+    dispatch(appActions.setLoadingPopUp(value))
+  }, [dispatch])
+
+  const setResult = useCallback((value: ImageRecord[]) => {
+    dispatch(appActions.setAppImageData(value))
+  }, [dispatch])
+
+  const setCacheResult = useCallback((value: ImageRecord[]) => {
+    dispatch(appActions.setCacheData(value))
+  }, [dispatch])
 
   useEffect(() => {
-    const imageList = [viewImage.img_link]
-    fetchSimilars(imageList)
-  }, [viewImage, fetchSimilars])
+    if (isFetching) {
+      setLoadingPopup('Loading Similar Images...')
+    }
 
-  const Cell = ({ columnIndex, rowIndex, style } : {columnIndex: number, rowIndex:number, style: any}) => {
-    const index = rowIndex * columnCount + columnIndex
-    const data = singlePopupData[index]
-    if (!data) return null
+    if (isError) {
+      console.error('Error fetching Similar Images:', error)
+      setLoadingPopup('Error fetching Similar Images')
+    }
+    if (data && !isFetching) {
+      setLoadingPopup('');
+      // setsinglePopupData(data);
+      // setResult(data);
+      setCacheResult(data);
+    }
+  }, [isFetching, isError, error, data]);
 
-    const { img_link, date, time } = data
-    const formattedTime = `${date} ${time}`
-    const isHighlighted = img_link === viewImage.img_link
+  const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number, rowIndex: number, style: any }) => {
+    const index = rowIndex * columnCount + columnIndex;
+    const imageData = SimilarData[index];
+    console.log('imageData', imageData);
+    if (!imageData) return null;
+    
+
+    const { img_link, date, time } = imageData;
+    const formattedTime = `${date} ${time}`;
+    const isHighlighted = img_link === viewImage.img_link;
 
     return (
-      <div
-        style={style}
+      <Box
+        sx={style}
         className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
         ref={isHighlighted ? viewImageRef : null}
       >
-        <div className="h-full overflow-hidden p-0.5">
-          <AnImage key={index} index={index} data={data} />
-        </div>
-      </div>
-    )
-  }
+        <Box className="h-full overflow-hidden p-0.5">
+          <AnImage key={index} index={index} data={imageData} />
+        </Box>
+      </Box>
+    );
+  };
 
-  const columnCount = 5 // Number of columns in the grid
-  const itemSize = 180 // Size of each cell in the grid
+  const columnCount = 5; // Number of columns in the grid
+  const itemSize = 180; // Size of each cell in the grid
 
   return (
-    <div className="single-popup-container">
-      <div className="popup-content-background row">
-        <div className="single-images-container col">
-          <h1 className="py-2">Similar Images</h1>
-          {/* <br /> */}
-          <div className="flex h-full">
-            <div className="left-column overflow-auto">
-              <div className="flex justify-center">
-                <div className="object-contain max-h-[420px] w-auto">
+    <Paper className="single-popup-container" elevation={3}>
+      <Box className="popup-content-background row" display="flex" flexDirection="column">
+        <Box className="single-images-container col" p={2}>
+          <Typography variant="h4" className="py-2">Similar Images</Typography>
+          <Box display="flex" height="100%">
+            <Box className="left-column overflow-auto" flex={1}>
+              <Box display="flex" justifyContent="center">
+                <Box className="object-contain" maxHeight={420} width="auto">
                   <AnImage
                     data={viewImage}
                     isDisplayTooltip={false}
                     isZoomOnHover={false}
                   />
-                </div>
-              </div>
-              <div className="img-info row pl-10 pt-2">
+                </Box>
+              </Box>
+              <Box className="img-info row" pl={2} pt={1}>
                 <ObjectDetail viewImage={viewImage} />
-              </div>
-            </div>
-            <div className="w-[60%] bg-[#d0d0d0] max-h-full">
-              {singlePopupData && singlePopupData.length > 0 ? (
+              </Box>
+            </Box>
+            <Box sx={{ width: '60%', backgroundColor: '#d0d0d0', maxHeight: '100%' }}>
+              {SimilarData && SimilarData.length > 0 ? (
                 <AutoSizer>
                   {({ height, width }) => {
-                    const columnWidth = width / columnCount - 1.5
-                    const rowHeight = 130 // Making rows square by setting row height equal to column width
-                    const rowCount = Math.ceil(
-                      singlePopupData.length / columnCount,
-                    )
+                    const columnWidth = width / columnCount - 1.5;
+                    const rowHeight = 130; // Making rows square by setting row height equal to column width
+                    const rowCount = Math.ceil(SimilarData.length / columnCount);
 
                     return (
                       <Grid
@@ -100,29 +120,24 @@ const SinglePopup = ({ viewImage, onClose } : {viewImage: any, onClose: any}) =>
                       >
                         {Cell}
                       </Grid>
-                    )
+                    );
                   }}
                 </AutoSizer>
-              ) : singlePopupData == null ? (
-                <div>No Similar Images Found</div>
+              ) : SimilarData == null ? (
+                <Typography>No Similar Images Found</Typography>
               ) : (
-                <div>Loading Similar Images...</div>
+                <Typography>Loading Similar Images...</Typography>
               )}
-              {/* <div>Loading Similar Images...</div> */}
-            </div>
-          </div>
-        </div>
-
-        <div className="close-button-container">
-          <img
-            src={closeIcon}
-            className="close-popup-button"
-            alt="close button"
-            onClick={() => onClose(true)}
-          />
-        </div>
-      </div>
-    </div>
+            </Box>
+          </Box>
+        </Box>
+        <Box className="close-button-container">
+          <IconButton onClick={() => onClose(true)} aria-label="close">
+            <CloseIcon />
+          </IconButton>
+        </Box>
+      </Box>
+    </Paper>
   )
 }
 
