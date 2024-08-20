@@ -10,9 +10,7 @@ const initialState: AppState = {
   displayedImages: [],
   data: [],
   cacheData: [],
-  queryPayload: { model: 'clip', mode: 'smt', text_query: '' },
-  isSimilarPopUpOpen: false,
-  viewImageSimilar: ''
+  queryPayload: {model: 'clip', mode: 'smt', text_query: ''},
 }
 
 export const sliceApp = createSlice({

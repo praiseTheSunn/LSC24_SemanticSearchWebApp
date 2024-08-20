@@ -21,8 +21,6 @@ export type AppState = {
   loadingPopUpMessage: string
   isObjPosPopUpOpen: boolean
   isMessagePopUpOpen: boolean
-  isSimilarPopUpOpen: boolean
-  viewImageSimilar: string
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
   displayedImages: string[]
