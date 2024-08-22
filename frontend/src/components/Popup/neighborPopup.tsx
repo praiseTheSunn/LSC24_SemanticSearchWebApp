@@ -167,8 +167,6 @@
 // };
 
 // export default NeighborPopup;
-
-
 import { Box } from '@mui/material'
 import { AnImage, ObjectDetail } from '..'
 import { React, FC } from 'react'
@@ -178,13 +176,19 @@ import { FixedSizeGrid as Grid } from 'react-window'
 
 import './neighborPopup.css'
 import closeIcon from '../../assets/close.png'
-import { appActions, useAppDispatch, useAppSelector, useGetNeighborsQuery, useLazyGetImagesQuery } from '../../AppState'
+import { appActions, useAppDispatch, useAppSelector, useLazyGetNeighborsQuery, useLazyGetImagesQuery } from '../../AppState'
 
 const NeighborPopup = ({ viewImage, onClose, cellHeight, cell } : {viewImage: any, onClose: any, cellHeight?: number, cell?: any}) => {
-  console.log('viewImage', viewImage) 
-  const result = useGetNeighborsQuery(viewImage)
-  const { data, error, isError, isFetching } = result;
+  const [triggerGetNeighbors, { data, error, isError, isFetching }] = useLazyGetNeighborsQuery();
   const neighborsData = !isFetching && !isError && data ? data : [];
+  
+  // Trigger lazy query when the component mounts or when `viewImage` changes
+  useEffect(() => {
+    if (viewImage) {
+      triggerGetNeighbors(viewImage); // Trigger the lazy query
+    }
+  }, [viewImage, triggerGetNeighbors]);
+
   console.log('neighborsData', neighborsData)
 
   const gridRowGap = '3px'
