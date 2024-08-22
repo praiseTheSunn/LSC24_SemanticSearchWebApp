@@ -1,8 +1,0 @@
-.image-wrapper-neighbor {
-    position: relative;
-    display: inline-block;
-}
-.image-wrapper-neighbor.highlight {
-    border: 2px solid #FFD700;  /* Màu vàng để làm nổi bật */
-    box-shadow: 0 0 10px #FFD700;
-}
