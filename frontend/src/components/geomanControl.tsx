@@ -83,17 +83,6 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setD
 
     // Group data into clusters based on proximity
     const clusters: { [key: string]: locationJSON[] } = {}
-    // dataSrc.forEach((d) => {
-    //   if (d.new_lat === null || d.new_lng === null) {
-    //     return
-    //   }
-
-    //   const clusterKey = `${Math.floor(d.new_lat / clusteringRadius)}_${Math.floor(d.new_lng / clusteringRadius)}`
-    //   if (!clusters[clusterKey]) {
-    //     clusters[clusterKey] = []
-    //   }
-    //   clusters[clusterKey].push(d)
-    // })
 
     for (const d of dataSrc) {
       if (d.new_lat === null || d.new_lng === null) {
@@ -126,34 +115,20 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setD
         marker.openPopup()
       })
 
+      marker.on('mouseout', (e) => {
+        marker.closePopup()
+      })
+
       marker.on('click', (e) => {
         // Retrieve data associated with the clicked marker
         const clickedMarkerData = clusters[clusterKey]
         setData(clickedMarkerData)
         console.log('clickedMarkerData', clickedMarkerData)
-        // console.log("prevClickItem", prevClickItem)
-        // if (JSON.stringify(prevClickItem) === JSON.stringify(clickedMarkerData)) {
-        //   console.log("clicked same marker");
-        //   setData(dataSrc);
-        //   setPrevClickItem(null);
-        //   return;
-        // }
-        // else {
-        //   console.log("clicked different marker");
-        // }
-        // setPrevClickItem(clickedMarkerData);
       })
 
       marker.addTo(map)
     }
   }, [data, dataSrc, map.eachLayer, map.removeLayer, setData, defaultIcon , map])  
-
-  // useEffect(() => {
-  //   if (prevClickItem === null) {
-  //     return;
-  //   }
-  //   setData(prevClickItem)
-  // }, [prevClickItem]);
 
   // process bounding box events
   map.on('pm:create', (e) => {
@@ -162,26 +137,24 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setD
       return
     }
 
-    const newData = []
-    for (const [index, value] of dataSrc.entries()) {
-      if (
-        typeof value.new_lat !== 'number' ||
-        typeof value.new_lng !== 'number'
-      ) {
-        console.log('not a number', value.new_lat, value.new_lng)
-        continue
+    const newData = dataSrc.map(value => {
+      if (typeof value.new_lat !== 'number' || typeof value.new_lng !== 'number') {
+        console.log('not a number', value.new_lat, value.new_lng);
+        return value; // return the value as-is if it's not a number
       }
-
-      value.within = turf.booleanWithin(
+    
+      const within = turf.booleanWithin(
         turf.point([value.new_lng, value.new_lat]),
         feature,
-      )
-      if (value.within) {
-        console.log(value, 'within')
-        newData.push(value)
-      }
-    }
-    setData(newData)
+      );
+    
+      return {
+        ...value,
+        within, // Spread existing properties and add the "within" property
+      };
+    });
+    setData(newData);
+    
   })
 
   map.on('click', (e) => {
