@@ -58,7 +58,7 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
     const imageData = SimilarData[index];
     console.log('imageData', imageData);
     if (!imageData) return null;
-    
+
 
     const { img_link, date, time } = imageData;
     const formattedTime = `${date} ${time}`;
@@ -81,11 +81,11 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
   const itemSize = 180; // Size of each cell in the grid
 
   return (
-    <Paper className="single-popup-container" elevation={3}>
-      <Box className="popup-content-background row" display="flex" flexDirection="column">
-        <Box className="single-images-container col" p={2}>
-          <Typography variant="h4" className="py-2">Similar Images</Typography>
-          <Box display="flex" height="100%">
+    <Paper className="single-popup-container" elevation={3} >
+      <Box className="popup-content-background" display="flex" justifyContent="center">
+        <Typography variant="h4" className="py-2" textAlign="center" fontWeight="bold">Similar Images</Typography>
+        <Box className="single-images-container" p={2} justifyContent="center">
+          <Box display="flex" height="100%" width="100%">
             <Box className="left-column overflow-auto" flex={1}>
               <Box display="flex" justifyContent="center">
                 <Box className="object-contain" maxHeight={420} width="auto">
