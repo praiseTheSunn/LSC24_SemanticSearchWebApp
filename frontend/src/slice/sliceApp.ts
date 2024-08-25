@@ -44,5 +44,6 @@ export const sliceApp = createSlice({
     setMessagePopUp: (state, action) => {
       state.isMessagePopUpOpen = action.payload
     },
+
   },
 })

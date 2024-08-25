@@ -1,38 +1,39 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { Box } from '@mui/material';
+import { AnImage } from '..';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeGrid as Grid } from 'react-window';
 import closeIcon from '../../assets/close.png';
-import { AnImage } from '../../components';
-import imageService from '../../services/imageService';
+import { useLazyGetNeighborsQuery } from '../../AppState';
 
+// Define the types for props
 interface NeighborPopupProps {
-  viewImage: string;
-  onClose: (value: boolean) => void;
-  [key: string]: any; 
+  viewImage: string | null;
+  onClose: (shouldClose: boolean) => void;
+  cellHeight?: number;
+  cell?: React.FC<any>;
 }
 
-// interface NeighborData {
-//   img_link: string;
-// }
-
+// Define the type for the neighbor data
 interface NeighborData {
   img_link: string;
-  [key: string]: any; 
+  [key: string]: any; // Add other properties as needed
 }
 
-const NeighborPopup: FC<NeighborPopupProps> = ({ viewImage, onClose }) => {
+const NeighborPopup: React.FC<NeighborPopupProps> = ({ viewImage, onClose, cellHeight, cell }) => {
+  const [triggerGetNeighbors, { data, isError, isFetching }] = useLazyGetNeighborsQuery();
   const [neighborsData, setNeighborsData] = useState<NeighborData[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [hasScrolled, setHasScrolled] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const previousScrollTop = useRef(0);
+  const hasScrolled = useRef(false);
   const viewImageRef = useRef<HTMLDivElement | null>(null);
-  const gridRef = useRef<any>(null);
-  const previousScrollTop = useRef<number>(0);
 
-  const fetchNeighbors = useCallback(async (imageId: string, pageNum: number, position: 'start' | 'end') => {
+  const fetchNeighbors = useCallback(async (imageId: string, position: 'start' | 'end') => {
     setIsLoading(true);
     try {
-      const response = await imageService.getNeighbors(imageId, pageNum);
-      const newNeighbors: NeighborData[] = response.data.response;
+      const response = await triggerGetNeighbors(imageId).unwrap();
+      const newNeighbors: NeighborData[] = response;
+      // console.log('newNeighbors:', newNeighbors);
       const middleIndex = Math.floor(newNeighbors.length / 2);
       const frontNeighbors = newNeighbors.slice(0, middleIndex);
       const backNeighbors = newNeighbors.slice(middleIndex);
@@ -49,21 +50,23 @@ const NeighborPopup: FC<NeighborPopupProps> = ({ viewImage, onClose }) => {
     } finally {
       setIsLoading(false);
     }
-  }, [viewImage]);
+  }, [viewImage, triggerGetNeighbors]);
 
   useEffect(() => {
-    fetchNeighbors(viewImage, 1, 'end');
+    if (viewImage) {
+      fetchNeighbors(viewImage, 'end');
+    }
   }, [viewImage, fetchNeighbors]);
 
   useEffect(() => {
-    if (viewImageRef.current && !hasScrolled) {
+    if (viewImageRef.current && !hasScrolled.current) {
       viewImageRef.current.scrollIntoView({
         behavior: 'smooth',
         block: 'center',
       });
-      setHasScrolled(true);
+      hasScrolled.current = true;
     }
-  }, [neighborsData, viewImage, hasScrolled]);
+  }, [neighborsData, viewImage]);
 
   const handleScroll = ({ scrollTop }: { scrollTop: number }) => {
     const scrollDirection = scrollTop < previousScrollTop.current ? 'backward' : 'forward';
@@ -72,63 +75,113 @@ const NeighborPopup: FC<NeighborPopupProps> = ({ viewImage, onClose }) => {
     if (scrollDirection === 'backward' && scrollTop === 0 && !isLoading) {
       const firstImage = neighborsData[0]?.img_link;
       if (firstImage) {
-        fetchNeighbors(firstImage, 1, 'start');
+        fetchNeighbors(firstImage, 'start');
       }
     }
 
     if (scrollDirection === 'forward' && !isLoading) {
-      const grid = gridRef.current;
-      if (grid) {
-        const { scrollHeight, clientHeight } = grid._outerRef;
-        if (scrollTop + clientHeight >= scrollHeight) {
-          const lastImage = neighborsData[neighborsData.length - 1]?.img_link;
-          if (lastImage) {
-            fetchNeighbors(lastImage, 1, 'end');
-          }
-        }
+      const lastImage = neighborsData[neighborsData.length - 1]?.img_link;
+      if (lastImage) {
+        fetchNeighbors(lastImage, 'end');
       }
     }
   };
 
-  const Cell: FC<{ columnIndex: number; rowIndex: number; style: React.CSSProperties }> = ({ columnIndex, rowIndex, style }) => {
-    const index = rowIndex * columnCount + columnIndex;
-    const data = neighborsData[index];
-    if (!data) return null;
+  const columnCount: number = 8;
+  const itemSize: number = 180;
+  const columnGap = 20;
+  cellHeight = cellHeight ? cellHeight : 105;
 
+
+
+  const Cell: React.FC<{ columnIndex: number; rowIndex: number; style: React.CSSProperties }> = ({ columnIndex, rowIndex, style }) => {
+    const index = rowIndex * columnCount + columnIndex;
+    if (index >= neighborsData.length) return null;
+  
+    const data = neighborsData[index];
     const { img_link } = data;
     const isHighlighted = img_link === viewImage;
+  
+
+  
     return (
       <div
-        style={style}
-        className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
-        ref={isHighlighted ? viewImageRef : null}
+        style={{
+          ...style,
+          border: isHighlighted ? '2px solid #FFD700' : 'none',
+          boxShadow: isHighlighted ? '0 0 10px #FFD700' : 'none',
+        }}
       >
-        <div className="h-full overflow-hidden p-0.5">
-          <AnImage key={index} index={index} data={data} />
-        </div>
+        {/* <Box
+          sx={{
+            width: '100%', // Chiếm toàn bộ chiều rộng của cha
+            height: '100%', // Chiếm toàn bộ chiều cao, điều chỉnh theo columnGap
+            position: 'relative',
+            overflow: 'hidden',
+            padding: columnGap,
+          }}
+        > */}
+          <AnImage key={index} data={data} index={index} />
+        {/* </Box> */}
       </div>
     );
   };
 
-  const columnCount: number = 8;
-  const itemSize: number = 180;
+  const closePopup = () => {
+    onClose(true);
+  };
+
+
 
   return (
     <div
-      className="fixed top-0 left-0 flex flex-col justify-center items-center bg-black bg-opacity-50 h-full w-full"
-      style={{ zIndex: '1000000' }}
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        height: '100%', 
+        width: '100%', 
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        zIndex: 10000 
+      }}
     >
-      <div className="relative flex flex-row items-center w-[90%] h-[90%] bg-white rounded-2xl">
-        <div className="max-h-[90%] h-full w-full overflow-y-hidden flex-shrink-0 flex-grow-0 flex-auto">
-          <h1 className="font-bold text-center max-h-[600px]">Neighbors</h1>
-          <div className="w-full h-full">
-            {neighborsData.length > 0 ? (
+      <div
+        style={{ 
+          display: 'flex', 
+          flexDirection: 'row', 
+          width: '95%', 
+          height: '90%', 
+          backgroundColor: 'white', 
+          borderRadius: '20px', 
+          position: 'relative', 
+          top: '10px' 
+        }}
+      >
+        <div
+          style={{ flexDirection: 'column', flex: 1 }}
+          ref={viewImageRef}
+        >
+          <h1 
+          style={{ paddingTop: '0.5rem', paddingBottom: '0.5rem', textAlign: 'center' }}>
+            Neighbor Images
+          </h1>
+          <div 
+          style={{ 
+            display: 'flex', 
+            height: '80%',
+          }}
+            >
+            <Box sx={{ width: '95vw' }}>
               <AutoSizer>
                 {({ height, width }) => {
-                  const columnWidth = width / columnCount;
-                  const rowHeight = 130;
+                  const columnWidth = width / columnCount - 2;
+                  const rowHeight = cellHeight + 2;
                   const rowCount = Math.ceil(neighborsData.length / columnCount);
 
+                  console.log('height:', height, 'width:', width, 'columnWidth:', columnWidth, 'rowHeight:', rowHeight, 'rowCount:', rowCount);
                   return (
                     <Grid
                       columnCount={columnCount}
@@ -137,28 +190,45 @@ const NeighborPopup: FC<NeighborPopupProps> = ({ viewImage, onClose }) => {
                       rowCount={rowCount}
                       rowHeight={rowHeight}
                       width={width}
+                      overscanRowCount={5}
                       onScroll={({ scrollTop }) => handleScroll({ scrollTop })}
-                      ref={gridRef}
+                      style={{ gap: `${columnGap}px` }}
                     >
                       {Cell}
                     </Grid>
                   );
                 }}
               </AutoSizer>
-            ) : (
-              <div>Loading neighbors...</div>
-            )}
+            </Box>
           </div>
         </div>
-
-        <div
-          className="absolute top-[-1.7%] right-[-0.7%] w-8 h-8 bg-white rounded-full flex justify-center items-center cursor-pointer p-[5px]"
-          onClick={() => onClose(true)}
+        <div 
+        style = {{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '30px',
+          width: '30px',
+          padding: '5px',
+          backgroundColor: 'white',
+          position: 'absolute',
+          top: '-1.7%',
+          right: '-0.7%',
+          borderRadius: '20px',
+          cursor: 'pointer',
+          zIndex: 10000,
+        }}
         >
           <img
             src={closeIcon}
-            className="close-popup-button"
-            onClick={() => onClose(true)}
+            // className="close-popup-button"
+            style={{  cursor: 'pointer',
+              position: 'relative',
+              height: '100%',
+              width: '100%',
+              zIndex: 1000,}}
+            alt="close button"
+            onClick={closePopup}
           />
         </div>
       </div>
