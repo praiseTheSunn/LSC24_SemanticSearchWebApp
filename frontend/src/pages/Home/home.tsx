@@ -24,7 +24,6 @@ import 'react-tooltip/dist/react-tooltip.css'
 
 
 // import { usePopUp } from '../contexts/popUpContext';
-import { createPortal } from 'react-dom'
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
@@ -70,7 +69,7 @@ const Home = () => {
   const [submitText, setSubmitText] = useState('')
   const [submitFilename, setSubmitFilename] = useState('')
 
-  const neighborPopupData: ImageRecord[] = useAppSelector(
+  const neighborPopupData: ImageRecord | null | undefined = useAppSelector(
     (state) => state.app.neighborPopUpData
   );
   const similarPopupData: ImageRecord | null | undefined = useAppSelector(
@@ -342,7 +341,6 @@ const Home = () => {
             tooltipData && (
               <ObjectDetail
                 viewImage={tooltipData}
-                className={'w-full h-full p-2'}
               />
             )
           )
@@ -350,13 +348,11 @@ const Home = () => {
       />
       {neighborPopupData && (
         <NeighborPopup
-          viewImage={neighborPopupData.img_link}
           onClose={() => toggleNeighborPopup(null)}
         />
       )}
       {similarPopupData && (
         <SinglePopup
-          viewImage={similarPopupData}
           onClose={() => toggleSimilarPopup(null)}
         />
       )}

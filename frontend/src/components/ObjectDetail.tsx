@@ -1,59 +1,50 @@
 import { Box, Typography } from '@mui/material';
 import type React from "react";
+import { ImageRecord } from '../types/image';
 
 interface ObjectDetailProps {
-  viewImage: {
-    activity: string;
-    caption: string;
-    date: string;
-    time: string;
-    day_of_week: string;
-    location_displayed: string;
-    object_tags: string;
-    ocr: string;
-    location: string;
-    img_link: string;
-  };
+  viewImage: ImageRecord | undefined | null;
   className?: string;
 }
 
-const ObjectDetail: React.FC<ObjectDetailProps> = ({ viewImage, className }) => {
+const ObjectDetail: React.FC<ObjectDetailProps> = ({ viewImage }) => {
+  if (!viewImage) return null;
   return (
-    <Box className={className}>
+    <Box width="100%" height="100%" padding="8px">
       <Box>
-        <Typography variant="caption" >Activity: {viewImage.activity} </Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Activity:</span> {viewImage.activity} </Typography>
       </Box>
       <Box>
-        <Typography variant="caption" >Caption: {viewImage.caption} </Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Caption:</span> {viewImage.caption} </Typography>
       </Box>
       <Box>
-        <Typography variant="caption" >Date: {viewImage.date} </Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Date:</span> {viewImage.date} </Typography>
       </Box>
       <Box>
-        <Typography variant="caption" >Time: {viewImage.time}</Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Time:</span> {viewImage.time}</Typography>
       </Box>
       <Box>
-        <Typography variant="caption" >Day of week: {viewImage.day_of_week}</Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Day of week:</span> {viewImage.day_of_week}</Typography>
         
       </Box>
       <Box>
-        <Typography variant="caption" >Location: {viewImage.location_displayed}</Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Location:</span> {viewImage.location_displayed}</Typography>
         
       </Box>
       <Box>
-        <Typography variant="caption" >Object tags: {viewImage.object_tags}</Typography>
-        
-      </Box>
-      <Box sx={{ maxWidth: 400, flexWrap: 'wrap' }}>
-        <Typography variant="caption" >OCR: {viewImage.ocr}</Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Object tags:</span> {viewImage.object_tags}</Typography>
         
       </Box>
       <Box sx={{ maxWidth: 400, flexWrap: 'wrap' }}>
-        <Typography variant="caption" >Location: {viewImage.location}</Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>OCR:</span> {viewImage.ocr}</Typography>
+        
+      </Box>
+      <Box sx={{ maxWidth: 400, flexWrap: 'wrap' }}>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Location:</span> {viewImage.location}</Typography>
         
       </Box>
       <Box>
-        <Typography variant="caption" >Filename: {viewImage.img_link?.split('/').pop()?.split('.')[0]}</Typography>
+        <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Filename:</span> {viewImage.img_link?.split('/').pop()?.split('.')[0]}</Typography>
         
       </Box>
     </Box>

@@ -4,16 +4,18 @@ import { ImageGroup } from '../../components';
 import './similarity.css';
 import React, { useEffect, useState } from 'react';
 import type { ImageRecord } from '../../types/image';
+import { useAppSelector } from '../../AppState';
 
 interface SimialrityAdvancedGridProps {
-  data: ImageRecord[];
   tabindex: number;
 }
 
-const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({ data, tabindex }) => {
-  const ImageGroupMemoized = React.memo(ImageGroup);
+const ImageGroupMemoized = React.memo(ImageGroup);
+const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({ tabindex }) => {
+
   const [locationBasedData, setLocationBasedData] = useState<ImageRecord[][]>([]);
   const [timeBasedData, setTimeBasedData] = useState<ImageRecord[][]>([]);
+  const data = useAppSelector((state) => state.app.data);
 
   useEffect(() => {
     const locationDataMap = new Map<string, ImageRecord[]>();

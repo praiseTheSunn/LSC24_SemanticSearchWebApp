@@ -1,39 +1,24 @@
-import { type Dispatch, type SetStateAction, useEffect, useRef, useState, forwardRef, useCallback } from 'react'
+import { useEffect, useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import closeIcon from '../../assets/close.png'
 import { AnImage, ObjectDetail } from '..'
 import { appActions, useAppDispatch, useAppSelector, useGetSimilarsQuery } from '../../AppState'
-import React from 'react'
-import type { ImageRecord } from '../../types/image'
-import { Box, Typography, IconButton, Paper } from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+import { Box, Typography } from '@mui/material';
+import { gridRowGap } from '../../containers/similarity/image-grid'
 
-const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) => {
-  const result = useGetSimilarsQuery([viewImage.img_link])
+const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: number }) => {
+  cellHeight = cellHeight ? cellHeight : 90;
+  const viewImage = useAppSelector((state) => state.app.similarPopUpData)
+  const result = useGetSimilarsQuery(viewImage ? [viewImage?.img_link] : undefined)
   const { data, error, isError, isFetching } = result;
-  const SimilarData = !isFetching && !isError && data ? data : [];
-  console.log('data in here', data)
-
-  const viewImageRef = useRef(null)
-  const gridRef = useRef(null)
 
   const dispatch = useAppDispatch()
-  const setSimilarImages = useCallback((images: string[]) => {
-    dispatch(appActions.setSimilarPopupData(images))
-  }, [dispatch])
 
   const setLoadingPopup = useCallback((value: string) => {
     dispatch(appActions.setLoadingPopUp(value))
   }, [dispatch])
-
-  const setResult = useCallback((value: ImageRecord[]) => {
-    dispatch(appActions.setAppImageData(value))
-  }, [dispatch])
-
-  const setCacheResult = useCallback((value: ImageRecord[]) => {
-    dispatch(appActions.setCacheData(value))
-  }, [dispatch])
+  
 
   useEffect(() => {
     if (isFetching) {
@@ -48,72 +33,73 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
       setLoadingPopup('');
       // setsinglePopupData(data);
       // setResult(data);
-      setCacheResult(data);
     }
   }, [isFetching, isError, error, data]);
 
   const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number, rowIndex: number, style: any }) => {
     const index = rowIndex * columnCount + columnIndex;
-    const imageData = SimilarData[index];
-    console.log('imageData', imageData);
+    if (data == null || index >= data.length) return null;
+    const imageData = data[index];
     if (!imageData) return null;
-
 
     const { img_link, date, time } = imageData;
     const formattedTime = `${date} ${time}`;
-    const isHighlighted = img_link === viewImage.img_link;
+    const isHighlighted = img_link === viewImage?.img_link;
 
     return (
-      <Box
-        sx={style}
-        className={`image-wrapper-neighbor ${isHighlighted ? 'highlight' : ''}`}
-        ref={isHighlighted ? viewImageRef : null}
+      <div
+        style={{
+          ...style,
+          border: isHighlighted ? '2px solid #FFD700' : 'none',
+          boxShadow: isHighlighted ? '0 0 10px #FFD700' : 'none',
+        }}
       >
-        <Box className="h-full overflow-hidden p-0.5">
-          <AnImage key={index} index={index} data={imageData} />
+        <Box sx={{ height: `calc(${style.height}px - 2 * ${gridRowGap})`, position: 'relative', overflow: 'hidden', padding: gridRowGap}} >
+          <AnImage key={index} data={imageData} index={index} />
         </Box>
-      </Box>
+      </div>
     );
   };
 
-  const columnCount = 5; // Number of columns in the grid
-  const itemSize = 180; // Size of each cell in the grid
+  const columnCount = 7; // Number of columns in the grid
 
   return (
     <Box className="single-popup-container" sx={{
-      display: 'flex',
-      position: 'fixed',
-      top: '2.5%',
-      left: '2.5%',
-      height: '95%',
-      width: '95%',
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      zIndex: 10000,
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      position: 'fixed', 
+      top: 0, 
+      left: 0, 
+      height: '100%', 
+      width: '100%', 
+      backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+      zIndex: 10000 
     }}>
       <Box className="popup-content-background" sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'white',
-        position: 'relative',
+        display: 'flex', 
+        flexDirection: 'column', 
+        width: '95%', 
+        height: '95%', 
+        backgroundColor: 'white', 
+        borderRadius: '20px', 
+        position: 'relative', 
+        top: '7px' 
       }}>
-        <Typography variant="h4" className="py-2" textAlign="center" fontWeight="bold">Similar Images</Typography>
-        <Box className="single-images-container" p={2} justifyContent="center">
-          <Box display="flex" height="100%" width="100%">
-            <Box className="left-column overflow-auto" sx={{
+        <Typography variant="h6" textAlign="center" fontWeight="bold">Similar Images</Typography>
+        <Box className="single-images-container" justifyContent="center">
+          <Box display="flex" width="100%" height="95%">
+            <Box className="left-column" sx={{
+              display: 'flex',
               flex: 1,
               flexDirection: 'column',
               backgroundColor: '#f0f0f0',
-              overflowY: 'auto',
-              height: 'auto',
               // Các thuộc tính bị ghi chú (commented out) có thể được thêm vào nếu cần thiết
               // gridTemplateRows: '1fr 1fr',
               // paddingBottom: '20px',
             }}>
               <Box display="flex" justifyContent="center">
-                <Box className="object-contain" maxHeight={420} width="auto">
+                <Box className="object-contain" maxHeight={390} width="auto">
                   <AnImage
                     data={viewImage}
                     isDisplayTooltip={false}
@@ -127,23 +113,24 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
                 flex: 1,
                 top: 0,
                 left: 0,
+                paddingTop: '3px',
                 backgroundColor: '#f0f0f0',
                 overflowY: 'scroll',
                 // Các thuộc tính bị ghi chú có thể được thêm vào nếu cần
                 // textAlign: 'center',
                 // padding: '10px',
               }}
-                pl={2} pt={1}>
+                pl={2}>
                 <ObjectDetail viewImage={viewImage} />
               </Box>
             </Box>
-            <Box sx={{ width: '60%', backgroundColor: '#d0d0d0', maxHeight: '100%' }}>
-              {SimilarData && SimilarData.length > 0 ? (
+            <Box sx={{ width: '60%', backgroundColor: '#d0d0d0' }}>
+              {data && data.length > 0 ? (
                 <AutoSizer>
                   {({ height, width }) => {
-                    const columnWidth = width / columnCount;
-                    const rowHeight = 150; // Making rows square by setting row height equal to column width
-                    const rowCount = Math.ceil(SimilarData.length / columnCount);
+                    const columnWidth = width / columnCount - 1.5
+                    const rowHeight = cellHeight + 2
+                    const rowCount = Math.floor(data.length / columnCount);
 
                     return (
                       <Grid
@@ -153,14 +140,14 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
                         rowCount={rowCount}
                         rowHeight={rowHeight}
                         width={width}
-                        ref={gridRef}
+                        overscanRowCount={5}
                       >
                         {Cell}
                       </Grid>
                     );
                   }}
                 </AutoSizer>
-              ) : SimilarData == null ? (
+              ) : data == null ? (
                 <Typography>No Similar Images Found</Typography>
               ) : (
                 <Typography>Loading Similar Images...</Typography>
@@ -168,7 +155,8 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
             </Box>
           </Box>
         </Box>
-        <Box className="close-button-container" sx={{
+        <Box 
+        sx = {{
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
@@ -182,10 +170,19 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
           borderRadius: '20px',
           cursor: 'pointer',
           zIndex: 10000,
-        }}>
-          <IconButton onClick={() => onClose(true)} aria-label="close">
-            <CloseIcon />
-          </IconButton>
+        }}
+        >
+          <img
+            src={closeIcon}
+            // className="close-popup-button"
+            style={{  cursor: 'pointer',
+              position: 'relative',
+              height: '100%',
+              width: '100%',
+              zIndex: 1000,}}
+            alt="close button"
+            onClick={() => onClose(true)}
+          />
         </Box>
       </Box>
     </Box>
