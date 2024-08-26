@@ -5,7 +5,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeGrid as Grid } from 'react-window';
 import closeIcon from '../../assets/close.png';
 import { useAppSelector, useLazyGetNeighborsQuery } from '../../AppState';
-import { ImageRecord } from '../../types/image';
+import type { ImageRecord } from '../../types/image';
 import { gridRowGap } from '../../containers/similarity/image-grid';
 
 // Define the types for props
@@ -193,6 +193,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({ onClose, cellHeight, cell
           zIndex: 10000,
         }}
         >
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
           <img
             src={closeIcon}
             // className="close-popup-button"

@@ -1,24 +1,26 @@
 import { useEffect, useRef, useState } from 'react';
-import { AutoSizer, Grid } from 'react-virtualized';
+import { FixedSizeGrid as Grid } from 'react-window';
+import { AutoSizer } from 'react-virtualized';
 import { Box, Typography, IconButton } from '@mui/material';
 import AnImage from '../AnImage';
 import closeIcon from '../../assets/close.png'
+import { gridRowGap } from '../../containers/similarity/image-grid';
 
 const ViewMorePopup = ({
   viewImages,
   title,
   setOpenViewMore,
   columnCount,
-  rowToDisplay,
+  cellHeight,
 } : {
   viewImages: any;
   title: string;
   setOpenViewMore: any;
   columnCount?: number;
-  rowToDisplay?: number;
+  cellHeight?: number;
 }) => {
   columnCount = columnCount ? columnCount : 8; // Number of columns in the grid
-  rowToDisplay = rowToDisplay ? rowToDisplay : 4; // Number of rows to display in the grid
+  cellHeight = cellHeight ? cellHeight : 130; // Height of each cell in the grid
 
   const Cell = ({ columnIndex, rowIndex, style } : { columnIndex: number; rowIndex: number, style: any }) => {
     const index = rowIndex * columnCount + columnIndex;
@@ -27,54 +29,67 @@ const ViewMorePopup = ({
     const data = viewImages[index];
 
     return (
-      <Box sx={{ width: '100%', maxHeight: '100%', objectFit: 'contain', p: 1 }} style={style}>
-        <AnImage key={index} data={data} index={index} />
-      </Box>
+      <div
+        style={{
+          ...style,
+        }}
+      >
+        <Box sx={{ height: `calc(${style.height}px - 2 * ${gridRowGap})`, position: 'relative', overflow: 'hidden', padding: gridRowGap}} >
+          <AnImage key={index} data={data} index={index} />
+        </Box>
+      </div>
     );
   };
+  
 
   return (
     <Box
-      sx={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-        zIndex: 10000,
+      style={{ 
+        display: 'flex', 
+        flexDirection: 'column', 
+        alignItems: 'center', 
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        height: '100%', 
+        width: '100%', 
+        backgroundColor: 'rgba(0, 0, 0, 0.5)', 
+        zIndex: 10000 
       }}
     >
       <Box
-        sx={{
-          position: 'absolute',
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'center',
-          alignItems: 'center',
-          width: '95%',
-          height: '92%',
-          backgroundColor: 'white',
-          borderRadius: '16px',
-          pb: 3,
+        sx={{ 
+          display: 'flex', 
+          flexDirection: 'row', 
+          width: '95%', 
+          height: '95%', 
+          backgroundColor: 'white', 
+          borderRadius: '20px', 
+          position: 'relative', 
+          top: '10px' 
         }}
       >
-        <Box sx={{ width: '100%', height: '100%', flexGrow: 0, flexShrink: 0, overflow: 'hidden' }}>
-          <Typography variant="h6" align="center" sx={{ pt: 2, pb: 1, fontWeight: 'bold' }}>
-            {title}
-          </Typography>
-          <Box sx={{ position: 'relative', width: '100%', overflowY: 'auto', height: '570px', maxHeight: '570px' }}>
-            <Box sx={{ height: '100%', width: '100%' }}>
+        <Box
+          sx={{ flexDirection: 'column', flex: 1 }}
+        >
+          <h2
+          style={{ paddingTop: '0.1rem', paddingBottom: '0.1rem', textAlign: 'center' }}>
+            Images in group
+          </h2>
+          <Box 
+          sx={{ 
+            display: 'flex', 
+            height: '85%',
+          }}
+            >
+            <Box sx={{ width: '95vw' }}>
               <AutoSizer>
                 {({ height, width }) => {
-                  const columnWidth = width / columnCount - 1.5;
+                  const columnWidth = width / columnCount - 1.5
+                  const rowHeight = cellHeight + 2
                   const rowCount = Math.ceil(viewImages.length / columnCount);
-                  const rowHeight = height / rowToDisplay;
 
+                  // console.log('height:', height, 'width:', width, 'columnWidth:', columnWidth, 'rowHeight:', rowHeight, 'rowCount:', rowCount);
                   return (
                     <Grid
                       columnCount={columnCount}
@@ -83,8 +98,11 @@ const ViewMorePopup = ({
                       rowCount={rowCount}
                       rowHeight={rowHeight}
                       width={width}
-                      cellRenderer={Cell}
-                    />
+                      overscanRowCount={5}
+                      // style={{ gap: `${columnGap}px` }}
+                    >
+                      {Cell}
+                    </Grid>
                   );
                 }}
               </AutoSizer>
@@ -92,15 +110,33 @@ const ViewMorePopup = ({
           </Box>
         </Box>
         <Box 
-        sx={{ position: 'absolute', top: '-1.7%', right: '-0.7%', height: '30px', width: '30px', padding: '5px', backgroundColor: 'white', borderRadius: '9999px', display: 'flex', justifyContent: 'center', alignItems: 'center', cursor: 'pointer', zIndex: 10000 }}
-        
+        sx = {{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '30px',
+          width: '30px',
+          padding: '5px',
+          backgroundColor: 'white',
+          position: 'absolute',
+          top: '-1.7%',
+          right: '-0.7%',
+          borderRadius: '20px',
+          cursor: 'pointer',
+          zIndex: 10000,
+        }}
         >
-          <Box
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
+          <img
             src={closeIcon}
-            component='img'
+            // className="close-popup-button"
+            style={{  cursor: 'pointer',
+              position: 'relative',
+              height: '100%',
+              width: '100%',
+              zIndex: 1000,}}
+            alt="close button"
             onClick={() => setOpenViewMore(false)}
-            alt="close"
-            sx={{ height: '100%', width: '100%', cursor: 'pointer', zIndex: 10001, position: 'relative' }}
           />
         </Box>
       </Box>
