@@ -36,11 +36,11 @@ export const ImageApi = createApi({
               ]
             : [{ type: 'Image', id: 'LIST' }],
       }),
-      getSimilars: builder.query<ImageRecord[], string[]>({
+      getSimilars: builder.query<ImageRecord[], string[] | undefined | null>({
         query: (urls) => ({
           url: '/explore/explore_similar_images',
           method: "POST",
-          body: { image_urls: urls, model: 'blip2' },
+          body: { image_urls: urls, model: 'clip' },
         }),
         transformResponse: (response: ApiResponse) => {
           // console.log('Response:', response);

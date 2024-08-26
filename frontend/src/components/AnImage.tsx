@@ -6,13 +6,14 @@ import { isNil, spread } from 'lodash';
 import { Box } from '@mui/material';
 
 interface AnImageProps {
-  data: ImageRecord;
+  data: ImageRecord | null | undefined;
   index?: number;
   isDisplayTooltip?: boolean;
   isZoomOnHover?: boolean;
 }
 
 const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
+  if (isNil(data)) return null;
   isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true;
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true;
 
@@ -23,22 +24,14 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
   const json_data: string | null = isDisplayTooltip ? JSON.stringify(data) : null;
 
   const dispatch = useAppDispatch();
-  const isNeighborPopupOpened: boolean = useAppSelector(
-    (state) => state.app.neighborPopUpData,
-    isNil,
-  );
-  const isSimilarPopupOpened: boolean = useAppSelector(
-    (state) => state.app.similarPopUpData,
-    isNil,
-  );
 
   const toggleNeighborPopup = React.useCallback((data: any) => {
     dispatch(appActions.setNeighborPopupData(data));
-  }, [dispatch, isNeighborPopupOpened]);
+  }, [dispatch]);
 
   const toggleSimilarPopup = React.useCallback((data: any) => {
     dispatch(appActions.setSimilarPopupData(data));
-  }, [dispatch, isSimilarPopupOpened]);
+  }, [dispatch]);
 
   return (
     <Box
@@ -57,12 +50,10 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         zIndex: isZoomOnHover ? 50 : undefined,
         '&:hover': {
           transform: isZoomOnHover ? 'scale(1.05)' : undefined,
+          border: isZoomOnHover ? '2px solid rgb(0, 47, 255)' : undefined,
           "& .img-action-eye": {
             display: isZoomOnHover ? 'block' : 'hidden',
-          },
-          "& .image-item-img": {
-            border: isZoomOnHover ? '2px solid rgb(0, 47, 255)' : undefined,
-          },
+          }
         },
       }}
       data-tooltip-id="tooltip_img"

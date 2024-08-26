@@ -4,16 +4,17 @@ import { AnImage } from '../../components'
 import { Box } from '@mui/material'
 import { useAppSelector } from '../../AppState'
 
+export const gridRowGap = '2px'
+
 const ImageGrid = ({ cellHeight, cell } : {
   cellHeight?: number,
   cell?: any
 }) => {
-  cellHeight = cellHeight ? cellHeight : 125 // Default cell height
+  cellHeight = cellHeight ? cellHeight : 100 // Default cell height
 
   const simData = useAppSelector((state) => state.app.data)
-  const columnCount = 9 // Number of columns in the grid
+  const columnCount = 11 // Number of columns in the grid
 
-  const gridRowGap = '2px'
   const Cell = ({ columnIndex, rowIndex, style } : {
     columnIndex: number,
     rowIndex: number,

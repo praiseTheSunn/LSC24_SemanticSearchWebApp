@@ -10,8 +10,6 @@ export { default as ImageGroup } from './imageGroup'
 
 export { default as ImageSingle } from './imageSingle'
 
-export { default as ImageContainer } from './imageContainer'
-
 // export { default as Scrollbar } from './scrollbar';
 export { default as TimelineTab } from '../containers/timeline/timelineTab'
 
