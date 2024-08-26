@@ -1,4 +1,3 @@
-import './singlePopup.css'
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState, forwardRef, useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
@@ -81,12 +80,38 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
   const itemSize = 180; // Size of each cell in the grid
 
   return (
-    <Paper className="single-popup-container" elevation={3} >
-      <Box className="popup-content-background" display="flex" justifyContent="center">
+    <Box className="single-popup-container" sx={{
+      display: 'flex',
+      position: 'fixed',
+      top: '2.5%',
+      left: '2.5%',
+      height: '95%',
+      width: '95%',
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      zIndex: 10000,
+    }}>
+      <Box className="popup-content-background" sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'white',
+        position: 'relative',
+      }}>
         <Typography variant="h4" className="py-2" textAlign="center" fontWeight="bold">Similar Images</Typography>
         <Box className="single-images-container" p={2} justifyContent="center">
           <Box display="flex" height="100%" width="100%">
-            <Box className="left-column overflow-auto" flex={1}>
+            <Box className="left-column overflow-auto" sx={{
+              flex: 1,
+              flexDirection: 'column',
+              backgroundColor: '#f0f0f0',
+              overflowY: 'auto',
+              height: 'auto',
+              // Các thuộc tính bị ghi chú (commented out) có thể được thêm vào nếu cần thiết
+              // gridTemplateRows: '1fr 1fr',
+              // paddingBottom: '20px',
+            }}>
               <Box display="flex" justifyContent="center">
                 <Box className="object-contain" maxHeight={420} width="auto">
                   <AnImage
@@ -96,7 +121,19 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
                   />
                 </Box>
               </Box>
-              <Box className="img-info row" pl={2} pt={1}>
+              <Box className="img-info row" sx={{
+                display: 'flex',
+                position: 'relative',
+                flex: 1,
+                top: 0,
+                left: 0,
+                backgroundColor: '#f0f0f0',
+                overflowY: 'scroll',
+                // Các thuộc tính bị ghi chú có thể được thêm vào nếu cần
+                // textAlign: 'center',
+                // padding: '10px',
+              }}
+                pl={2} pt={1}>
                 <ObjectDetail viewImage={viewImage} />
               </Box>
             </Box>
@@ -104,8 +141,8 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
               {SimilarData && SimilarData.length > 0 ? (
                 <AutoSizer>
                   {({ height, width }) => {
-                    const columnWidth = width / columnCount - 1.5;
-                    const rowHeight = 130; // Making rows square by setting row height equal to column width
+                    const columnWidth = width / columnCount;
+                    const rowHeight = 150; // Making rows square by setting row height equal to column width
                     const rowCount = Math.ceil(SimilarData.length / columnCount);
 
                     return (
@@ -131,13 +168,27 @@ const SinglePopup = ({ viewImage, onClose }: { viewImage: any, onClose: any }) =
             </Box>
           </Box>
         </Box>
-        <Box className="close-button-container">
+        <Box className="close-button-container" sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '30px',
+          width: '30px',
+          padding: '5px',
+          backgroundColor: 'white',
+          position: 'absolute',
+          top: '-1.7%',
+          right: '-0.7%',
+          borderRadius: '20px',
+          cursor: 'pointer',
+          zIndex: 10000,
+        }}>
           <IconButton onClick={() => onClose(true)} aria-label="close">
             <CloseIcon />
           </IconButton>
         </Box>
       </Box>
-    </Paper>
+    </Box>
   )
 }
 
