@@ -172,6 +172,7 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
           zIndex: 10000,
         }}
         >
+          {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
           <img
             src={closeIcon}
             // className="close-popup-button"
