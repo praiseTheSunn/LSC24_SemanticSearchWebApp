@@ -460,8 +460,14 @@ const Home = () => {
             )}
             {selectedModeIndex !== 0 && (
               <div
-                className="flex flex-row w-full h-full overflow-y-auto"
-                style={{ marginTop: '2px' }}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'row', 
+                width: '100%', 
+                height: '100%', 
+                overflowY: 'auto', 
+                marginTop: '2px' 
+              }}              
               >
                 <SimialrityAdvancedGrid
                   tabindex={selectedModeIndex}
