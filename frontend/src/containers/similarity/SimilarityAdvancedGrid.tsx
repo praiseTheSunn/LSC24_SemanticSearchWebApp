@@ -1,7 +1,6 @@
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeGrid as Grid } from 'react-window';
 import { ImageGroup } from '../../components';
-import './similarity.css';
 import React, { useEffect, useState } from 'react';
 import type { ImageRecord } from '../../types/image';
 import { useAppSelector } from '../../AppState';
@@ -20,21 +19,7 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({ tabinde
   useEffect(() => {
     const locationDataMap = new Map<string, ImageRecord[]>();
     const timeDataMap = new Map<string, ImageRecord[]>();
-
-    // data.forEach((item) => {
-    //   const location = item.location_displayed;
-    //   if (!locationDataMap.has(location)) {
-    //     locationDataMap.set(location, []);
-    //   }
-    //   locationDataMap.get(location)!.push(item);
-
-    //   const date = item.date;
-    //   if (!timeDataMap.has(date)) {
-    //     timeDataMap.set(date, []);
-    //   }
-    //   timeDataMap.get(date)!.push(item);
-    // });
-
+    
     for (const item of data) {
       const location = item.location_displayed;
       if (!locationDataMap.has(location)) {
@@ -67,12 +52,12 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({ tabinde
 
     setLocationBasedData(Array.from(locationDataMap.values()));
     setTimeBasedData(Array.from(timeDataMap.values()));
-  }, [data]);
+  }, [data, setLocationBasedData, setTimeBasedData]);
 
   // let totalItems: number = 0;
   // totalItems: number = 0;
   const [totalItems, setTotalItems] = useState<number>(0);
-  const glob_columnCount: number = 8;
+  const glob_columnCount: number = 9;
 
   const cellRenderer = ({ columnIndex, rowIndex, style }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
     const displayData = tabindex === 2 ? locationBasedData : timeBasedData;
@@ -80,26 +65,31 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({ tabinde
     if (!item) return null;
 
     return (
-      <div style={{ ...style, padding: '0 5px' }} className="image-cell">
+      <div style={{ ...style, padding: '0 5px' }}>
+      <div style={{ margin: '0 8px' }}> {/* Thêm margin vào bên trong */}
         <ImageGroupMemoized
           images={item}
           title={tabindex === 2 ? item[0]?.location_displayed : item[0]?.date}
         />
       </div>
+    </div>
     );
   };
 
   return (
-    <div className="image-location w-full h-full">
+    <div style={{ 
+      width: '100%', 
+      height: '100%' 
+    }}
+    >
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => {
           const columnCount: number = glob_columnCount;
-          const cellWidth: number = 180;
-          const cellHeight: number = 230;
-
+          const cellWidth: number = width / columnCount - 1.5;
+          const cellHeight: number = 240;
+          
           const displayData = tabindex === 1 ? locationBasedData : timeBasedData;
           const rowCount: number = Math.ceil(displayData.length / columnCount);
-          // totalItems = displayData.length;
           setTotalItems(displayData.length);
           return (
             <Grid
@@ -110,7 +100,7 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({ tabinde
               rowHeight={cellHeight}
               width={width}
               itemData={displayData}
-              style={{ margin: '' }}
+              
             >
               {cellRenderer}
             </Grid>
