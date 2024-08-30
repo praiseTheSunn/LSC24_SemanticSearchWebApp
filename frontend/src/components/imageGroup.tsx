@@ -34,6 +34,8 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
         my: 1,
         boxShadow: '2px 4px 4px 0px rgba(0, 0, 0, 0.5)',
         maxHeight: '230px',
+        width: '100%',            // Ensure the width is consistent
+        maxWidth: '180px',        // Set a max width to prevent full-screen expansion
       }}
     >
       <Dialog open={showMore} onClose={() => setShowMore(false)}>
@@ -63,26 +65,48 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
           justifyContent: 'center',
         }}
       >
-        {images[1]?.img_link && <Box
-          className="small-image"
-          sx={{
-            width: '50%',
-            objectFit: 'contain',
-          }}
-          component="img"
-          alt="small"
-          src={images[1]?.img_link}
-        />}
-        {images[2]?.img_link && <Box
-          className="small-image"
-          sx={{
-            width: '50%',
-            objectFit: 'contain',
-          }}
-          component="img"
-          alt="small"
-          src={images[2]?.img_link}
-        />}
+        {images[1]?.img_link ? (
+          <Box
+            className="small-image"
+            sx={{
+              width: '50%',
+              objectFit: 'contain',
+            }}
+            component="img"
+            alt="small"
+            src={images[1]?.img_link}
+          />
+        ) : (
+          <Box
+            sx={{
+              width: '50%',
+              objectFit: 'contain',
+              height: '70px',
+              bgcolor: '#f0f0f0', // Placeholder background
+            }}
+          />
+        )}
+        {images[2]?.img_link ? (
+          <Box
+            className="small-image"
+            sx={{
+              width: '50%',
+              objectFit: 'contain',
+            }}
+            component="img"
+            alt="small"
+            src={images[2]?.img_link}
+          />
+        ) : (
+          <Box
+            sx={{
+              width: '50%',
+              objectFit: 'contain',
+              height: '70px',
+              bgcolor: '#f0f0f0', // Placeholder background
+            }}
+          />
+        )}
       </Box>
 
       <Box
