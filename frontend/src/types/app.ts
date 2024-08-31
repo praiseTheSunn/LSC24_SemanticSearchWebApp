@@ -24,7 +24,7 @@ export type AppState = {
   isHistoryPopUpOpen: boolean
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
-  videoDataForPopup: string | null | undefined
+  videoDataForPopup: {source: string| undefined, timeStamp: string | undefined}
   data: ImageRecord[]
   cacheData: ImageRecord[]
   queryHistory: {time: string, query: string}[]

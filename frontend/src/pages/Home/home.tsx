@@ -33,6 +33,7 @@ import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvanc
 import type { SearchTermType } from '../../types/search'
 import { Box, ClickAwayListener } from '@mui/material'
 import type { ImageRecord } from '../../types/image'
+import VideoPopup from '../../components/Popup/VideoPopup'
 
 const LevelList = [
   { level: 'Similarity', bg: TrapoziedBgGrayLeft },
@@ -82,6 +83,9 @@ const Home = () => {
   );
   const cacheData: ImageRecord[] = useAppSelector(
     (state) => state.app.cacheData
+  );
+  const videoPopupSource: string| undefined = useAppSelector(
+    (state) => state.app.videoDataForPopup.source
   );
 
   const dispatch = useAppDispatch();
@@ -304,6 +308,7 @@ const Home = () => {
       style={{ backgroundColor: '#F5F5F5' }}
     >
       {loadingPopUpMessage ? <LoadingPopup /> : null}
+      {videoPopupSource ? < VideoPopup /> : null}
 
       <Tooltip
         id="tooltip_img"

@@ -8,7 +8,8 @@ const initialState: AppState = {
   isObjPosPopUpOpen: false,
   isMessagePopUpOpen: false,
   isHistoryPopUpOpen: false,
-  videoDataForPopup: null,
+  // videoDataForPopup: {source: "https://www.youtube.com/watch?v=spUNpyF58BY", timeStamp: "0:9:38"},
+  videoDataForPopup: {source: undefined, timeStamp: undefined},
 
   data: [],
   cacheData: [],
