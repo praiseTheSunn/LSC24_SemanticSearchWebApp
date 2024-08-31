@@ -1,33 +1,41 @@
-import AnImage from './AnImage'
-import type { ImageRecord } from '../types/image'
+import React from 'react';
+import { Box, Paper } from '@mui/material';
+import AnImage from './AnImage';
+import type { ImageRecord } from '../types/image';
 
 interface ImageSingleProps {
   image: ImageRecord;
 }
 
-// instead of ImageGroup, now create a new component called ImageSingle
 const ImageSingle = ({ image }: ImageSingleProps) => {
   return (
-    <div
-      className="relative image-group p-0.5 flex-col flex bg-white my-1"
-      style={{
-        boxShadow: '2px 4px 4px 0px rgba(0, 0, 0, 0.5)',
+    <Paper
+      elevation={4}
+      sx={{
+        p: 0.5,
+        display: 'flex',
+        flexDirection: 'column',
+        bgcolor: 'white',
+        my: 1,
         maxHeight: '230px',
       }}
     >
-      <div
-        className="mb-[2px]"
-        style={{
+      <Box
+        sx={{
+          mb: '2px',
           width: '100%',
           height: '120px',
           objectFit: 'contain',
           minWidth: '160px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
       >
         <AnImage data={image} />
-      </div>
-    </div>
-  )
-}
+      </Box>
+    </Paper>
+  );
+};
 
-export default ImageSingle
+export default ImageSingle;

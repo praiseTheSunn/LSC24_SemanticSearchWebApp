@@ -20,7 +20,7 @@ import KhangScrollBar from '../../components/KhangScrollBar'
 import ImageGroup from '../../components/imageGroup'
 import ImageSingle from '../../components/imageSingle'
 import ActivityBar from '../../components/activityBar'
-import type {  ImageRecord, TimelineTabActivityRowData, TimelineTabActivityData, TimelineTabLocationRowData, TimelineTabLocationData, TimelineTabActivityAllData, TimelineTabLocationAllData } from '../../types/image'
+import type {  ImageRecord, TimelineTabActivityData, TimelineTabLocationData, TimelineTabActivityAllData, TimelineTabLocationAllData } from '../../types/image'
 import { Box, Typography, IconButton } from '@mui/material';
 import { MeasuredCellParent } from 'react-virtualized/dist/es/CellMeasurer'
 
@@ -29,8 +29,8 @@ const ImageGroupMemorized = React.memo(ImageGroup)
 const TimelineTab = () => {
   const data = useAppSelector((state) => state.app.data);
 
-  const [typeOfIndex, setTypeOfIndex] = useState<number[]>([0])               // 0 location, 1 activity, State to track whether the button is held down 
-const [holdActive, setHoldActive] = useState(false)                         // State to track whether the button is held down
+const [rowModes, setRowModes] = useState<number[]>([0])                       // 0 location, 1 activity, State to track whether the button is held down 
+const [holdActive, setHoldActive] = useState(false)                           // State to track whether the button is held down
 const [holdTimer, setHoldTimer] = useState<string | number | ReturnType<typeof setTimeout> | undefined>(undefined)
 const [selectedDate, setSelectedDate] = useState<string|null>(null)
 const [inHoldMode, setInHoldMode] = useState(false)
@@ -86,8 +86,8 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
 
   useEffect(() => {
       // Parse data into location-based and activity-based data
-      const locationDataMap = new Map();
-      const activityDataMap = new Map();
+      const locationDataMap = new Map();        // Type: TimelineTabLocationAllData = Map<string, TimelineTabLocationData[]>
+      const activityDataMap = new Map();        // Type: TimelineTabActivityAllData = Map<string, TimelineTabActivityData[]>
 
       for (const item of data) {
         if (item.date === '2019-01-12') {
@@ -97,11 +97,11 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
         if (!locationDataMap.has(item.date)) {
             locationDataMap.set(item.date, []);
         }
-        const locationData = locationDataMap.get(item.date);
-        if (!locationData.some((data : any) => data.location_id === item.location_id)) {
-            locationData.push({ location_id: item.location_id, images: [item] });
+        const locationRowData = locationDataMap.get(item.date);
+        if (!locationRowData.some((data : any) => data.location_id === item.location_id)) {
+          locationRowData.push({ location_id: item.location_id, images: [item] });
         } else {
-            const existingLocation = locationData.find((data: any) => data.location_id === item.location_id);
+            const existingLocation = locationRowData.find((data: any) => data.location_id === item.location_id);
             existingLocation.images.push(item);
         }
 
@@ -119,7 +119,7 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
       }
 
       
-      //sort location_id and activity_id ascending in each date of the map
+      // Sort location_id and activity_id ascending in each date of the map
       locationDataMap.forEach((value, key) => {
           value.sort((a : ImageRecord, b: ImageRecord) => a.location_id - b.location_id);
       });
@@ -133,14 +133,14 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
       setLocationBasedData(locationDataMap);
       setActivityBasedData(activityDataMap);
 
-      //sort dates ascending
+      // Sort dates ascending
       const dates = Array.from(locationDataMap.keys()).sort((a, b) => new Date(a).getTime() - new Date(b).getTime());
       setDates(dates);
 
       
 
-      const initialTypeOfIndex = dates.map(() => 0);
-      setTypeOfIndex(initialTypeOfIndex);
+      const initialRowMode = dates.map(() => 0);
+      setRowModes(initialRowMode);
   }, [data]);
 
   const recomputeRowHeights = useCallback(() => {
@@ -164,20 +164,18 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
 
   useEffect(() => {
       if (selectedDate && listRef.current) {
-          const index = dates.indexOf(selectedDate);
-          if (index !== -1) {
-              listRef.current.scrollToRow(index);
+          const rowIndex = dates.indexOf(selectedDate);
+          if (rowIndex !== -1) {
+              listRef.current.scrollToRow(rowIndex);
               // console.log('ref', listRef.current);
           }
       }
   }, [selectedDate]);
 
-  const handleChangeTypeOfIndex = (index: number) => {
-      
-      const newTypeOfIndex = [...typeOfIndex];
-      newTypeOfIndex[index] = newTypeOfIndex[index] === 0 ? 1 : 0;
-      console.log('index', index, newTypeOfIndex);
-      setTypeOfIndex(newTypeOfIndex);
+  const handleChangeRowModes = (rowIndex: number) => {      
+      const newRowModes = [...rowModes];
+      newRowModes[rowIndex] = newRowModes[rowIndex] === 0 ? 1 : 0;
+      setRowModes(newRowModes);
   };
 
 
@@ -188,14 +186,17 @@ const renderRow : ListRowRenderer = ({
   parent,
   isScrolling
 } : ListRowProps) => {
-  const currentDate = dates[index];
-  const locationData: any = locationBasedData?.get(currentDate) || [];
-  const activityData: any = activityBasedData?.get(currentDate) || [];
+  const rowIndex = index;
+  const currentDate = dates[rowIndex];
+  const locationRowData: any = locationBasedData?.get(currentDate) || [];
+  const activityRowData: any = activityBasedData?.get(currentDate) || [];
 
-  const selectedActivityID = selectedActivityIDs[index];
-  const filteredActivityData = selectedActivityID ? activityData.filter((item: any) => item.activity_id === selectedActivityID) : activityData;
+  const selectedActivityID = selectedActivityIDs[rowIndex];
+  const filteredActivityData = selectedActivityID 
+    ? activityRowData.filter((item: any) => item.activity_id === selectedActivityID) 
+    : activityRowData;
 
-  activityData.sort((a: any, b: any) =>
+  activityRowData.sort((a: any, b: any) =>
     Math.min(a.images.map((img: any) => (Object.values(img)[0] as any).time)) - Math.min(b.images.map((img: any) => (Object.values(img)[0] as any).time))
   );
 
@@ -205,7 +206,7 @@ const renderRow : ListRowRenderer = ({
       cache={cache}
       parent={parent}
       columnIndex={0}
-      rowIndex={index}
+      rowIndex={rowIndex}
     >
       {({ registerChild }) => (
         <Box
@@ -251,29 +252,29 @@ const renderRow : ListRowRenderer = ({
                 {currentDate}
               </Typography>
               <Box 
-                src={typeOfIndex[index] === 1 ? LocationIcon : LocationIconActive} 
-                component="img" onClick={() => handleChangeTypeOfIndex(index)} 
+                src={rowModes[rowIndex] === 1 ? LocationIcon : LocationIconActive} 
+                component="img" onClick={() => handleChangeRowModes(rowIndex)} 
                 sx={{ marginRight: "10px", cursor: "pointer"  }}
               />
               <Box 
-                src={typeOfIndex[index] === 0 ? ActivityIcon : ActivityIconActive} 
+                src={rowModes[rowIndex] === 0 ? ActivityIcon : ActivityIconActive} 
                 component="img" 
-                onClick={() => handleChangeTypeOfIndex(index)} 
+                onClick={() => handleChangeRowModes(rowIndex)} 
                 sx={{ marginRight: "10px", cursor: "pointer"  }}
               />
 
               <ActivityBar
-                rowData={activityData}
-                visibility={typeOfIndex[index] === 1 ? 'visible' : 'hidden'}
+                rowData={activityRowData}
+                visibility={rowModes[rowIndex] === 1 ? 'visible' : 'hidden'}
                 onActivitySelect={(activity_id) => {
                   const newSelectedActivityIDs = [...selectedActivityIDs];
-                  newSelectedActivityIDs[index] = activity_id;
+                  newSelectedActivityIDs[rowIndex] = activity_id;
                   setSelectedActivityIDs(newSelectedActivityIDs);
                 }}
               />
             </Box>
 
-            {typeOfIndex[index] === 0 && (
+            {rowModes[rowIndex] === 0 && (
               <Box
                 sx={{
                   display: 'flex',
@@ -285,8 +286,8 @@ const renderRow : ListRowRenderer = ({
                   marginLeft: '8px',
                 }}
               >
-                {locationData.map((locationItem, locationIndex) => (
-                  <Box key={locationIndex} sx={{ width: '170px', height: '230px' }}>
+                {locationRowData.map((locationItem: TimelineTabLocationData, listIndex: number) => (
+                  <Box key={`${locationItem.location}`} sx={{ width: '170px', height: '230px' }}>
                     <ImageGroupMemorized
                       sortType={1}
                       images={locationItem.images}
@@ -297,7 +298,7 @@ const renderRow : ListRowRenderer = ({
               </Box>
             )}
 
-            {typeOfIndex[index] === 1 && (
+            {rowModes[rowIndex] === 1 && (
               <Box
                 sx={{
                   display: 'flex',
@@ -311,19 +312,23 @@ const renderRow : ListRowRenderer = ({
               >
                 {filteredActivityData.length === 1 ? (
                   <Box display="flex" flexDirection="row" flexWrap="wrap" gap="8px">
-                    {filteredActivityData[0].images.map((imageItem) => (
-                      <ImageSingle key={imageItem.id} image={imageItem} />
+                    {filteredActivityData[0].images.map((imageItem: ImageRecord, listIndex: number) => (
+                      <ImageSingle 
+                        key={listIndex}
+                        image={imageItem} 
+                      />
                     ))}
                   </Box>
                 ) : (
                   <Box display="flex" flexDirection="row" flexWrap="wrap" gap="8px">
-                    {filteredActivityData.map((activityItem, activityIndex) => (
-                      <ImageGroupMemorized
-                        key={activityIndex}
-                        images={activityItem.images}
-                        title={activityItem.images[0].activity}
-                        sortType={1}
-                      />
+                    {filteredActivityData.map((activityItem: TimelineTabActivityData, listIndex: number) => (
+                      <Box key={`${activityItem.activity}`} sx={{ width: '170px', height: '230px' }}>
+                        <ImageGroupMemorized
+                          images={activityItem.images}
+                          title={activityItem.images[0].activity}
+                          sortType={1}
+                        />
+                      </Box>
                     ))}
                   </Box>
                 )}
