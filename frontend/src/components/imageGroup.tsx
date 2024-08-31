@@ -46,7 +46,6 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
           width: '100%',
           height: '120px',
           objectFit: 'contain',
-          minWidth: '160px',
         }}
       >
         <AnImage data={images[0]} />

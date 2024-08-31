@@ -7,10 +7,13 @@ const initialState: AppState = {
   similarPopUpData: null,
   isObjPosPopUpOpen: false,
   isMessagePopUpOpen: false,
-  displayedImages: [],
+  isHistoryPopUpOpen: false,
+  videoDataForPopup: null,
+
   data: [],
   cacheData: [],
   queryPayload: {model: 'clip', mode: 'smt', text_query: ''},
+  queryHistory: [],
 }
 
 export const sliceApp = createSlice({
@@ -26,9 +29,6 @@ export const sliceApp = createSlice({
     setSimilarPopupData: (state, action) => {
       state.similarPopUpData = action.payload
     },
-    setDisplayedImages: (state, action) => {
-      state.displayedImages = action.payload
-    },
     setAppImageData: (state, action) => {
       state.data = action.payload
     },
@@ -43,6 +43,19 @@ export const sliceApp = createSlice({
     },
     setMessagePopUp: (state, action) => {
       state.isMessagePopUpOpen = action.payload
+    },
+    setQueryHistory: (state, action) => {
+      if (action.payload === null) {
+        state.queryHistory = []
+        return
+      }
+      state.queryHistory.push(action.payload)
+    },
+    toggleHistoryPopUp: (state, action) => {
+      state.isHistoryPopUpOpen = action.payload
+    },
+    setVideoDataForPopup: (state, action) => {
+      state.videoDataForPopup = action.payload
     },
 
   },

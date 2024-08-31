@@ -80,7 +80,7 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
         display: 'flex', 
         flexDirection: 'column', 
         width: '95%', 
-        height: '95%', 
+        height: '97%', 
         backgroundColor: 'white', 
         borderRadius: '20px', 
         position: 'relative', 
@@ -88,7 +88,7 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
       }}>
         <Typography variant="h6" textAlign="center" fontWeight="bold">Similar Images</Typography>
         <Box className="single-images-container" justifyContent="center">
-          <Box display="flex" width="100%" height="95%">
+          <Box display="flex" width="100%" height="100%">
             <Box className="left-column" sx={{
               display: 'flex',
               flex: 1,

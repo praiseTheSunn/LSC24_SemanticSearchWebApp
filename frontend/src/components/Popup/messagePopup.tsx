@@ -8,7 +8,6 @@ import { useAppSelector } from '../../AppState';
 interface MessagePopupProps {
   displayedFilters: FilterTagType[];
   setDisplayedFilters: Dispatch<SetStateAction<FilterTagType[]>>;
-  setDisplayedImages?: (displayed: boolean) => void;
   setSearchTerms: Dispatch<SetStateAction<SearchTermType[]>>;
 }
 
@@ -16,12 +15,10 @@ interface MessagePopupProps {
 const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(({
   displayedFilters,
   setDisplayedFilters,
-  setDisplayedImages,
   setSearchTerms,
 }, ref) => {
   const handleClearAll = () => {
     setDisplayedFilters([]);
-    if (setDisplayedImages) setDisplayedImages(false);
   };
 
   const showPopup = useAppSelector((state) => state.app.isMessagePopUpOpen);

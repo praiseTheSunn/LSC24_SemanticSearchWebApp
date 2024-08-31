@@ -29,3 +29,4 @@ export { default as TrousersIcon } from './obj_icons/Trousers.svg'
 export { default as TrafficLightIcon } from './obj_icons/Traffic Light.svg'
 
 export { default as ObjectPosIcon } from './objectPosIcon.svg'
+export { default as HistoryIcon } from './historyIcon.png'

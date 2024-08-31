@@ -45,8 +45,6 @@ const ObjectPositionPopup = () => {
     dispatch(appActions.setCacheData(data));
   }, [dispatch]);
 
-  const showPopup = useAppSelector((state) => state.app.isObjPosPopUpOpen);
-
 
   const handleIconClick = (icon: Icon) => {
     setSelectedIcon(icon);
@@ -107,11 +105,11 @@ const ObjectPositionPopup = () => {
         zIndex: 10000,
         borderRadius: '6px',
         boxShadow: '2px 4px 4px rgba(0, 0, 0, 0.5)',
-        height: showPopup ? 'fit-content' : '0px',
-        width: showPopup ? 'fit-content' : '0px',
+        height: 'fit-content',
+        width: 'fit-content',
         overflow: 'hidden',
-        border: showPopup ? '1px solid black' : '0px',
-        padding: showPopup ? '8px' : '0px'
+        border: '1px solid black',
+        padding: '8px'
       }}
     >
       <Grid style={{

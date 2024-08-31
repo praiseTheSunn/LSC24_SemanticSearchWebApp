@@ -74,7 +74,7 @@ const ViewMorePopup = ({
         >
           <h2
           style={{ paddingTop: '0.1rem', paddingBottom: '0.1rem', textAlign: 'center' }}>
-            Images in group
+            {title}
           </h2>
           <Box 
           sx={{ 

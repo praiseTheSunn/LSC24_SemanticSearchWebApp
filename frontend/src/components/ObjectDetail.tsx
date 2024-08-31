@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import type React from "react";
-import { ImageRecord } from '../types/image';
+import type { ImageRecord } from '../types/image';
 
 interface ObjectDetailProps {
   viewImage: ImageRecord | undefined | null;
@@ -10,7 +10,7 @@ interface ObjectDetailProps {
 const ObjectDetail: React.FC<ObjectDetailProps> = ({ viewImage }) => {
   if (!viewImage) return null;
   return (
-    <Box width="100%" height="100%" padding="8px">
+    <Box width="100%" height="100%" paddingLeft="8px" paddingRight="8px">
       <Box>
         <Typography variant="caption" ><span style={{fontWeight: 'bold'}}>Activity:</span> {viewImage.activity} </Typography>
       </Box>

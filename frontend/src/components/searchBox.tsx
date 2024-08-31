@@ -1,5 +1,6 @@
 import { type Dispatch, type SetStateAction, useEffect, useRef, useState, forwardRef, useCallback } from 'react'
 import { ObjectPosIcon } from '../assets'
+import { HistoryIcon } from '../assets'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
 import ToggableComponent from './toggleEvaluationBox'
@@ -8,6 +9,7 @@ import { MessagePopup, ObjectPositionPopup } from '.'
 import type { QueryPayload, SearchTermType } from '../types/search' 
 import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery } from '../AppState'
 import type { ImageRecord } from '../types/image'
+import HistoryPopup from './Popup/HistoryPopup'
 
 type SearchBoxProps =
 {
@@ -31,8 +33,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   const [textareaHeight, setTextareaHeight] = useState('60px')
   // const { setDisplayedImages } = useSelectedImages()
   const [isFocus, setIsFocus] = useState(false)
-  const messagePopup = useRef<HTMLElement | null>(null)
-  const objPosPopup = useRef<HTMLElement | null>(null)
+  
+  const showHistory = useAppSelector((state) => state.app.isHistoryPopUpOpen);
+  const showPopup = useAppSelector((state) => state.app.isObjPosPopUpOpen);
   
   const [trigger, result ] = useLazyGetImagesQuery();
   const { data, error, isError, isFetching } = result;
@@ -66,9 +69,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   const setCacheResult = useCallback((value: ImageRecord[]) => {
     dispatch(appActions.setCacheData(value))
   }, [dispatch])
-
+  const toggleHistoryPopup = useCallback((value: boolean) => {
+    dispatch(appActions.toggleHistoryPopUp(value))
+  }, [dispatch])
+  
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
-
+  
   const handleTextareaChange = (event: any) => {
     setTextareaValue(event.target.value)
     // Automatically adjust height based on content if it exceeds the current height
@@ -177,6 +183,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
     }
   }, [isFetching, isError, error, data]);
 
+
   return (
     // <div className='left-filter-container'>
     <Box
@@ -240,8 +247,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           sx={{
             position: 'relative',
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: 'column',
             flexWrap: 'nowrap',
+            alignItems: 'center',
           }}
         >
           <Box
@@ -254,11 +262,31 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
               marginTop: '2px',
               cursor: 'pointer',
               position: 'relative',
-              width: "2.25rem",
-              height: "2.25rem",
+              width: "2rem",
+              height: "2rem",
             }}
           />
-          <ObjectPositionPopup/>
+          <ClickAwayListener onClickAway={() => toggleHistoryPopup(false)}>
+            <Box>
+              <Box
+                component="img"
+                src={HistoryIcon}
+                alt="history_icon"
+                onClick={() => toggleHistoryPopup(true)}
+                sx={{
+                  marginLeft: '3px',
+                  marginTop: '2px',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  width: "2.25rem",
+                  height: "2.25rem",
+                }}
+              />
+              {showHistory && <HistoryPopup />}
+            </Box>
+          </ClickAwayListener>
+          {showPopup && <ObjectPositionPopup/>}
+          
         </Box>
       </ClickAwayListener>
       <Box
