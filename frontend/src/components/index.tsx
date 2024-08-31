@@ -6,9 +6,9 @@ export { default as KhangScrollBar } from './KhangScrollBar'
 
 export { default as ActivityBar } from './activityBar'
 
-export { default as ImageGroup } from './imageGroup'
+export { default as ImageGroup } from './Image/imageGroup'
 
-export { default as ImageSingle } from './imageSingle'
+export { default as ImageSingle } from './Image/imageSingle'
 
 // export { default as Scrollbar } from './scrollbar';
 export { default as TimelineTab } from '../containers/timeline/timelineTab'
