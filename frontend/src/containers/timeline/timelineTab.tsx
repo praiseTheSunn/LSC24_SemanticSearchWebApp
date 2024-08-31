@@ -17,8 +17,8 @@ import {
   LocationIconActive,
 } from '../../assets'
 import KhangScrollBar from '../../components/KhangScrollBar'
-import ImageGroup from '../../components/imageGroup'
-import ImageSingle from '../../components/imageSingle'
+import ImageGroup from '../../components/Image/imageGroup'
+import ImageSingle from '../../components/Image/imageSingle'
 import ActivityBar from '../../components/activityBar'
 import type {  ImageRecord, TimelineTabActivityData, TimelineTabLocationData, TimelineTabActivityAllData, TimelineTabLocationAllData } from '../../types/image'
 import { Box, Typography, IconButton } from '@mui/material';

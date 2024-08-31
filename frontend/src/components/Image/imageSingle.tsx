@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Paper } from '@mui/material';
-import AnImage from './AnImage';
-import type { ImageRecord } from '../types/image';
+import AnImage from '../AnImage';
+import type { ImageRecord } from '../../types/image';
 
 interface ImageSingleProps {
   image: ImageRecord;

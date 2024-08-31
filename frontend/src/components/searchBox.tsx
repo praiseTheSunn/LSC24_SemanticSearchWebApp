@@ -10,6 +10,7 @@ import type { QueryPayload, SearchTermType } from '../types/search'
 import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery } from '../AppState'
 import type { ImageRecord } from '../types/image'
 import HistoryPopup from './Popup/HistoryPopup'
+import ImageInputBox from './ImageInputBox'
 
 type SearchBoxProps =
 {
@@ -289,6 +290,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           
         </Box>
       </ClickAwayListener>
+      <ImageInputBox />
       <Box
         sx={{ marginLeft: '12px', marginTop: '8px' }}
         >
@@ -315,7 +317,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           setData={setMode}
         />
       </Box>
-      <Box sx={{ marginLeft: '12px', marginTop: '8px' }} style={{ zIndex: 100 }}>
+      <Box sx={{ marginLeft: 'auto', marginRight: '20px', marginTop: '8px', zIndex: 100,  }}>
         <ToggableComponent />
       </Box>
     </Box>

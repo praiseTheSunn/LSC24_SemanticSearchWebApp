@@ -75,7 +75,7 @@ const HistoryPopup = () => {
         display: 'flex',
         flexDirection: 'column',
         backgroundColor: 'white',
-        zIndex: 10000,
+        zIndex: 20000,
         borderRadius: '6px',
         boxShadow: '2px 4px 4px rgba(0, 0, 0, 0.5)',
         height: '500px',

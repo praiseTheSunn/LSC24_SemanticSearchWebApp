@@ -1,9 +1,9 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Typography, Dialog } from '@mui/material';
-import AnImage from './AnImage';
-import ViewMorePopup from './Popup/viewMorePopup';
-import type { ImageRecord } from '../types/image';
+import AnImage from '../AnImage';
+import ViewMorePopup from '../Popup/viewMorePopup';
+import type { ImageRecord } from '../../types/image';
 
 interface ImageGroupProps {
   images: ImageRecord[];

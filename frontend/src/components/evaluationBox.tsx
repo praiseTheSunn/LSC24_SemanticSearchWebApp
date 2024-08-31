@@ -146,6 +146,7 @@ const EvaluationBox = () => {
         backgroundColor: 'white',
         borderRadius: 2,
       }}
+      style={{ position: 'absolute', top: '90px', right: '0px' }}
     >
       <TextField
         label="Username"
