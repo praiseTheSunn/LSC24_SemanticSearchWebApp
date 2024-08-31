@@ -21,11 +21,13 @@ export type AppState = {
   loadingPopUpMessage: string
   isObjPosPopUpOpen: boolean
   isMessagePopUpOpen: boolean
+  isHistoryPopUpOpen: boolean
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
-  displayedImages: string[]
+  videoDataForPopup: string | null | undefined
   data: ImageRecord[]
   cacheData: ImageRecord[]
+  queryHistory: {time: string, query: string}[]
   queryPayload: QueryPayload
 }
 

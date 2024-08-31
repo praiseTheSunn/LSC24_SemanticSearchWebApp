@@ -14,7 +14,7 @@ export type ApiError = {
 
 export type ObjPosResponse = {
   img_link: string;
-  score: number;
+  score?: number;
   date: string;
   time: string;
   ocr: string;

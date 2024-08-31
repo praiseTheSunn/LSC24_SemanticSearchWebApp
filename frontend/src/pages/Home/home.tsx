@@ -27,8 +27,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
-import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery } from '../../AppState'
-import { isEmpty, isNil } from 'lodash'
+import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import LoadingPopup from '../../components/Popup/loadingPopup'
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
 import type { SearchTermType } from '../../types/search'
@@ -78,9 +77,6 @@ const Home = () => {
   const loadingPopUpMessage: string = useAppSelector(
     (state) => state.app.loadingPopUpMessage
   );
-  const displayedImages: string[] = useAppSelector(
-    (state) => state.app.displayedImages
-  );
   const imageDatas: ImageRecord[] = useAppSelector(
     (state) => state.app.data
   );
@@ -98,7 +94,6 @@ const Home = () => {
   }, [dispatch]);
 
   const queryPayload = useAppSelector((state) => state.app.queryPayload);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   const setQuery = useCallback((query: string) => {
     const newPayload = { ...queryPayload, text_query: query }
     dispatch(appActions.setQueryPayload(newPayload));
@@ -125,21 +120,20 @@ const Home = () => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // console.log('searchTerms', searchTerms);
-    if (searchTerms.length > 0) {
+    if (searchTerms.length > 0 && cacheData.length > 0) {
       let fuseResults: ImageRecord[] = cacheData
       // console.log('fuseResults', fuseResults.length, fuseResults);
 
-      for (const term of searchTerms) {
-        if (term.value !== '') {
-          // console.log('term', term.category, term.value);
+      for (let i = 0; i < searchTerms.length; i++) {
+        if (searchTerms[i].value !== '') {
           const fuse = new Fuse(fuseResults, {
-            keys: [term.category],
+            keys: [searchTerms[i].category],
             includeScore: true,
             threshold: 0.6,
             distance: 10000,
           })
-          fuseResults = fuse.search(String(term.value)).map((result: FuseResult<ImageRecord>) => {
-            return { ...result.item, score: result.score } as ImageRecord;
+          fuseResults = fuse.search(searchTerms[i].value).map((result) => {
+            return { ...result.item, score: result.score }
           })
         }
       }
@@ -149,23 +143,11 @@ const Home = () => {
       }
 
       setImageData(fuseResults)
-      console.log('filteredResults', fuseResults.length)
+      // console.log('filteredResults', fuseResults.length)
     } else if (searchTerms.length === 0) {
       setImageData(cacheData)
     }
-  }, [searchTerms])
-
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-    useEffect(() => {
-    if (!displayedImages) {
-      setDisplayedFilters([])
-      setQuery('')
-      setImageData([])
-      setCacheResult([])
-      setSearchTerms([])
-    }
-  }, [displayedImages])
+  }, [searchTerms, cacheData])
 
   // const submit = (src: string) => {
   //   if (src === '') {
