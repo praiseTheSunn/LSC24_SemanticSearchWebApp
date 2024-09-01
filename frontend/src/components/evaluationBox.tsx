@@ -94,7 +94,7 @@
 // export default EvaluationBox
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { TextField, Button, Box } from '@mui/material';
+import { TextField, Button, Box, Paper } from '@mui/material';
 import { useSelector } from 'react-redux';
 import { isNil } from 'lodash';
 import { appActions, evaluationActions, useAppDispatch } from '../AppState';
@@ -137,7 +137,8 @@ const EvaluationBox = () => {
   }, [setPassword, setUsername]);
 
   return (
-    <Box
+    <Paper
+      elevation={4}
       sx={{
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
@@ -197,7 +198,7 @@ const EvaluationBox = () => {
       >
         Submit Text
       </Button>
-    </Box>
+    </Paper>
   );
 };
 

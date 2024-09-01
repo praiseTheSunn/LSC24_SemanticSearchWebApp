@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   Box,
   Button,
@@ -9,6 +9,7 @@ import {
   Paper,
 } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { appActions, useAppDispatch, useAppSelector, useLazySearchByImageQuery } from '../AppState';
 
 const ImageInputBox = () => {
   const [imageSrc, setImageSrc] = useState<string | ArrayBuffer | undefined>(undefined);
@@ -53,6 +54,54 @@ const ImageInputBox = () => {
     }
   };
 
+  const model = useAppSelector((state) => state.app.queryPayload.model);
+  const dispatch = useAppDispatch();
+  const [trigger, {data, error, isFetching}] = useLazySearchByImageQuery();
+  // const fixBase64Padding = (base64: string): string => {
+  //   let modifiedBase64 = base64;
+  //   while (modifiedBase64.length % 4 !== 0) {
+  //     modifiedBase64 += '=';
+  //   }
+  //   return modifiedBase64;
+  // };
+
+  // useEffect(() => {
+  //   if (imageSrc) {
+  //     let sendData = imageSrc;
+  //     if (typeof imageSrc === 'string' && imageSrc.startsWith('data:image/')) {
+  //       const [metadata, base64Data] = imageSrc.split(',');
+  //       const fixedBase64Data = fixBase64Padding(base64Data);
+  //       sendData = `${metadata},${fixedBase64Data}`;
+  //     } else {
+  //       console.error('imageSrc is not in the correct base64 format:', imageSrc);
+  //     }
+  //     trigger({image_base64: sendData, model});
+  //   }
+  // }, [imageSrc]);
+  
+  useEffect(() => {
+    if (imageSrc) {
+      trigger({image_base64: imageSrc, model});
+    }
+  }, [imageSrc]);
+
+  useEffect(() => {
+    if (isFetching) {
+      dispatch(appActions.setLoadingPopUp('Fetching similar images...'));
+    }
+    
+    if (error) {
+      console.error('Error:', error);
+      dispatch(appActions.setLoadingPopUp('Error: fetching result'));
+    }
+  
+    if (data && !isFetching) {
+      dispatch(appActions.setLoadingPopUp(''));
+      dispatch(appActions.setAppImageData(data));
+      dispatch(appActions.setCacheData(data));
+    }
+  }, [isFetching, error, data]);
+
 
   return (
     <Box sx={{ width: '22%', height: '100%', maxWidth: 600, zIndex: 1001, marginLeft: '20px' }}
@@ -69,8 +118,9 @@ const ImageInputBox = () => {
           flexDirection: 'column',
           height: 'fit-content',
         }}
+        onDoubleClick={() => setImageSrc(undefined)}
       >
-        <Typography variant="caption" >Search by Image</Typography>
+        <Typography variant="caption" >Search by Image <Typography variant='caption' sx={{fontSize: '11px', color: 'gray', opacity: '0.7', fontStyle: 'italic'}}>Double click to clear</Typography></Typography>
         <Box
           component="div"
           onPaste={handlePaste}

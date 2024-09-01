@@ -55,4 +55,5 @@ export const {
   useLazyGetImagesQuery,
   useGetSimilarsQuery,
   useLazyGetNeighborsQuery,
+  useLazySearchByImageQuery,
 } = ImageApi
