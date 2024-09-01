@@ -1,6 +1,10 @@
 from pydantic import BaseModel
 from schemas import options_schemas
 
+class RequestSearchByImageQuery(BaseModel):
+    image_base64: str
+    model: options_schemas.ModelOptions
+
 class RequestSearchByTextQuery(BaseModel):
     text_query: str
     model: options_schemas.ModelOptions

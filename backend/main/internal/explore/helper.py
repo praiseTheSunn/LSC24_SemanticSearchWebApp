@@ -15,8 +15,8 @@ def compute_mean_embedding(embeddings: list[list[float]]):
 
 def fetch_embeddings(data: RequestExploreSimilarImages):
     image_urls = data.image_urls
-    # model = data.model
-    model = "clip_b32"
+    model = data.model
+    # model = "clip_b32"
     print("Image urls:", image_urls)
 
     # image_urls theo thu tu similarity nhung ket qua tra ve cua ham get() lai la thu tu alphabet cua url

@@ -1,10 +1,29 @@
 import setup
 import requests
-import numpy as np
-from schemas.request_schemas import RequestSearchByTextQuery
+from fastapi import status
+from schemas.request_schemas import RequestSearchByTextQuery, RequestSearchByImageQuery
 import internal.search.scorer.combine_score as combine_score
 from internal.search.search_components import *
 from internal.prepare_response import prepare_response
+
+
+def search_with_image_query(data: RequestSearchByImageQuery):
+
+    model = data.model
+    image_base64 = data.image_base64
+
+    print("Making request to image embedding service...")
+    response = requests.post("http://localhost:8002/embedding/image", json=data.dict())
+
+    if response.status_code == 200:
+        image_embedding = response.json()["image_embedding"]
+        if model == "stfm":                                             # image embedding must be at format [[]], but 'stfm' model returns [] so I have to wrap it
+            image_embedding = [image_embedding]
+        
+        results_semantic = search_semantic(model, image_embedding)  
+        return prepare_response(results_semantic["urls"], results_semantic["scores"]), status.HTTP_200_OK            
+    else:
+        return response.text, response.status_code
 
 
 def search_with_text_query(data: RequestSearchByTextQuery):
@@ -28,14 +47,14 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         # Mode: semantic
         if mode == "smt":
             results_semantic = search_semantic(model, text_embedding)  
-            return prepare_response(results_semantic["urls"], results_semantic["scores"])
+            return prepare_response(results_semantic["urls"], results_semantic["scores"]), status.HTTP_200_OK
         
         # Mode: semantic x datetime
         if mode == "smt-dtout":
             results_semantic = search_semantic(model, text_embedding)   
             results_datetime = search_datetime(text_query)
             combined = combine_score.get_combined_scores_datetime([results_semantic], results_datetime)
-            return prepare_response(combined["urls"], combined["scores"])
+            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
 
         # Mode: semantic + multimatch (datetime included)
         if mode == "smt-mm-dtin":
@@ -43,7 +62,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
             results_multimatch_datetime = search_multimatch_datetime(text_query)
             print(f"Metadata search scores: {results_multimatch_datetime['scores'][:20]}")
             combined = combine_score.get_combined_scores([results_semantic, results_multimatch_datetime])
-            return prepare_response(combined["urls"], combined["scores"])
+            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
         # Mode: (semantic + multimatch) x datetime
         if mode == "smt-mm-dtout":
@@ -51,14 +70,14 @@ def search_with_text_query(data: RequestSearchByTextQuery):
             results_multimatch = search_multimatch(text_query)
             results_datetime = search_datetime(text_query)
             combined = combine_score.get_combined_scores_datetime([results_semantic, results_multimatch], results_datetime)
-            return prepare_response(combined["urls"], combined["scores"])
+            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
         # Mode: semantic + 3 matches (datetime included)
         if mode == "smt-3m-dtin":
             results_semantic = search_semantic(model, text_embedding)
             results_3match_datetime = search_3match_datetime(text_query)
             combined = combine_score.get_combined_scores([results_semantic, results_3match_datetime])
-            return prepare_response(combined["urls"], combined["scores"])
+            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
         # Mode: (semantic + 3 matches) x datetime
         if mode == "smt-3m-dtout":
@@ -68,10 +87,9 @@ def search_with_text_query(data: RequestSearchByTextQuery):
             results_caption = search_match_caption(text_query)
             results_datetime = search_datetime(text_query)
             combined = combine_score.get_combined_scores_datetime([results_semantic, results_objects_tags, results_place, results_caption], results_datetime)
-            return prepare_response(combined["urls"], combined["scores"])
+            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
-        return None
+        return [], status.HTTP_200_OK
     
     else:
-        print("Error:", response.status_code, response.text)
-        return None
+        return response.text, response.status_code
