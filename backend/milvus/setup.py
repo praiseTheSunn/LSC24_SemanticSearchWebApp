@@ -10,6 +10,8 @@ dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/lsc24_config.yaml'
 dataset_config = load_config(dataset_config_file)
 dataset_name = dataset_config['dataset_name']
 
+print("Dataset name: ", dataset_name)
+
 
 # milvus setup
 from pymilvus import connections, utility, MilvusException, Collection, MilvusClient
@@ -27,10 +29,12 @@ try:
         print(collection_name, collection.num_entities)
 
         load_state = milvus_client.get_load_state(collection_name)
-        if collection_name.startswith(dataset_name) and not load_state:
+        if collection_name.startswith(dataset_name):
             milvus_client.load_collection(collection_name)
-        elif not collection_name.startswith(dataset_name) and load_state:
+            print("Loaded collection: ", collection_name)
+        elif not collection_name.startswith(dataset_name):
             milvus_client.release_collection(collection_name)
+            print("Released collection: ", collection_name)
             
 except MilvusException as e:
     print(e)

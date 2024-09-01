@@ -35,8 +35,8 @@ class GetRequest(BaseModel):
 # Include the routes
 @app.post("/search_milvus")
 async def search_milvus(data: SearchRequest):
-    # milvus_collection = dataset_config['dataset_name'] + "_" + data.model
-    milvus_collection = dataset_config['dataset_name'] + "_" + "clip_b32"
+    milvus_collection = dataset_config['dataset_name'] + "_" + data.model
+    # milvus_collection = dataset_config['dataset_name'] + "_" + "clip_b32"
     text_embedding = data.embedding
     header = {
         'Access-Control-Allow-Origin': '*'

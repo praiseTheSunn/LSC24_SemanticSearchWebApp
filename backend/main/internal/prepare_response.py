@@ -27,7 +27,7 @@ def prepare_response(urls, scores = None):
         record['score'] = scores[i]
 
         if dataset_name == 'lsc24':
-            if np.isnan(record['new_lat']):
+            if pd.isna(record['new_lat']):
                 record['new_lat'] = None
                 record['new_lng'] = None   
 
