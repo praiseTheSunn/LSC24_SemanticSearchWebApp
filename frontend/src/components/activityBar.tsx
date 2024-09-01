@@ -40,14 +40,10 @@ const ActivityBar: React.FC<ActivityBarProps> = ({ rowData, visibility, onActivi
     }
   }
 
-  const [bestImg, setBestImg] = useState<string | null>(null);
   const [clickedIndex, setClickedIndex] = useState<number | null>(null);
 
-  useEffect(() => {
-    // Placeholder effect for any logic related to bestImg
-  }, [bestImg]);
 
-  const handleActivityClick = (activity_id: number | null, bestImg: string | null, index: number | null) => {
+  const handleActivityClick = (activity_id: number | null, index: number | null) => {
     if (clickedIndex !== index) {
       setClickedIndex(index);
       onActivitySelect(activity_id);
