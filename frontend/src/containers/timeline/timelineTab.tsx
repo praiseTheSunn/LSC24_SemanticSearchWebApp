@@ -22,9 +22,6 @@ import ImageSingle from '../../components/Image/imageSingle'
 import ActivityBar from '../../components/activityBar'
 import type {  ImageRecord, TimelineTabActivityData, TimelineTabLocationData, TimelineTabActivityAllData, TimelineTabLocationAllData } from '../../types/image'
 import { Box, Typography, IconButton } from '@mui/material';
-import { MeasuredCellParent } from 'react-virtualized/dist/es/CellMeasurer'
-
-const ImageGroupMemorized = React.memo(ImageGroup)
 
 const TimelineTab = () => {
   const data = useAppSelector((state) => state.app.data);
@@ -44,8 +41,6 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
       setSelectedActivityIDs(initialSelectedActivityIDs);
   }, [dates]);
   const listRef = useRef<List | null>(null)
-
-  const ImageGroupMemorized = React.memo(ImageGroup);
 
   const cache = new CellMeasurerCache({
       fixedWidth: true,
@@ -146,7 +141,6 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
   const recomputeRowHeights = useCallback(() => {
     cache.clearAll();
     if(listRef.current){
-      console.log('recomputeRowHeights', listRef.current);
       listRef.current.recomputeRowHeights();
     }
   }, []);
@@ -179,167 +173,170 @@ const [activityBasedData, setActivityBasedData] = useState<TimelineTabActivityAl
   };
 
 
-const renderRow : ListRowRenderer = ({
-  index,
-  key,
-  style,
-  parent,
-  isScrolling
-} : ListRowProps) => {
-  const rowIndex = index;
-  const currentDate = dates[rowIndex];
-  const locationRowData: any = locationBasedData?.get(currentDate) || [];
-  const activityRowData: any = activityBasedData?.get(currentDate) || [];
+  const renderRow : ListRowRenderer = ({
+    index,
+    key,
+    style,
+    parent,
+    isScrolling
+  } : ListRowProps) => {
+    const rowIndex = index;
+    const currentDate = dates[rowIndex];
+    const locationRowData: any = locationBasedData?.get(currentDate) || [];
+    const activityRowData: any = activityBasedData?.get(currentDate) || [];
 
-  const selectedActivityID = selectedActivityIDs[rowIndex];
-  const filteredActivityData = selectedActivityID 
-    ? activityRowData.filter((item: any) => item.activity_id === selectedActivityID) 
-    : activityRowData;
+    const selectedActivityID = selectedActivityIDs[rowIndex];
+    const filteredActivityData = selectedActivityID 
+      ? activityRowData.filter((item: any) => item.activity_id === selectedActivityID) 
+      : activityRowData;
 
-  activityRowData.sort((a: any, b: any) =>
-    Math.min(a.images.map((img: any) => (Object.values(img)[0] as any).time)) - Math.min(b.images.map((img: any) => (Object.values(img)[0] as any).time))
-  );
+    activityRowData.sort((a: any, b: any) =>
+      Math.min(a.images.map((img: any) => (Object.values(img)[0] as any).time)) - Math.min(b.images.map((img: any) => (Object.values(img)[0] as any).time))
+    );
 
-  return (
-    <CellMeasurer
-      key={key}
-      cache={cache}
-      parent={parent}
-      columnIndex={0}
-      rowIndex={rowIndex}
-    >
-      {({ registerChild }) => (
-        <Box
-          ref={registerChild}
-          display="flex"
-          flexDirection="row"
-          position="relative"
-          sx={style}
-        >
+    return (
+      <CellMeasurer
+        key={key}
+        cache={cache}
+        parent={parent}
+        columnIndex={0}
+        rowIndex={rowIndex}
+      >
+        {({ registerChild }) => (
           <Box
-            sx={{
-              width: '25px',
-              height: '25px',
-              backgroundColor: 'black',
-              borderRadius: '9999px',
-              mr: '28px',
-              zIndex: 10,
-            }}
-          />
-
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              mb: '16px',
-              position: 'relative',
-              width: '96%',
-              minHeight: '100px',
-              boxShadow: '0px 2px #D7D7D7',
-              borderRadius: '10px',
-              transition: 'width 0.5s',
-            }}
+            ref={registerChild}
+            display="flex"
+            flexDirection="row"
+            position="relative"
+            sx={style}
           >
-            <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  fontWeight: 'bold',
-                  fontSize: '22px',
-                  minWidth: '200px',
-                }}
-              >
-                {currentDate}
-              </Typography>
-              <Box 
-                src={rowModes[rowIndex] === 1 ? LocationIcon : LocationIconActive} 
-                component="img" onClick={() => handleChangeRowModes(rowIndex)} 
-                sx={{ marginRight: "10px", cursor: "pointer"  }}
-              />
-              <Box 
-                src={rowModes[rowIndex] === 0 ? ActivityIcon : ActivityIconActive} 
-                component="img" 
-                onClick={() => handleChangeRowModes(rowIndex)} 
-                sx={{ marginRight: "10px", cursor: "pointer"  }}
-              />
+            <Box
+              sx={{
+                width: '25px',
+                height: '25px',
+                backgroundColor: 'black',
+                borderRadius: '9999px',
+                mr: '28px',
+                zIndex: 10,
+              }}
+            />
 
-              <ActivityBar
-                rowData={activityRowData}
-                visibility={rowModes[rowIndex] === 1 ? 'visible' : 'hidden'}
-                onActivitySelect={(activity_id) => {
-                  const newSelectedActivityIDs = [...selectedActivityIDs];
-                  newSelectedActivityIDs[rowIndex] = activity_id;
-                  setSelectedActivityIDs(newSelectedActivityIDs);
-                }}
-              />
-            </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                mb: '16px',
+                position: 'relative',
+                width: '96%',
+                minHeight: '100px',
+                boxShadow: '0px 2px #D7D7D7',
+                borderRadius: '10px',
+                transition: 'width 0.5s',
+              }}
+            >
+              <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row' }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    fontWeight: 'bold',
+                    fontSize: '22px',
+                    minWidth: '200px',
+                  }}
+                >
+                  {currentDate}
+                </Typography>
+                <Box 
+                  src={rowModes[rowIndex] === 1 ? LocationIcon : LocationIconActive} 
+                  component="img" onClick={() => handleChangeRowModes(rowIndex)} 
+                  sx={{ marginRight: "10px", cursor: "pointer"  }}
+                />
+                <Box 
+                  src={rowModes[rowIndex] === 0 ? ActivityIcon : ActivityIconActive} 
+                  component="img" 
+                  onClick={() => handleChangeRowModes(rowIndex)} 
+                  sx={{ marginRight: "10px", cursor: "pointer"  }}
+                />
 
-            {rowModes[rowIndex] === 0 && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: '8px',
-                  position: 'relative',
-                  marginBottom: '12px',
-                  marginLeft: '8px',
-                }}
-              >
-                {locationRowData.map((locationItem: TimelineTabLocationData, listIndex: number) => (
-                  <Box key={`${locationItem.location}`} sx={{ width: '170px', height: '230px' }}>
-                    <ImageGroupMemorized
-                      sortType={1}
-                      images={locationItem.images}
-                      title={locationItem.images[0].location_displayed}
-                    />
-                  </Box>
-                ))}
+                <ActivityBar
+                  rowData={activityRowData}
+                  visibility={rowModes[rowIndex] === 1 ? 'visible' : 'hidden'}
+                  onActivitySelect={(activity_id) => {
+                    const newSelectedActivityIDs = [...selectedActivityIDs];
+                    newSelectedActivityIDs[rowIndex] = activity_id;
+                    setSelectedActivityIDs(newSelectedActivityIDs);
+                  }}
+                />
               </Box>
-            )}
 
-            {rowModes[rowIndex] === 1 && (
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  flexWrap: 'wrap',
-                  gap: '8px',
-                  position: 'relative',
-                  marginBottom: '12px',
-                  marginLeft: '8px',
-                }}
-              >
-                {filteredActivityData.length === 1 ? (
-                  <Box display="flex" flexDirection="row" flexWrap="wrap" gap="8px">
-                    {filteredActivityData[0].images.map((imageItem: ImageRecord, listIndex: number) => (
-                      <ImageSingle 
-                        key={listIndex}
-                        image={imageItem} 
+              {rowModes[rowIndex] === 0 && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                    position: 'relative',
+                    marginBottom: '12px',
+                    marginLeft: '8px',
+                  }}
+                >
+                  {locationRowData.map((locationItem: TimelineTabLocationData, listIndex: number) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    <Box key={`${listIndex}`} sx={{ width: '170px', height: '230px' }}>
+                      <ImageGroup
+                        sortType={1}
+                        images={locationItem.images}
+                        title={locationItem.images[0].location_displayed}
                       />
-                    ))}
-                  </Box>
-                ) : (
-                  <Box display="flex" flexDirection="row" flexWrap="wrap" gap="8px">
-                    {filteredActivityData.map((activityItem: TimelineTabActivityData, listIndex: number) => (
-                      <Box key={`${activityItem.activity}`} sx={{ width: '170px', height: '230px' }}>
-                        <ImageGroupMemorized
-                          images={activityItem.images}
-                          title={activityItem.images[0].activity}
-                          sortType={1}
+                    </Box>
+                  ))}
+                </Box>
+              )}
+
+              {rowModes[rowIndex] === 1 && (
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    flexWrap: 'wrap',
+                    gap: '8px',
+                    position: 'relative',
+                    marginBottom: '12px',
+                    marginLeft: '8px',
+                  }}
+                >
+                  {filteredActivityData.length === 1 ? (
+                    <Box display="flex" flexDirection="row" flexWrap="wrap" gap="8px">
+                      {filteredActivityData[0].images.map((imageItem: ImageRecord, listIndex: number) => (
+                        <ImageSingle 
+                          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                          key={listIndex}
+                          image={imageItem} 
                         />
-                      </Box>
-                    ))}
-                  </Box>
-                )}
-              </Box>
-            )}
+                      ))}
+                    </Box>
+                  ) : (
+                    <Box display="flex" flexDirection="row" flexWrap="wrap" gap="8px">
+                      {filteredActivityData.map((activityItem: TimelineTabActivityData, listIndex: number) => (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                        <Box key={`${listIndex}`} sx={{ width: '170px', height: '230px' }}>
+                          <ImageGroup
+                            images={activityItem.images}
+                            title={activityItem.images[0].activity}
+                            sortType={1}
+                          />
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
+              )}
+            </Box>
           </Box>
-        </Box>
-      )}
-    </CellMeasurer>
-  );
-};
+        )}
+      </CellMeasurer>
+    );
+  };
 
 
   useEffect(() => {
