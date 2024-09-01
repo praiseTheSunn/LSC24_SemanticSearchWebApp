@@ -31,9 +31,14 @@ export type ObjPosResponse = {
   location_displayed: string;
 }
 
-export type QueryParams = {
+export type TextQueryParams = {
   text_query: string;
   mode: string;
+  model: string;
+}
+
+export type ImageQueryParams = {
+  image_base64: string | ArrayBuffer;
   model: string;
 }
 

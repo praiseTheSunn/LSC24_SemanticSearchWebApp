@@ -169,12 +169,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
 
   useEffect(() => {
     if (isFetching) {
-      setLoadingPopup('Fetching object result...');
+      setLoadingPopup('Fetching result...');
     }
     
     if (isError) {
       console.error('Error:', error);
-      setLoadingPopup('Error: fetching object result');
+      setLoadingPopup('Error: fetching result');
     }
   
     if (data && !isFetching) {
