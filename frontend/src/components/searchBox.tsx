@@ -99,47 +99,57 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
     setMessagePopup(true)
   }
 
+  const lastHistory = useAppSelector((state) => state.app.queryHistory[state.app.queryHistory.length - 1])?.query; 
   const handleEnter = (event: any) => {
     if (event.key === 'Enter') {
       // setDisplayedImages(false);
       event.preventDefault() // Prevent default behavior
-      console.log('Enter key pressed')
-      const input = event.target.value.trim()
+      const input = event.target.value.trim();
+      const timestamp = new Date().toLocaleTimeString();
+      let updatedQuery = input;
+
       if (input.startsWith('-lo ')) {
         const value = input.substring(4)
         const filter = { category: 'location', value, status: 1 }
         setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('location', value)
+        updatedQuery = `${lastHistory} | location: ${input.substring(4)}`;
       } else if (input.startsWith('-t ')) {
         const value = input.substring(3)
         const filter = { category: 'time', value, status: 1 }
         setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('time', value)
+        updatedQuery = `${lastHistory} | time: ${input.substring(3)}`;
       } else if (input.startsWith('-d ')) {
         const value = input.substring(3)
         const filter = { category: 'date', value, status: 1 }
         setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('date', value)
+        updatedQuery = `${lastHistory} | date: ${input.substring(3)}`;
       } else if (input.startsWith('-ocr ')) {
         const value = input.substring(5)
         const filter = { category: 'ocr', value, status: 1 }
         setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('ocr', value)
+        updatedQuery = `${lastHistory} | ocr: ${input.substring(5)}`;
       } else if (input.startsWith('-obj ')) {
         const value = input.substring(5)
         const filter = { category: 'object_tags', value, status: 1 }
         setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('object_tags', value)
+        updatedQuery = `${lastHistory} | object_tags: ${input.substring(5)}`;
       } else if (input.startsWith('-act ')) {
         const value = input.substring(5)
         const filter = { category: 'activity', value, status: 1 }
         setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('activity', value)
+        updatedQuery = `${lastHistory} | activity: ${input.substring(5)}`;
       } else if (input.startsWith('-dow ')) {
         const value = input.substring(5)
         const filter = { category: 'day_of_week', value, status: 1 }
         setDisplayedFilters((previousState: any) => [...previousState, filter])
         handleFilterChange('day_of_week', value)
+        updatedQuery = `${lastHistory} | day_of_week: ${input.substring(5)}`;
       } else if (input.startsWith('-text ')) {
         const value = input.substring(6)
         const filter = { category: 'SUBMIT TEXT', value, status: 1 }
@@ -155,14 +165,13 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
       } else {
         const value = input
         const filter = { category: 'query', value, status: 1 }
-        // console.log('input', input);
         setQuery(value)
         trigger({ text_query: value, mode: queryPayload.mode, model: queryPayload.model })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
-        // setLoadingPopUp(true)
+        updatedQuery = `query: ${input}`;
       }
+      dispatch(appActions.setQueryHistory({ time: timestamp, query: updatedQuery }))
       setTextareaValue('')
-      // setDisplayedImages(true)
       setMessagePopup(true)
     }
   }
@@ -266,6 +275,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
               width: "2rem",
               height: "2rem",
             }}
+            title="Object Position Search"
           />
           <ClickAwayListener onClickAway={() => toggleHistoryPopup(false)}>
             <Box>
@@ -282,8 +292,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
                   width: "2.25rem",
                   height: "2.25rem",
                 }}
+                title="Search History"
               />
-              {showHistory && <HistoryPopup />}
+              {showHistory && <HistoryPopup setSearchTerms={setSearchTerms} setDisplayedFilters={setDisplayedFilters} />}
             </Box>
           </ClickAwayListener>
           {showPopup && <ObjectPositionPopup/>}

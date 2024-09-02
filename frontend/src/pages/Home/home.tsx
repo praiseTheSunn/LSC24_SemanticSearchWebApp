@@ -56,7 +56,7 @@ const Home = () => {
   const evaluationId = 0
   // console.log('selectedFilters in home', selectedFilters);
 
-  const [displayedFilters, setDisplayedFilters] = useState([])
+  const [displayedFilters, setDisplayedFilters] = useState<SearchTermType[]>([])
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const [selectedModeIndex, setSelectedModeIndex] = useState(0)
   const [isCtrlPressed, setIsCtrlPressed] = useState(false)
@@ -312,7 +312,7 @@ const Home = () => {
 
       <Tooltip
         id="tooltip_img"
-        style={{ zIndex: '9999999', position: 'fixed', top: '0', right: '0' }}
+        style={{ zIndex: '9999999', position: 'fixed', top: '0', right: '0', maxWidth: '500px' }}
         positionStrategy="fixed"
         // anchorSelect='.tooltip-display'
         place="bottom"
