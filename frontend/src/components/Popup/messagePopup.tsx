@@ -18,7 +18,8 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(({
   setSearchTerms,
 }, ref) => {
   const handleClearAll = () => {
-    setDisplayedFilters([]);
+    setDisplayedFilters((previousState: FilterTagType[]) => previousState.filter(filter => filter.category === 'query'))
+    setSearchTerms([]);
   };
 
   const showPopup = useAppSelector((state) => state.app.isMessagePopUpOpen);
@@ -75,7 +76,7 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(({
             <ListItem key={`${filter.category}-${filter.value}-${index}`} disableGutters disablePadding>
               <FilterTag filter={filter} index={index} onIconClick={onIconClick} />
             </ListItem>
-          ))}
+          )).reverse()}
         </List>
         <Paper
           elevation={1}

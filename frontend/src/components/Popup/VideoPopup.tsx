@@ -68,4 +68,4 @@ const VideoPopup = () => {
   )
 }
 
-export default React.memo(VideoPopup)
+export default VideoPopup;
