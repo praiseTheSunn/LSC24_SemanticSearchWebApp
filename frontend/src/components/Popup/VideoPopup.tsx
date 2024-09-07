@@ -39,30 +39,30 @@ const VideoPopup = () => {
     }
   }, [parsedTimeStamp]);
 
-  if (!videoSource) return null;
-
   return (
     <Box className="video-popup" sx={{ zIndex: '99999', position: 'fixed', width: '100%', height: '100%', top: 0, left: 0, backgroundColor: 'rgba(110, 110, 110, 0.5)', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <ClickAwayListener onClickAway={closeVideoPopup}>
-        <Box className="video-container" sx={{ backgroundColor: '#fff', height: '80%', width: '90%' }}>
-          {videoSource.includes('youtube.com') ? (
-            <iframe
-              width="100%"
-              height="100%"
-              style={{ objectFit: 'contain' }}
-              src={videoURLEmbed}
-              title="YouTube video player"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          ) : (
-            <video ref={videoRef} width="560" height="315" controls>
-              <source src={videoSource} type="video/mp4" />
-              <track src="captions.vtt" kind="captions" label="English" default />
-              Your browser does not support the video tag.
-            </video>
-          )}
-        </Box>
+        {videoURLEmbed ? (
+          <Box className="video-container" sx={{ backgroundColor: '#fff', height: '80%', width: '90%' }}>
+            {videoSource.includes('youtube.com') ? (
+              <iframe
+                width="100%"
+                height="100%"
+                style={{ objectFit: 'contain' }}
+                src={videoURLEmbed}
+                title="YouTube video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            ) : (
+              <video ref={videoRef} width="560" height="315" controls>
+                <source src={videoSource} type="video/mp4" />
+                <track src="captions.vtt" kind="captions" label="English" default />
+                Your browser does not support the video tag.
+              </video>
+            )}
+          </Box> 
+        ) : <Box>Video source not found!</Box>}
       </ClickAwayListener>
     </Box>
   )

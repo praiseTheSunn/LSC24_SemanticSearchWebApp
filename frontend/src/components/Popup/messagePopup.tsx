@@ -55,7 +55,7 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(({
         minHeight: showPopup ? '250px' : '0px',
         position: 'absolute',
         overflow: 'auto',
-        top: '70px',
+        top: '30px',
         zIndex: '10000',
         transition: 'all 0.3s ease-in-out',
       }}
