@@ -41,6 +41,7 @@ const FilterTag: React.FC<FilterTagProps> = ({ index, filter, onIconClick }) => 
           alignItems: 'center',
           backgroundColor: filter.status === 1 ? 'rgb(170, 247, 155)' : 'rgb(253, 174, 174)',
           width: '100%',
+          maxWidth: '272px',
         }}
       >
         <Typography

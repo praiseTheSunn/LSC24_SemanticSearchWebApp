@@ -2,13 +2,12 @@ import { useEffect, useCallback } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import closeIcon from '../../assets/close.png'
-import { AnImage, ObjectDetail } from '..'
+import { AnImage, Config, ObjectDetail } from '..'
 import { appActions, useAppDispatch, useAppSelector, useGetSimilarsQuery } from '../../AppState'
 import { Box, Typography } from '@mui/material';
-import { gridRowGap } from '../../containers/similarity/image-grid'
 
 const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: number }) => {
-  cellHeight = cellHeight ? cellHeight : 90;
+  cellHeight = cellHeight ? cellHeight : Config.SinglePopupCellHeight;
   const viewImage = useAppSelector((state) => state.app.similarPopUpData)
   const result = useGetSimilarsQuery(viewImage ? [viewImage?.img_link] : undefined)
   const { data, error, isError, isFetching } = result;
@@ -54,14 +53,14 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
           boxShadow: isHighlighted ? '0 0 10px #FFD700' : 'none',
         }}
       >
-        <Box sx={{ height: `calc(${style.height}px - 2 * ${gridRowGap})`, position: 'relative', overflow: 'hidden', padding: gridRowGap}} >
+        <Box sx={{ height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`, position: 'relative', overflow: 'hidden', padding: Config.gridRowGap}} >
           <AnImage key={index} data={imageData} index={index} />
         </Box>
       </div>
     );
   };
 
-  const columnCount = 7; // Number of columns in the grid
+  const columnCount = Config.SinglePopupColumnCount; // Number of columns in the grid
 
   return (
     <Box className="single-popup-container" sx={{
@@ -87,7 +86,7 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
         top: '7px' 
       }}>
         <Typography variant="h6" textAlign="center" fontWeight="bold">Similar Images</Typography>
-        <Box className="single-images-container" justifyContent="center">
+        <Box className="single-images-container" height="90%" width="100%">
           <Box display="flex" width="100%" height="100%">
             <Box className="left-column" sx={{
               display: 'flex',

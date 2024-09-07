@@ -1,19 +1,17 @@
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
-import { AnImage } from '../../components'
+import { AnImage, Config } from '../../components'
 import { Box } from '@mui/material'
 import { useAppSelector } from '../../AppState'
-
-export const gridRowGap = '2px'
 
 const ImageGrid = ({ cellHeight, cell } : {
   cellHeight?: number,
   cell?: any
 }) => {
-  cellHeight = cellHeight ? cellHeight : 100 // Default cell height
+  cellHeight = cellHeight ? cellHeight : Config.ImageGridCellHeight
 
   const simData = useAppSelector((state) => state.app.data)
-  const columnCount = 11 // Number of columns in the grid
+  const columnCount = Config.ImageGridColumnCount
 
   const Cell = ({ columnIndex, rowIndex, style } : {
     columnIndex: number,
@@ -26,7 +24,7 @@ const ImageGrid = ({ cellHeight, cell } : {
     const data = simData[index]
     return (
       <div style={style}>
-        <Box sx={{ height: `calc(${style.height}px - 2 * ${gridRowGap})`, position: 'relative', overflow: 'hidden', padding: gridRowGap}} >
+        <Box sx={{ height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`, position: 'relative', overflow: 'hidden', padding: Config.gridRowGap}} >
           <AnImage key={index} data={data} index={index} />
         </Box>
       </div>

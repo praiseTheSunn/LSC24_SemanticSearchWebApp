@@ -21,3 +21,20 @@ export { default as AnImage } from './AnImage'
 export { default as ViewMorePopup } from './Popup/viewMorePopup'
 
 export { default as ObjectDetail } from './ObjectDetail'
+
+
+export const Config = {
+  gridRowGap: '2px',
+
+  ImageGridColumnCount: 10,
+  ImageGridCellHeight: 100, // Default cell height
+
+  ViewMorePopupColumnCount: 8,
+  ViewMorePopupCellHeight: 130, // Default cell height
+
+  SinglePopupCellHeight: 90,
+  SinglePopupColumnCount: 7,
+  
+  NeighborPopupCellHeight: 105,
+  NeighborPopupColumnCount: 10,
+}

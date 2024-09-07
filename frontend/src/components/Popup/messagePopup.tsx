@@ -3,7 +3,7 @@ import { Box, Button, Paper, Typography, List, ListItem } from '@mui/material';
 import type { Dispatch, SetStateAction } from 'react';
 import type { FilterTagType, SearchTermType } from '../../types/search';
 import FilterTag from '../Filter/filterTag';
-import { useAppSelector } from '../../AppState';
+import { appActions, useAppDispatch, useAppSelector } from '../../AppState';
 
 interface MessagePopupProps {
   displayedFilters: FilterTagType[];
@@ -18,7 +18,7 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(({
   setSearchTerms,
 }, ref) => {
   const handleClearAll = () => {
-    setDisplayedFilters((previousState: FilterTagType[]) => previousState.filter(filter => filter.category === 'query'))
+    setDisplayedFilters([]);
     setSearchTerms([]);
   };
 
