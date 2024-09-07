@@ -12,7 +12,7 @@ export const LanguageSwitch = styled(Switch)(({ theme }) => ({
       color: '#fff',
       transform: 'translateX(22px)',
       '& .MuiSwitch-thumb:before': {
-        backgroundImage: `url('vietnamFlag.svg')`,
+        backgroundImage: `url('worldFlag.svg')`,
       },
       '& + .MuiSwitch-track': {
         opacity: 1,

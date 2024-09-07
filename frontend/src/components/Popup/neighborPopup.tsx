@@ -1,12 +1,11 @@
 import { Box } from '@mui/material';
-import { AnImage } from '..';
+import { AnImage, Config } from '..';
 import { useEffect, useState, useCallback, useRef } from 'react';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { FixedSizeGrid as Grid } from 'react-window';
 import closeIcon from '../../assets/close.png';
 import { useAppSelector, useLazyGetNeighborsQuery } from '../../AppState';
 import type { ImageRecord } from '../../types/image';
-import { gridRowGap } from '../../containers/similarity/image-grid';
 
 // Define the types for props
 interface NeighborPopupProps {
@@ -77,8 +76,8 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({ onClose, cellHeight, cell
     }
   };
 
-  const columnCount: number = 10;
-  cellHeight = cellHeight ? cellHeight : 105;
+  const columnCount: number = Config.NeighborPopupColumnCount;
+  cellHeight = cellHeight ? cellHeight : Config.NeighborPopupCellHeight;
 
   const Cell: React.FC<{ columnIndex: number; rowIndex: number; style: React.CSSProperties }> = ({ columnIndex, rowIndex, style }) => {
     const index = rowIndex * columnCount + columnIndex;
@@ -96,7 +95,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({ onClose, cellHeight, cell
           boxShadow: isHighlighted ? '0 0 10px #FFD700' : 'none',
         }}
       >
-        <Box sx={{ height: `calc(${style.height}px - 2 * ${gridRowGap})`, position: 'relative', overflow: 'hidden', padding: gridRowGap}} >
+        <Box sx={{ height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`, position: 'relative', overflow: 'hidden', padding: Config.gridRowGap}} >
           <AnImage key={index} data={data} index={index} />
         </Box>
       </div>

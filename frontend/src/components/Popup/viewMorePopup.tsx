@@ -4,7 +4,7 @@ import { AutoSizer } from 'react-virtualized';
 import { Box, Typography, IconButton } from '@mui/material';
 import AnImage from '../AnImage';
 import closeIcon from '../../assets/close.png'
-import { gridRowGap } from '../../containers/similarity/image-grid';
+import { Config } from '..';
 
 const ViewMorePopup = ({
   viewImages,
@@ -19,8 +19,8 @@ const ViewMorePopup = ({
   columnCount?: number;
   cellHeight?: number;
 }) => {
-  columnCount = columnCount ? columnCount : 8; // Number of columns in the grid
-  cellHeight = cellHeight ? cellHeight : 130; // Height of each cell in the grid
+  columnCount = columnCount ? columnCount : Config.ViewMorePopupColumnCount; // Number of columns in the grid
+  cellHeight = cellHeight ? cellHeight : Config.ViewMorePopupCellHeight; // Height of each cell in the grid
 
   const Cell = ({ columnIndex, rowIndex, style } : { columnIndex: number; rowIndex: number, style: any }) => {
     const index = rowIndex * columnCount + columnIndex;
@@ -34,7 +34,7 @@ const ViewMorePopup = ({
           ...style,
         }}
       >
-        <Box sx={{ height: `calc(${style.height}px - 2 * ${gridRowGap})`, position: 'relative', overflow: 'hidden', padding: gridRowGap}} >
+        <Box sx={{ height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`, position: 'relative', overflow: 'hidden', padding: Config.gridRowGap}} >
           <AnImage key={index} data={data} index={index} />
         </Box>
       </div>
