@@ -7,10 +7,11 @@ import ToggableComponent from './toggleEvaluationBox'
 import { Box, ClickAwayListener, Paper } from '@mui/material'
 import { MessagePopup, ObjectPositionPopup } from '.'
 import type { QueryPayload, SearchTermType } from '../types/search' 
-import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery } from '../AppState'
+import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery, useLazyGetTranslatedTextQuery } from '../AppState'
 import type { ImageRecord } from '../types/image'
 import HistoryPopup from './Popup/HistoryPopup'
 import ImageInputBox from './ImageInputBox'
+import { LanguageSwitch } from './Button/LanguageSwitch'
 
 type SearchBoxProps =
 {
@@ -39,6 +40,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   const showPopup = useAppSelector((state) => state.app.isObjPosPopUpOpen);
   
   const [trigger, result ] = useLazyGetImagesQuery();
+  const [TriggerTranslate, TranslatedResult ] = useLazyGetTranslatedTextQuery();
   const { data, error, isError, isFetching } = result;
   // const { setLoadingPopUp } = usePopUp()
 
@@ -75,6 +77,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   }, [dispatch])
   
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
+  const isVietnameseEnabled = useAppSelector((state) => state.app.isVietnameseEnabled)
   
   const handleTextareaChange = (event: any) => {
     setTextareaValue(event.target.value)
@@ -164,6 +167,13 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
         setSubmitFilename(filename)
       } else {
         const value = input
+        if (isVietnameseEnabled) {
+          // Translate to english
+          TriggerTranslate({ q: value, target: 'en' })
+          setTextareaValue('')
+          setMessagePopup(true)
+          return;
+        }
         const filter = { category: 'query', value, status: 1 }
         setQuery(value)
         trigger({ text_query: value, mode: queryPayload.mode, model: queryPayload.model })
@@ -192,6 +202,30 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
       setCacheResult(data);
     }
   }, [isFetching, isError, error, data]);
+
+  useEffect(() => {
+    if (TranslatedResult.isFetching) {
+      setLoadingPopup('Translating...');
+    }
+
+    if (TranslatedResult.isError) {
+      console.error('Error:', TranslatedResult.error);
+      setLoadingPopup('Error: translating');
+    }
+
+    if (TranslatedResult.data && !TranslatedResult.isFetching) {
+      const translatedText = TranslatedResult.data.translatedText;
+  
+      const filter = { category: 'query', value: translatedText, status: 1 }; // status 1 for success
+      setQuery(translatedText);
+      trigger({ text_query: translatedText, mode: queryPayload.mode, model: queryPayload.model });
+      setDisplayedFilters((previousState: any) => [...previousState, filter])
+
+      const updatedQuery = `query: ${translatedText}`;
+      const timestamp = new Date().toLocaleTimeString();
+      dispatch(appActions.setQueryHistory({ time: timestamp, query: updatedQuery }));
+    }
+  }, [TranslatedResult]);
 
 
   return (
@@ -328,7 +362,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           setData={setMode}
         />
       </Box>
-      <Box sx={{ marginLeft: 'auto', marginRight: '20px', marginTop: '8px', zIndex: 100,  }}>
+      <Box display="flex" flexDirection="row" alignItems="center" sx={{ marginLeft: 'auto', marginRight: '20px', marginTop: '8px', zIndex: 100 }}>
+        <LanguageSwitch value={isVietnameseEnabled} onClick={() => dispatch(appActions.toggleVietnamese())} />
         <ToggableComponent />
       </Box>
     </Box>
