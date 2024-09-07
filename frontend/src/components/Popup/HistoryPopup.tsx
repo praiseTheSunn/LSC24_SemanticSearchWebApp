@@ -24,7 +24,6 @@ const HistoryPopup = ({setSearchTerms, setDisplayedFilters}
   const recomputeRowHeights = useCallback(() => {
     cache.clearAll();
     if(listRef.current){
-      console.log('recomputeRowHeights', listRef.current);
       listRef.current.recomputeRowHeights();
     }
   }, []);
@@ -32,6 +31,13 @@ const HistoryPopup = ({setSearchTerms, setDisplayedFilters}
   useEffect(() => {
     recomputeRowHeights();
   }, [history, recomputeRowHeights]);
+
+  useEffect(() => {
+    if(listRef.current) {
+      listRef.current.scrollToRow(history.length - 1);
+    console.log('scrolling to row', history.length - 1);
+    }
+  }, [history]);
 
   const [trigger, {data, isFetching, error}] = useLazyGetImagesQuery();
   const queryPayload = useAppSelector(state => state.app.queryPayload);
@@ -78,8 +84,8 @@ const HistoryPopup = ({setSearchTerms, setDisplayedFilters}
         key={key}
         cache={cache}
         parent={parent}
-        columnIndex={0}
-        rowIndex={index}
+        index={index}
+        style={style}
       >
         {({registerChild}) => (
           <Box 
@@ -132,7 +138,7 @@ const HistoryPopup = ({setSearchTerms, setDisplayedFilters}
               rowRenderer={rowRenderer}
               rowCount={history.length}
               overscanRowCount={3}
-              scrollToAlignment="center"
+              scrollToAlignment="end"
               style={{ transition: 'transform ease-in-out 0.5s' }}
             />
           )}

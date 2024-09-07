@@ -1,8 +1,9 @@
 import React from 'react';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
 import { useAppDispatch, useAppSelector, appActions } from '../AppState';
 import type { ImageRecord } from '../types/image';
-import { isNil, spread } from 'lodash';
+import { isNil } from 'lodash';
 import { Box } from '@mui/material';
 
 interface AnImageProps {
@@ -18,9 +19,10 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true;
 
   const src = data?.img_link ? data.img_link : undefined;
+  const videoSrc = data?.video_link ? data.video_link : undefined;
   const date = data?.date ? data.date : null;
   const time = data?.time ? data.time : null;
-  const formattedTime: string = `${date}  ${time}`;
+  const formattedTime: string = `${date ? date : ''}  ${time ? time : ''}`;
   const json_data: string | null = isDisplayTooltip ? JSON.stringify(data) : null;
 
   const dispatch = useAppDispatch();
@@ -52,7 +54,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
           transform: isZoomOnHover ? 'scale(1.05)' : undefined,
           border: isZoomOnHover ? '2px solid rgb(0, 47, 255)' : undefined,
           "& .img-action-eye": {
-            display: isZoomOnHover ? 'block' : 'hidden',
+            display: isZoomOnHover ? 'flex' : 'hidden',
           }
         },
       }}
@@ -66,19 +68,21 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
       }}
     >
 
-      <Box
-        sx={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          padding: '0.25rem',
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          color: 'white',
-          fontSize: '0.75rem',
-        }}
-      >
-        {formattedTime}
-      </Box>
+      {(date || time )&& (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            padding: '0.25rem',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            color: 'white',
+            fontSize: '0.75rem',
+          }}
+        >
+          {formattedTime}
+        </Box> 
+      )}
       <Box
         component="img"
         src={src}
@@ -92,26 +96,43 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
           backgroundColor: 'white',
         }}
       />
-      <Box
-        sx={{
-          position: 'absolute',
-          bottom: 0,
-          right: 0,
-          backgroundColor: 'rgba(0, 0, 0, 0.5)',
-          opacity: 0.5,
-          zIndex: 50,
-          display: 'none',
-        }}
-        className="img-action-eye"
-        onClick={(e) => {
-          e.preventDefault();
-          toggleNeighborPopup(data);
-          toggleSimilarPopup(null);
-        }}
-        {...spread}
-      >
-        <VisibilityOutlinedIcon style={{ width: '1.75rem', color: 'white' }} />
-      </Box>
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: 0,
+            right: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            opacity: 0.5,
+            zIndex: 50,
+            display: 'none',
+            flexDirection: 'row',
+          }}
+          className="img-action-eye"
+          
+        >
+          <VisibilityOutlinedIcon 
+            titleAccess='View Neighbors'
+            style={{ width: '1.75rem', color: 'white', cursor: 'pointer' }} 
+            onClick={(e) => {
+              e.preventDefault();
+              toggleNeighborPopup(data);
+              toggleSimilarPopup(null);
+            }} 
+          />
+          { videoSrc && (<PlayCircleFilledRoundedIcon 
+            titleAccess='View Video'
+            style={{ width: '1.75rem', color: 'white', cursor: 'pointer' }} 
+            onClick={(e) => {
+              e.preventDefault();
+              console.log('videoSrc:', videoSrc);
+              dispatch(appActions.setVideoDataForPopup({
+                source: videoSrc,
+                timeStamp: time,
+              }));
+            }}
+          />)}
+        </Box>
+
     </Box>
   );
 };

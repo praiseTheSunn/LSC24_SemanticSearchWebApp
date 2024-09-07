@@ -254,7 +254,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
               border: 'solid 1.9px #636262',
               borderRadius: '10px',
               overflow: 'hidden',
-              zIndex: '10',
+              zIndex: '9999',
               paddingLeft: '7px',
               paddingTop: '5px',
             }}
@@ -274,7 +274,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           sx={{
             position: 'absolute',
             left: '10px',
-            top: '20px',
+            top: `calc( ${textareaHeight})`,
           }}>
             <MessagePopup
               setSearchTerms={setSearchTerms}

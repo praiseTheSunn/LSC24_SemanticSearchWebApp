@@ -85,7 +85,7 @@ const Home = () => {
     (state) => state.app.cacheData
   );
   const videoPopupSource: string| undefined = useAppSelector(
-    (state) => state.app.videoDataForPopup.source
+    (state) => state.app.videoDataForPopup?.source 
   );
 
   const dispatch = useAppDispatch();
