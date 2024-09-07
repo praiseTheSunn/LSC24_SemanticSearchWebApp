@@ -22,6 +22,7 @@ export type AppState = {
   isObjPosPopUpOpen: boolean
   isMessagePopUpOpen: boolean
   isHistoryPopUpOpen: boolean
+  isVietnameseEnabled: boolean
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
   videoDataForPopup: {source: string| undefined, timeStamp: string | undefined}

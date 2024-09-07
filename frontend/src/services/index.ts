@@ -42,4 +42,9 @@ export const EvalQuery: QueryFn = fetchBaseQuery({
   prepareHeaders,
 })
 
+export const GoogleTranslateQuery: QueryFn = fetchBaseQuery({
+  baseUrl: 'https://translation.googleapis.com/',
+  prepareHeaders,
+})
+
 export const baseQueryWithRetry = retry(ImageQuery, { maxRetries: 3 })

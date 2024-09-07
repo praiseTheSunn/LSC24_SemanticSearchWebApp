@@ -12,6 +12,7 @@ import { sliceApp } from './slice/sliceApp'
 import { evaluationSlice } from './slice/evalutionSlice'
 import { ObjectPosApi } from './services/objectApi'
 import { ImageApi } from './services/imageApi'
+import { GoogleApi } from './services/googleApi'
 
 
 const makeStore = () => {
@@ -21,10 +22,12 @@ const makeStore = () => {
       [evaluationSlice.reducerPath]: evaluationSlice.reducer,
       [ObjectPosApi.reducerPath]: ObjectPosApi.reducer,
       [ImageApi.reducerPath]: ImageApi.reducer,
+      [GoogleApi.reducerPath]: GoogleApi.reducer,
     }),
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat([
       ObjectPosApi.middleware,
       ImageApi.middleware,
+      GoogleApi.middleware,
     ]),
   })
 }
@@ -57,3 +60,7 @@ export const {
   useLazyGetNeighborsQuery,
   useLazySearchByImageQuery,
 } = ImageApi
+
+export const {
+  useLazyGetTranslatedTextQuery
+} = GoogleApi
