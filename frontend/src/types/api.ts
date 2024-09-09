@@ -31,6 +31,8 @@ export type ObjPosResponse = {
   location_displayed: string;
   video_url?: string;
   timestamp?: string;
+  video_id?: string;
+  frame_id?: string;
 }
 
 export type TextQueryParams = {
