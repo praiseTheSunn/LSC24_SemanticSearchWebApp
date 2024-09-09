@@ -1,14 +1,16 @@
 import { Box, ClickAwayListener } from '@mui/material'
 import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import React, { useCallback, useMemo, useRef, useEffect } from 'react'
+import { isNumber } from 'lodash';
 
 const VideoPopup = () => {
   const videoSource = useAppSelector((state) => state.app.videoDataForPopup?.source);
-  const timeStamp = useAppSelector((state) => state.app.videoDataForPopup?.timeStamp);
+  const timeStamp = useAppSelector((state) => state.app.videoDataForPopup?.timestamp);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   
   const parsedTimeStamp = useMemo(() => {
     if (!timeStamp) return 0;
+    if (isNumber(timeStamp)) return timeStamp;
     const timeParts = timeStamp.split(':').map(Number);
     if (timeParts.length === 3) {
       return timeParts[0] * 3600 + timeParts[1] * 60 + timeParts[2];
@@ -23,6 +25,7 @@ const VideoPopup = () => {
     if (videoSource?.includes('youtube.com')) {
       const url = new URL(videoSource);
       const videoId = url.searchParams.get('v');
+      // console.log(videoId, parsedTimeStamp);
       return `https://www.youtube.com/embed/${videoId}?start=${parsedTimeStamp}&rel=0&autoplay=1`;
     }
     return videoSource;
@@ -44,7 +47,7 @@ const VideoPopup = () => {
       <ClickAwayListener onClickAway={closeVideoPopup}>
         {videoURLEmbed ? (
           <Box className="video-container" sx={{ backgroundColor: '#fff', height: '80%', width: '90%' }}>
-            {videoSource.includes('youtube.com') ? (
+            {videoSource?.includes('youtube.com') ? (
               <iframe
                 width="100%"
                 height="100%"
