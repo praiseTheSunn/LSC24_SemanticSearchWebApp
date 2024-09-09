@@ -75,7 +75,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
             top: 0,
             left: 0,
             padding: '0.25rem',
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
             color: 'white',
             fontSize: '0.75rem',
           }}
@@ -124,7 +124,6 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
             style={{ width: '1.75rem', color: 'white', cursor: 'pointer' }} 
             onClick={(e) => {
               e.preventDefault();
-              // console.log('videoSrc:', videoSrc);
               dispatch(appActions.setVideoDataForPopup({
                 source: videoSrc,
                 timestamp: data.timestamp ? data.timestamp : undefined,

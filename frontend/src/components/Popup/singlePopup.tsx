@@ -139,7 +139,7 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
                         rowCount={rowCount}
                         rowHeight={rowHeight}
                         width={width}
-                        overscanRowCount={5}
+                        overscanRowCount={8}
                       >
                         {Cell}
                       </Grid>

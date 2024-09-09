@@ -49,7 +49,7 @@ const ImageGrid = ({ cellHeight, cell } : {
               rowCount={rowCount}
               rowHeight={rowHeight}
               width={width}
-              overscanRowCount={3}
+              overscanRowCount={7}
             >
               {cell}
             </Grid>

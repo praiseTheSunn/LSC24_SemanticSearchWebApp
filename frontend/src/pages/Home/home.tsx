@@ -393,6 +393,7 @@ const Home = () => {
           borderRadius: '5px',
           padding: '0 0 0 10px',
           backgroundColor: '#fff',
+          width: 'calc(100dvw - 10px)',
         }}
       >
         {selectedTabIndex === 0 && (
