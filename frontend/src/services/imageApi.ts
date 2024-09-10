@@ -2,6 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { ImageQuery } from ".";
 import type { ImageRecord } from "../types/image";
 import type { ApiResponse, ImageQueryParams, TextQueryParams } from "../types/api";
+import { transformResponse_AIC2024 } from "../config/transformResponse";
 
 export const ImageApi = createApi({
   reducerPath: "ImageApi",
@@ -17,14 +18,7 @@ export const ImageApi = createApi({
             body: params,
           }
         },
-        transformResponse: (response: ApiResponse) => {
-          // console.log('Response:', response);
-          if (response.response) {
-            return response.response;
-          }
-          
-          return response.data;
-        },
+        transformResponse: transformResponse_AIC2024,
         providesTags: (result) =>
           result
             ? [
@@ -42,14 +36,7 @@ export const ImageApi = createApi({
           method: "POST",
           body: { image_urls: urls, model: 'clip' },
         }),
-        transformResponse: (response: ApiResponse) => {
-          // console.log('Response:', response);
-          if (response.response) {
-            return response.response;
-          }
-          
-          return response.data;
-        },
+        transformResponse: transformResponse_AIC2024,
         providesTags: (result) =>
           result
             ? [
@@ -68,14 +55,7 @@ export const ImageApi = createApi({
           method: "POST",
           body: { image_url: img_url, span: 30 },
         }),
-        transformResponse: (response: ApiResponse) => {
-          // console.log('Response:', response);
-          if (response.response) {
-            return response.response;
-          }
-          
-          return response.data;
-        },
+        transformResponse: transformResponse_AIC2024,
         providesTags: (result) =>
           result
             ? [
@@ -94,14 +74,7 @@ export const ImageApi = createApi({
           method: 'POST',
           body: imageQuery,
         }),
-        transformResponse: (response: ApiResponse) => {
-          console.log('Response:', response);
-          if (response.response) {
-            return response.response;
-          }
-          
-          return response.data;
-        },
+        transformResponse: transformResponse_AIC2024,
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 

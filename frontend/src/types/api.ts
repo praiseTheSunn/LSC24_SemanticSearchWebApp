@@ -29,7 +29,10 @@ export type ObjPosResponse = {
   object_tags: string;
   day_of_week: string;
   location_displayed: string;
-  video_link?: string;
+  video_url?: string;
+  timestamp?: string;
+  video_id?: string;
+  frame_id?: string;
 }
 
 export type TextQueryParams = {
