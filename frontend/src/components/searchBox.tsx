@@ -4,7 +4,7 @@ import { HistoryIcon } from '../assets'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
 import ToggableComponent from './toggleEvaluationBox'
-import { Box, ClickAwayListener, Paper } from '@mui/material'
+import { Box, Button, ClickAwayListener, Paper } from '@mui/material'
 import { MessagePopup, ObjectPositionPopup } from '.'
 import type { QueryPayload, SearchTermType } from '../types/search' 
 import { appActions, useAppDispatch, useAppSelector, useLazyGetImagesQuery, useLazyGetTranslatedTextQuery } from '../AppState'
@@ -12,6 +12,7 @@ import type { ImageRecord } from '../types/image'
 import HistoryPopup from './Popup/HistoryPopup'
 import ImageInputBox from './ImageInputBox'
 import { LanguageSwitch } from './Button/LanguageSwitch'
+import { CSVDownloadBox } from './CSVDownloadBox'
 
 type SearchBoxProps =
 {
@@ -78,8 +79,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   const toggleHistoryPopup = useCallback((value: boolean) => {
     dispatch(appActions.toggleHistoryPopUp(value))
   }, [dispatch])
-  
-  
   
   const isVietnameseEnabled = useAppSelector((state) => state.app.isVietnameseEnabled)
   
@@ -367,8 +366,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
         />
       </Box>
       <Box display="flex" flexDirection="row" alignItems="center" sx={{ marginLeft: 'auto', marginRight: '20px', marginTop: '8px', zIndex: 100 }}>
-        <LanguageSwitch value={isVietnameseEnabled} onClick={() => dispatch(appActions.toggleVietnamese())} />
-        <ToggableComponent />
+          <CSVDownloadBox />
+          <LanguageSwitch value={isVietnameseEnabled} onClick={() => dispatch(appActions.toggleVietnamese())} />
+          <ToggableComponent />
       </Box>
     </Box>
     // {/* </div> */}

@@ -35,6 +35,15 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
     dispatch(appActions.setSimilarPopupData(data));
   }, [dispatch]);
 
+  const csvImages = useAppSelector((state) => state.app.csvImages);
+  const addCSVImages = React.useCallback(
+    (newData: ImageRecord) => {
+      dispatch(appActions.setCSVImages([...csvImages, newData]));
+    },
+    [csvImages, dispatch]
+  );
+  
+
   return (
     <Box
       key={index}
@@ -65,6 +74,13 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         e.preventDefault();
         toggleSimilarPopup(data);
         toggleNeighborPopup(null);
+      }}
+
+      onClick={(e) => {
+        e.preventDefault();
+        if (e.shiftKey) {
+          addCSVImages(data);
+        }
       }}
     >
 
