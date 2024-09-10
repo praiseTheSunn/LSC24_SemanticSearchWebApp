@@ -30,6 +30,7 @@ export type AppState = {
   cacheData: ImageRecord[]
   queryHistory: {time: string, query: string}[]
   queryPayload: QueryPayload
+  csvImages: ImageRecord[]
 }
 
 export type TimelineState = {

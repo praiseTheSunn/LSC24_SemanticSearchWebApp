@@ -18,6 +18,8 @@ const initialState: AppState = {
   cacheData: [],
   queryPayload: {model: 'clip', mode: 'smt', text_query: ''},
   queryHistory: [],
+
+  csvImages: [],
 }
 
 export const sliceApp = createSlice({
@@ -64,6 +66,8 @@ export const sliceApp = createSlice({
     toggleVietnamese: (state) => {
       state.isVietnameseEnabled = !state.isVietnameseEnabled
     },
-
+    setCSVImages: (state, action) => {
+      state.csvImages = action.payload
+    },
   },
 })
