@@ -38,6 +38,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   
   const showHistory = useAppSelector((state) => state.app.isHistoryPopUpOpen);
   const showPopup = useAppSelector((state) => state.app.isObjPosPopUpOpen);
+  const queryPayload = useAppSelector((state) => state.app.queryPayload)
+  console.log('queryPayload', queryPayload);
   
   const [trigger, result ] = useLazyGetImagesQuery();
   const [TriggerTranslate, TranslatedResult ] = useLazyGetTranslatedTextQuery();
@@ -47,16 +49,17 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
   const dispatch = useAppDispatch()
   const setQuery = useCallback((value: string) => {
     const newPayload = { ...queryPayload, text_query: value }
+    console.log("newPayload", newPayload);
     dispatch(appActions.setQueryPayload(newPayload))
-  }, [dispatch])
+  }, [queryPayload, dispatch])
   const setMode = useCallback((value: string) => {
     const newPayload = { ...queryPayload, mode: value }
     dispatch(appActions.setQueryPayload(newPayload))
-  }, [dispatch])
+  }, [queryPayload, dispatch])
   const setModel = useCallback((value: string) => {
     const newPayload = { ...queryPayload, model: value }
     dispatch(appActions.setQueryPayload(newPayload))
-  }, [dispatch])
+  }, [queryPayload, dispatch])
   const setLoadingPopup = useCallback((value: string) => {
     dispatch(appActions.setLoadingPopUp(value))
   }, [dispatch])
@@ -76,7 +79,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
     dispatch(appActions.toggleHistoryPopUp(value))
   }, [dispatch])
   
-  const queryPayload = useAppSelector((state) => state.app.queryPayload)
+  
+  
   const isVietnameseEnabled = useAppSelector((state) => state.app.isVietnameseEnabled)
   
   const handleTextareaChange = (event: any) => {
@@ -178,7 +182,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
         setQuery(value)
         trigger({ text_query: value, mode: queryPayload.mode, model: queryPayload.model })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
-        updatedQuery = `query: ${input}`;
+        updatedQuery = `query: ${input} ${queryPayload.mode}`;
       }
       dispatch(appActions.setQueryHistory({ time: timestamp, query: updatedQuery }))
       setTextareaValue('')
