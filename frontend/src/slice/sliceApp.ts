@@ -20,6 +20,7 @@ const initialState: AppState = {
   queryHistory: [],
 
   csvImages: [],
+  csvPreviewPopupOpen: false,
 }
 
 export const sliceApp = createSlice({
@@ -68,6 +69,10 @@ export const sliceApp = createSlice({
     },
     setCSVImages: (state, action) => {
       state.csvImages = action.payload
+    },
+
+    toggleCSVPreviewPopup: (state) => {
+      state.csvPreviewPopupOpen = !state.csvPreviewPopupOpen
     },
   },
 })

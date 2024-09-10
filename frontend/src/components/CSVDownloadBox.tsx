@@ -1,10 +1,13 @@
 import { Box, Button, Typography } from "@mui/material";
 import { appActions, useAppDispatch, useAppSelector } from "../AppState";
 import { toast } from "react-toastify";
+import { CSVPreviewPopup } from "./Popup/CSVPreviewPopup";
 
 export const CSVDownloadBox = () => {
     const csvImages = useAppSelector((state) => state.app.csvImages);
     const dispatch = useAppDispatch()
+
+    const CSVPreviewPopupOpen = useAppSelector((state) => state.app.csvPreviewPopupOpen)
 
     return (
     <Box
@@ -47,8 +50,19 @@ export const CSVDownloadBox = () => {
             >
             Clear
             </Button>
+            <Button
+            onClick={() => {
+                console.log('Preview clicked')
+                console.log(CSVPreviewPopupOpen)
+                dispatch(appActions.toggleCSVPreviewPopup())
+            }
+            }
+            >
+                Preview
+            </Button>
+            
         </Box>
-
+        {CSVPreviewPopupOpen && <CSVPreviewPopup />}
       </Box>
     )
 }
