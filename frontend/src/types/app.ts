@@ -25,7 +25,7 @@ export type AppState = {
   isVietnameseEnabled: boolean
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
-  videoDataForPopup: {source: string| undefined, timeStamp: string | undefined}
+  videoDataForPopup: {source: string| undefined, timestamp: string | undefined}
   data: ImageRecord[]
   cacheData: ImageRecord[]
   queryHistory: {time: string, query: string}[]

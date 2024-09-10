@@ -11,8 +11,8 @@ const initialState: AppState = {
 
   isVietnameseEnabled: false,
 
-  // videoDataForPopup: {source: "https://www.youtube.com/watch?v=spUNpyF58BY", timeStamp: "0:9:38"},
-  videoDataForPopup: {source: undefined, timeStamp: undefined},
+  // videoDataForPopup: {source: "https://www.youtube.com/watch?v=spUNpyF58BY", timestamp: "0:9:38"},
+  videoDataForPopup: {source: undefined, timestamp: undefined},
 
   data: [],
   cacheData: [],

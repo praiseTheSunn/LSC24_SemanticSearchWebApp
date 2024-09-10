@@ -19,7 +19,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true;
 
   const src = data?.img_link ? data.img_link : undefined;
-  const videoSrc = data?.video_link ? data.video_link : undefined;
+  const videoSrc = data?.video_url ? data.video_url : undefined;
   const date = data?.date ? data.date : null;
   const time = data?.time ? data.time : null;
   const formattedTime: string = `${date ? date : ''}  ${time ? time : ''}`;
@@ -75,7 +75,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
             top: 0,
             left: 0,
             padding: '0.25rem',
-            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            backgroundColor: 'rgba(0, 0, 0, 0.3)',
             color: 'white',
             fontSize: '0.75rem',
           }}
@@ -124,10 +124,9 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
             style={{ width: '1.75rem', color: 'white', cursor: 'pointer' }} 
             onClick={(e) => {
               e.preventDefault();
-              console.log('videoSrc:', videoSrc);
               dispatch(appActions.setVideoDataForPopup({
                 source: videoSrc,
-                timeStamp: time,
+                timestamp: data.timestamp ? data.timestamp : undefined,
               }));
             }}
           />)}
