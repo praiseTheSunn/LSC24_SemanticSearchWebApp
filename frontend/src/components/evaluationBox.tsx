@@ -140,6 +140,9 @@ const EvaluationBox = () => {
     <Paper
       elevation={4}
       sx={{
+        // width: '100%',
+        width: '500px',
+        position: 'relative',
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
         gap: 2,
@@ -147,7 +150,7 @@ const EvaluationBox = () => {
         backgroundColor: 'white',
         borderRadius: 2,
       }}
-      style={{ position: 'absolute', top: '90px', right: '0px' }}
+      // style={{ position: 'absolute', top: '90px', right: '0px' }}
     >
       <TextField
         label="Username"

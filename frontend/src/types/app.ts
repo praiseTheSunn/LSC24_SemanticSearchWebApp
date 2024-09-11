@@ -32,7 +32,8 @@ export type AppState = {
   queryPayload: QueryPayload
 
   csvImages: ImageRecord[]
-  csvPreviewPopupOpen: boolean
+  isCsvPreviewPopupOpen: boolean
+  isEvaluationBoxOpen: boolean
 }
 
 export type TimelineState = {
