@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Paper, Typography } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../AppState";
 import AnImage from "../AnImage";
 
@@ -9,27 +9,30 @@ export const CSVPreviewPopup = () => {
     
     return (
         // display all csvImages
-        <Box
+        <Paper
+        elevation={4}
             sx = {{
-                position: 'absolute',
-                right: '10px',
-                top: '100px',
+                maxHeight: '800px',
+                width: '300px',
+                position: 'relative',
+                // right: '300px',
+                // top: '300px',
                 display: 'flex',
                 flexDirection: 'column',
                 backgroundColor: 'white',
                 zIndex: 20000,
-                borderRadius: '6px',
-                boxShadow: '2px 4px 4px rgba(0, 0, 0, 0.5)',
-                height: '500px',
-                width: '300px',
+                borderRadius: 2,
+
                 overflow: 'hidden',
-                border: '1px solid black',
-                paddingTop: '8px',
-                paddingBottom: '8px',
-                paddingLeft: '8px',
-                paddingRight: '8px',
+                // border: '1px solid black',
+                // paddingTop: '8px',
+                // paddingBottom: '8px',
+                // paddingLeft: '8px',
+                // paddingRight: '8px',
                 alignItems: 'center',
                 overflowY: "scroll",
+
+                p: 2,
             }}
         >
             {csvImages.length === 0 && <Typography>No images to preview</Typography>}
@@ -46,6 +49,6 @@ export const CSVPreviewPopup = () => {
                     </Box>
                 )
             })}
-        </Box>
+        </Paper>
     )
 }
