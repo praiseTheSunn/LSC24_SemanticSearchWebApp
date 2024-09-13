@@ -201,63 +201,63 @@ const Home = () => {
   //     })
   // }
 
-  // useEffect(() => {
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     if (e.key === 'Control') {
-  //       setIsCtrlPressed(true)
-  //     }
-  //     if (e.altKey) {
-  //       switch (e.key) {
-  //         case '1':
-  //           setSelectedTabIndex(0)
-  //           e.preventDefault()
-  //           break
-  //         case '2':
-  //           setSelectedTabIndex(1)
-  //           e.preventDefault()
-  //           break
-  //         case '3':
-  //           setSelectedTabIndex(2)
-  //           e.preventDefault()
-  //           break
-  //         case '4':
-  //           setSelectedTabIndex(3)
-  //           e.preventDefault()
-  //           break
-  //         default:
-  //           break
-  //       }
-  //     }
-  //     if (e.key === 'Escape') {
-  //       setNeighborPopUp(false)
-  //       setSimilarPopUp(false)
-  //     }
-  //   }
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Control') {
+        setIsCtrlPressed(true)
+      }
+      if (e.altKey) {
+        switch (e.key) {
+          case '1':
+            setSelectedTabIndex(0)
+            e.preventDefault()
+            break
+          case '2':
+            setSelectedTabIndex(1)
+            e.preventDefault()
+            break
+          case '3':
+            setSelectedTabIndex(2)
+            e.preventDefault()
+            break
+          case '4':
+            setSelectedTabIndex(3)
+            e.preventDefault()
+            break
+          default:
+            break
+        }
+      }
+      if (e.key === 'Escape') {
+        dispatch(appActions.setSimilarPopupData(null))
+        dispatch(appActions.setNeighborPopupData(null))
+      }
+    }
 
-  //   const handleKeyUp = (e: KeyboardEvent) => {
-  //     if (e.key === 'Control') {
-  //       setIsCtrlPressed(false)
-  //     }
-  //   }
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Control') {
+        setIsCtrlPressed(false)
+      }
+    }
 
-  //   const handleClick = (e: MouseEvent) => {
-  //     if (isCtrlPressed && (e.target as HTMLElement).classList.contains('submissible')) {
-  //       const src =(e.target as HTMLElement).getAttribute('src')
-  //       submit(src as string)
-  //     }
-  //   }
-  //   // console.log('isCtrlPressed', isCtrlPressed);
+    const handleClick = (e: MouseEvent) => {
+      if (isCtrlPressed && (e.target as HTMLElement).classList.contains('submissible')) {
+        const src =(e.target as HTMLElement).getAttribute('src')
+        // submit(src as string)
+      }
+    }
+    // console.log('isCtrlPressed', isCtrlPressed);
 
-  //   document.addEventListener('keydown', handleKeyDown)
-  //   document.addEventListener('keyup', handleKeyUp)
-  //   document.addEventListener('click', handleClick)
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('keyup', handleKeyUp)
+    document.addEventListener('click', handleClick)
 
-  //   return () => {
-  //     document.removeEventListener('keydown', handleKeyDown)
-  //     document.removeEventListener('keyup', handleKeyUp)
-  //     document.removeEventListener('click', handleClick)
-  //   }
-  // }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('keyup', handleKeyUp)
+      document.removeEventListener('click', handleClick)
+    }
+  }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
 
 
   useEffect(() => {
