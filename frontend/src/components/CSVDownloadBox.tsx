@@ -1,4 +1,4 @@
-import { Box, SpeedDial, SpeedDialAction, ClickAwayListener, Popover, SpeedDialIcon, Snackbar } from "@mui/material";
+import { Box, SpeedDial, SpeedDialAction, ClickAwayListener, Popover, SpeedDialIcon, Snackbar, Backdrop } from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -20,21 +20,13 @@ export const CSVDownloadBox = () => {
     const CSVPreviewPopupOpen = Boolean(anchorElCSV);
     const isVisible = Boolean(anchorElEvaluation);
 
-    const toggleCSVPreviewPopup = useCallback((event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElCSV(CSVPreviewPopupOpen ? null : event.currentTarget);
-    }, [CSVPreviewPopupOpen]);
-
-    const toggleEvaluationBox = useCallback((event: React.MouseEvent<HTMLElement>) => {
-        setAnchorElEvaluation(isVisible ? null : event.currentTarget);
-    }, [isVisible]);
-
     const handleDownloadCSV = () => {
         if (csvImages.length > 0) {
             const csv = csvImages
                 .map((image) => `${image.video_id}, ${image.frame_id}\n`)
                 .join('');
             const hiddenElement = document.createElement('a');
-            hiddenElement.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
+            hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURI(csv)}`;
             hiddenElement.target = '_blank';
             hiddenElement.download = 'images.csv';
             hiddenElement.click();
@@ -54,10 +46,6 @@ export const CSVDownloadBox = () => {
         });
     };
 
-    const handlePreviewCSV = (event: React.MouseEvent<HTMLElement>) => {
-        toggleCSVPreviewPopup(event);
-    };
-
     const handlePreviewCSVOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElCSV(event.currentTarget);
     }
@@ -66,10 +54,6 @@ export const CSVDownloadBox = () => {
         console.log('close')
         setAnchorElCSV(null);
     }
-
-    const handleLogin = (event: React.MouseEvent<HTMLElement>) => {
-        toggleEvaluationBox(event);
-    };
 
     const handleLoginOpen = (event: React.MouseEvent<HTMLElement>) => {
         setAnchorElEvaluation(event.currentTarget);
@@ -80,35 +64,26 @@ export const CSVDownloadBox = () => {
     }
 
     return (
-        <ClickAwayListener onClickAway={() => {
-            // setAnchorElCSV(null);
-            // setAnchorElEvaluation(null);
-            setSpeedDialOpen(false)
-        }}>
-            <Box sx={{ 
+        <Box sx={{ 
                 position: 'relative',
-                alignItems: 'center', 
-                zIndex: '9999', 
-                width: '50px'
+                alignItems: 'flex-start', 
+                width: '50px',
+                height: "100%",
+                display: 'flex',
             }}>
                 <SpeedDial
                     ariaLabel="CSV actions"
                     sx={{ 
                         position: 'absolute',
-                        width: '100%',
-                        marginTop: '-20px',
+                        zIndex: 10000
                     }}
-                    // icon={<MenuIcon />}
                     icon={<SpeedDialIcon />}
                     direction="down"
                     open={speedDialOpen}
-                    // onOpen={() => setSpeedDialOpen(true)}
                     onMouseEnter={() => setSpeedDialOpen(true)}
-                    onMouseLeave={() => {
-                        // setSpeedDialOpen(false)
-                        // handlePreviewCSVClose()
-                    }}
-                    // onClick={() => setSpeedDialOpen(!speedDialOpen)}
+                    onClick={() => setSpeedDialOpen(!speedDialOpen)}
+                    FabProps={{ size: 'medium' }}
+                    
                 >
                     <SpeedDialAction
                         icon={<FileDownloadIcon />}
@@ -152,6 +127,5 @@ export const CSVDownloadBox = () => {
                     <EvaluationBox />
                 </Popover>
             </Box>
-        </ClickAwayListener>
     );
 };

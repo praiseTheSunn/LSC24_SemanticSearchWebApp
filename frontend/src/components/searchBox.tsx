@@ -340,7 +340,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
       </ClickAwayListener>
       <ImageInputBox />
       <Box
-        sx={{ marginLeft: '12px', marginTop: '8px' }}
+        sx={{ marginLeft: '12px' }}
         >
         <Dropdown
           // className='ml-300'
@@ -351,7 +351,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
         />
       </Box>
       <Box
-      sx={{ marginLeft: '12px', marginTop: '8px' }}
+      sx={{ marginLeft: '12px' }}
       >
         <Dropdown
           // className='ml-10'
@@ -365,7 +365,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           setData={setMode}
         />
       </Box>
-      <Box display="flex" flexDirection="row" alignItems="center" sx={{ marginLeft: 'auto', marginRight: '20px', marginTop: '8px', zIndex: 100 }} gap={2}>
+      <Box display="flex" flexDirection="row" alignItems="center" sx={{ marginLeft: 'auto', marginRight: '20px', zIndex: 100 }} gap={2}>
           <LanguageSwitch value={isVietnameseEnabled} onClick={() => dispatch(appActions.toggleVietnamese())} />
           <CSVDownloadBox />
           {/* <ToggableComponent /> */}

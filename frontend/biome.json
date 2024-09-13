@@ -12,10 +12,13 @@
     "ignore": [
       "dist/**",
       "node_modules/**",
+      "cyborg-wallet/**",
       "*-lock.json",
       "*-lock.yaml",
       "*-lock.yml",
-      "*.lock"
+      "*.lock",
+      "jdd.js",
+      "apps/admin/public/json-diff/**"
     ]
   },
   "formatter": {

@@ -19,7 +19,7 @@ const Dropdown = ({ label, displayItems, valueItems, setData }: DropdownProps) =
   };
 
   return (
-    <FormControl sx={{ marginTop: '0.5rem', marginRight: '0.5rem', minWidth: 120 }}>
+    <FormControl size='small' sx={{ marginTop: '0.5rem', marginRight: '0.5rem', minWidth: 120 }}>
       <InputLabel>{label}</InputLabel>
       <Select
         value={currentValue}
