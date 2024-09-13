@@ -153,53 +153,48 @@ const Home = () => {
     }
   }, [searchTerms, cacheData])
 
-  // const submit = (src: string) => {
-  //   if (src === '') {
-  //     return
-  //   }
-  //   const evalId = evaluationId
+  const submit = (src: string) => {
+    if (src === '') {
+      return
+    }
+    const evalId = evaluationId
 
-  //   // Parse the filename from the file path
-  //   const filenameWithExt = src.split('/').pop()
-  //   // Remove the file extension
-  //   const filename = filenameWithExt ? filenameWithExt.split('.')[0] : ''
-  //   console.log('filename', filename)
-  //   toast.info(`Submitting: ${filename}`)
+    // Parse the filename from the file path
+    const filenameWithExt = src.split('/').pop()
+    // Remove the file extension
+    const filename = filenameWithExt ? filenameWithExt.split('.')[0] : ''
+    const toastId = toast.loading(`Submitting: ${filename}`)
 
-  //   evalService
-  //     .submitFile(evalId, sesId, filename)
-  //     .then((response: ApiResponse) => {
-  //       console.log('response', response)
-  //       toast.success(
-  //         `Submit: ${filename} ${response.data.submission ? response.data.submission : ''}`,
-  //       )
-  //       if (
-  //         response?.data?.submission &&
-  //         response?.data?.submission === 'CORRECT'
-  //       ) {
-  //         evalService
-  //           .submitFile(
-  //             evalId,
-  //             localStorage.getItem('sessionCentral'),
-  //             filename,
-  //           )
-  //           .then((response: ApiResponse) => {
-  //             console.log('response', response)
-  //             toast.success(
-  //               `Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}`,
-  //             )
-  //           })
-  //           .catch((error: ApiError) => {
-  //             console.log('error', error)
-  //             toast.error(`ERROR FOR CENTRAL: ${`${filename}: ${error}`}`)
-  //           })
-  //       }
-  //     })
-  //     .catch((error: ApiError) => {
-  //       console.log('error', error)
-  //       toast.error(`ERROR: ${`${filename}: ${error}`}`)
-  //     })
-  // }
+    // evalService
+    //   .submitFile(evalId, sesId, filename)
+    //   .then((response: ApiResponse) => {
+    //     console.log('response', response)
+    //     toast.update(toastId, { render: `Submit: ${filename} ${response.data.submission ? response.data.submission : ''}` })
+    //     if (
+    //       response?.data?.submission &&
+    //       response?.data?.submission === 'CORRECT'
+    //     ) {
+    //       evalService
+    //         .submitFile(
+    //           evalId,
+    //           localStorage.getItem('sessionCentral'),
+    //           filename,
+    //         )
+    //         .then((response: ApiResponse) => {
+    //           console.log('response', response)
+    //           toast.update(toastId, { render: `Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}` })
+    //         })
+    //         .catch((error: ApiError) => {
+    //           console.log('error', error)
+    //           toast.update(toastId, { render: `ERROR FOR CENTRAL: ${filename}: ${error}` })
+    //         })
+    //     }
+    //   })
+    //   .catch((error: ApiError) => {
+    //     console.log('error', error)
+    //     toast.update(toastId, { render: `ERROR: ${filename}: ${error}` })
+    //   })
+  }
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -243,7 +238,7 @@ const Home = () => {
     const handleClick = (e: MouseEvent) => {
       if (isCtrlPressed && (e.target as HTMLElement).classList.contains('submissible')) {
         const src =(e.target as HTMLElement).getAttribute('src')
-        // submit(src as string)
+        submit(src as string)
       }
     }
     // console.log('isCtrlPressed', isCtrlPressed);
