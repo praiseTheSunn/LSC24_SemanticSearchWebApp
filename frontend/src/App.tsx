@@ -12,6 +12,8 @@ function App() {
         style={{ zIndex: '99999999' }}
         autoClose={2000}
         limit={3}
+        pauseOnFocusLoss={false}
+        closeOnClick={true}
       />
       <Routers />
     </StoreProvider>
