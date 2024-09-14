@@ -3,14 +3,18 @@ import { FixedSizeGrid as Grid } from 'react-window'
 import { AnImage, Config } from '../../components'
 import { Box } from '@mui/material'
 import { useAppSelector } from '../../AppState'
+import type { ImageRecord } from '../../types/image'
+import type { CSSProperties } from 'react'
 
-const ImageGrid = ({ cellHeight, cell } : {
+const ImageGrid = ({ cellHeight, cell, data, style } : {
   cellHeight?: number,
   cell?: any
+  data: ImageRecord[],
+  style: CSSProperties
 }) => {
   cellHeight = cellHeight ? cellHeight : Config.ImageGridCellHeight
 
-  const simData = useAppSelector((state) => state.app.data)
+  const simData = data
   const columnCount = Config.ImageGridColumnCount
 
   const Cell = ({ columnIndex, rowIndex, style } : {
@@ -34,7 +38,7 @@ const ImageGrid = ({ cellHeight, cell } : {
   cell = cell ? cell : Cell
 
   return (
-    <Box sx={{ width: '100dvw'}}>
+    <Box sx={style}>
       <AutoSizer>
         {({ height, width }) => {
           const columnWidth = width / columnCount - 1.5

@@ -34,23 +34,19 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
 }, ref) => {
   const [textareaValue, setTextareaValue] = useState('')
   const [textareaHeight, setTextareaHeight] = useState('60px')
-  // const { setDisplayedImages } = useSelectedImages()
   const [isFocus, setIsFocus] = useState(false)
   
   const showHistory = useAppSelector((state) => state.app.isHistoryPopUpOpen);
   const showPopup = useAppSelector((state) => state.app.isObjPosPopUpOpen);
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
-  console.log('queryPayload', queryPayload);
   
   const [trigger, result ] = useLazyGetImagesQuery();
   const [TriggerTranslate, TranslatedResult ] = useLazyGetTranslatedTextQuery();
   const { data, error, isError, isFetching } = result;
-  // const { setLoadingPopUp } = usePopUp()
 
   const dispatch = useAppDispatch()
   const setQuery = useCallback((value: string) => {
     const newPayload = { ...queryPayload, text_query: value }
-    console.log("newPayload", newPayload);
     dispatch(appActions.setQueryPayload(newPayload))
   }, [queryPayload, dispatch])
   const setMode = useCallback((value: string) => {
@@ -232,7 +228,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
 
 
   return (
-    // <div className='left-filter-container'>
     <Box
       className="text-query-container"
       sx={{
@@ -257,7 +252,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
               border: 'solid 1.9px #636262',
               borderRadius: '10px',
               overflow: 'hidden',
-              zIndex: '9999',
+              zIndex: '99',
               paddingLeft: '7px',
               paddingTop: '5px',
             }}
@@ -343,7 +338,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
         sx={{ marginLeft: '12px' }}
         >
         <Dropdown
-          // className='ml-300'
           label="Model"
           displayItems={['CLIP', 'BLIP2', 'BEiT-3', 'STFM']}
           valueItems={['clip', 'blip2', 'beit3', 'stfm']}
@@ -354,7 +348,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
       sx={{ marginLeft: '12px' }}
       >
         <Dropdown
-          // className='ml-10'
           label="Mode"
           displayItems={[
             'Semantic',
@@ -371,7 +364,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(({
           {/* <ToggableComponent /> */}
       </Box>
     </Box>
-    // {/* </div> */}
   )
 })
 

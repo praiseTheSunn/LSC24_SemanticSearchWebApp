@@ -5,6 +5,8 @@ import { useAppDispatch, useAppSelector, appActions } from '../AppState';
 import type { ImageRecord } from '../types/image';
 import { isNil } from 'lodash';
 import { Box } from '@mui/material';
+import { LSC_addCSVImages } from '../config/submitFunc';
+import { toast } from 'react-toastify';
 
 interface AnImageProps {
   data: ImageRecord | null | undefined;
@@ -35,13 +37,16 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
     dispatch(appActions.setSimilarPopupData(data));
   }, [dispatch]);
 
-  const csvImages = useAppSelector((state) => state.app.csvImages);
-  const addCSVImages = React.useCallback(
-    (newData: ImageRecord) => {
-      dispatch(appActions.setCSVImages([...csvImages, newData]));
-    },
-    [csvImages, dispatch]
-  );
+  const imageDatas = useAppSelector((state) => state.app.data);
+  const csvData = useAppSelector((state) => state.app.csvImages);
+
+  const submit = (src: string) => {
+    console.log('src', src)
+    const toastId = toast.loading(`Submitting: ${src}`, { closeOnClick: true });
+
+    // REPLACE FOR EACH COMPETITION HERE
+    LSC_addCSVImages(src, toastId, imageDatas, dispatch, csvData)
+  }
   
 
   return (
@@ -78,8 +83,8 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
 
       onClick={(e) => {
         e.preventDefault();
-        if (e.shiftKey) {
-          addCSVImages(data);
+        if (e.ctrlKey) {
+          submit(data.img_link);
         }
       }}
     >
@@ -102,7 +107,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
       <Box
         component="img"
         src={src}
-        className='image-item-img'
+        className='image-item-img submissible'
         alt={`${index}`}
         sx={{
           width: '100%',
@@ -111,6 +116,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
           cursor: 'pointer',
           backgroundColor: 'white',
         }}
+
       />
         <Box
           sx={{

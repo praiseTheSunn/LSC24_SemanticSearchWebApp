@@ -1,4 +1,4 @@
-import { Box, SpeedDial, SpeedDialAction, ClickAwayListener, Popover, SpeedDialIcon, Snackbar, Backdrop } from "@mui/material";
+import { Box, SpeedDial, SpeedDialAction, ClickAwayListener, Popover, SpeedDialIcon, Snackbar, Backdrop, Typography } from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -6,9 +6,9 @@ import PreviewIcon from "@mui/icons-material/Preview";
 import { appActions, useAppDispatch, useAppSelector } from "../AppState";
 import { toast } from "react-toastify";
 import { CSVPreviewPopup } from "./Popup/CSVPreviewPopup";
-import { useCallback, useState } from "react";
+import React, { useState } from "react";
 import EvaluationBox from "./evaluationBox";
-import MenuIcon from '@mui/icons-material/Menu';
+import ImageGrid from "../containers/similarity/image-grid";
 
 export const CSVDownloadBox = () => {
     const csvImages = useAppSelector((state) => state.app.csvImages);
@@ -51,8 +51,7 @@ export const CSVDownloadBox = () => {
     }
 
     const handlePreviewCSVClose = () => {
-        console.log('close')
-        setAnchorElCSV(null);
+        if (CSVPreviewPopupOpen) setAnchorElCSV(null);
     }
 
     const handleLoginOpen = (event: React.MouseEvent<HTMLElement>) => {
@@ -64,68 +63,80 @@ export const CSVDownloadBox = () => {
     }
 
     return (
-        <Box sx={{ 
-                position: 'relative',
-                alignItems: 'flex-start', 
-                width: '50px',
-                height: "100%",
-                display: 'flex',
+        <React.Fragment>
+            <ClickAwayListener onClickAway={() => {
+                setSpeedDialOpen(false);
+                handlePreviewCSVClose();
+                handleLoginClose();
             }}>
-                <SpeedDial
-                    ariaLabel="CSV actions"
-                    sx={{ 
-                        position: 'absolute',
-                        zIndex: 10000
-                    }}
-                    icon={<SpeedDialIcon />}
-                    direction="down"
-                    open={speedDialOpen}
-                    onMouseEnter={() => setSpeedDialOpen(true)}
-                    onClick={() => setSpeedDialOpen(!speedDialOpen)}
-                    FabProps={{ size: 'medium' }}
-                    
-                >
-                    <SpeedDialAction
-                        icon={<FileDownloadIcon />}
-                        tooltipTitle="Download CSV"
-                        onClick={handleDownloadCSV}
-                    />
-                    <SpeedDialAction icon={<ClearIcon />} tooltipTitle="Clear CSV" onClick={handleClearCSV} />
-                    <SpeedDialAction icon={<PreviewIcon />} tooltipTitle="Preview CSV" onMouseEnter={handlePreviewCSVOpen} />
-                    <SpeedDialAction icon={<LoginIcon />} tooltipTitle="Login" onMouseEnter={handleLoginOpen} />
-                </SpeedDial>
+            <Box sx={{ 
+                    position: 'relative',
+                    alignItems: 'flex-start', 
+                    width: '50px',
+                    height: "100%",
+                    display: 'flex',
+                }}>
+                    <SpeedDial
+                        ariaLabel="CSV actions"
+                        sx={{ 
+                            position: 'absolute',
+                            zIndex: 10000
+                        }}
+                        icon={<SpeedDialIcon sx={{ display: "flex", alignItems: "center", justifyContent: "center", width: "100%", height: "100%"}} onClick={() => setSpeedDialOpen(!speedDialOpen)} />}
+                        direction="down"
+                        open={speedDialOpen}
+                        onMouseEnter={() => setSpeedDialOpen(true)}
+                        FabProps={{ size: 'medium' }}
+                        
+                    >
+                        <SpeedDialAction
+                            icon={<FileDownloadIcon />}
+                            tooltipTitle="Download CSV"
+                            onClick={handleDownloadCSV}
+                        />
+                        <SpeedDialAction icon={<ClearIcon />} tooltipTitle="Clear CSV" onClick={() => handleClearCSV()} />
+                        <SpeedDialAction icon={<PreviewIcon />} tooltipTitle="Preview CSV" onClick={(e) => handlePreviewCSVOpen(e)} />
+                        <SpeedDialAction icon={<LoginIcon />} tooltipTitle="Login" onClick={(e) => handleLoginOpen(e)} />
+                    </SpeedDial>
+                    <Popover
+                        open={CSVPreviewPopupOpen}
+                        anchorEl={anchorElCSV}
+                        onClose={handlePreviewCSVClose}
+                        anchorOrigin={{
+                            vertical: 'center',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'center',
+                            horizontal: 'right',
+                        }}
+                        marginThreshold={20}
+                        PaperProps={{sx: {minWidth: "200px", minHeight: "50px", display: "flex", flexDirection: "column", alignItems: "center"}}}
+                    >
+                      {csvImages.length === 0 ? <Typography>No images to preview</Typography> :
+                        <ImageGrid style={{ width: '90dvw', minHeight: '60dvw'}} data={csvImages} />
+                      }
+                        
+                    </Popover>
 
-                <Popover
-                    open={CSVPreviewPopupOpen}
-                    anchorEl={anchorElCSV}
-                    onClose={handlePreviewCSVClose}
-                    anchorOrigin={{
-                        vertical: 'center',
-                        horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                        vertical: 'center',
-                        horizontal: 'right',
-                    }}
-                >
-                    <CSVPreviewPopup />
-                </Popover>
-
-                <Popover
-                    open={isVisible}
-                    anchorEl={anchorElEvaluation}
-                    onClose={handleLoginClose}
-                    anchorOrigin={{
-                        vertical: 'center',
-                        horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                        vertical: 'center',
-                        horizontal: 'right',
-                    }}
-                >
-                    <EvaluationBox />
-                </Popover>
-            </Box>
+                    <Popover
+                        open={isVisible}
+                        anchorEl={anchorElEvaluation}
+                        onClose={handleLoginClose}
+                        anchorOrigin={{
+                            vertical: 'center',
+                            horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                            vertical: 'center',
+                            horizontal: 'right',
+                        }}
+                    >
+                        <EvaluationBox />
+                    </Popover>
+                </Box>
+            </ClickAwayListener>
+            {/* <Backdrop open={speedDialOpen} sx={(theme) => ({ zIndex: theme.zIndex.speedDial + 1 })} /> */}
+        </React.Fragment>
     );
 };
