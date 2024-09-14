@@ -1,7 +1,7 @@
 import { Box, SpeedDial, SpeedDialAction, ClickAwayListener, Popover, SpeedDialIcon, Snackbar, Backdrop, Typography } from "@mui/material";
 import LoginIcon from '@mui/icons-material/Login';
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
-import ClearIcon from "@mui/icons-material/Clear";
+import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
 import PreviewIcon from "@mui/icons-material/Preview";
 import { appActions, useAppDispatch, useAppSelector } from "../AppState";
 import { toast } from "react-toastify";
@@ -94,7 +94,7 @@ export const CSVDownloadBox = () => {
                             tooltipTitle="Download CSV"
                             onClick={handleDownloadCSV}
                         />
-                        <SpeedDialAction icon={<ClearIcon />} tooltipTitle="Clear CSV" onClick={() => handleClearCSV()} />
+                        <SpeedDialAction icon={<DeleteForeverRoundedIcon />} tooltipTitle="Clear CSV" onClick={() => handleClearCSV()} />
                         <SpeedDialAction icon={<PreviewIcon />} tooltipTitle="Preview CSV" onClick={(e) => handlePreviewCSVOpen(e)} />
                         <SpeedDialAction icon={<LoginIcon />} tooltipTitle="Login" onClick={(e) => handleLoginOpen(e)} />
                     </SpeedDial>
