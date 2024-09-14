@@ -78,7 +78,7 @@ const HistoryPopup = ({setSearchTerms, setDisplayedFilters}
   
 
   const rowRenderer = ({ key, index, style, parent }: { key: any, index: number, style: CSSProperties, parent: MeasuredCellParent }) => {
-    const item = history[index];
+    const item = history[history.length- 1 - index];
     return (
       <CellMeasurer
         key={key}

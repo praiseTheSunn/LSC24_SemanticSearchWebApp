@@ -26,8 +26,8 @@ export { default as ObjectDetail } from './ObjectDetail'
 export const Config = {
   gridRowGap: '2px',
 
-  ImageGridColumnCount: 9,
-  ImageGridCellHeight: 95, // Default cell height
+  ImageGridColumnCount: 7,
+  ImageGridCellHeight: 120, // Default cell height
 
   ViewMorePopupColumnCount: 8,
   ViewMorePopupCellHeight: 130, // Default cell height
