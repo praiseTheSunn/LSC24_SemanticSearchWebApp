@@ -1,4 +1,4 @@
-import { Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel, type SelectChangeEvent } from '@mui/material';
 import { useState } from 'react';
 
 interface DropdownProps {
@@ -11,7 +11,7 @@ interface DropdownProps {
 const Dropdown = ({ label, displayItems, valueItems, setData }: DropdownProps) => {
   const [currentValue, setCurrentValue] = useState<string>(valueItems[0]);
 
-  const handleChange = (event: React.ChangeEvent<{ value: unknown }>) => {
+  const handleChange = (event: SelectChangeEvent<string>) => {
     const selectedValue = event.target.value as string;
     const selectedIndex = valueItems.indexOf(selectedValue);
     setCurrentValue(selectedValue);

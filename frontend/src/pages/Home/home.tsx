@@ -1,6 +1,6 @@
 import Fuse, { FuseResult } from 'fuse.js'
 import React, { useEffect, useState, useContext, useCallback } from 'react'
-import {  toast } from 'react-toastify'
+import {  Id, toast } from 'react-toastify'
 import {
   LocationIcon,
   LocationIconActive,
@@ -34,6 +34,8 @@ import type { SearchTermType } from '../../types/search'
 import { Box, ClickAwayListener } from '@mui/material'
 import type { ImageRecord } from '../../types/image'
 import VideoPopup from '../../components/Popup/VideoPopup'
+import { AppState } from '../../types/app'
+import { LSC_addCSVImages } from '../../config/submitFunc'
 
 const LevelList = [
   { level: 'Similarity', bg: TrapoziedBgGrayLeft },
@@ -47,8 +49,6 @@ const Mode = [
   { mode: 'Timeline', bg: TimelineIcon, bgat: TimelineIconActive },
   { mode: 'Location', bg: LocationIcon, bgat: LocationIconActive },
 ]
-
-// create a list of image data (10 images needed)
 
 const Home = () => {
   const sesId = localStorage.getItem('session')
@@ -89,18 +89,9 @@ const Home = () => {
   );
 
   const dispatch = useAppDispatch();
-  const setCacheResult = React.useCallback((data: ImageRecord[]) => {
-    dispatch(appActions.setCacheData(data));
-  }, [dispatch]);
 
   const setImageData = React.useCallback((data: ImageRecord[]) => {
     dispatch(appActions.setAppImageData(data));
-  }, [dispatch]);
-
-  const queryPayload = useAppSelector((state) => state.app.queryPayload);
-  const setQuery = useCallback((query: string) => {
-    const newPayload = { ...queryPayload, text_query: query }
-    dispatch(appActions.setQueryPayload(newPayload));
   }, [dispatch]);
 
   const toggleNeighborPopup = React.useCallback((data: ImageRecord | null | undefined) => {
@@ -153,54 +144,11 @@ const Home = () => {
     }
   }, [searchTerms, cacheData])
 
-  const submit = (src: string) => {
-    if (src === '') {
-      return
-    }
-    const evalId = evaluationId
-
-    // Parse the filename from the file path
-    const filenameWithExt = src.split('/').pop()
-    // Remove the file extension
-    const filename = filenameWithExt ? filenameWithExt.split('.')[0] : ''
-    const toastId = toast.loading(`Submitting: ${filename}`)
-
-    // evalService
-    //   .submitFile(evalId, sesId, filename)
-    //   .then((response: ApiResponse) => {
-    //     console.log('response', response)
-    //     toast.update(toastId, { render: `Submit: ${filename} ${response.data.submission ? response.data.submission : ''}` })
-    //     if (
-    //       response?.data?.submission &&
-    //       response?.data?.submission === 'CORRECT'
-    //     ) {
-    //       evalService
-    //         .submitFile(
-    //           evalId,
-    //           localStorage.getItem('sessionCentral'),
-    //           filename,
-    //         )
-    //         .then((response: ApiResponse) => {
-    //           console.log('response', response)
-    //           toast.update(toastId, { render: `Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}` })
-    //         })
-    //         .catch((error: ApiError) => {
-    //           console.log('error', error)
-    //           toast.update(toastId, { render: `ERROR FOR CENTRAL: ${filename}: ${error}` })
-    //         })
-    //     }
-    //   })
-    //   .catch((error: ApiError) => {
-    //     console.log('error', error)
-    //     toast.update(toastId, { render: `ERROR: ${filename}: ${error}` })
-    //   })
-  }
+  const appState = useAppSelector((state) => state.app)
+  const csvData = useAppSelector((state) => state.app.csvImages)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Control') {
-        setIsCtrlPressed(true)
-      }
       if (e.altKey) {
         switch (e.key) {
           case '1':
@@ -234,23 +182,12 @@ const Home = () => {
         setIsCtrlPressed(false)
       }
     }
-
-    const handleClick = (e: MouseEvent) => {
-      if (isCtrlPressed && (e.target as HTMLElement).classList.contains('submissible')) {
-        const src =(e.target as HTMLElement).getAttribute('src')
-        submit(src as string)
-      }
-    }
-    // console.log('isCtrlPressed', isCtrlPressed);
-
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('keyup', handleKeyUp)
-    document.addEventListener('click', handleClick)
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('keyup', handleKeyUp)
-      document.removeEventListener('click', handleClick)
     }
   }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
 
@@ -368,7 +305,7 @@ const Home = () => {
               paddingBottom: '0.375rem',
               width: '197px',
               backgroundImage: `url(${item.bg})`,
-              zIndex: 999 - index * 10,
+              zIndex: 90 - index * 10,
               border: 'none',
               backgroundColor: 'transparent',
               marginLeft: `${index !== 0 && '-20px'}`,
@@ -438,7 +375,7 @@ const Home = () => {
                   height: '100%',
                 }}
               >
-                <ImageGrid />
+                <ImageGrid style={{ width: '100dvw'}} data={imageDatas} />
               </Box>
             )}
             {selectedModeIndex !== 0 && (

@@ -13,7 +13,7 @@ export const CSVPreviewPopup = () => {
         elevation={4}
             sx = {{
                 maxHeight: '800px',
-                width: '300px',
+                width: '600px',
                 position: 'relative',
                 // right: '300px',
                 // top: '300px',

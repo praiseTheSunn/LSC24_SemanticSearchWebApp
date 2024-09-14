@@ -104,7 +104,7 @@ const ImageInputBox = () => {
 
 
   return (
-    <Box sx={{ width: '22%', height: '100%', maxWidth: 600, zIndex: 1001, marginLeft: '20px' }}
+    <Box sx={{ width: '22%', height: '100%', maxWidth: 600, zIndex: 99, marginLeft: '20px' }}
       onMouseEnter={() => setIsHover(true)}
       onMouseLeave={() => setIsHover(false)}
     >
