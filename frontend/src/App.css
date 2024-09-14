@@ -41,7 +41,7 @@
 .grid-tab.active {
   color: #1A1A1A;
   font-weight: bold;
-  z-index: 99 !important;
+  z-index: 95 !important;
   background-image: url('./assets/trapoziedBgWhite.svg') !important;
 }
 
