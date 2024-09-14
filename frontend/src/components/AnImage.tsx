@@ -42,7 +42,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
 
   const submit = (src: string) => {
     console.log('src', src)
-    const toastId = toast.loading(`Submitting: ${src}`, { closeOnClick: true });
+    const toastId = toast.loading(`Submitting: ${src}`, { position: 'bottom-right', closeOnClick: true, autoClose: 2000 });
 
     // REPLACE FOR EACH COMPETITION HERE
     LSC_addCSVImages(src, toastId, imageDatas, dispatch, csvData)

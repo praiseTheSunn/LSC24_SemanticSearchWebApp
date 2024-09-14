@@ -14,11 +14,11 @@ export const LSC_addCSVImages = (src: string, toastId: Id, imageDatas : ImageRec
   const newData = imageDatas.find((item) => item.img_link === src);
   
   if (!newData) {
-    toast.update(toastId, { render: 'Error: Image not found', autoClose: 2000, type: 'error', isLoading: false });
+    toast.update(toastId, { render: 'Error: Image not found',type: 'error', isLoading: false, closeOnClick: true, autoClose: 500, delay: 500 });
     return;
   }
   
-  console.log("xxx:", toast.update(toastId, { render: `Added: ${newData.img_link}`, autoClose: 2000, type: 'success', isLoading: false }));
+  toast.update(toastId, { render: `Added: ${newData.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 500, delay: 500 });
   
   const updatedCSVImages = [...prevImages, newData];
   console.log('updatedCSVImages', updatedCSVImages);
