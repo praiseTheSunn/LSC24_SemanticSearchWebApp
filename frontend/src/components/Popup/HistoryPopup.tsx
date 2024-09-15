@@ -78,20 +78,21 @@ const HistoryPopup = ({setSearchTerms, setDisplayedFilters}
   
 
   const rowRenderer = ({ key, index, style, parent }: { key: any, index: number, style: CSSProperties, parent: MeasuredCellParent }) => {
-    const item = history[history.length- 1 - index];
+    const newIndex = history.length- 1 - index;
+    const item = history[newIndex];
     return (
       <CellMeasurer
         key={key}
         cache={cache}
         parent={parent}
-        index={index}
+        index={newIndex}
         style={style}
       >
         {({registerChild}) => (
           <Box 
             ref={registerChild} 
             sx={{...style, display: 'flex', flexDirection: 'column', cursor: 'pointer'}}
-            onClick={() => handleHistoryClick(index)} 
+            onClick={() => handleHistoryClick(newIndex)} 
             >
             <Box  sx={{ display: 'flex', flexDirection: 'row', marginBottom: '10px', marginTop: '10px', paddingLeft: '10px', paddingRight: '10px'}}>
               <Box sx={{flex: 1}}>{item.time}</Box>
