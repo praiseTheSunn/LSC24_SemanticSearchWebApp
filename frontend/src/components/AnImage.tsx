@@ -40,12 +40,12 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
   const imageDatas = useAppSelector((state) => state.app.data);
   const csvData = useAppSelector((state) => state.app.csvImages);
 
-  const submit = (src: string) => {
-    console.log('src', src)
-    const toastId = toast.loading(`Submitting: ${src}`, { position: 'bottom-right', closeOnClick: true, autoClose: 2000 });
+  const submit = (src_data: ImageRecord) => {
+    console.log('src', src_data.img_link)
+    const toastId = toast.loading(`Submitting: ${src_data.img_link}`, { position: 'bottom-right', closeOnClick: true, autoClose: 2000 });
 
     // REPLACE FOR EACH COMPETITION HERE
-    LSC_addCSVImages(src, toastId, imageDatas, dispatch, csvData)
+    LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData)
   }
   
 
@@ -84,7 +84,7 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
       onClick={(e) => {
         e.preventDefault();
         if (e.ctrlKey) {
-          submit(data.img_link);
+          submit(data);
         }
       }}
     >
