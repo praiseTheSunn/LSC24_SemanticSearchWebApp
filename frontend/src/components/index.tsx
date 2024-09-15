@@ -27,7 +27,7 @@ export const Config = {
   gridRowGap: '2px',
 
   ImageGridColumnCount: 7,
-  ImageGridCellHeight: 95, // Default cell height
+  ImageGridCellHeight: 120, // Default cell height
 
   ViewMorePopupColumnCount: 8,
   ViewMorePopupCellHeight: 130, // Default cell height
