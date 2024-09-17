@@ -18,7 +18,7 @@ export const ImageApi = createApi({
             body: params,
           }
         },
-        transformResponse: transformResponse_AIC2024,
+        transformResponse: (response: ApiResponse) => transformResponse_AIC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -36,7 +36,7 @@ export const ImageApi = createApi({
           method: "POST",
           body: { image_urls: urls, model: 'clip' },
         }),
-        transformResponse: transformResponse_AIC2024,
+        transformResponse: (response: ApiResponse) => transformResponse_AIC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -55,7 +55,7 @@ export const ImageApi = createApi({
           method: "POST",
           body: { image_url: img_url, span: 30 },
         }),
-        transformResponse: transformResponse_AIC2024,
+        transformResponse: (response: ApiResponse) => transformResponse_AIC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -74,7 +74,7 @@ export const ImageApi = createApi({
           method: 'POST',
           body: imageQuery,
         }),
-        transformResponse: transformResponse_AIC2024,
+        transformResponse: (response: ApiResponse) => transformResponse_AIC2024(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 
