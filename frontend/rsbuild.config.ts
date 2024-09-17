@@ -24,7 +24,8 @@ export default defineConfig({
     },
   },
   html: {
-    title: 'LSCFrontend',
+    title: 'SnapSeek',
+    favicon: 'public/snapseek.ico',
   },
   source: {
     define: {

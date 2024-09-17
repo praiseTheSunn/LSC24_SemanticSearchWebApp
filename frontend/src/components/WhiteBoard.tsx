@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
-import { Box, Tooltip } from '@mui/material';
+import { Box, Tooltip, Typography } from '@mui/material';
 import type { SetStateAction, Dispatch } from 'react';
 import type { DrawnItem, Icon, Rect } from './Popup/ObjectPositionPopup';
 
@@ -102,6 +102,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     () =>
       drawnItems.map((item, index) => (
         <Box
+          title={item.icon.name}
           key={`${item.icon.name}-${index}`}
           sx={{
             left: item.rect.x,
@@ -110,13 +111,20 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
             height: item.rect.height,
             position: 'absolute',
             border: '1px solid blue',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: item.icon.color ? item.icon.color : 'transparent',
           }}
         >
-          <img
-            src={item.icon.source}
-            alt={item.icon.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
+          {item.icon.source !== 'none' ? 
+            <img
+              src={item.icon.source}
+              alt={item.icon.name}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />:
+            <Typography variant='caption'>{item.icon.name}</Typography>
+            }
         </Box>
       )),
     [drawnItems]
@@ -151,35 +159,64 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
             }}
           >
             {selectedIcon && (
+              selectedIcon.source !== 'none' ? 
               <Box
                 component="img"
                 src={selectedIcon.source}
                 alt={selectedIcon.name}
-                sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
+                sx={{ width: '100%', height: '100%', objectFit: 'cover',
+                  backgroundColor: selectedIcon.color ? selectedIcon.color : 'transparent',
+                 }}
+                
+              /> :
+              <Box
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  backgroundColor: selectedIcon.color ? selectedIcon.color : 'transparent',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >{selectedIcon.name}</Box>
             )}
           </Box>
         )}
         {selectedIcon && (
-          <Box
-            sx={{
-              left: cursorPosition.x + 2,
-              top: cursorPosition.y + 2,
-              position: 'fixed',
-              zIndex: 50,
-              pointerEvents: 'none',
-            }}
-          >
-            <Tooltip title={selectedIcon.name}>
               <Box
-                component="img"
-                src={selectedIcon.source}
-                alt={selectedIcon.name}
-                sx={{ width: '32px', height: '32px', opacity: 0.8 }}
-              />
-            </Tooltip>
-          </Box>
-        )}
+                sx={{
+                  left: cursorPosition.x + 2,
+                  top: cursorPosition.y + 2,
+                  position: 'fixed',
+                  zIndex: 50,
+                  pointerEvents: 'none',
+                }}
+              >
+                <Tooltip title={selectedIcon.name}>
+                  {
+                    selectedIcon.source !== 'none' ? <Box
+                      component="img"
+                      src={selectedIcon.source}
+                      alt={selectedIcon.name}
+                      sx={{ width: '32px', height: '32px', opacity: 0.8,
+                        backgroundColor: selectedIcon.color ? selectedIcon.color : 'transparent',
+
+                       }}
+                    /> :
+                    <Box
+                      sx={{
+                        width: '100%',
+                        height: '100%',
+                        backgroundColor: selectedIcon.color ? selectedIcon.color : 'transparent',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >{selectedIcon.name}</Box>
+                  }
+                </Tooltip>
+              </Box> 
+            )}
       </Box>
     </Box>
   );
