@@ -1,10 +1,10 @@
-import React from 'react';
-import { Box, Paper } from '@mui/material';
-import AnImage from '../AnImage';
-import type { ImageRecord } from '../../types/image';
+import { Box, Paper } from '@mui/material'
+import React from 'react'
+import type { ImageRecord } from '../../types/image'
+import AnImage from '../AnImage'
 
 interface ImageSingleProps {
-  image: ImageRecord;
+  image: ImageRecord
 }
 
 const ImageSingle = ({ image }: ImageSingleProps) => {
@@ -35,7 +35,7 @@ const ImageSingle = ({ image }: ImageSingleProps) => {
         <AnImage data={image} />
       </Box>
     </Paper>
-  );
-};
+  )
+}
 
-export default ImageSingle;
+export default ImageSingle

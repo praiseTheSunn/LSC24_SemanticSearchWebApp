@@ -1,53 +1,69 @@
-import React from 'react';
-import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
-import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded';
-import { useAppDispatch, useAppSelector, appActions } from '../AppState';
-import type { ImageRecord } from '../types/image';
-import { isNil } from 'lodash';
-import { Box } from '@mui/material';
-import { LSC_addCSVImages } from '../config/submitFunc';
-import { toast } from 'react-toastify';
+import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded'
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
+import { Box } from '@mui/material'
+import { isNil } from 'lodash'
+import React from 'react'
+import { toast } from 'react-toastify'
+import { appActions, useAppDispatch, useAppSelector } from '../AppState'
+import { LSC_addCSVImages } from '../config/submitFunc'
+import type { ImageRecord } from '../types/image'
 
 interface AnImageProps {
-  data: ImageRecord | null | undefined;
-  index?: number;
-  isDisplayTooltip?: boolean;
-  isZoomOnHover?: boolean;
+  data: ImageRecord | null | undefined
+  index?: number
+  isDisplayTooltip?: boolean
+  isZoomOnHover?: boolean
 }
 
-const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoomOnHover }) => {
-  if (isNil(data)) return null;
-  isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true;
-  isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true;
+const AnImage: React.FC<AnImageProps> = ({
+  data,
+  index,
+  isDisplayTooltip,
+  isZoomOnHover,
+}) => {
+  if (isNil(data)) return null
+  isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true
+  isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true
 
-  const src = data?.img_link ? data.img_link : undefined;
-  const videoSrc = data?.video_url ? data.video_url : undefined;
-  const date = data?.date ? data.date : null;
-  const time = data?.time ? data.time : null;
-  const formattedTime: string = `${date ? date : ''}  ${time ? time : ''}`;
-  const json_data: string | null = isDisplayTooltip ? JSON.stringify(data) : null;
+  const src = data?.img_link ? data.img_link : undefined
+  const videoSrc = data?.video_url ? data.video_url : undefined
+  const date = data?.date ? data.date : null
+  const time = data?.time ? data.time : null
+  const formattedTime: string = `${date ? date : ''}  ${time ? time : ''}`
+  const json_data: string | null = isDisplayTooltip
+    ? JSON.stringify(data)
+    : null
 
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const toggleNeighborPopup = React.useCallback((data: any) => {
-    dispatch(appActions.setNeighborPopupData(data));
-  }, [dispatch]);
+  const toggleNeighborPopup = React.useCallback(
+    (data: any) => {
+      dispatch(appActions.setNeighborPopupData(data))
+    },
+    [dispatch],
+  )
 
-  const toggleSimilarPopup = React.useCallback((data: any) => {
-    dispatch(appActions.setSimilarPopupData(data));
-  }, [dispatch]);
+  const toggleSimilarPopup = React.useCallback(
+    (data: any) => {
+      dispatch(appActions.setSimilarPopupData(data))
+    },
+    [dispatch],
+  )
 
-  const imageDatas = useAppSelector((state) => state.app.data);
-  const csvData = useAppSelector((state) => state.app.csvImages);
+  const imageDatas = useAppSelector((state) => state.app.data)
+  const csvData = useAppSelector((state) => state.app.csvImages)
 
   const submit = (src_data: ImageRecord) => {
     console.log('src', src_data.img_link)
-    const toastId = toast.loading(`Submitting: ${src_data.img_link}`, { position: 'bottom-right', closeOnClick: true, autoClose: 2000 });
+    const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
+      position: 'bottom-right',
+      closeOnClick: true,
+      autoClose: 2000,
+    })
 
     // REPLACE FOR EACH COMPETITION HERE
     LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData)
   }
-  
 
   return (
     <Box
@@ -67,29 +83,27 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
         '&:hover': {
           transform: isZoomOnHover ? 'scale(1.05)' : undefined,
           border: isZoomOnHover ? '2px solid rgb(0, 47, 255)' : undefined,
-          "& .img-action-eye": {
+          '& .img-action-eye': {
             display: isZoomOnHover ? 'flex' : 'hidden',
-          }
+          },
         },
       }}
       data-tooltip-id="tooltip_img"
       data-tooltip-content={json_data}
       data-tooltip-variant="dark"
       onDoubleClick={(e) => {
-        e.preventDefault();
-        toggleSimilarPopup(data);
-        toggleNeighborPopup(null);
+        e.preventDefault()
+        toggleSimilarPopup(data)
+        toggleNeighborPopup(null)
       }}
-
       onClick={(e) => {
-        e.preventDefault();
+        e.preventDefault()
         if (e.ctrlKey) {
-          submit(data);
+          submit(data)
         }
       }}
     >
-
-      {(date || time )&& (
+      {(date || time) && (
         <Box
           sx={{
             position: 'absolute',
@@ -102,12 +116,12 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
           }}
         >
           {formattedTime}
-        </Box> 
+        </Box>
       )}
       <Box
         component="img"
         src={src}
-        className='image-item-img submissible'
+        className="image-item-img submissible"
         alt={`${index}`}
         sx={{
           width: '100%',
@@ -116,46 +130,47 @@ const AnImage: React.FC<AnImageProps> = ({ data, index, isDisplayTooltip, isZoom
           cursor: 'pointer',
           backgroundColor: 'white',
         }}
-
       />
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 0,
-            right: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            opacity: 0.5,
-            zIndex: 50,
-            display: 'none',
-            flexDirection: 'row',
+      <Box
+        sx={{
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          opacity: 0.5,
+          zIndex: 50,
+          display: 'none',
+          flexDirection: 'row',
+        }}
+        className="img-action-eye"
+      >
+        <VisibilityOutlinedIcon
+          titleAccess="View Neighbors"
+          style={{ width: '1.75rem', color: 'white', cursor: 'pointer' }}
+          onClick={(e) => {
+            e.preventDefault()
+            toggleNeighborPopup(data)
+            toggleSimilarPopup(null)
           }}
-          className="img-action-eye"
-          
-        >
-          <VisibilityOutlinedIcon 
-            titleAccess='View Neighbors'
-            style={{ width: '1.75rem', color: 'white', cursor: 'pointer' }} 
+        />
+        {videoSrc && (
+          <PlayCircleFilledRoundedIcon
+            titleAccess="View Video"
+            style={{ width: '1.75rem', color: 'white', cursor: 'pointer' }}
             onClick={(e) => {
-              e.preventDefault();
-              toggleNeighborPopup(data);
-              toggleSimilarPopup(null);
-            }} 
-          />
-          { videoSrc && (<PlayCircleFilledRoundedIcon 
-            titleAccess='View Video'
-            style={{ width: '1.75rem', color: 'white', cursor: 'pointer' }} 
-            onClick={(e) => {
-              e.preventDefault();
-              dispatch(appActions.setVideoDataForPopup({
-                source: videoSrc,
-                timestamp: data.timestamp ? data.timestamp : undefined,
-              }));
+              e.preventDefault()
+              dispatch(
+                appActions.setVideoDataForPopup({
+                  source: videoSrc,
+                  timestamp: data.timestamp ? data.timestamp : undefined,
+                }),
+              )
             }}
-          />)}
-        </Box>
-
+          />
+        )}
+      </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default AnImage;
+export default AnImage

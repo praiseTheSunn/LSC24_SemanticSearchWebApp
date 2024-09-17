@@ -1,20 +1,26 @@
-import type React from 'react';
-import { Box, Typography, IconButton, Paper } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
+import CancelIcon from '@mui/icons-material/Cancel'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+import { Box, IconButton, Paper, Typography } from '@mui/material'
+import type React from 'react'
 
 interface FilterTagProps {
-  index: number;
+  index: number
   filter: {
-    category: string;
-    value: string | string[];
-    status: number;
-  };
-  onIconClick: (index: number, category: string, value: any) => void;
+    category: string
+    value: string | string[]
+    status: number
+  }
+  onIconClick: (index: number, category: string, value: any) => void
 }
 
-const FilterTag: React.FC<FilterTagProps> = ({ index, filter, onIconClick }) => {
-  const filterValue = Array.isArray(filter.value) ? filter.value.join(', ') : filter.value;
+const FilterTag: React.FC<FilterTagProps> = ({
+  index,
+  filter,
+  onIconClick,
+}) => {
+  const filterValue = Array.isArray(filter.value)
+    ? filter.value.join(', ')
+    : filter.value
 
   return (
     <Box
@@ -26,11 +32,7 @@ const FilterTag: React.FC<FilterTagProps> = ({ index, filter, onIconClick }) => 
         borderRadius: 1,
       }}
     >
-      <Typography
-        variant="caption"
-        color="textSecondary"
-        sx={{ mb: 0.5 }}
-      >
+      <Typography variant="caption" color="textSecondary" sx={{ mb: 0.5 }}>
         {filter.category}
       </Typography>
       <Paper
@@ -39,7 +41,8 @@ const FilterTag: React.FC<FilterTagProps> = ({ index, filter, onIconClick }) => 
         style={{
           display: 'flex',
           alignItems: 'center',
-          backgroundColor: filter.status === 1 ? 'rgb(170, 247, 155)' : 'rgb(253, 174, 174)',
+          backgroundColor:
+            filter.status === 1 ? 'rgb(170, 247, 155)' : 'rgb(253, 174, 174)',
           width: '100%',
           maxWidth: '272px',
         }}
@@ -51,7 +54,6 @@ const FilterTag: React.FC<FilterTagProps> = ({ index, filter, onIconClick }) => 
             wordBreak: 'break-all',
             marginLeft: 1,
             marginRight: 1,
-            
           }}
         >
           {filterValue}
@@ -64,11 +66,11 @@ const FilterTag: React.FC<FilterTagProps> = ({ index, filter, onIconClick }) => 
             color: filter.status === 1 ? 'rgb(29, 162, 3)' : 'rgb(211, 0, 0)',
           }}
         >
-          {filter.status === 1 ? <CheckCircleIcon /> :  <CancelIcon />}
+          {filter.status === 1 ? <CheckCircleIcon /> : <CancelIcon />}
         </IconButton>
       </Paper>
     </Box>
-  );
-};
+  )
+}
 
-export default FilterTag;
+export default FilterTag

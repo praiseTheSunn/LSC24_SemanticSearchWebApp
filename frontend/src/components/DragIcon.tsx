@@ -1,6 +1,6 @@
 import { useDrag } from 'react-dnd'
 
-const DragIcon = ({ name, source } : {name: string, source: any}) => {
+const DragIcon = ({ name, source }: { name: string; source: any }) => {
   const [{ isDragging }, drag] = useDrag({
     type: 'icon',
     item: { name, source },

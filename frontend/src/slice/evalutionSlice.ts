@@ -1,5 +1,5 @@
-import { createSlice } from "@reduxjs/toolkit"
-import type { EvaluationState } from "../types/app"
+import { createSlice } from '@reduxjs/toolkit'
+import type { EvaluationState } from '../types/app'
 
 const initialState: EvaluationState = {
   evaluationId: null,
@@ -21,5 +21,5 @@ export const evaluationSlice = createSlice({
     setEvaluationId: (state, action) => {
       state.evaluationId = action.payload
     },
-  }
+  },
 })

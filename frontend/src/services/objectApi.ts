@@ -1,23 +1,23 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { ObjPosQuery } from ".";
-import type { ApiResponse, ObjPosParams, ObjPosResponse } from '../types/api';
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { ObjPosQuery } from '.'
+import type { ApiResponse, ObjPosParams, ObjPosResponse } from '../types/api'
 
 export const ObjectPosApi = createApi({
-  reducerPath: "ObjectPosApi",
+  reducerPath: 'ObjectPosApi',
   baseQuery: ObjPosQuery,
-  tagTypes: ["ObjectPositioning"],
-  endpoints(builder){
+  tagTypes: ['ObjectPositioning'],
+  endpoints(builder) {
     return {
       getObjectsByPosition: builder.query<ObjPosResponse[], ObjPosParams[]>({
         query: (params) => {
           return {
-            url: "/obj/positioning",
-            method: "POST",
+            url: '/obj/positioning',
+            method: 'POST',
             body: params,
           }
         },
         transformResponse: (response: ApiResponse) => {
-          return response.data;
+          return response.data
         },
         providesTags: (result) =>
           result
@@ -31,6 +31,5 @@ export const ObjectPosApi = createApi({
             : [{ type: 'ObjectPositioning', id: 'LIST' }],
       }),
     }
-  }
+  },
 })
-

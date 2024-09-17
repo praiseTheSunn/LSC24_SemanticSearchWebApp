@@ -22,7 +22,6 @@ export { default as ViewMorePopup } from './Popup/viewMorePopup'
 
 export { default as ObjectDetail } from './ObjectDetail'
 
-
 export const Config = {
   gridRowGap: '2px',
 
@@ -34,7 +33,7 @@ export const Config = {
 
   SinglePopupCellHeight: 95,
   SinglePopupColumnCount: 5,
-  
+
   NeighborPopupCellHeight: 90,
   NeighborPopupColumnCount: 9,
 }

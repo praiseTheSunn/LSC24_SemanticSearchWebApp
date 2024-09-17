@@ -1,5 +1,5 @@
-import type React from 'react'
 import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import type React from 'react'
 import { useRef } from 'react'
 import {
   type TypedUseSelectorHook,
@@ -8,12 +8,11 @@ import {
   useStore,
 } from 'react-redux'
 import { Provider } from 'react-redux'
-import { sliceApp } from './slice/sliceApp'
-import { evaluationSlice } from './slice/evalutionSlice'
-import { ObjectPosApi } from './services/objectApi'
-import { ImageApi } from './services/imageApi'
 import { GoogleApi } from './services/googleApi'
-
+import { ImageApi } from './services/imageApi'
+import { ObjectPosApi } from './services/objectApi'
+import { evaluationSlice } from './slice/evalutionSlice'
+import { sliceApp } from './slice/sliceApp'
 
 const makeStore = () => {
   return configureStore({
@@ -24,11 +23,12 @@ const makeStore = () => {
       [ImageApi.reducerPath]: ImageApi.reducer,
       [GoogleApi.reducerPath]: GoogleApi.reducer,
     }),
-    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat([
-      ObjectPosApi.middleware,
-      ImageApi.middleware,
-      GoogleApi.middleware,
-    ]),
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat([
+        ObjectPosApi.middleware,
+        ImageApi.middleware,
+        GoogleApi.middleware,
+      ]),
   })
 }
 
@@ -50,9 +50,7 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export const useAppStore: () => AppStore = useStore
 export const appActions = sliceApp.actions
 export const evaluationActions = evaluationSlice.actions
-export const {
-  useLazyGetObjectsByPositionQuery
-} = ObjectPosApi
+export const { useLazyGetObjectsByPositionQuery } = ObjectPosApi
 
 export const {
   useLazyGetImagesQuery,
@@ -61,6 +59,4 @@ export const {
   useLazySearchByImageQuery,
 } = ImageApi
 
-export const {
-  useLazyGetTranslatedTextQuery
-} = GoogleApi
+export const { useLazyGetTranslatedTextQuery } = GoogleApi

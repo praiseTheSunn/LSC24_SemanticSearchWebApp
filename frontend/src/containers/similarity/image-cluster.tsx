@@ -1,19 +1,19 @@
-import React from 'react';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material'
+import React from 'react'
 
 type ImageClusterProps = {
-  bigImage: string,
-  smallImage1: string,
-  smallImage2: string,
-  location_name: string,
-};
+  bigImage: string
+  smallImage1: string
+  smallImage2: string
+  location_name: string
+}
 
 const ImageCluster = ({
   bigImage,
   smallImage1,
   smallImage2,
   location_name,
-} : ImageClusterProps) => {
+}: ImageClusterProps) => {
   return (
     <Box
       className="image-cluster-container"
@@ -84,7 +84,7 @@ const ImageCluster = ({
         {location_name}
       </Typography>
     </Box>
-  );
-};
+  )
+}
 
-export default ImageCluster;
+export default ImageCluster

@@ -1,79 +1,101 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Autocomplete, Box, Button, Grid, IconButton, TextField } from '@mui/material';
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  TextField,
+} from '@mui/material'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import {
+  appActions,
+  useAppDispatch,
+  useAppSelector,
+  useLazyGetObjectsByPositionQuery,
+} from '../../AppState'
+import { ObjectV8ClassNames } from '../../assets/ObjClass/yolov8_class_names'
+import { ObjectV10ClassNames } from '../../assets/ObjClass/yolov10_class_names'
+import pico8Colors from '../../assets/ObjColors/pico8'
 // import { usePopUp } from '../../contexts/popUpContext';
-import { DragIconList } from '../../data/icon';
+import { DragIconList } from '../../data/icon'
+import type { ObjPosResponse } from '../../types/api'
+import type { ImageRecord } from '../../types/image'
 // import { ObjectService } from '../../services/objectService';
-import Whiteboard from '../WhiteBoard';
-import { appActions, useAppDispatch, useAppSelector, useLazyGetObjectsByPositionQuery } from '../../AppState';
-import type { ImageRecord } from '../../types/image';
-import type { ObjPosResponse } from '../../types/api';
-import { ObjectV10ClassNames } from '../../assets/ObjClass/yolov10_class_names';
-import { ObjectV8ClassNames } from '../../assets/ObjClass/yolov8_class_names';
-import pico8Colors from '../../assets/ObjColors/pico8';
+import Whiteboard from '../WhiteBoard'
 
-const ObjectClassNames = Array.from(new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)));
+const ObjectClassNames = Array.from(
+  new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
+)
 
 export interface DrawnItem {
-  rect: Rect;
-  icon: Icon;
+  rect: Rect
+  icon: Icon
 }
 export interface Rect {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  top: number;
-  left: number;
-  bottom: number;
-  right: number;
+  x: number
+  y: number
+  width: number
+  height: number
+  top: number
+  left: number
+  bottom: number
+  right: number
 }
 export interface Icon {
-  source: string;
-  name: string;
-  color?: string;
+  source: string
+  name: string
+  color?: string
 }
 
 const ObjectPositionPopup = () => {
-  const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null);
-  const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([]);
-  const [isClear, setIsClear] = useState(false);
-  const [trigger, result]  = useLazyGetObjectsByPositionQuery();
-  const { data, error, isError, isFetching } = result;
-  
-  const dispatch = useAppDispatch();
-  const setLoadingPopUp = useCallback((message: string) => {
-    dispatch(appActions.setLoadingPopUp(message));
-  }, [dispatch]);
-  const setResult = useCallback((data: ImageRecord[]) => {
-    dispatch(appActions.setAppImageData(data));
-  }, [dispatch]);
-  const setCacheResult = useCallback((data: ObjPosResponse[]) => {
-    dispatch(appActions.setCacheData(data));
-  }, [dispatch]);
+  const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null)
+  const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([])
+  const [isClear, setIsClear] = useState(false)
+  const [trigger, result] = useLazyGetObjectsByPositionQuery()
+  const { data, error, isError, isFetching } = result
 
+  const dispatch = useAppDispatch()
+  const setLoadingPopUp = useCallback(
+    (message: string) => {
+      dispatch(appActions.setLoadingPopUp(message))
+    },
+    [dispatch],
+  )
+  const setResult = useCallback(
+    (data: ImageRecord[]) => {
+      dispatch(appActions.setAppImageData(data))
+    },
+    [dispatch],
+  )
+  const setCacheResult = useCallback(
+    (data: ObjPosResponse[]) => {
+      dispatch(appActions.setCacheData(data))
+    },
+    [dispatch],
+  )
 
   const handleIconClick = (icon: Icon) => {
-    setSelectedIcon(icon);
-    console.log('Selected icon:', icon);
-  };
+    setSelectedIcon(icon)
+    console.log('Selected icon:', icon)
+  }
 
   const handleColorClick = (color: string) => {
     if (selectedIcon) {
-      setSelectedIcon({ ...selectedIcon, color });
-      return;
+      setSelectedIcon({ ...selectedIcon, color })
+      return
     }
-    setSelectedIcon({ source: 'none', name: 'none', color });
+    setSelectedIcon({ source: 'none', name: 'none', color })
   }
 
   const handleDraw = (item: DrawnItem) => {
-    console.log('Drawn item:', item);
-    setSelectedIcon(null); // Clear selection after drawing
-  };
+    console.log('Drawn item:', item)
+    setSelectedIcon(null) // Clear selection after drawing
+  }
 
   const handleClear = () => {
-    setSelectedIcon(null);
-    setIsClear(true);
-  };
+    setSelectedIcon(null)
+    setIsClear(true)
+  }
 
   const handleQuery = () => {
     // const query = selectedObjects.map((obj: DrawnItem) => {
@@ -87,24 +109,24 @@ const ObjectPositionPopup = () => {
     //   };
     // });
     // trigger(query);
-  };
+  }
 
   useEffect(() => {
     if (isFetching) {
-      setLoadingPopUp('Fetching object result...');
+      setLoadingPopUp('Fetching object result...')
     }
-    
+
     if (isError) {
-      console.error('Error:', error);
-      setLoadingPopUp('Error: fetching object result');
+      console.error('Error:', error)
+      setLoadingPopUp('Error: fetching object result')
     }
-  
+
     if (data && !isFetching) {
-      setLoadingPopUp('');
-      setResult(data);
-      setCacheResult(data);
+      setLoadingPopUp('')
+      setResult(data)
+      setCacheResult(data)
     }
-  }, [isFetching, isError, error, data]);
+  }, [isFetching, isError, error, data])
 
   return (
     <Box
@@ -123,16 +145,25 @@ const ObjectPositionPopup = () => {
         width: 'fit-content',
         overflow: 'hidden',
         border: '1px solid black',
-        padding: '8px'
+        padding: '8px',
       }}
     >
-      <Box  marginRight='8px'>
-        <Grid style={{
-          minWidth: '100px',
-          maxWidth: '120px',
-        }} columns={3} container>
+      <Box marginRight="8px">
+        <Grid
+          style={{
+            minWidth: '100px',
+            maxWidth: '120px',
+          }}
+          columns={3}
+          container
+        >
           {DragIconList.map((icon: Icon) => (
-            <Grid item xs={1} key={icon.name} sx={{ width: '33px', height: '33px', cursor: 'pointer' }}>
+            <Grid
+              item
+              xs={1}
+              key={icon.name}
+              sx={{ width: '33px', height: '33px', cursor: 'pointer' }}
+            >
               <Box
                 component="img"
                 sx={{ width: '100%', height: '100%', objectFit: 'contain' }}
@@ -144,23 +175,31 @@ const ObjectPositionPopup = () => {
             </Grid>
           ))}
         </Grid>
-        <Autocomplete  
+        <Autocomplete
           autoComplete={true}
           autoHighlight={true}
           clearOnBlur={true}
-          options={ObjectClassNames} 
+          options={ObjectClassNames}
           slotProps={{
-            popper: { style: { zIndex: 10005,  } },
-            paper: { elevation: 6}
+            popper: { style: { zIndex: 10005 } },
+            paper: { elevation: 6 },
           }}
-          sx={{ width: '100%'}}
+          sx={{ width: '100%' }}
           onChange={(e: any, newValue: string | null) => {
-            const name = newValue ? newValue : '';
-            const source = 'none';
-            console.log('Selected object:', name);
-            setSelectedIcon({ source, name});
+            const name = newValue ? newValue : ''
+            const source = 'none'
+            console.log('Selected object:', name)
+            setSelectedIcon({ source, name })
           }}
-          renderInput={(params) => <TextField {...params} size='small' fullWidth={true}  margin="dense" label="Objects" />} 
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size="small"
+              fullWidth={true}
+              margin="dense"
+              label="Objects"
+            />
+          )}
         />
       </Box>
       <Box>
@@ -171,28 +210,63 @@ const ObjectPositionPopup = () => {
           onClear={isClear}
           setIsClear={setIsClear}
         />
-        <Grid style={{
-          minWidth: '100px',
-          maxWidth: '100%',
-          marginTop: '8px',
-        }} columns={8} container>
+        <Grid
+          style={{
+            minWidth: '100px',
+            maxWidth: '100%',
+            marginTop: '8px',
+          }}
+          columns={8}
+          container
+        >
           {Object.keys(pico8Colors).map((colorKeys) => (
-            <Grid title={colorKeys} item xs={1} key={colorKeys as string} sx={{ boxSizing: 'border-box', width: '33px', height: '33px', cursor: 'pointer', borderWidth: '1px', borderColor: 'black' }}>
+            <Grid
+              title={colorKeys}
+              item
+              xs={1}
+              key={colorKeys as string}
+              sx={{
+                boxSizing: 'border-box',
+                width: '33px',
+                height: '33px',
+                cursor: 'pointer',
+                borderWidth: '1px',
+                borderColor: 'black',
+              }}
+            >
               <Box
-                sx={{ width: '100%', height: '100%', objectFit: 'contain', backgroundColor: pico8Colors[colorKeys as keyof typeof pico8Colors] }}
+                sx={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'contain',
+                  backgroundColor:
+                    pico8Colors[colorKeys as keyof typeof pico8Colors],
+                }}
                 title={colorKeys}
-                onClick={() => handleColorClick(pico8Colors[colorKeys as keyof typeof pico8Colors])}
+                onClick={() =>
+                  handleColorClick(
+                    pico8Colors[colorKeys as keyof typeof pico8Colors],
+                  )
+                }
               />
             </Grid>
           ))}
         </Grid>
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "column", marginLeft: 1 }} className="flex flex-col ml-1">
+      <Box
+        sx={{ display: 'flex', flexDirection: 'column', marginLeft: 1 }}
+        className="flex flex-col ml-1"
+      >
         <Button
           variant="contained"
           color="error"
           onClick={handleClear}
-          style={{color: 'white', width: '50px', height: '30px', marginBottom: '2px' }}
+          style={{
+            color: 'white',
+            width: '50px',
+            height: '30px',
+            marginBottom: '2px',
+          }}
         >
           Clear
         </Button>
@@ -200,13 +274,13 @@ const ObjectPositionPopup = () => {
           variant="contained"
           color="primary"
           onClick={handleQuery}
-          style={{color: 'white', width: '50px', height: '30px' }}
+          style={{ color: 'white', width: '50px', height: '30px' }}
         >
           Send
         </Button>
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default ObjectPositionPopup;
+export default ObjectPositionPopup

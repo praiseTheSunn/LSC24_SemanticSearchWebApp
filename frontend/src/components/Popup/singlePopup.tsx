@@ -1,23 +1,35 @@
-import { useEffect, useCallback } from 'react'
+import { Box, Typography } from '@mui/material'
+import { useCallback, useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
-import closeIcon from '../../assets/close.png'
 import { AnImage, Config, ObjectDetail } from '..'
-import { appActions, useAppDispatch, useAppSelector, useGetSimilarsQuery } from '../../AppState'
-import { Box, Typography } from '@mui/material';
+import {
+  appActions,
+  useAppDispatch,
+  useAppSelector,
+  useGetSimilarsQuery,
+} from '../../AppState'
+import closeIcon from '../../assets/close.png'
 
-const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: number }) => {
-  cellHeight = cellHeight ? cellHeight : Config.SinglePopupCellHeight;
+const SinglePopup = ({
+  onClose,
+  cellHeight,
+}: { onClose: any; cellHeight?: number }) => {
+  cellHeight = cellHeight ? cellHeight : Config.SinglePopupCellHeight
   const viewImage = useAppSelector((state) => state.app.similarPopUpData)
-  const result = useGetSimilarsQuery(viewImage ? [viewImage?.img_link] : undefined)
-  const { data, error, isError, isFetching } = result;
+  const result = useGetSimilarsQuery(
+    viewImage ? [viewImage?.img_link] : undefined,
+  )
+  const { data, error, isError, isFetching } = result
 
   const dispatch = useAppDispatch()
 
-  const setLoadingPopup = useCallback((value: string) => {
-    dispatch(appActions.setLoadingPopUp(value))
-  }, [dispatch])
-  
+  const setLoadingPopup = useCallback(
+    (value: string) => {
+      dispatch(appActions.setLoadingPopUp(value))
+    },
+    [dispatch],
+  )
 
   useEffect(() => {
     if (isFetching) {
@@ -29,21 +41,25 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
       setLoadingPopup('Error fetching Similar Images')
     }
     if (data && !isFetching) {
-      setLoadingPopup('');
+      setLoadingPopup('')
       // setsinglePopupData(data);
       // setResult(data);
     }
-  }, [isFetching, isError, error, data]);
+  }, [isFetching, isError, error, data])
 
-  const Cell = ({ columnIndex, rowIndex, style }: { columnIndex: number, rowIndex: number, style: any }) => {
-    const index = rowIndex * columnCount + columnIndex;
-    if (data == null || index >= data.length) return null;
-    const imageData = data[index];
-    if (!imageData) return null;
+  const Cell = ({
+    columnIndex,
+    rowIndex,
+    style,
+  }: { columnIndex: number; rowIndex: number; style: any }) => {
+    const index = rowIndex * columnCount + columnIndex
+    if (data == null || index >= data.length) return null
+    const imageData = data[index]
+    if (!imageData) return null
 
-    const { img_link, date, time } = imageData;
-    const formattedTime = `${date} ${time}`;
-    const isHighlighted = img_link === viewImage?.img_link;
+    const { img_link, date, time } = imageData
+    const formattedTime = `${date} ${time}`
+    const isHighlighted = img_link === viewImage?.img_link
 
     return (
       <div
@@ -53,50 +69,68 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
           boxShadow: isHighlighted ? '0 0 10px #FFD700' : 'none',
         }}
       >
-        <Box sx={{ height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`, position: 'relative', overflow: 'hidden', padding: Config.gridRowGap}} >
+        <Box
+          sx={{
+            height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`,
+            position: 'relative',
+            overflow: 'hidden',
+            padding: Config.gridRowGap,
+          }}
+        >
           <AnImage key={index} data={imageData} index={index} />
         </Box>
       </div>
-    );
-  };
+    )
+  }
 
-  const columnCount = Config.SinglePopupColumnCount; // Number of columns in the grid
+  const columnCount = Config.SinglePopupColumnCount // Number of columns in the grid
 
   return (
-    <Box className="single-popup-container" sx={{
-      display: 'flex', 
-      flexDirection: 'column', 
-      alignItems: 'center', 
-      position: 'fixed', 
-      top: 0, 
-      left: 0, 
-      height: '100%', 
-      width: '100%', 
-      backgroundColor: 'rgba(0, 0, 0, 0.5)', 
-      zIndex: 10000 
-    }}>
-      <Box className="popup-content-background" sx={{
-        display: 'flex', 
-        flexDirection: 'column', 
-        width: '95%', 
-        height: '97%', 
-        backgroundColor: 'white', 
-        borderRadius: '20px', 
-        position: 'relative', 
-        top: '7px' 
-      }}>
-        <Typography variant="h6" textAlign="center" fontWeight="bold">Similar Images</Typography>
+    <Box
+      className="single-popup-container"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        height: '100%',
+        width: '100%',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        zIndex: 10000,
+      }}
+    >
+      <Box
+        className="popup-content-background"
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '95%',
+          height: '97%',
+          backgroundColor: 'white',
+          borderRadius: '20px',
+          position: 'relative',
+          top: '7px',
+        }}
+      >
+        <Typography variant="h6" textAlign="center" fontWeight="bold">
+          Similar Images
+        </Typography>
         <Box className="single-images-container" height="90%" width="100%">
           <Box display="flex" width="100%" height="100%">
-            <Box className="left-column" sx={{
-              display: 'flex',
-              flex: 1,
-              flexDirection: 'column',
-              backgroundColor: '#f0f0f0',
-              // Các thuộc tính bị ghi chú (commented out) có thể được thêm vào nếu cần thiết
-              // gridTemplateRows: '1fr 1fr',
-              // paddingBottom: '20px',
-            }}>
+            <Box
+              className="left-column"
+              sx={{
+                display: 'flex',
+                flex: 1,
+                flexDirection: 'column',
+                backgroundColor: '#f0f0f0',
+                // Các thuộc tính bị ghi chú (commented out) có thể được thêm vào nếu cần thiết
+                // gridTemplateRows: '1fr 1fr',
+                // paddingBottom: '20px',
+              }}
+            >
               <Box display="flex" justifyContent="center">
                 <Box className="object-contain" maxHeight={390} width="auto">
                   <AnImage
@@ -106,20 +140,23 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
                   />
                 </Box>
               </Box>
-              <Box className="img-info row" sx={{
-                display: 'flex',
-                position: 'relative',
-                flex: 1,
-                top: 0,
-                left: 0,
-                paddingTop: '3px',
-                backgroundColor: '#f0f0f0',
-                overflowY: 'scroll',
-                // Các thuộc tính bị ghi chú có thể được thêm vào nếu cần
-                // textAlign: 'center',
-                // padding: '10px',
-              }}
-                pl={2}>
+              <Box
+                className="img-info row"
+                sx={{
+                  display: 'flex',
+                  position: 'relative',
+                  flex: 1,
+                  top: 0,
+                  left: 0,
+                  paddingTop: '3px',
+                  backgroundColor: '#f0f0f0',
+                  overflowY: 'scroll',
+                  // Các thuộc tính bị ghi chú có thể được thêm vào nếu cần
+                  // textAlign: 'center',
+                  // padding: '10px',
+                }}
+                pl={2}
+              >
                 <ObjectDetail viewImage={viewImage} />
               </Box>
             </Box>
@@ -129,7 +166,7 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
                   {({ height, width }) => {
                     const columnWidth = width / columnCount - 1.5
                     const rowHeight = cellHeight + 2
-                    const rowCount = Math.floor(data.length / columnCount);
+                    const rowCount = Math.floor(data.length / columnCount)
 
                     return (
                       <Grid
@@ -143,7 +180,7 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
                       >
                         {Cell}
                       </Grid>
-                    );
+                    )
                   }}
                 </AutoSizer>
               ) : data == null ? (
@@ -154,32 +191,34 @@ const SinglePopup = ({ onClose, cellHeight }: { onClose: any, cellHeight?: numbe
             </Box>
           </Box>
         </Box>
-        <Box 
-        sx = {{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-          height: '30px',
-          width: '30px',
-          padding: '5px',
-          backgroundColor: 'white',
-          position: 'absolute',
-          top: '-1.7%',
-          right: '-0.7%',
-          borderRadius: '20px',
-          cursor: 'pointer',
-          zIndex: 10000,
-        }}
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            height: '30px',
+            width: '30px',
+            padding: '5px',
+            backgroundColor: 'white',
+            position: 'absolute',
+            top: '-1.7%',
+            right: '-0.7%',
+            borderRadius: '20px',
+            cursor: 'pointer',
+            zIndex: 10000,
+          }}
         >
           {/* biome-ignore lint/a11y/useKeyWithClickEvents: <explanation> */}
           <img
             src={closeIcon}
             // className="close-popup-button"
-            style={{  cursor: 'pointer',
+            style={{
+              cursor: 'pointer',
               position: 'relative',
               height: '100%',
               width: '100%',
-              zIndex: 1000,}}
+              zIndex: 1000,
+            }}
             alt="close button"
             onClick={() => onClose(true)}
           />
