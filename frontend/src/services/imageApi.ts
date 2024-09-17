@@ -1,24 +1,29 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { ImageQuery } from ".";
-import type { ImageRecord } from "../types/image";
-import type { ApiResponse, ImageQueryParams, TextQueryParams } from "../types/api";
-import { transformResponse_AIC2024 } from "../config/transformResponse";
+import { createApi } from '@reduxjs/toolkit/query/react'
+import { ImageQuery } from '.'
+import { transformResponse_AIC2024 } from '../config/transformResponse'
+import type {
+  ApiResponse,
+  ImageQueryParams,
+  TextQueryParams,
+} from '../types/api'
+import type { ImageRecord } from '../types/image'
 
 export const ImageApi = createApi({
-  reducerPath: "ImageApi",
+  reducerPath: 'ImageApi',
   baseQuery: ImageQuery,
-  tagTypes: ["Image"],
-  endpoints(builder){
+  tagTypes: ['Image'],
+  endpoints(builder) {
     return {
       getImages: builder.query<ImageRecord[], TextQueryParams>({
         query: (params) => {
           return {
-            url: "/search/search_with_text_query",
-            method: "POST",
+            url: '/search/search_with_text_query',
+            method: 'POST',
             body: params,
           }
         },
-        transformResponse: (response: ApiResponse) => transformResponse_AIC2024(response),
+        transformResponse: (response: ApiResponse) =>
+          transformResponse_AIC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -33,10 +38,11 @@ export const ImageApi = createApi({
       getSimilars: builder.query<ImageRecord[], string[] | undefined | null>({
         query: (urls) => ({
           url: '/explore/explore_similar_images',
-          method: "POST",
+          method: 'POST',
           body: { image_urls: urls, model: 'clip' },
         }),
-        transformResponse: (response: ApiResponse) => transformResponse_AIC2024(response),
+        transformResponse: (response: ApiResponse) =>
+          transformResponse_AIC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -52,10 +58,11 @@ export const ImageApi = createApi({
       getNeighbors: builder.query<ImageRecord[], string>({
         query: (img_url) => ({
           url: '/explore/explore_neighbor_images',
-          method: "POST",
+          method: 'POST',
           body: { image_url: img_url, span: 30 },
         }),
-        transformResponse: (response: ApiResponse) => transformResponse_AIC2024(response),
+        transformResponse: (response: ApiResponse) =>
+          transformResponse_AIC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -74,11 +81,10 @@ export const ImageApi = createApi({
           method: 'POST',
           body: imageQuery,
         }),
-        transformResponse: (response: ApiResponse) => transformResponse_AIC2024(response),
+        transformResponse: (response: ApiResponse) =>
+          transformResponse_AIC2024(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
-
     }
-  }
+  },
 })
-

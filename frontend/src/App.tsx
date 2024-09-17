@@ -1,8 +1,8 @@
 import './App.css'
 import React from 'react'
-import Routers from './Routers/Routers'
-import { StoreProvider } from './AppState'
 import { ToastContainer } from 'react-toastify'
+import { StoreProvider } from './AppState'
+import Routers from './Routers/Routers'
 import 'react-toastify/dist/ReactToastify.css'
 
 function App() {

@@ -1,59 +1,71 @@
+import { Box, Typography } from '@mui/material'
 import type React from 'react'
-import { useEffect, useState, useRef } from 'react';
-import { Box, Typography } from '@mui/material';
+import { useEffect, useRef, useState } from 'react'
 
 interface ScrollbarProps {
-  dates: string[];
-  selectedDate: string;
-  setSelectedDate: (date: string) => void;
+  dates: string[]
+  selectedDate: string
+  setSelectedDate: (date: string) => void
 }
 
-const Scrollbar: React.FC<ScrollbarProps> = ({ dates, selectedDate, setSelectedDate }) => {
-  const [thumbTop, setThumbTop] = useState(0);
-  const [date, setDate] = useState<string | null>(null);
-  const [showPercentage, setShowPercentage] = useState(false);
-  const [percentageTop, setPercentageTop] = useState(0);
-  const [scrollInterval, setScrollInterval] = useState(0);
-  const thumbRef = useRef<HTMLDivElement>(null);
+const Scrollbar: React.FC<ScrollbarProps> = ({
+  dates,
+  selectedDate,
+  setSelectedDate,
+}) => {
+  const [thumbTop, setThumbTop] = useState(0)
+  const [date, setDate] = useState<string | null>(null)
+  const [showPercentage, setShowPercentage] = useState(false)
+  const [percentageTop, setPercentageTop] = useState(0)
+  const [scrollInterval, setScrollInterval] = useState(0)
+  const thumbRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const numOfDates = dates.length;
-    setScrollInterval(Math.min(numOfDates, 10));
-  }, [dates]);
+    const numOfDates = dates.length
+    setScrollInterval(Math.min(numOfDates, 10))
+  }, [dates])
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
     if (thumbRef.current === null) {
-      return;
+      return
     }
-    const rect = e.currentTarget.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const maxTop = e.currentTarget.clientHeight - thumbRef.current?.clientHeight;
-    const newTop = Math.min(Math.max(y - thumbRef.current?.clientHeight / 2, 0), maxTop);
-    updateContentPosition(newTop, maxTop);
-  };
+    const rect = e.currentTarget.getBoundingClientRect()
+    const y = e.clientY - rect.top
+    const maxTop = e.currentTarget.clientHeight - thumbRef.current?.clientHeight
+    const newTop = Math.min(
+      Math.max(y - thumbRef.current?.clientHeight / 2, 0),
+      maxTop,
+    )
+    updateContentPosition(newTop, maxTop)
+  }
 
   const handleMouseLeave = () => {
-    setShowPercentage(false);
-  };
+    setShowPercentage(false)
+  }
 
-  const handleScrollbarClick = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+  const handleScrollbarClick = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+  ) => {
     if (thumbRef.current === null) {
-      return;
+      return
     }
-    const rect = e.currentTarget.getBoundingClientRect();
-    const y = e.clientY - rect.top;
-    const maxTop = e.currentTarget.clientHeight - thumbRef.current?.clientHeight;
-    const newTop = Math.min(Math.max(y - thumbRef.current?.clientHeight / 2, 0), maxTop);
-    const index = Math.ceil((newTop / maxTop) * (dates.length - 1));
-    setSelectedDate(dates[index]);
-  };
+    const rect = e.currentTarget.getBoundingClientRect()
+    const y = e.clientY - rect.top
+    const maxTop = e.currentTarget.clientHeight - thumbRef.current?.clientHeight
+    const newTop = Math.min(
+      Math.max(y - thumbRef.current?.clientHeight / 2, 0),
+      maxTop,
+    )
+    const index = Math.ceil((newTop / maxTop) * (dates.length - 1))
+    setSelectedDate(dates[index])
+  }
 
   const updateContentPosition = (newTop: number, maxTop: number) => {
-    const index = Math.ceil((newTop / maxTop) * (dates.length - 1));
-    setDate(dates[index]);
-    setShowPercentage(true);
-    setPercentageTop(newTop - 20);
-  };
+    const index = Math.ceil((newTop / maxTop) * (dates.length - 1))
+    setDate(dates[index])
+    setShowPercentage(true)
+    setPercentageTop(newTop - 20)
+  }
 
   return (
     <Box
@@ -115,7 +127,7 @@ const Scrollbar: React.FC<ScrollbarProps> = ({ dates, selectedDate, setSelectedD
         </Box>
       ))}
     </Box>
-  );
-};
+  )
+}
 
-export default Scrollbar;
+export default Scrollbar

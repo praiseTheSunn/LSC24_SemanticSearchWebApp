@@ -1,15 +1,20 @@
+import { Box } from '@mui/material'
+import type { CSSProperties } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
-import { AnImage, Config } from '../../components'
-import { Box } from '@mui/material'
 import { useAppSelector } from '../../AppState'
+import { AnImage, Config } from '../../components'
 import type { ImageRecord } from '../../types/image'
-import type { CSSProperties } from 'react'
 
-const ImageGrid = ({ cellHeight, cell, data, style } : {
-  cellHeight?: number,
+const ImageGrid = ({
+  cellHeight,
+  cell,
+  data,
+  style,
+}: {
+  cellHeight?: number
   cell?: any
-  data: ImageRecord[],
+  data: ImageRecord[]
   style: CSSProperties
 }) => {
   cellHeight = cellHeight ? cellHeight : Config.ImageGridCellHeight
@@ -17,9 +22,13 @@ const ImageGrid = ({ cellHeight, cell, data, style } : {
   const simData = data
   const columnCount = Config.ImageGridColumnCount
 
-  const Cell = ({ columnIndex, rowIndex, style } : {
-    columnIndex: number,
-    rowIndex: number,
+  const Cell = ({
+    columnIndex,
+    rowIndex,
+    style,
+  }: {
+    columnIndex: number
+    rowIndex: number
     style: React.CSSProperties
   }) => {
     const index = rowIndex * columnCount + columnIndex
@@ -28,7 +37,14 @@ const ImageGrid = ({ cellHeight, cell, data, style } : {
     const data = simData[index]
     return (
       <div style={style}>
-        <Box sx={{ height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`, position: 'relative', overflow: 'hidden', padding: Config.gridRowGap}} >
+        <Box
+          sx={{
+            height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`,
+            position: 'relative',
+            overflow: 'hidden',
+            padding: Config.gridRowGap,
+          }}
+        >
           <AnImage key={index} data={data} index={index} />
         </Box>
       </div>

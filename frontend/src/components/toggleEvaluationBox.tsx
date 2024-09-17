@@ -1,7 +1,7 @@
+import { Spin as Hamburger } from 'hamburger-react'
 // src/ToggableComponent.js
 import React, { useState } from 'react'
 import EvaluationBox from './evaluationBox'
-import { Spin as Hamburger } from 'hamburger-react'
 
 const ToggableComponent = () => {
   const [isVisible, setIsVisible] = useState(false)
@@ -18,7 +18,6 @@ const ToggableComponent = () => {
         color="#000"
         label="Show menu"
         onToggle={toggleVisibility}
-
       />
       {isVisible && <EvaluationBox />}
     </div>
