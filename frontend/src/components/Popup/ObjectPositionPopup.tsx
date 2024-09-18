@@ -7,6 +7,7 @@ import {
   TextField,
 } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { toast } from 'react-toastify'
 import {
   appActions,
   useAppDispatch,
@@ -22,7 +23,6 @@ import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 // import { ObjectService } from '../../services/objectService';
 import Whiteboard from '../WhiteBoard'
-import { toast } from 'react-toastify'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -102,8 +102,8 @@ const ObjectPositionPopup = () => {
   const handleQuery = () => {
     const obj_global_encoding: { [key: string]: number } = {}
     const color_global_encoding: { [key: string]: number } = {}
-    let obj_local_encoding = ""
-    let color_local_encoding = ""
+    let obj_local_encoding = ''
+    let color_local_encoding = ''
 
     for (const item of selectedObjects) {
       const { encodeObjects, encodeColors, icon } = item
@@ -112,7 +112,11 @@ const ObjectPositionPopup = () => {
       if (!obj_global_encoding[iconName]) {
         obj_global_encoding[iconName] = 0
       }
-      if (iconColor && iconColor !== 'none' && !color_global_encoding[iconColor]) {
+      if (
+        iconColor &&
+        iconColor !== 'none' &&
+        !color_global_encoding[iconColor]
+      ) {
         color_global_encoding[iconColor] = 0
       }
       if (iconColor && iconColor !== 'none')

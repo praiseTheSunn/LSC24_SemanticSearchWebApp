@@ -2,7 +2,7 @@ import { Box, Typography } from '@mui/material'
 import { useCallback, useEffect } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
-import { AnImage, Config, ObjectDetail } from '..'
+import { AnImage, ObjectDetail } from '..'
 import {
   appActions,
   useAppDispatch,
@@ -15,6 +15,7 @@ const SinglePopup = ({
   onClose,
   cellHeight,
 }: { onClose: any; cellHeight?: number }) => {
+  const Config = useAppSelector((state) => state.app.config)
   cellHeight = cellHeight ? cellHeight : Config.SinglePopupCellHeight
   const viewImage = useAppSelector((state) => state.app.similarPopUpData)
   const result = useGetSimilarsQuery(
