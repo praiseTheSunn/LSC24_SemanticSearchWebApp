@@ -22,6 +22,7 @@ import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 // import { ObjectService } from '../../services/objectService';
 import Whiteboard from '../WhiteBoard'
+import { toast } from 'react-toastify'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -30,6 +31,8 @@ const ObjectClassNames = Array.from(
 export interface DrawnItem {
   rect: Rect
   icon: Icon
+  encodeObjects: string
+  encodeColors: string
 }
 export interface Rect {
   x: number
@@ -88,7 +91,6 @@ const ObjectPositionPopup = () => {
   }
 
   const handleDraw = (item: DrawnItem) => {
-    console.log('Drawn item:', item)
     setSelectedIcon(null) // Clear selection after drawing
   }
 
@@ -98,16 +100,35 @@ const ObjectPositionPopup = () => {
   }
 
   const handleQuery = () => {
-    // const query = selectedObjects.map((obj: DrawnItem) => {
-    //   const { rect: obj_coor, icon } = obj;
-    //   return {
-    //     object_name: icon.name.charAt(0).toUpperCase() + icon.name.slice(1),
-    //     top_left_x: obj_coor.left,
-    //     top_left_y: obj_coor.top,
-    //     bottom_right_y: obj_coor.bottom,
-    //     bottom_right_x: obj_coor.right,
-    //   };
-    // });
+    const obj_global_encoding: { [key: string]: number } = {}
+    const color_global_encoding: { [key: string]: number } = {}
+    let obj_local_encoding = ""
+    let color_local_encoding = ""
+
+    for (const item of selectedObjects) {
+      const { encodeObjects, encodeColors, icon } = item
+      const iconName = icon.name.replace(' ', '_')
+      const iconColor = icon.color ? icon.color.replace('#', '') : 'none'
+      if (!obj_global_encoding[iconName]) {
+        obj_global_encoding[iconName] = 0
+      }
+      if (iconColor && iconColor !== 'none' && !color_global_encoding[iconColor]) {
+        color_global_encoding[iconColor] = 0
+      }
+      if (iconColor && iconColor !== 'none')
+        color_global_encoding[iconColor] += 1
+      obj_global_encoding[iconName] += 1
+      obj_local_encoding = obj_local_encoding.concat(' ', encodeObjects)
+      color_local_encoding = color_local_encoding.concat(' ', encodeColors)
+    }
+
+    const query = {
+      obj_global_encoding,
+      color_global_encoding,
+      obj_local_encoding: obj_local_encoding.trim(),
+      color_local_encoding: color_local_encoding.trim(),
+    }
+    console.log('Query:', query)
     // trigger(query);
   }
 
