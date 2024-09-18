@@ -1,25 +1,35 @@
-import type React from 'react';
-import viewIcon from '../../assets/view_icon.png';
-import { Box, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material'
+import type React from 'react'
+import viewIcon from '../../assets/view_icon.png'
 
 interface ImageRecord {
-  is_origin?: number;
-  status: number;
-  path: string;
-  date: string;
-  time: string;
-  image: string;
+  is_origin?: number
+  status: number
+  path: string
+  date: string
+  time: string
+  image: string
 }
 
 interface ImageInListProps {
-  record: ImageRecord;
-  index: number;
-  handleImageClick: (path: string, image: string) => void;
-  openSingleImage: (image: string, path: string, date: string, time: string) => void;
+  record: ImageRecord
+  index: number
+  handleImageClick: (path: string, image: string) => void
+  openSingleImage: (
+    image: string,
+    path: string,
+    date: string,
+    time: string,
+  ) => void
 }
 
-const ImageInList: React.FC<ImageInListProps> = ({ record, index, handleImageClick, openSingleImage }) => {
-  const hasOrigin = record.is_origin !== undefined ? 1 : 0;
+const ImageInList: React.FC<ImageInListProps> = ({
+  record,
+  index,
+  handleImageClick,
+  openSingleImage,
+}) => {
+  const hasOrigin = record.is_origin !== undefined ? 1 : 0
 
   return (
     <Box
@@ -92,8 +102,7 @@ const ImageInList: React.FC<ImageInListProps> = ({ record, index, handleImageCli
           }}
           src={record.image}
           onClick={() => handleImageClick(record.path, record.image)}
-          alt='image'
-
+          alt="image"
         />
 
         <Box
@@ -113,7 +122,14 @@ const ImageInList: React.FC<ImageInListProps> = ({ record, index, handleImageCli
             component="img"
             src={viewIcon}
             alt="view icon"
-            onClick={() => openSingleImage(record.image, record.path, record.date, record.time)}
+            onClick={() =>
+              openSingleImage(
+                record.image,
+                record.path,
+                record.date,
+                record.time,
+              )
+            }
             sx={{
               width: '20px',
               height: '20px',
@@ -124,7 +140,7 @@ const ImageInList: React.FC<ImageInListProps> = ({ record, index, handleImageCli
         </Box>
       </Box>
     </Box>
-  );
+  )
 }
 
-export default ImageInList;
+export default ImageInList

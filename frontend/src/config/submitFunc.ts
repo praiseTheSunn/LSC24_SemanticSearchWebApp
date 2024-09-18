@@ -1,23 +1,32 @@
-
-
 // const AICSubmitFunc = (evalId: number, sesId: string | null, filename: string) => {
 //   const toastId = toast.loading(`Submitting: ${filename}`, { closeOnClick: true });
 
-import { type Id, toast } from "react-toastify";
-import { appActions } from "../AppState";
-import type { AppState } from "../types/app";
-import type { ImageRecord } from "../types/image";
-import type { Dispatch } from "@reduxjs/toolkit";
+import type { Dispatch } from '@reduxjs/toolkit'
+import { type Id, toast } from 'react-toastify'
+import { appActions } from '../AppState'
+import type { AppState } from '../types/app'
+import type { ImageRecord } from '../types/image'
 
+export const LSC_addCSVImages = (
+  src_data: ImageRecord,
+  toastId: Id,
+  imageDatas: ImageRecord[],
+  dispatch: Dispatch,
+  prevImages: ImageRecord[],
+) => {
+  toast.update(toastId, {
+    render: `Added: ${src_data.img_link}`,
+    type: 'success',
+    isLoading: false,
+    closeOnClick: true,
+    autoClose: 500,
+    delay: 500,
+  })
 
-export const LSC_addCSVImages = (src_data: ImageRecord, toastId: Id, imageDatas : ImageRecord[], dispatch: Dispatch, prevImages: ImageRecord[]) => {
-  
-  toast.update(toastId, { render: `Added: ${src_data.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 500, delay: 500 });
-  
-  const updatedCSVImages = [...prevImages, src_data];
+  const updatedCSVImages = [...prevImages, src_data]
   // console.log('updatedCSVImages', updatedCSVImages);
-  
-  dispatch(appActions.setCSVImages(updatedCSVImages));
+
+  dispatch(appActions.setCSVImages(updatedCSVImages))
 }
 
 //   evalService

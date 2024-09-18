@@ -1,4 +1,4 @@
-import { styled, Switch } from "@mui/material";
+import { Switch, styled } from '@mui/material'
 
 export const LanguageSwitch = styled(Switch)(({ theme }) => ({
   width: 62,
@@ -51,4 +51,4 @@ export const LanguageSwitch = styled(Switch)(({ theme }) => ({
       backgroundColor: '#8796A5',
     }),
   },
-}));
+}))

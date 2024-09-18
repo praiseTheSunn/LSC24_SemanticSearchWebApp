@@ -25,10 +25,13 @@ export type AppState = {
   isVietnameseEnabled: boolean
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
-  videoDataForPopup: {source: string| undefined, timestamp: string | undefined}
+  videoDataForPopup: {
+    source: string | undefined
+    timestamp: string | undefined
+  }
   data: ImageRecord[]
   cacheData: ImageRecord[]
-  queryHistory: {time: string, query: string}[]
+  queryHistory: { time: string; query: string }[]
   queryPayload: QueryPayload
 
   csvImages: ImageRecord[]
@@ -44,7 +47,7 @@ export type TimelineState = {
 }
 
 export type EvaluationState = {
-  evaluationId: null | string,
-  username: string,
-  password: string,
+  evaluationId: null | string
+  username: string
+  password: string
 }

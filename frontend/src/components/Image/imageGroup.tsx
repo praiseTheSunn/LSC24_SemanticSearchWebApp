@@ -1,26 +1,30 @@
-import React from 'react';
-import { createPortal } from 'react-dom';
-import { Box, Typography, Dialog } from '@mui/material';
-import AnImage from '../AnImage';
-import ViewMorePopup from '../Popup/viewMorePopup';
-import type { ImageRecord } from '../../types/image';
+import { Box, Dialog, Typography } from '@mui/material'
+import React from 'react'
+import { createPortal } from 'react-dom'
+import type { ImageRecord } from '../../types/image'
+import AnImage from '../AnImage'
+import ViewMorePopup from '../Popup/viewMorePopup'
 
 interface ImageGroupProps {
-  images: ImageRecord[];
-  title: string;
-  sortType?: number;
+  images: ImageRecord[]
+  title: string
+  sortType?: number
 }
 
-const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) => {
+const ImageGroup: React.FC<ImageGroupProps> = ({
+  images,
+  title,
+  sortType = 0,
+}) => {
   if (sortType === 1) {
     // sort images by time string
-    images.sort((a, b) => a.time.localeCompare(b.time));
+    images.sort((a, b) => a.time.localeCompare(b.time))
   } else {
     // sort images by score
-    images.sort((a, b) => b.score - a.score);
+    images.sort((a, b) => b.score - a.score)
   }
 
-  const [showMore, setShowMore] = React.useState(false);
+  const [showMore, setShowMore] = React.useState(false)
 
   return (
     <Box
@@ -37,9 +41,13 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
       }}
     >
       <Dialog open={showMore} onClose={() => setShowMore(false)}>
-        <ViewMorePopup viewImages={images} title={title} setOpenViewMore={setShowMore} />
+        <ViewMorePopup
+          viewImages={images}
+          title={title}
+          setOpenViewMore={setShowMore}
+        />
       </Dialog>
-      
+
       <Box
         sx={{
           mb: '2px',
@@ -50,7 +58,7 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
       >
         <AnImage data={images[0]} />
       </Box>
-      
+
       <Box
         className="small-images"
         sx={{
@@ -62,26 +70,30 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
           justifyContent: 'center',
         }}
       >
-        {images[1]?.img_link && <Box
-          className="small-image"
-          sx={{
-            width: '50%',
-            objectFit: 'contain',
-          }}
-          component="img"
-          alt="small"
-          src={images[1]?.img_link}
-        />}
-        {images[2]?.img_link && <Box
-          className="small-image"
-          sx={{
-            width: '50%',
-            objectFit: 'contain',
-          }}
-          component="img"
-          alt="small"
-          src={images[2]?.img_link}
-        />}
+        {images[1]?.img_link && (
+          <Box
+            className="small-image"
+            sx={{
+              width: '50%',
+              objectFit: 'contain',
+            }}
+            component="img"
+            alt="small"
+            src={images[1]?.img_link}
+          />
+        )}
+        {images[2]?.img_link && (
+          <Box
+            className="small-image"
+            sx={{
+              width: '50%',
+              objectFit: 'contain',
+            }}
+            component="img"
+            alt="small"
+            src={images[2]?.img_link}
+          />
+        )}
       </Box>
 
       <Box
@@ -111,7 +123,7 @@ const ImageGroup: React.FC<ImageGroupProps> = ({ images, title, sortType = 0 }) 
         </Typography>
       </Box>
     </Box>
-  );
-};
+  )
+}
 
-export default ImageGroup;
+export default ImageGroup

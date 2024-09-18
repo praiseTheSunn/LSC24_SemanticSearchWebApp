@@ -1,7 +1,7 @@
 import { Box, ClickAwayListener } from '@mui/material'
-import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
-import React, { useCallback, useMemo, useRef, useEffect } from 'react'
 import { isNumber } from 'lodash'
+import React, { useCallback, useMemo, useRef, useEffect } from 'react'
+import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 
 const VideoPopup = () => {
   const videoSource = useAppSelector(

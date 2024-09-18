@@ -19,10 +19,10 @@ import type { ImageRecord } from '../../types/image'
 
 // const imageUrl = "https://www.yourcelebritymagazines.com/cdn/shop/files/A360_TAYLORSWIFT_TTPD_COV_APR_2024_V2_80_copy_1800x1800_1602402a-efde-486d-b22b-bc1c6bd7cfa5.webp?v=1713265674"
 
-const LocationTimeline = ({ data } : { data: ImageRecord[] }) => {
+const LocationTimeline = ({ data }: { data: ImageRecord[] }) => {
   return (
     // const [selectedDate, setSelectedDate] = useState<string | null>(null)
-    <TimelineTab/>
+    <TimelineTab />
   )
 }
 
