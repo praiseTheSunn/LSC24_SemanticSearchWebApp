@@ -1,3 +1,5 @@
+import type { ConfigType } from '../types/app'
+
 export { default as SearchBox } from './searchBox'
 
 export { default as MessagePopup } from './Popup/messagePopup'
@@ -22,14 +24,47 @@ export { default as ViewMorePopup } from './Popup/viewMorePopup'
 
 export { default as ObjectDetail } from './ObjectDetail'
 
-export const Config = {
+// export const Config = {
+//   gridRowGap: '2px',
+
+//   ImageGridColumnCount: 7,
+//   ImageGridCellHeight: 120, // Default cell height
+
+//   ViewMorePopupColumnCount: 8,
+//   ViewMorePopupCellHeight: 130, // Default cell height
+
+//   SinglePopupCellHeight: 95,
+//   SinglePopupColumnCount: 5,
+
+//   NeighborPopupCellHeight: 90,
+//   NeighborPopupColumnCount: 9,
+
+//   WhiteboardGridRowCount: 7,
+//   WhiteboardGridColumnCount: 7,
+// }
+
+// Helper functions with type safety for localStorage
+export const saveConfigToLocalStorage = (config: ConfigType): void => {
+  localStorage.setItem('userConfig', JSON.stringify(config))
+}
+
+export const loadConfigFromLocalStorage = (): ConfigType | null => {
+  const savedConfig = localStorage.getItem('userConfig')
+  if (savedConfig) {
+    return JSON.parse(savedConfig) as ConfigType
+  }
+  return null
+}
+
+// Default Config values
+export const defaultConfig: ConfigType = {
   gridRowGap: '2px',
 
   ImageGridColumnCount: 7,
-  ImageGridCellHeight: 120, // Default cell height
+  ImageGridCellHeight: 120,
 
   ViewMorePopupColumnCount: 8,
-  ViewMorePopupCellHeight: 130, // Default cell height
+  ViewMorePopupCellHeight: 130,
 
   SinglePopupCellHeight: 95,
   SinglePopupColumnCount: 5,
@@ -40,3 +75,6 @@ export const Config = {
   WhiteboardGridRowCount: 7,
   WhiteboardGridColumnCount: 7,
 }
+
+// Load user config if it exists in localStorage, otherwise use default
+// export const Config: ConfigType = loadConfigFromLocalStorage() || defaultConfig;

@@ -1,5 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { set } from 'lodash'
+import { defaultConfig, loadConfigFromLocalStorage } from '../components'
 import type { AppState } from '../types/app'
 
 const initialState: AppState = {
@@ -24,6 +25,8 @@ const initialState: AppState = {
   isCsvPreviewPopupOpen: false,
 
   isEvaluationBoxOpen: false,
+
+  config: loadConfigFromLocalStorage() || defaultConfig,
 }
 
 export const sliceApp = createSlice({
@@ -80,6 +83,10 @@ export const sliceApp = createSlice({
 
     setEvaluationBox: (state, action) => {
       state.isEvaluationBoxOpen = action.payload
+    },
+
+    setConfig: (state, action) => {
+      state.config = action.payload
     },
   },
 })

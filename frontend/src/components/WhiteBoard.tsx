@@ -2,6 +2,7 @@ import { Box, Tooltip, Typography } from '@mui/material'
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { Config } from '.'
+import { useAppSelector } from '../AppState'
 import type { DrawnItem, Icon, Rect } from './Popup/ObjectPositionPopup'
 
 interface WhiteboardProps {
@@ -56,6 +57,8 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
   const [drawnItems, setDrawnItems] = useState<DrawnItem[]>([])
   const whiteboardRef = useRef<HTMLDivElement>(null)
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
+
+  const Config = useAppSelector((state) => state.app.config)
 
   //BAD PERFORMANCE HERE
   useEffect(() => {
