@@ -1,9 +1,21 @@
-import { Box, Button, List, ListItem, Paper, Typography } from '@mui/material'
-import React, { forwardRef } from 'react'
+import {
+  Box,
+  Button,
+  ClickAwayListener,
+  List,
+  ListItem,
+  Paper,
+  Popover,
+  Popper,
+  Typography,
+} from '@mui/material'
+import { forwardRef, useCallback, useRef } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
+import { ObjectPosIcon } from '../../assets'
 import type { FilterTagType, SearchTermType } from '../../types/search'
 import FilterTag from '../Filter/filterTag'
+import ObjectPositionPopup from './ObjectPositionPopup'
 
 interface MessagePopupProps {
   displayedFilters: FilterTagType[]
@@ -14,9 +26,20 @@ interface MessagePopupProps {
 // Forward ref to the root element
 const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
   ({ displayedFilters, setDisplayedFilters, setSearchTerms }, ref) => {
+    const dispatch = useAppDispatch()
+    const queryPayload = useAppSelector((state) => state.app.queryPayload)
+    const setQuery = useCallback(
+      (value: string) => {
+        const newQueryPayload = { ...queryPayload, query: value }
+        dispatch(appActions.setQueryPayload(newQueryPayload))
+      },
+      [dispatch],
+    )
+
     const handleClearAll = () => {
       setDisplayedFilters([])
       setSearchTerms([])
+      setQuery('')
     }
 
     const showPopup = useAppSelector((state) => state.app.isMessagePopUpOpen)
@@ -45,6 +68,22 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
       setDisplayedFilters(updatedFilters)
     }
 
+    const showObjPosPopup = useAppSelector(
+      (state) => state.app.isObjPosPopUpOpen,
+    )
+    const setObjectPosPopup = useCallback(
+      (value: boolean) => {
+        dispatch(appActions.setObjPosPopUp(value))
+      },
+      [dispatch],
+    )
+    const anchorElement = useRef<HTMLDivElement | null>(null)
+
+    const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+      // setAnchorEl(anchorEl ? null : event.currentTarget);
+      setObjectPosPopup(!showObjPosPopup)
+    }
+
     return (
       <Paper
         ref={ref} // Forward the ref to the root element
@@ -57,7 +96,7 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
           position: 'absolute',
           overflow: 'auto',
           top: '30px',
-          zIndex: '10000',
+          zIndex: '200',
           transition: 'all 0.3s ease-in-out',
         }}
       >
@@ -78,6 +117,65 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
           >
             Clear
           </Button>
+          <Box
+            sx={{
+              position: 'absolute',
+              display: 'flex',
+              flexDirection: 'column',
+              flexWrap: 'nowrap',
+              alignItems: 'center',
+              width: 'fit-content',
+              top: '3px',
+              right: '10px',
+            }}
+          >
+            <Box
+              component="img"
+              src={ObjectPosIcon}
+              alt="object_pos_icon"
+              onClick={handleClick}
+              sx={{
+                marginLeft: '3px',
+                marginTop: '2px',
+                cursor: 'pointer',
+                position: 'relative',
+                width: '2rem',
+                height: '2rem',
+              }}
+              title="Object Position Search"
+              aria-describedby="objpospopup"
+              ref={anchorElement}
+            />
+
+            <Popover
+              id="objpospopup"
+              open={showObjPosPopup}
+              anchorEl={anchorElement.current}
+              anchorOrigin={{
+                vertical: 'center',
+                horizontal: 'right',
+              }}
+              transformOrigin={{
+                vertical: 'center',
+                horizontal: 'left',
+              }}
+              onClose={() => setObjectPosPopup(false)}
+              slotProps={{
+                paper: {
+                  sx: {
+                    minHeight: '250px',
+                    minWidth: '470px',
+                    width: 'fit-content',
+                    height: 'fit-content',
+                    maxWidth: '480px',
+                    zIndex: 10005,
+                  },
+                },
+              }}
+            >
+              <ObjectPositionPopup />
+            </Popover>
+          </Box>
         </Box>
         <Box
           height="100%"

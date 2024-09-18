@@ -56,7 +56,7 @@ const HistoryPopup = ({
   useEffect(() => {
     if (listRef.current) {
       listRef.current.scrollToRow(history.length - 1)
-      console.log('scrolling to row', history.length - 1)
+      // console.log('scrolling to row', history.length - 1)
     }
   }, [history])
 

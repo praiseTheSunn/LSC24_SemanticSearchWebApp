@@ -7,6 +7,7 @@ import {
   TextField,
 } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import { toast } from 'react-toastify'
 import {
   appActions,
   useAppDispatch,
@@ -22,7 +23,6 @@ import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 // import { ObjectService } from '../../services/objectService';
 import Whiteboard from '../WhiteBoard'
-import { toast } from 'react-toastify'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -50,7 +50,7 @@ export interface Icon {
   color?: string
 }
 
-const ObjectPositionPopup = () => {
+const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([])
   const [isClear, setIsClear] = useState(false)
@@ -79,7 +79,7 @@ const ObjectPositionPopup = () => {
 
   const handleIconClick = (icon: Icon) => {
     setSelectedIcon(icon)
-    console.log('Selected icon:', icon)
+    // console.log('Selected icon:', icon)
   }
 
   const handleColorClick = (color: string) => {
@@ -99,11 +99,13 @@ const ObjectPositionPopup = () => {
     setIsClear(true)
   }
 
+  const txtQuery = useAppSelector((state) => state.app.queryPayload.text_query)
+
   const handleQuery = () => {
     const obj_global_encoding: { [key: string]: number } = {}
     const color_global_encoding: { [key: string]: number } = {}
-    let obj_local_encoding = ""
-    let color_local_encoding = ""
+    let obj_local_encoding = ''
+    let color_local_encoding = ''
 
     for (const item of selectedObjects) {
       const { encodeObjects, encodeColors, icon } = item
@@ -112,7 +114,11 @@ const ObjectPositionPopup = () => {
       if (!obj_global_encoding[iconName]) {
         obj_global_encoding[iconName] = 0
       }
-      if (iconColor && iconColor !== 'none' && !color_global_encoding[iconColor]) {
+      if (
+        iconColor &&
+        iconColor !== 'none' &&
+        !color_global_encoding[iconColor]
+      ) {
         color_global_encoding[iconColor] = 0
       }
       if (iconColor && iconColor !== 'none')
@@ -122,13 +128,14 @@ const ObjectPositionPopup = () => {
       color_local_encoding = color_local_encoding.concat(' ', encodeColors)
     }
 
-    const query = {
+    const searchQuery = {
       obj_global_encoding,
       color_global_encoding,
       obj_local_encoding: obj_local_encoding.trim(),
       color_local_encoding: color_local_encoding.trim(),
+      query: txtQuery,
     }
-    console.log('Query:', query)
+    console.log('Query:', searchQuery)
     // trigger(query);
   }
 
@@ -153,9 +160,6 @@ const ObjectPositionPopup = () => {
     <Box
       id="objectPosPopup"
       sx={{
-        position: 'absolute',
-        left: '10px',
-        top: '0',
         display: 'flex',
         flexDirection: 'row',
         backgroundColor: 'white',
