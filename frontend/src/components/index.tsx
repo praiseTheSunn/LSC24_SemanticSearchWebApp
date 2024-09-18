@@ -36,4 +36,7 @@ export const Config = {
 
   NeighborPopupCellHeight: 90,
   NeighborPopupColumnCount: 9,
+
+  WhiteboardGridRowCount: 7,
+  WhiteboardGridColumnCount: 7,
 }
