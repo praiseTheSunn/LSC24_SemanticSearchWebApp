@@ -2,6 +2,7 @@ import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import LoginIcon from '@mui/icons-material/Login'
 import PreviewIcon from '@mui/icons-material/Preview'
+import SettingsIcon from '@mui/icons-material/Settings'
 import {
   Backdrop,
   Box,
@@ -13,11 +14,13 @@ import {
   SpeedDialIcon,
   Typography,
 } from '@mui/material'
+import { set } from 'lodash'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import ImageGrid from '../containers/similarity/image-grid'
 import { CSVPreviewPopup } from './Popup/CSVPreviewPopup'
+import ConfigEditor from './Popup/settingPopup'
 import EvaluationBox from './evaluationBox'
 
 export const CSVDownloadBox = () => {
@@ -27,9 +30,13 @@ export const CSVDownloadBox = () => {
   const [anchorElCSV, setAnchorElCSV] = useState<HTMLElement | null>(null)
   const [anchorElEvaluation, setAnchorElEvaluation] =
     useState<HTMLElement | null>(null)
+  const [anchorElSettings, setAnchorElSettings] = useState<HTMLElement | null>(
+    null,
+  )
   const [speedDialOpen, setSpeedDialOpen] = useState(false) // New state for SpeedDial open
   const CSVPreviewPopupOpen = Boolean(anchorElCSV)
   const isVisible = Boolean(anchorElEvaluation)
+  const isSettingsVisible = Boolean(anchorElSettings)
 
   const handleDownloadCSV = () => {
     if (csvImages.length > 0) {
@@ -69,6 +76,14 @@ export const CSVDownloadBox = () => {
 
   const handleLoginClose = () => {
     setAnchorElEvaluation(null)
+  }
+
+  const handleSettingsOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElSettings(event.currentTarget)
+  }
+
+  const handleSettingsClose = () => {
+    setAnchorElSettings(null)
   }
 
   return (
@@ -132,6 +147,11 @@ export const CSVDownloadBox = () => {
               tooltipTitle="Login"
               onClick={(e) => handleLoginOpen(e)}
             />
+            <SpeedDialAction
+              icon={<SettingsIcon />}
+              tooltipTitle="Settings"
+              onClick={(e) => handleSettingsOpen(e)}
+            />
           </SpeedDial>
           <Popover
             open={CSVPreviewPopupOpen}
@@ -180,6 +200,21 @@ export const CSVDownloadBox = () => {
             }}
           >
             <EvaluationBox />
+          </Popover>
+          <Popover
+            open={isSettingsVisible}
+            anchorEl={anchorElSettings}
+            onClose={handleSettingsClose}
+            anchorOrigin={{
+              vertical: 'center',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'center',
+              horizontal: 'right',
+            }}
+          >
+            <ConfigEditor />
           </Popover>
         </Box>
       </ClickAwayListener>

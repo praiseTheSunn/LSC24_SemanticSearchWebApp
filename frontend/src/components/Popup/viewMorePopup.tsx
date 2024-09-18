@@ -2,7 +2,7 @@ import { Box, IconButton, Typography } from '@mui/material'
 import { useEffect, useRef, useState } from 'react'
 import { AutoSizer } from 'react-virtualized'
 import { FixedSizeGrid as Grid } from 'react-window'
-import { Config } from '..'
+import { useAppSelector } from '../../AppState'
 import closeIcon from '../../assets/close.png'
 import AnImage from '../AnImage'
 
@@ -19,6 +19,7 @@ const ViewMorePopup = ({
   columnCount?: number
   cellHeight?: number
 }) => {
+  const Config = useAppSelector((state) => state.app.config)
   columnCount = columnCount ? columnCount : Config.ViewMorePopupColumnCount // Number of columns in the grid
   cellHeight = cellHeight ? cellHeight : Config.ViewMorePopupCellHeight // Height of each cell in the grid
 

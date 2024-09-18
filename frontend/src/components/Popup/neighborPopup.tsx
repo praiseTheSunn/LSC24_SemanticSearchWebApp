@@ -2,7 +2,7 @@ import { Box } from '@mui/material'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
-import { AnImage, Config } from '..'
+import { AnImage } from '..'
 import { useAppSelector, useLazyGetNeighborsQuery } from '../../AppState'
 import closeIcon from '../../assets/close.png'
 import type { ImageRecord } from '../../types/image'
@@ -27,6 +27,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
   const viewImage = useAppSelector(
     (state) => state.app.neighborPopUpData?.img_link,
   )
+  const Config = useAppSelector((state) => state.app.config)
 
   const fetchNeighbors = useCallback(
     async (imageId: string, position: 'start' | 'end') => {
