@@ -54,7 +54,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     const [isFocus, setIsFocus] = useState(false)
 
     const showHistory = useAppSelector((state) => state.app.isHistoryPopUpOpen)
-    const showPopup = useAppSelector((state) => state.app.isObjPosPopUpOpen)
     const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
     const [trigger, result] = useLazyGetImagesQuery()
@@ -95,12 +94,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       },
       [dispatch],
     )
-    const setObjectPosPopup = useCallback(
-      (value: boolean) => {
-        dispatch(appActions.setObjPosPopUp(value))
-      },
-      [dispatch],
-    )
+
     const setResult = useCallback(
       (value: ImageRecord[]) => {
         dispatch(appActions.setAppImageData(value))
@@ -372,57 +366,30 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             </Paper>
           </div>
         </ClickAwayListener>
-        <ClickAwayListener onClickAway={() => setObjectPosPopup(false)}>
-          <Box
-            sx={{
-              position: 'relative',
-              display: 'flex',
-              flexDirection: 'column',
-              flexWrap: 'nowrap',
-              alignItems: 'center',
-            }}
-          >
+
+        <ClickAwayListener onClickAway={() => toggleHistoryPopup(false)}>
+          <Box position="relative">
             <Box
               component="img"
-              src={ObjectPosIcon}
-              alt="object_pos_icon"
-              onClick={() => setObjectPosPopup(true)}
+              src={HistoryIcon}
+              alt="history_icon"
+              onClick={() => toggleHistoryPopup(true)}
               sx={{
                 marginLeft: '3px',
                 marginTop: '2px',
                 cursor: 'pointer',
                 position: 'relative',
-                width: '2rem',
-                height: '2rem',
+                width: '2.25rem',
+                height: '2.25rem',
               }}
-              title="Object Position Search"
+              title="Search History"
             />
-            <ClickAwayListener onClickAway={() => toggleHistoryPopup(false)}>
-              <Box>
-                <Box
-                  component="img"
-                  src={HistoryIcon}
-                  alt="history_icon"
-                  onClick={() => toggleHistoryPopup(true)}
-                  sx={{
-                    marginLeft: '3px',
-                    marginTop: '2px',
-                    cursor: 'pointer',
-                    position: 'relative',
-                    width: '2.25rem',
-                    height: '2.25rem',
-                  }}
-                  title="Search History"
-                />
-                {showHistory && (
-                  <HistoryPopup
-                    setSearchTerms={setSearchTerms}
-                    setDisplayedFilters={setDisplayedFilters}
-                  />
-                )}
-              </Box>
-            </ClickAwayListener>
-            {showPopup && <ObjectPositionPopup />}
+            {showHistory && (
+              <HistoryPopup
+                setSearchTerms={setSearchTerms}
+                setDisplayedFilters={setDisplayedFilters}
+              />
+            )}
           </Box>
         </ClickAwayListener>
         <ImageInputBox />
