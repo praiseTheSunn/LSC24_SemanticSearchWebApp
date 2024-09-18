@@ -2,6 +2,7 @@ import { Box, Tooltip, Typography } from '@mui/material'
 import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import type { DrawnItem, Icon, Rect } from './Popup/ObjectPositionPopup'
+import { Config } from '.'
 
 interface WhiteboardProps {
   selectedIcon: Icon | null
@@ -10,6 +11,31 @@ interface WhiteboardProps {
   setIsClear: Dispatch<SetStateAction<boolean>>
   setSelecObjects: Dispatch<SetStateAction<DrawnItem[]>>
 }
+
+const calculateOverlappedCells = (drawnItem: DrawnItem, cellHeight: number, cellWidth: number): { encodeObjectStrings: string[], encodeColorStrings: string[] } => {
+  const topRow = Math.floor(drawnItem.rect.top / cellHeight);
+  const bottomRow = Math.floor(drawnItem.rect.bottom / cellHeight);
+  const leftCol = Math.floor(drawnItem.rect.left / cellWidth);
+  const rightCol = Math.floor(drawnItem.rect.right / cellWidth);
+
+  const encodeObjectStrings: string[] = [];
+  const encodeColorStrings: string[] = [];
+
+  for (let row = topRow; row <= bottomRow; row++) {
+    for (let col = leftCol; col <= rightCol; col++) {
+      if (drawnItem.icon.name !== 'none'){
+        const encode = `${row}${String.fromCharCode(97 + col)}${drawnItem.icon.name.replace(' ', '_')}`;
+        encodeObjectStrings.push(encode);
+      }
+      if (drawnItem.icon.color && drawnItem.icon.color !== 'none') {
+        const encode = `${row}${String.fromCharCode(97 + col)}${drawnItem.icon.color.split('#')[1]}`;
+        encodeColorStrings.push(encode);
+      }
+    }
+  }
+
+  return { encodeObjectStrings, encodeColorStrings };
+};
 
 const Whiteboard: React.FC<WhiteboardProps> = ({
   selectedIcon,
@@ -27,15 +53,17 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
   const whiteboardRef = useRef<HTMLDivElement>(null)
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
 
+  //BAD PERFORMANCE HERE
   useEffect(() => {
     const updateCursorPosition = (e: MouseEvent) => {
-      setCursorPosition({ x: e.clientX, y: e.clientY })
+      if (selectedIcon)
+        setCursorPosition({ x: e.clientX, y: e.clientY })
     }
     window.addEventListener('mousemove', updateCursorPosition)
     return () => {
       window.removeEventListener('mousemove', updateCursorPosition)
     }
-  }, [])
+  }, [selectedIcon])
 
   useEffect(() => {
     if (onClear) {
@@ -47,6 +75,15 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
   useEffect(() => {
     setSelecObjects(drawnItems)
   }, [drawnItems, setSelecObjects])
+
+  // console.log('windowRef:', whiteboardRef);
+  const cellWidth = useMemo(() => {
+    return whiteboardRef.current ? whiteboardRef.current.offsetWidth / Config.WhiteboardGridColumnCount / whiteboardRef.current.clientWidth : 1000000001;
+  }, [whiteboardRef.current]);
+
+  const cellHeight = useMemo(() => {
+    return whiteboardRef.current ? whiteboardRef.current.offsetHeight / Config.WhiteboardGridRowCount / whiteboardRef.current.clientHeight : 1000000001;
+  }, [whiteboardRef.current]);
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
@@ -91,7 +128,16 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
 
   const handleMouseUp = useCallback(() => {
     if (drawing && rect && selectedIcon) {
-      const newItem = { rect, icon: selectedIcon }
+      const newItem: DrawnItem = {
+        rect,
+        icon: selectedIcon,
+        encodeObjects: '',
+        encodeColors: '',
+      };
+      const encodeStrings = calculateOverlappedCells(newItem, cellHeight, cellWidth);
+      newItem.encodeColors = encodeStrings.encodeColorStrings.join(' ');
+      newItem.encodeObjects = encodeStrings.encodeObjectStrings.join(' ');
+
       setDrawnItems((prevItems) => [...prevItems, newItem])
       onDraw(newItem) // Pass the drawn item to the parent component
       setDrawing(false)
@@ -146,8 +192,40 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
       ref={whiteboardRef}
       onMouseDown={handleMouseDown}
       onMouseMove={handleMouseMove}
+      id="whiteboard"
       onMouseUp={handleMouseUp}
     >
+      {Array.from({ length: Config.WhiteboardGridColumnCount }).map((_, index) => (
+        <Box
+          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+          key={index}
+          sx={{
+            position: 'absolute',
+            left: `${(index * 100) / Config.WhiteboardGridColumnCount}%`,
+            top: 0,
+            width: '1px',
+            height: '100%',
+            backgroundColor: 'black',
+            opacity: 0.1,
+          }}
+        />
+      ))}
+      {
+        Array.from({ length: Config.WhiteboardGridRowCount }).map((_, index) => (
+          <Box
+            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+            key={index}
+            sx={{
+              position: 'absolute',
+              left: 0,
+              top: `${(index * 100) / Config.WhiteboardGridRowCount}%`,
+              width: '100%',
+              height: '1px',
+              backgroundColor: 'black',
+              opacity: 0.1,
+            }}/>
+          ))
+      }
       <Box sx={{ position: 'relative', width: '100%', height: '100%' }}>
         {drawnItemsMemo}
         {rect && (
