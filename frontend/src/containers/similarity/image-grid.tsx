@@ -3,7 +3,7 @@ import type { CSSProperties } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import { useAppSelector } from '../../AppState'
-import { AnImage, Config } from '../../components'
+import { AnImage } from '../../components'
 import type { ImageRecord } from '../../types/image'
 
 const ImageGrid = ({
@@ -17,6 +17,7 @@ const ImageGrid = ({
   data: ImageRecord[]
   style: CSSProperties
 }) => {
+  const Config = useAppSelector((state) => state.app.config)
   cellHeight = cellHeight ? cellHeight : Config.ImageGridCellHeight
 
   const simData = data

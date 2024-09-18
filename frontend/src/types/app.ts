@@ -37,6 +37,8 @@ export type AppState = {
   csvImages: ImageRecord[]
   isCsvPreviewPopupOpen: boolean
   isEvaluationBoxOpen: boolean
+
+  config: ConfigType
 }
 
 export type TimelineState = {
@@ -50,4 +52,24 @@ export type EvaluationState = {
   evaluationId: null | string
   username: string
   password: string
+}
+
+// Define the Config type
+export type ConfigType = {
+  gridRowGap: string
+
+  ImageGridColumnCount: number
+  ImageGridCellHeight: number
+
+  ViewMorePopupColumnCount: number
+  ViewMorePopupCellHeight: number
+
+  SinglePopupCellHeight: number
+  SinglePopupColumnCount: number
+
+  NeighborPopupCellHeight: number
+  NeighborPopupColumnCount: number
+
+  WhiteboardGridRowCount: number
+  WhiteboardGridColumnCount: number
 }
