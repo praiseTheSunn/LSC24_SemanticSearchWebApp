@@ -1,6 +1,8 @@
 import Fuse, { FuseResult } from 'fuse.js'
 import React, { useEffect, useState, useContext, useCallback } from 'react'
-import {  Id, toast } from 'react-toastify'
+import { Id, toast } from 'react-toastify'
+// import imageService from '../../services/imageService'
+import { Tooltip } from 'react-tooltip'
 import {
   LocationIcon,
   LocationIconActive,
@@ -14,28 +16,25 @@ import {
 } from '../../assets'
 import { ObjectDetail, SearchBox } from '../../components'
 import MapTab from '../../containers/location/mapTab'
+import MetadataTab from '../../containers/metadata/metadataTab'
 import ImageGrid from '../../containers/similarity/image-grid'
 import TimelineTab from '../../containers/timeline/timelineTab'
-// import imageService from '../../services/imageService'
-import { Tooltip } from 'react-tooltip'
-import MetadataTab from '../../containers/metadata/metadataTab'
 import 'react-tooltip/dist/react-tooltip.css'
 // import evalService from '../../services/evalService'
 
-
+import { Box, ClickAwayListener } from '@mui/material'
+import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
+import VideoPopup from '../../components/Popup/VideoPopup'
+import LoadingPopup from '../../components/Popup/loadingPopup'
 // import { usePopUp } from '../contexts/popUpContext';
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
-import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
-import LoadingPopup from '../../components/Popup/loadingPopup'
-import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
-import type { SearchTermType } from '../../types/search'
-import { Box, ClickAwayListener } from '@mui/material'
-import type { ImageRecord } from '../../types/image'
-import VideoPopup from '../../components/Popup/VideoPopup'
-import { AppState } from '../../types/app'
 import { LSC_addCSVImages } from '../../config/submitFunc'
+import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
+import { AppState } from '../../types/app'
+import type { ImageRecord } from '../../types/image'
+import type { SearchTermType } from '../../types/search'
 
 const LevelList = [
   { level: 'Similarity', bg: TrapoziedBgGrayLeft },
@@ -70,49 +69,55 @@ const Home = () => {
   const [submitFilename, setSubmitFilename] = useState('')
 
   const neighborPopupData: ImageRecord | null | undefined = useAppSelector(
-    (state) => state.app.neighborPopUpData
-  );
+    (state) => state.app.neighborPopUpData,
+  )
   const similarPopupData: ImageRecord | null | undefined = useAppSelector(
-    (state) => state.app.similarPopUpData
-  );
+    (state) => state.app.similarPopUpData,
+  )
   const loadingPopUpMessage: string = useAppSelector(
-    (state) => state.app.loadingPopUpMessage
-  );
-  const imageDatas: ImageRecord[] = useAppSelector(
-    (state) => state.app.data
-  );
+    (state) => state.app.loadingPopUpMessage,
+  )
+  const imageDatas: ImageRecord[] = useAppSelector((state) => state.app.data)
   const cacheData: ImageRecord[] = useAppSelector(
-    (state) => state.app.cacheData
-  );
-  const videoPopupSource: string| undefined = useAppSelector(
-    (state) => state.app.videoDataForPopup?.source 
-  );
+    (state) => state.app.cacheData,
+  )
+  const videoPopupSource: string | undefined = useAppSelector(
+    (state) => state.app.videoDataForPopup?.source,
+  )
 
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
-  const setImageData = React.useCallback((data: ImageRecord[]) => {
-    dispatch(appActions.setAppImageData(data));
-  }, [dispatch]);
+  const setImageData = React.useCallback(
+    (data: ImageRecord[]) => {
+      dispatch(appActions.setAppImageData(data))
+    },
+    [dispatch],
+  )
 
-  const toggleNeighborPopup = React.useCallback((data: ImageRecord | null | undefined) => {
-    dispatch(appActions.setNeighborPopupData(data));
-  }, [dispatch]);
+  const toggleNeighborPopup = React.useCallback(
+    (data: ImageRecord | null | undefined) => {
+      dispatch(appActions.setNeighborPopupData(data))
+    },
+    [dispatch],
+  )
 
-  const toggleSimilarPopup = React.useCallback((data: ImageRecord | null | undefined) => {
-    dispatch(appActions.setSimilarPopupData(data));
-  }, [dispatch]);
+  const toggleSimilarPopup = React.useCallback(
+    (data: ImageRecord | null | undefined) => {
+      dispatch(appActions.setSimilarPopupData(data))
+    },
+    [dispatch],
+  )
 
   // Handle input changes for each key
   const handleFilterChange = (key: string, value: string) => {
     console.log('key', key, value)
     setSearchTerms((prevTerms) => {
-      const updatedTerms: {category: string, value: string}[] = [...prevTerms]
+      const updatedTerms: { category: string; value: string }[] = [...prevTerms]
       updatedTerms.push({ category: key, value })
       return updatedTerms
     })
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // console.log('searchTerms', searchTerms);
     if (searchTerms.length > 0 && cacheData.length > 0) {
@@ -191,7 +196,6 @@ const Home = () => {
     }
   }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
 
-
   useEffect(() => {
     if (submitText !== '') {
       // evalService
@@ -240,11 +244,17 @@ const Home = () => {
       style={{ backgroundColor: '#F5F5F5' }}
     >
       {loadingPopUpMessage ? <LoadingPopup /> : null}
-      {videoPopupSource ? < VideoPopup /> : null}
+      {videoPopupSource ? <VideoPopup /> : null}
 
       <Tooltip
         id="tooltip_img"
-        style={{ zIndex: '9999999', position: 'fixed', top: '0', right: '0', maxWidth: '500px' }}
+        style={{
+          zIndex: '9999999',
+          position: 'fixed',
+          top: '0',
+          right: '0',
+          maxWidth: '500px',
+        }}
         positionStrategy="fixed"
         // anchorSelect='.tooltip-display'
         place="bottom"
@@ -256,24 +266,14 @@ const Home = () => {
           const tooltipData = content.content
             ? JSON.parse(content.content)
             : null
-          return (
-            tooltipData && (
-              <ObjectDetail
-                viewImage={tooltipData}
-              />
-            )
-          )
+          return tooltipData && <ObjectDetail viewImage={tooltipData} />
         }}
       />
       {neighborPopupData && (
-        <NeighborPopup
-          onClose={() => toggleNeighborPopup(null)}
-        />
+        <NeighborPopup onClose={() => toggleNeighborPopup(null)} />
       )}
       {similarPopupData && (
-        <SinglePopup
-          onClose={() => toggleSimilarPopup(null)}
-        />
+        <SinglePopup onClose={() => toggleSimilarPopup(null)} />
       )}
       <SearchBox
         displayedFilters={displayedFilters}
@@ -283,8 +283,7 @@ const Home = () => {
         setSubmitText={setSubmitText}
         setSubmitFilename={setSubmitFilename}
       />
-      
-      
+
       <Box
         style={{
           display: 'flex',
@@ -298,7 +297,7 @@ const Home = () => {
         {LevelList.map((item, index) => (
           <button
             key={item.level}
-            type='button'
+            type="button"
             className={`font-base grid-tab text-gray ${index === selectedTabIndex ? 'active' : ''}`}
             style={{
               paddingTop: '0.375rem',
@@ -329,7 +328,7 @@ const Home = () => {
         }}
       >
         {selectedTabIndex === 0 && (
-          <Box 
+          <Box
             sx={{
               display: 'flex',
               flexDirection: 'column',
@@ -348,7 +347,7 @@ const Home = () => {
               {Mode.map((item, index) => (
                 <button
                   key={item.mode}
-                  type='button'
+                  type="button"
                   className={`font-base font-bold text-gray border-white ${
                     index === selectedModeIndex ? 'active' : ''
                   }`}
@@ -367,31 +366,29 @@ const Home = () => {
             </Box>
             {selectedModeIndex === 0 && (
               <Box
-                sx={{ 
-                  marginTop: '2px', 
+                sx={{
+                  marginTop: '2px',
                   width: 'calc(100dvw - 10px)',
                   display: 'flex',
                   flexDirection: 'row',
                   height: '100%',
                 }}
               >
-                <ImageGrid style={{ width: '100dvw'}} data={imageDatas} />
+                <ImageGrid style={{ width: '100dvw' }} data={imageDatas} />
               </Box>
             )}
             {selectedModeIndex !== 0 && (
               <div
-              style={{ 
-                display: 'flex', 
-                flexDirection: 'row', 
-                width: '100%', 
-                height: '100%', 
-                overflowY: 'auto', 
-                marginTop: '2px' 
-              }}              
+                style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  width: '100%',
+                  height: '100%',
+                  overflowY: 'auto',
+                  marginTop: '2px',
+                }}
               >
-                <SimialrityAdvancedGrid
-                  tabindex={selectedModeIndex}
-                />
+                <SimialrityAdvancedGrid tabindex={selectedModeIndex} />
               </div>
             )}
           </Box>
@@ -401,7 +398,7 @@ const Home = () => {
         {selectedTabIndex === 2 && (
           // <ImageCluster data={timelineData} />
           <MapTab
-            // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
+          // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
           />
         )}
         {selectedTabIndex === 3 && <MetadataTab />}

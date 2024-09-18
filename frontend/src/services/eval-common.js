@@ -1,5 +1,5 @@
 import axios from 'axios'
-const baseURL = "aaa"
+const baseURL = 'aaa'
 
 if (!baseURL) {
   throw new Error(

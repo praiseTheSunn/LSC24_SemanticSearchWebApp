@@ -8,7 +8,7 @@
 // import type { EvaluationState } from '../types/app'
 
 // const EvaluationBox = () => {
- 
+
 //   const [text, setText] = useState('')
 
 //   const [loginState, setLoginState] = useState('Login')
@@ -17,8 +17,8 @@
 //   const isEvaluationIdNull = useSelector((state: EvaluationState) => state.evaluationId, isNil)
 
 //   const evaluationId = useSelector((state: EvaluationState) => state.evaluationId)
-//   const username = useSelector((state: EvaluationState) => state.username)  
-//   const password = useSelector((state: EvaluationState) => state.password)  
+//   const username = useSelector((state: EvaluationState) => state.username)
+//   const password = useSelector((state: EvaluationState) => state.password)
 
 //   const setEvaluationId = useCallback((evaluationId : string) => {
 //     dispatch(evaluationActions.setEvaluationId(evaluationId))
@@ -93,48 +93,59 @@
 
 // export default EvaluationBox
 
-import React, { useEffect, useState, useCallback } from 'react';
-import { TextField, Button, Box, Paper } from '@mui/material';
-import { useSelector } from 'react-redux';
-import { isNil } from 'lodash';
-import { appActions, evaluationActions, useAppDispatch } from '../AppState';
-import type { EvaluationState } from '../types/app';
+import { Box, Button, Paper, TextField } from '@mui/material'
+import { isNil } from 'lodash'
+import React, { useEffect, useState, useCallback } from 'react'
+import { useSelector } from 'react-redux'
+import { appActions, evaluationActions, useAppDispatch } from '../AppState'
+import type { EvaluationState } from '../types/app'
 
 const EvaluationBox = () => {
-  const [text, setText] = useState('');
-  const [loginState, setLoginState] = useState('Login');
+  const [text, setText] = useState('')
+  const [loginState, setLoginState] = useState('Login')
 
-  const dispatch = useAppDispatch();
-  const evaluationId = useSelector((state: EvaluationState) => state.evaluationId);
-  const username = useSelector((state: EvaluationState) => state.username);
-  const password = useSelector((state: EvaluationState) => state.password);
+  const dispatch = useAppDispatch()
+  const evaluationId = useSelector(
+    (state: EvaluationState) => state.evaluationId,
+  )
+  const username = useSelector((state: EvaluationState) => state.username)
+  const password = useSelector((state: EvaluationState) => state.password)
 
-  const setEvaluationId = useCallback((evaluationId: string) => {
-    dispatch(evaluationActions.setEvaluationId(evaluationId));
-  }, [dispatch]);
+  const setEvaluationId = useCallback(
+    (evaluationId: string) => {
+      dispatch(evaluationActions.setEvaluationId(evaluationId))
+    },
+    [dispatch],
+  )
 
-  const setUsername = useCallback((username: string) => {
-    dispatch(evaluationActions.setUsername(username));
-  }, [dispatch]);
+  const setUsername = useCallback(
+    (username: string) => {
+      dispatch(evaluationActions.setUsername(username))
+    },
+    [dispatch],
+  )
 
-  const setPassword = useCallback((password: string) => {
-    dispatch(evaluationActions.setPassword(password));
-  }, [dispatch]);
+  const setPassword = useCallback(
+    (password: string) => {
+      dispatch(evaluationActions.setPassword(password))
+    },
+    [dispatch],
+  )
 
   useEffect(() => {
-    const session = localStorage.getItem('session');
-    const username = localStorage.getItem('username');
-    const password = localStorage.getItem('password');
+    const session = localStorage.getItem('session')
+    const username = localStorage.getItem('username')
+    const password = localStorage.getItem('password')
     if (session && username && password) {
-      setLoginState('Logout');
+      setLoginState('Logout')
     }
     if (username) {
-      setUsername(username);
+      setUsername(username)
     }
     if (password) {
-      setPassword(password);
+      setPassword(password)
     }
-  }, [setPassword, setUsername]);
+  }, [setPassword, setUsername])
 
   return (
     <Paper
@@ -157,8 +168,8 @@ const EvaluationBox = () => {
         variant="outlined"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        sx={{ gridColumn: 'span 1'}}
-        size='small'
+        sx={{ gridColumn: 'span 1' }}
+        size="small"
       />
       <TextField
         label="Password"
@@ -167,13 +178,13 @@ const EvaluationBox = () => {
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         sx={{ gridColumn: 'span 1' }}
-        size='small'
+        size="small"
       />
       <Button
         variant="contained"
         color="primary"
         sx={{ gridColumn: 'span 1' }}
-        size='small'
+        size="small"
       >
         {loginState}
       </Button>
@@ -183,7 +194,7 @@ const EvaluationBox = () => {
         value={evaluationId ?? ''}
         onChange={(e) => setEvaluationId(e.target.value)}
         sx={{ gridColumn: 'span 3' }}
-        size='small'
+        size="small"
       />
       <TextField
         label="Text"
@@ -191,18 +202,18 @@ const EvaluationBox = () => {
         value={text}
         onChange={(e) => setText(e.target.value)}
         sx={{ gridColumn: 'span 2' }}
-        size='small'
+        size="small"
       />
       <Button
         variant="contained"
         color="primary"
         sx={{ gridColumn: 'span 1' }}
-        size='small'
+        size="small"
       >
         Submit Text
       </Button>
     </Paper>
-  );
-};
+  )
+}
 
-export default EvaluationBox;
+export default EvaluationBox

@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
-import type { AppState } from '../types/app'
 import { set } from 'lodash'
+import type { AppState } from '../types/app'
 
 const initialState: AppState = {
   loadingPopUpMessage: '',
@@ -13,11 +13,11 @@ const initialState: AppState = {
   isVietnameseEnabled: false,
 
   // videoDataForPopup: {source: "https://www.youtube.com/watch?v=spUNpyF58BY", timestamp: "0:9:38"},
-  videoDataForPopup: {source: undefined, timestamp: undefined},
+  videoDataForPopup: { source: undefined, timestamp: undefined },
 
   data: [],
   cacheData: [],
-  queryPayload: {model: 'clip', mode: 'smt', text_query: ''},
+  queryPayload: { model: 'clip', mode: 'smt', text_query: '' },
   queryHistory: [],
 
   csvImages: [],
@@ -80,6 +80,6 @@ export const sliceApp = createSlice({
 
     setEvaluationBox: (state, action) => {
       state.isEvaluationBoxOpen = action.payload
-    }
+    },
   },
 })

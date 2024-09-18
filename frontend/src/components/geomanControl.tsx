@@ -2,8 +2,8 @@
 import * as turf from '@turf/turf'
 import * as L from 'leaflet'
 import { useEffect, useState } from 'react'
-import { useMap } from 'react-leaflet'
 import type React from 'react'
+import { useMap } from 'react-leaflet'
 
 interface locationJSON {
   new_lat: number
@@ -12,7 +12,15 @@ interface locationJSON {
   img_link: string
 }
 
-const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setData: React.Dispatch<React.SetStateAction<locationJSON[]>>, dataSrc: locationJSON[] }) => {
+const GeomanControl = ({
+  data,
+  setData,
+  dataSrc,
+}: {
+  data: locationJSON[]
+  setData: React.Dispatch<React.SetStateAction<locationJSON[]>>
+  dataSrc: locationJSON[]
+}) => {
   const map = useMap()
   const [prevClickItem, setPrevClickItem] = useState(null)
 
@@ -86,16 +94,15 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setD
 
     for (const d of dataSrc) {
       if (d.new_lat === null || d.new_lng === null) {
-        continue;
+        continue
       }
-    
-      const clusterKey = `${Math.floor(d.new_lat / clusteringRadius)}_${Math.floor(d.new_lng / clusteringRadius)}`;
+
+      const clusterKey = `${Math.floor(d.new_lat / clusteringRadius)}_${Math.floor(d.new_lng / clusteringRadius)}`
       if (!clusters[clusterKey]) {
-        clusters[clusterKey] = [];
+        clusters[clusterKey] = []
       }
-      clusters[clusterKey].push(d);
+      clusters[clusterKey].push(d)
     }
-    
 
     // Create markers for each cluster
     for (const clusterKey in clusters) {
@@ -128,7 +135,7 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setD
 
       marker.addTo(map)
     }
-  }, [data, dataSrc, map.eachLayer, map.removeLayer, setData, defaultIcon , map])  
+  }, [data, dataSrc, map.eachLayer, map.removeLayer, setData, defaultIcon, map])
 
   // process bounding box events
   map.on('pm:create', (e) => {
@@ -137,24 +144,26 @@ const GeomanControl = ({ data, setData, dataSrc } : { data: locationJSON[], setD
       return
     }
 
-    const newData = dataSrc.map(value => {
-      if (typeof value.new_lat !== 'number' || typeof value.new_lng !== 'number') {
-        console.log('not a number', value.new_lat, value.new_lng);
-        return value; // return the value as-is if it's not a number
+    const newData = dataSrc.map((value) => {
+      if (
+        typeof value.new_lat !== 'number' ||
+        typeof value.new_lng !== 'number'
+      ) {
+        console.log('not a number', value.new_lat, value.new_lng)
+        return value // return the value as-is if it's not a number
       }
-    
+
       const within = turf.booleanWithin(
         turf.point([value.new_lng, value.new_lat]),
         feature,
-      );
-    
+      )
+
       return {
         ...value,
         within, // Spread existing properties and add the "within" property
-      };
-    });
-    setData(newData);
-    
+      }
+    })
+    setData(newData)
   })
 
   map.on('click', (e) => {

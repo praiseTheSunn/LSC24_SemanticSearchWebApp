@@ -2,12 +2,12 @@ import {
   type BaseQueryApi,
   type BaseQueryFn,
   type FetchArgs,
-  fetchBaseQuery,
   type FetchBaseQueryError,
   type FetchBaseQueryMeta,
+  fetchBaseQuery,
   retry,
 } from '@reduxjs/toolkit/query'
-import { OBJ_POS_API_URL, BASE_API_URL, EVAL_API_URL } from '../types/constants'
+import { BASE_API_URL, EVAL_API_URL, OBJ_POS_API_URL } from '../types/constants'
 
 export type QueryFn = BaseQueryFn<
   string | FetchArgs,
