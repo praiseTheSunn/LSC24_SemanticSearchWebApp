@@ -14,7 +14,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import setup
 
 app = FastAPI(
-    name = "Learn Your Life", 
+    name = "SnapSeek Server", 
     docs_url = "/docs", 
     redoc_url = "/redoc",
 )

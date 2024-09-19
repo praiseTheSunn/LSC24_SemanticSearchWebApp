@@ -1,7 +1,12 @@
 import setup
+from setup import dataset_config
 import numpy as np
 import requests
 from internal.search.parser import all_parsers, time_helpers
+
+
+index_name = dataset_config['dataset_name']
+
 
 def search_semantic(model: str, text_embedding):
     # milvus_client = setup.milvus_client
@@ -25,25 +30,24 @@ def search_semantic(model: str, text_embedding):
     }
     response = requests.post("http://localhost:8004/search_milvus", json=data, headers=headers)
     raw_results = response.json()
-    urls = [entity['id'] for entity in raw_results['response'][0][-1:0:-1]]
-    scores = [entity['distance'] for entity in raw_results['response'][0][-1:0:-1]]
-    print("Scores: ", scores)
+    urls = [entity['id'] for entity in raw_results['response'][0]]
+    scores = [entity['distance'] for entity in raw_results['response'][0]]
     return {
         "urls": urls,
         "scores": scores,
     }
 
-def search_match_objects_tags(text_query: str) -> list[dict]: 
-    parsed_objects_tags = all_parsers.parse_objects_tags(text_query)
-    if parsed_objects_tags is None:
+def search_match_object_tags(text_query: str) -> list[dict]: 
+    parsed_object_tags = all_parsers.parse_object_tags(text_query)
+    if parsed_object_tags is None:
         return None
     response = setup.es_client.search(
-        index="lsc24",
+        index=index_name,
         size=5000,
         query={
             "match": {
-                "objects_tags": {
-                    "query": parsed_objects_tags,
+                "object_tags": {
+                    "query": parsed_object_tags,
                     "fuzziness": "AUTO",
                 }   
             }
@@ -57,17 +61,17 @@ def search_match_objects_tags(text_query: str) -> list[dict]:
         "scores": scores,
     }
 
-def search_match_place(text_query: str) -> list[dict]:
-    parsed_place = all_parsers.parse_place(text_query)
-    if parsed_place is None:
+def search_match_location(text_query: str) -> list[dict]:
+    parsed_location = all_parsers.parse_location(text_query)
+    if parsed_location is None:
         return None
     response = setup.es_client.search(
-        index="lsc24",
+        index=index_name,
         size=5000,
         query={
             "match": {
-                "place": {
-                    "query": parsed_place,
+                "location": {
+                    "query": parsed_location,
                     "fuzziness": "AUTO",
                 }   
             }
@@ -83,7 +87,7 @@ def search_match_place(text_query: str) -> list[dict]:
 
 def search_match_caption(text_query: str) -> list[dict]:
     response = setup.es_client.search(
-        index="lsc24",
+        index=index_name,
         size=5000,
         query={
             "match": {
@@ -108,7 +112,7 @@ def search_datetime(text_query: str) -> list[dict]:
         return []
     date1, time1, date2, time2 = time_helpers.fill_date_time(date1, time1, date2, time2)
     response = setup.es_client.search(
-        index="lsc24",
+        index=index_name,
         size=10000,
         query={
             "bool": {
@@ -143,12 +147,12 @@ def search_datetime(text_query: str) -> list[dict]:
 
 def search_multimatch(text_query: str):
     response = setup.es_client.search(
-        index="lsc24",
+        index=index_name,
         size=10000,
         query={
             "multi_match": {
                 "query" : text_query,
-                "fields": ["objects_tags", "place", "caption"],
+                "fields": ["object_tags", "location", "caption", "ocr"],
                 "fuzziness": "AUTO"
             }
         }
@@ -168,7 +172,7 @@ def search_multimatch_datetime(text_query: str):
     date1, time1, date2, time2, date_boost, time_boost = time_helpers.fill_date_time(date1, time1, date2, time2)
 
     response = setup.es_client.search(
-        index="lsc24",
+        index=index_name,
         size=10000,
         query={
             "bool": {
@@ -194,7 +198,7 @@ def search_multimatch_datetime(text_query: str):
                     {
                         "multi_match": {
                             "query" : text_query,
-                            "fields": ["objects_tags", "place", "caption", "ocr"],
+                            "fields": ["object_tags", "location", "caption", "ocr"],
                             "fuzziness": "AUTO"
                         }
                     }
@@ -218,11 +222,15 @@ def search_3match_datetime(text_query: str):
     date1, time1, date2, time2, date_boost, time_boost = time_helpers.fill_date_time(date1, time1, date2, time2)
 
     # parse other metadata
-    parsed_objects_tags = all_parsers.parse_objects_tags(text_query)
-    parsed_place = all_parsers.parse_place(text_query)
+    parsed_object_tags = all_parsers.parse_object_tags(text_query)
+    parsed_location = all_parsers.parse_location(text_query)
+    parsed_ocr = all_parsers.parse_ocr(text_query)
+    print(f"parsed_object_tags: {parsed_object_tags}")
+    print(f"parsed_location: {parsed_location}")
+    print(f"parsed_ocr: {parsed_ocr}")
 
     response = setup.es_client.search(
-        index="lsc24",
+        index=index_name,
         size=10000,
         query={
             "bool": {
@@ -247,16 +255,16 @@ def search_3match_datetime(text_query: str):
                     },
                     {
                         "match": {
-                            "objects_tags": {
-                                "query": parsed_objects_tags,
+                            "object_tags": {
+                                "query": parsed_object_tags,
                                 "fuzziness": "AUTO",
                             }                              
                         }
                     },
                     {
                         "match": {
-                            "place": {
-                                "query": parsed_place,
+                            "location": {
+                                "query": parsed_location,
                                 "fuzziness": "AUTO",
                             }                              
                         }
@@ -272,7 +280,7 @@ def search_3match_datetime(text_query: str):
                     {
                         "match": {
                             "ocr": {
-                                "query": text_query,
+                                "query": parsed_ocr,
                                 "fuzziness": "AUTO",
                             }                              
                         }

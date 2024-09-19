@@ -1,16 +1,22 @@
-import setup
+from setup import dataset_config
 import numpy as np
 import requests
 from schemas.request_schemas import RequestExploreSimilarImages
+
+
+dataset_name = dataset_config['dataset_name']
+
 
 def compute_mean_embedding(embeddings: list[list[float]]):
     embeddings = np.array(embeddings)
     mean_embedding = np.mean(embeddings, axis=0)
     return mean_embedding
 
+
 def fetch_embeddings(data: RequestExploreSimilarImages):
     image_urls = data.image_urls
     model = data.model
+    # model = "clip_b32"
     print("Image urls:", image_urls)
 
     # image_urls theo thu tu similarity nhung ket qua tra ve cua ham get() lai la thu tu alphabet cua url
@@ -21,7 +27,7 @@ def fetch_embeddings(data: RequestExploreSimilarImages):
         position_in_result[url] = pos
 
     data = {
-        "collection_name": model + "_",
+        "collection_name": dataset_name + "_" + model,
         "ids": image_urls   
     }
     headers = {
