@@ -5,7 +5,6 @@ def get_standardized_scores(scores: list[float]) -> list[float]:
     """
     Standardize the scores to be between 0 and 100
     """
-    print("scores before standard: ", scores)
     max_score = np.max(scores)
     return [score / max_score * 100.0 for score in scores]
 
@@ -49,7 +48,7 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
         merged_df.fillna(20.0, inplace=True)
 
     # Combine scores with harmonic mean (apply a harmonic_mean function on all columns)
-    merged_df['combined_scores'] = merged_df.iloc[:, 1:].apply(lambda row: get_combine_score(row), axis=1)  
+    merged_df['combined_scores'] = merged_df.iloc[:, 1:].apply(lambda row: get_combine_score(row), axis=1) 
 
     # Sort by combined scores
     merged_df.sort_values(by='combined_scores', ascending=False, inplace=True)
