@@ -5,7 +5,7 @@ def load_config(config_path: str):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/lsc24_config.yaml')   # Default to lsc24_config.yaml
+dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/aic24_config.yaml')   # Default to aic24_config.yaml
 dataset_config = load_config(dataset_config_file)
 system_config_file = os.getenv('SYSTEM_CONFIG', '../configs/system_config.yaml')   # Default to system_config.yaml
 system_config = load_config(system_config_file)
@@ -43,5 +43,5 @@ print("Waiting to count total number of metadata records...")
 
 metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
 metadata_rows.set_index('image_link', inplace=True)
-image_urls = metadata_rows.index.tolist()
+image_names = metadata_rows.index.tolist()
 print(f"Length of metadata_rows: {len(metadata_rows)}")

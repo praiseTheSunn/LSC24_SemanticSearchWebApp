@@ -1,7 +1,6 @@
 import time
 import torch
 import open_clip
-import clip
 import os
 import yaml
 
@@ -22,7 +21,8 @@ system_config = load_config(system_config_file)
 # clip
 print("Loading clip model...")
 start_time = time.time()
-clip_model, _, clip_preprocess = open_clip.create_model_and_transforms('ViT-H/14', pretrained=system_config['models']['clip_model_path'])
+clip_model, _, clip_preprocess = open_clip.create_model_and_transforms('ViT-H/14')
+# clip_model, _, clip_preprocess = open_clip.create_model_and_transforms('ViT-H/14', pretrained=system_config['models']['clip_model_path'])
 print(f"Done loading clip model in {time.time() - start_time} seconds.\n")
 
 # # clip_v32

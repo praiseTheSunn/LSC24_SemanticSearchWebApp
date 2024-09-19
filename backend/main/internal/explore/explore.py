@@ -21,7 +21,8 @@ def explore_similar_images(data: RequestExploreSimilarImages):
 def explore_neighbor_images(data: RequestExploreNeighborImages):
     image_url = data.image_url
     span = data.span
-    url_position = setup.image_urls.index(image_url)
-    left_bound = max(0, url_position - span)
-    right_bound = min(len(setup.image_urls), url_position + span + 1)
-    return prepare_response(setup.image_urls[left_bound : right_bound])
+    image_name = "/".join(image_url.split("/")[4:])
+    image_position = setup.image_names.index(image_name)
+    left_bound = max(0, image_position - span)
+    right_bound = min(len(setup.image_names), image_position + span + 1)
+    return prepare_response(setup.image_names[left_bound : right_bound])

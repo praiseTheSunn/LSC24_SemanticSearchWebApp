@@ -54,7 +54,6 @@ startFrontend.bat
 
 /backend/csv
 /backend/results
-/backend/**/*.ipynb
 /index
 
 /backend/objpos/image_data.db

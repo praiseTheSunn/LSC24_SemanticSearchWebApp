@@ -1,10 +1,9 @@
 import setup
 import open_clip
-import clip
 import torch
 import base64
 import io
-from model.beit3 import beit3
+# from model.beit3 import beit3
 from PIL import Image
 
 def compute_image_embedding(image_base64: str, model: str):
