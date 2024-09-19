@@ -19,7 +19,7 @@ def prepare_response(image_names, scores = None):
     for i, image_name in enumerate(image_names):
         image_path = f"http://{server_ip}/AIC_IMAGE/{image_name}"
         try:
-            record = rows.loc[image_path].to_dict()
+            record = rows.loc[image_name].to_dict()
             for key, value in record.items():
                 if pd.isna(value):
                     record[key] = None

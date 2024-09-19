@@ -5,6 +5,7 @@ def get_standardized_scores(scores: list[float]) -> list[float]:
     """
     Standardize the scores to be between 0 and 100
     """
+    print("scores before standard: ", scores)
     max_score = np.max(scores)
     return [score / max_score * 100.0 for score in scores]
 
@@ -14,7 +15,7 @@ def get_combine_score(scores) -> float:
     """
     return len(scores) / np.sum([1.0 / score for score in scores])
 
-def get_combined_scores(match_results: list[dict]) -> dict:    
+def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:    
 
     # Remove empty results
     match_results_nonnull_index = []
@@ -43,7 +44,7 @@ def get_combined_scores(match_results: list[dict]) -> dict:
     merged_df = dataframes[0]
     merged_df.rename(columns={'scores': 'scores_0'}, inplace=True)
     for i, df in enumerate(dataframes[1:]):
-        merged_df = pd.merge(merged_df, df, on='urls', how='outer')
+        merged_df = pd.merge(merged_df, df, on='urls', how=join_type)
         merged_df.rename(columns={'scores': f'scores_{i + 1}'}, inplace=True)
         merged_df.fillna(20.0, inplace=True)
 
