@@ -32,6 +32,98 @@ def search_semantic(model: str, text_embedding):
     raw_results = response.json()
     urls = [entity['id'] for entity in raw_results['response'][0]]
     scores = [entity['distance'] for entity in raw_results['response'][0]]
+    print(f"URLs: {urls[:5]}")
+    print(f"Scores: {scores[:5]}")
+    return {
+        "urls": urls,
+        "scores": scores,
+    }
+
+def search_objects(text_query) -> list[dict]:
+    # object_global_encoding = data["object_global_encoding"]
+    # object_local_encoding = data["object_local_encoding"]
+    # color_global_encoding = data["color_global_encoding"]
+    # color_local_encoding = data["color_local_encoding"]
+    parsed_ocr = all_parsers.parse_ocr(text_query)
+    
+    response = setup.es_client.search(
+        index=index_name,
+        size=1000,
+        body={
+            "query": {
+                "bool": {
+                    "must": [
+                        {
+                            "match": {
+                                "context_en_keywords": {
+                                    "query": parsed_ocr,
+                                    "fuzziness": "AUTO",
+                                }                              
+                            }
+                        },
+                        # {
+                        #     "match": {
+                        #         "object_tags": {
+                        #             "query": text_query,
+                        #             "fuzziness": "AUTO",
+                        #         }
+                        #     }
+                        # },
+                    ]
+                }
+            }
+        }
+    )
+    response = response["hits"]["hits"]
+    urls = [hit["_id"] for hit in response]
+    scores = [hit["_score"] for hit in response]
+    print(f"URLs: {urls[:5]}")
+    print(f"Scores: {scores[:5]}")
+    return {
+        "urls": urls,
+        "scores": scores,
+    }
+
+def search_keyword(text_query: str) -> list[dict]:    
+    parsed_ocr = all_parsers.parse_ocr(text_query)
+    
+    response = setup.es_client.search(
+        index=index_name,
+        size=2000,
+        body={
+            "bool": {
+                "should": [
+                    {
+                        "match": {
+                            "ocr": {
+                                "query": parsed_ocr,
+                                "fuzziness": "AUTO",
+                            }                              
+                        }
+                    },
+                    {
+                        "match": {
+                            "caption": {
+                                "query": text_query,
+                                "fuzziness": "AUTO",
+                            }                              
+                        }
+                    },
+                    {
+                        "match": {
+                            "context_en_keywords": {
+                                "query": text_query,
+                                "fuzziness": "AUTO",
+                            }                              
+                        }
+                    },
+                ]
+            }
+        }
+    )
+    response = response["hits"]["hits"]
+    urls = [hit["_id"] for hit in response]
+    scores = [hit["_score"] for hit in response]
     return {
         "urls": urls,
         "scores": scores,

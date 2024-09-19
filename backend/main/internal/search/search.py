@@ -49,45 +49,51 @@ def search_with_text_query(data: RequestSearchByTextQuery):
             results_semantic = search_semantic(model, text_embedding)  
             return prepare_response(results_semantic["urls"], results_semantic["scores"]), status.HTTP_200_OK
         
-        # Mode: semantic x datetime
-        if mode == "smt-dtout":
-            results_semantic = search_semantic(model, text_embedding)   
-            results_datetime = search_datetime(text_query)
-            combined = combine_score.get_combined_scores_datetime([results_semantic], results_datetime)
+        # Mode: semantic, objects
+        if mode == "smt-mm-dtin":
+            results_semantic = search_semantic(model, text_embedding)  
+            results_objects = search_objects(text_query)
+            combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
             return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        
+        # # Mode: semantic x datetime
+        # if mode == "smt-dtout":
+        #     results_semantic = search_semantic(model, text_embedding)   
+        #     results_datetime = search_datetime(text_query)
+        #     combined = combine_score.get_combined_scores_datetime([results_semantic], results_datetime)
+        #     return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
 
         # Mode: semantic + multimatch (datetime included)
         if mode == "smt-mm-dtin":
             results_semantic = search_semantic(model, text_embedding)
-            results_multimatch_datetime = search_multimatch_datetime(text_query)
-            print(f"Metadata search scores: {results_multimatch_datetime['scores'][:20]}")
-            combined = combine_score.get_combined_scores([results_semantic, results_multimatch_datetime])
+            results_keywords = search_keyword(text_query)
+            combined = combine_score.get_combined_scores([results_semantic, results_keywords])
             return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
-        # Mode: (semantic + multimatch) x datetime
-        if mode == "smt-mm-dtout":
-            results_semantic = search_semantic(model, text_embedding)
-            results_multimatch = search_multimatch(text_query)
-            results_datetime = search_datetime(text_query)
-            combined = combine_score.get_combined_scores_datetime([results_semantic, results_multimatch], results_datetime)
-            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        # # Mode: (semantic + multimatch) x datetime
+        # if mode == "smt-mm-dtout":
+        #     results_semantic = search_semantic(model, text_embedding)
+        #     results_multimatch = search_multimatch(text_query)
+        #     results_datetime = search_datetime(text_query)
+        #     combined = combine_score.get_combined_scores_datetime([results_semantic, results_multimatch], results_datetime)
+        #     return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
-        # Mode: semantic + 3 matches (datetime included)
-        if mode == "smt-3m-dtin":
-            results_semantic = search_semantic(model, text_embedding)
-            results_3match_datetime = search_3match_datetime(text_query)
-            combined = combine_score.get_combined_scores([results_semantic, results_3match_datetime])
-            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        # # Mode: semantic + 3 matches (datetime included)
+        # if mode == "smt-3m-dtin":
+        #     results_semantic = search_semantic(model, text_embedding)
+        #     results_3match_datetime = search_3match_datetime(text_query)
+        #     combined = combine_score.get_combined_scores([results_semantic, results_3match_datetime])
+        #     return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
-        # Mode: (semantic + 3 matches) x datetime
-        if mode == "smt-3m-dtout":
-            results_semantic = search_semantic(model, text_embedding)
-            results_objects_tags = search_match_object_tags(text_query)
-            results_place = search_match_location(text_query)
-            results_caption = search_match_caption(text_query)
-            results_datetime = search_datetime(text_query)
-            combined = combine_score.get_combined_scores_datetime([results_semantic, results_objects_tags, results_place, results_caption], results_datetime)
-            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        # # Mode: (semantic + 3 matches) x datetime
+        # if mode == "smt-3m-dtout":
+        #     results_semantic = search_semantic(model, text_embedding)
+        #     results_objects_tags = search_match_object_tags(text_query)
+        #     results_place = search_match_location(text_query)
+        #     results_caption = search_match_caption(text_query)
+        #     results_datetime = search_datetime(text_query)
+        #     combined = combine_score.get_combined_scores_datetime([results_semantic, results_objects_tags, results_place, results_caption], results_datetime)
+        #     return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
         return [], status.HTTP_200_OK
     
