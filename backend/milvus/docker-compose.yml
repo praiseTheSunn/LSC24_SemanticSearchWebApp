@@ -63,3 +63,4 @@ services:
 networks:
   default:
     name: milvus
+    external: true

@@ -54,7 +54,7 @@ startFrontend.bat
 
 /backend/csv
 /backend/results
-*.ipynb
+/backend/**/*.ipynb
 /index
 
 /backend/objpos/image_data.db
@@ -70,6 +70,10 @@ startFrontend.bat
 
 # milvus
 /backend/milvus/volumes
+/backend/milvus/utils/crawl_aic
 
 # main
 /backend/main/elastic_search/http_ca.crt
+
+# configs (secret)
+/backend/configs/*

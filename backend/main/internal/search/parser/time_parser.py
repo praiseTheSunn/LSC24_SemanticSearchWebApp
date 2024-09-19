@@ -181,7 +181,7 @@ season_list = {
 # Mùa đông sẽ bắt đầu từ tháng 12 – kết thúc tháng 2
 
 def findSeason(text):
-    for season_name, season_dates in season_list.items():
+    for season_name in season_list.keys():
         pattern = r"\b{}\b".format(season_name)
         if re.search(pattern, text, re.IGNORECASE):
             return season_name

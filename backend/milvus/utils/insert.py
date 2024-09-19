@@ -53,5 +53,5 @@ data = [
     }
 ]
 
-res = client.insert(collection_name="blip2_embeddings", data=data)
+res = client.insert(collection_name="aic24_clip_b32", data=data)
 print(res)
