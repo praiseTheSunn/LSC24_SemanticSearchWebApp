@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # sql_app.schemas.Base.metadata.create_all(bind = sqlalchemy_engine)
 
-from model.beit3 import beit3
+# from model.beit3 import beit3
 import setup
 
 app = FastAPI(
