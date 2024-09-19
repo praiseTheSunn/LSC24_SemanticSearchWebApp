@@ -32,20 +32,13 @@ def search_semantic(model: str, text_embedding):
     raw_results = response.json()
     urls = [entity['id'] for entity in raw_results['response'][0]]
     scores = [entity['distance'] for entity in raw_results['response'][0]]
-    print(f"URLs: {urls[:5]}")
-    print(f"Scores: {scores[:5]}")
+    print(f"Search semantic found {len(urls)} results")
     return {
         "urls": urls,
         "scores": scores,
     }
 
-def search_objects(text_query) -> list[dict]:
-    # object_global_encoding = data["object_global_encoding"]
-    # object_local_encoding = data["object_local_encoding"]
-    # color_global_encoding = data["color_global_encoding"]
-    # color_local_encoding = data["color_local_encoding"]
-    parsed_ocr = all_parsers.parse_ocr(text_query)
-    
+def search_objects(object_local_encoding, color_local_encoding) -> list[dict]:   
     response = setup.es_client.search(
         index=index_name,
         size=1000,
@@ -55,20 +48,20 @@ def search_objects(text_query) -> list[dict]:
                     "must": [
                         {
                             "match": {
-                                "context_en_keywords": {
-                                    "query": parsed_ocr,
+                                "object_local_encoding": {
+                                    "query": object_local_encoding,
                                     "fuzziness": "AUTO",
                                 }                              
                             }
                         },
-                        # {
-                        #     "match": {
-                        #         "object_tags": {
-                        #             "query": text_query,
-                        #             "fuzziness": "AUTO",
-                        #         }
-                        #     }
-                        # },
+                        {
+                            "match": {
+                                "color_local_encoding": {
+                                    "query": color_local_encoding,
+                                    "fuzziness": "AUTO",
+                                }
+                            }
+                        }
                     ]
                 }
             }
@@ -77,8 +70,7 @@ def search_objects(text_query) -> list[dict]:
     response = response["hits"]["hits"]
     urls = [hit["_id"] for hit in response]
     scores = [hit["_score"] for hit in response]
-    print(f"URLs: {urls[:5]}")
-    print(f"Scores: {scores[:5]}")
+    print(f"Search objects found {len(urls)} results")
     return {
         "urls": urls,
         "scores": scores,
@@ -124,6 +116,7 @@ def search_keyword(text_query: str) -> list[dict]:
     response = response["hits"]["hits"]
     urls = [hit["_id"] for hit in response]
     scores = [hit["_score"] for hit in response]
+    print(f"Search keyword found {len(urls)} results")
     return {
         "urls": urls,
         "scores": scores,

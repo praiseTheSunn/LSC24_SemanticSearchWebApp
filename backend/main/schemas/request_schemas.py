@@ -10,10 +10,10 @@ class RequestSearchByTextQuery(BaseModel):
     text_query: str
     model: options_schemas.ModelOptions
     mode: options_schemas.ModeOptions
-    # object_global_encoding: Dict[str, int]
-    # object_local_encoding: str
-    # color_global_encoding: Dict[str, int]
-    # color_local_encoding: str
+    obj_global_encoding: Dict[str, int]
+    obj_local_encoding: str
+    color_global_encoding: Dict[str, int]
+    color_local_encoding: str
 
     class Config:
         json_schema_extra = {

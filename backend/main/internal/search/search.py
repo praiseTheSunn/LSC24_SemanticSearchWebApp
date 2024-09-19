@@ -30,31 +30,35 @@ def search_with_text_query(data: RequestSearchByTextQuery):
 
     # Necessary data
     model = data.model
-    text_query = data.text_query
     mode = data.mode
+    text_query = data.text_query
+    object_global_encoding = data.obj_global_encoding
+    object_local_encoding = data.obj_local_encoding
+    color_global_encoding = data.color_global_encoding
+    color_local_encoding = data.color_local_encoding
 
     # Make the POST request
     print("Searching with text query:", text_query)
-    print("Making request to text embedding service...")
-    response = requests.post("http://localhost:8002/embedding/text", json=data.dict())
-
-    # Check response status
-    if response.status_code == 200:
-        text_embedding = response.json()["text_embedding"]
-        if model == "stfm":                                             # text embedding must be at format [[]], but 'stfm' model returns [] so I have to wrap it
-            text_embedding = [text_embedding]
+    if text_query:
+        print("Making request to text embedding service...")
+        response = requests.post("http://localhost:8002/embedding/text", json=data.dict())
+        if response.status_code == 200:
+            text_embedding = response.json()["text_embedding"]
     
-        # Mode: semantic
-        if mode == "smt":
-            results_semantic = search_semantic(model, text_embedding)  
-            return prepare_response(results_semantic["urls"], results_semantic["scores"]), status.HTTP_200_OK
-        
-        # Mode: semantic, objects
-        if mode == "smt-mm-dtin":
-            results_semantic = search_semantic(model, text_embedding)  
-            results_objects = search_objects(text_query)
-            combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
-            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+    # Mode: semantic
+    if mode == "smt":
+        results_semantic = search_semantic(model, text_embedding) if text_query else None
+        results_objects = search_objects(object_local_encoding, color_local_encoding) if (object_local_encoding or color_local_encoding) else None   
+        combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
+        return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+    
+    # Mode: semantic, objects
+    if mode == "smt-mm-dtin":
+        results_semantic = search_semantic(model, text_embedding) if text_query else None 
+        results_keywords = search_keyword(text_query) if text_query else None
+        results_objects = search_objects(object_local_encoding, color_local_encoding) if (object_local_encoding or color_local_encoding) else None   
+        combined = combine_score.get_combined_scores([results_semantic, results_keywords, results_objects], 'inner')
+        return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
         # # Mode: semantic x datetime
         # if mode == "smt-dtout":
