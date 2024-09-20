@@ -37,17 +37,30 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     color_global_encoding = data.color_global_encoding
     color_local_encoding = data.color_local_encoding
 
-    # Make the POST request
-    print("Searching with text query:", text_query)
+    # Make the POST request for text embedding
+    text_embeddings = []
     if text_query:
-        print("Making request to text embedding service...")
-        response = requests.post("http://localhost:8002/embedding/text", json=data.dict())
-        if response.status_code == 200:
-            text_embedding = response.json()["text_embedding"]
+        if "|" in text_query:
+            print("Temporal query detected. Splitting...\n")
+            clauses = text_query.split("|")[:2]
+            for clause in clauses:
+                print(f"Computing embedding for clause: {clause}\n")
+                data.text_query = clause
+                response = requests.post("http://localhost:8002/embedding/text", json=data.dict())
+                if response.status_code == 200:
+                    text_embedding = response.json()["text_embedding"]
+                    text_embeddings.append(text_embedding)
+        else:
+            print("Single query detected.\n")
+            print(f"Computing embedding for query: {text_query}\n")
+            response = requests.post("http://localhost:8002/embedding/text", json=data.dict())
+            if response.status_code == 200:
+                text_embedding = response.json()["text_embedding"]
+                text_embeddings.append(text_embedding)
     
     # Mode: semantic
     if mode == "smt":
-        results_semantic = search_semantic(model, text_embedding) if text_query else None
+        results_semantic = search_semantic(model, text_embeddings) if text_query else None
         results_objects = search_objects(object_local_encoding, color_local_encoding) if (object_local_encoding or color_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK

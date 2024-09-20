@@ -1,42 +1,77 @@
 import setup
-from setup import dataset_config
+from setup import dataset_config, image_names
 import numpy as np
+import pandas as pd
 import requests
 from internal.search.parser import all_parsers, time_helpers
+from internal.search.scorer import combine_score
 
 
 index_name = dataset_config['dataset_name']
 
 
-def search_semantic(model: str, text_embedding):
-    # milvus_client = setup.milvus_client
-    # milvus_collection = model + "_embeddings"
-    # try:
-    #     print("Searching in Milvus collection:", milvus_collection, milvus_collection in utility.list_collections(), utility.has_collection(milvus_collection), "with text embedding:", len(text_embedding))
-    #     raw_result = milvus_client.search(collection_name=milvus_collection, data=text_embedding, limit=1000)
-    #     print("Raw result:", raw_result)
-    # except Exception as e:
-    #     with open("error_log.txt", "w") as file:
-    #         file.write(str(e))
-    #     return None
-    # convert text_embedding to float32 but keep type list
+def search_semantic(model: str, text_embeddings: list[str]):
+
+    clause_urls = []
+    clause_scores = []
     
-    data = {
-        "model": model,
-        "embedding": text_embedding,
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    response = requests.post("http://localhost:8004/search_milvus", json=data, headers=headers)
-    raw_results = response.json()
-    urls = [entity['id'] for entity in raw_results['response'][0]]
-    scores = [entity['distance'] for entity in raw_results['response'][0]]
-    print(f"Search semantic found {len(urls)} results")
-    return {
-        "urls": urls,
-        "scores": scores,
-    }
+    for text_embedding in text_embeddings:
+        data = {
+            "model": model,
+            "embedding": text_embedding,
+        }
+        response = requests.post("http://localhost:8004/search_milvus", json=data, headers={
+            "Content-Type": "application/json"
+        })
+        raw_results = response.json()
+        urls = [entity['id'] for entity in raw_results['response'][0]]
+        scores = [entity['distance'] for entity in raw_results['response'][0]]
+        clause_urls.append(urls)
+        clause_scores.append(scores)
+
+    # Single query
+    if len(text_embeddings) == 1:  
+        print(f"Search semantic found {len(clause_urls[0])} results")
+        return {
+            "urls": clause_urls[0],
+            "scores": clause_scores[0],
+        }
+    # Temporal query
+    else:
+        # normalize scores
+        for i in range(len(clause_scores)):
+            clause_scores[i] = combine_score.get_standardized_scores(clause_scores[i])
+
+        # convert into DataFrame
+        raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id', 'clause_id'])
+        for i, urls in enumerate(clause_urls):
+            for j, url in enumerate(urls):
+                raw_results_df = raw_results_df.append({
+                    'url': url,
+                    'score': clause_scores[i][j],
+                    'context_id': setup.metadata_rows.loc[url, 'context_id'],
+                    'clause_id': i,
+                }, ignore_index=True)
+
+        # drop context_id = None
+        raw_results_df = raw_results_df.dropna(subset=['context_id'])
+
+        # group by context_id (a for loop), then in which group, calculate the combined score
+        for context_id, group in raw_results_df.groupby('context_id'):
+            max_score_0 = group[group['clause_id'] == 0]['score'].max() if not group[group['clause_id'] == 0].empty else 10
+            max_score_1 = group[group['clause_id'] == 1]['score'].max() if not group[group['clause_id'] == 1].empty else 10
+            combined_score = combine_score.get_combine_score([max_score_0, max_score_1])
+            raw_results_df.loc[group.index, 'combined_score'] = combined_score
+        
+        # sort by combined score, then by url
+        raw_results_df.sort_values(by=['combined_score', 'url'], ascending=[False, True], inplace=True)
+        
+        print(f"Search semantic found {len(raw_results_df)} results")
+        return {
+            "urls": raw_results_df['url'].tolist(),
+            "scores": raw_results_df["combined_score"].tolist(),
+        }
+
 
 def search_objects(object_local_encoding, color_local_encoding) -> list[dict]:   
     response = setup.es_client.search(
