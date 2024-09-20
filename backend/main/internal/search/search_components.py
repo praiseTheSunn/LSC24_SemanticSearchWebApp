@@ -45,12 +45,11 @@ def search_objects(object_local_encoding, color_local_encoding) -> list[dict]:
         body={
             "query": {
                 "bool": {
-                    "must": [
+                    "should": [
                         {
                             "match": {
                                 "object_local_encoding": {
                                     "query": object_local_encoding,
-                                    "fuzziness": "AUTO",
                                 }                              
                             }
                         },
@@ -58,7 +57,6 @@ def search_objects(object_local_encoding, color_local_encoding) -> list[dict]:
                             "match": {
                                 "color_local_encoding": {
                                     "query": color_local_encoding,
-                                    "fuzziness": "AUTO",
                                 }
                             }
                         }

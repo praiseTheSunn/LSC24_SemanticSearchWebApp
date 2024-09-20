@@ -24,7 +24,8 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
 
     # If new_match_results only contains 1, return it
     if len(match_results_nonnull_index) == 1:
-        return match_results[0]
+        index = match_results_nonnull_index[0]
+        return match_results[index]
 
     # Get max and min scores of each category
     # print()
@@ -36,6 +37,7 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
     # Create a dataframe for each category (i dont know how many categories there are)
     dataframes = []
     for i in match_results_nonnull_index:
+        print(i)
         dataframes.append(pd.DataFrame({'urls': match_results[i]["urls"], 'scores': match_results[i]["scores"]}))
         dataframes[-1]['scores'] = get_standardized_scores(dataframes[-1]['scores'])
     
