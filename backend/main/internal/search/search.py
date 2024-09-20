@@ -32,8 +32,8 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     model = data.model
     mode = data.mode
     text_query = data.text_query
-    object_global_encoding = data.obj_global_encoding
-    object_local_encoding = data.obj_local_encoding
+    object_global_encoding = data.object_global_encoding
+    object_local_encoding = data.object_local_encoding
     color_global_encoding = data.color_global_encoding
     color_local_encoding = data.color_local_encoding
 
