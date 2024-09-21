@@ -37,9 +37,11 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
     # Create a dataframe for each category (i dont know how many categories there are)
     dataframes = []
     for i in match_results_nonnull_index:
-        print(i)
         dataframes.append(pd.DataFrame({'urls': match_results[i]["urls"], 'scores': match_results[i]["scores"]}))
         dataframes[-1]['scores'] = get_standardized_scores(dataframes[-1]['scores'])
+        print(f"Category {i}:")
+        print(f"Raw scores: {match_results[i]['scores'][:5]} ... {match_results[i]['scores'][-5:]}")
+        print(f"Standardized scores: {dataframes[-1]['scores'][:5].tolist()} ... {dataframes[-1]['scores'][-5:].tolist()}")
     
     # Merge the dataframes
     merged_df = dataframes[0]

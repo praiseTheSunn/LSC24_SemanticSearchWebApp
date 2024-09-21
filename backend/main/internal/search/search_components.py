@@ -73,32 +73,39 @@ def search_semantic(model: str, text_embeddings: list[str]):
         }
 
 
-def search_objects(object_local_encoding, color_local_encoding) -> list[dict]:   
+def search_objects(object_local_encoding, color_local_encoding, subset: list[str]) -> list[dict]: 
+    body = {
+        "query": {
+            "bool": {
+                "should": [
+                    {
+                        "match": {
+                            "object_local_encoding": {
+                                "query": object_local_encoding,
+                            }                              
+                        }
+                    },
+                    {
+                        "match": {
+                            "color_local_encoding": {
+                                "query": color_local_encoding,
+                            }
+                        }
+                    }
+                ],
+            },
+        }
+    }  
+    if subset != []:
+        body["query"]["bool"]["must"] = {
+            "terms": {
+                "_id": subset,
+            }
+        }
     response = setup.es_client.search(
         index=index_name,
         size=1000,
-        body={
-            "query": {
-                "bool": {
-                    "should": [
-                        {
-                            "match": {
-                                "object_local_encoding": {
-                                    "query": object_local_encoding,
-                                }                              
-                            }
-                        },
-                        {
-                            "match": {
-                                "color_local_encoding": {
-                                    "query": color_local_encoding,
-                                }
-                            }
-                        }
-                    ]
-                }
-            }
-        }
+        body=body
     )
     response = response["hits"]["hits"]
     urls = [hit["_id"] for hit in response]

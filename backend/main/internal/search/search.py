@@ -61,7 +61,8 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     # Mode: semantic
     if mode == "smt":
         results_semantic = search_semantic(model, text_embeddings) if text_query else None
-        results_objects = search_objects(object_local_encoding, color_local_encoding) if (object_local_encoding or color_local_encoding) else None   
+        urls_semantic = results_semantic["urls"] if results_semantic else []
+        results_objects = search_objects(object_local_encoding, color_local_encoding, subset=urls_semantic) if (object_local_encoding or color_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
     
