@@ -70,9 +70,8 @@ const HistoryPopup = ({
     const historyItem = history[index]
     const [query, ...filters] = historyItem.query.split(' | ')
     const parsedQuery = query.split(': ')[1]
-
     setQueryPayload({
-      parsedQuery,
+      text_query: parsedQuery,
       mode: queryPayload.mode,
       model: queryPayload.model,
     })

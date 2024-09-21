@@ -248,16 +248,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             text_query: value,
             mode: queryPayload.mode,
             model: queryPayload.model,
-            object_global_encoding: {},
-            object_local_encoding: '',
-            color_global_encoding: {},
-            color_local_encoding: '',
           })
           setDisplayedFilters((previousState: any) => [
             ...previousState,
             filter,
           ])
-          updatedQuery = `query: ${input} ${queryPayload.mode}`
+          updatedQuery = `query: ${input}`
         }
         dispatch(
           appActions.setQueryHistory({ time: timestamp, query: updatedQuery }),
@@ -309,10 +305,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           text_query: translatedText,
           mode: queryPayload.mode,
           model: queryPayload.model,
-          object_global_encoding: {},
-          object_local_encoding: '',
-          color_global_encoding: {},
-          color_local_encoding: '',
         })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 
