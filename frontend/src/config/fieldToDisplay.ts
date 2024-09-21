@@ -10,4 +10,5 @@ export const AIC2024_fieldToDisplay = {
   frame_id: 'Frame ID',
   ...BaseFieldToDisplay,
   img_link: 'Filename',
+  object_global_encoding: 'Object',
 }
