@@ -12,6 +12,7 @@ import {
   appActions,
   useAppDispatch,
   useAppSelector,
+  useLazyGetImagesQuery,
   useLazyGetObjectsByPositionQuery,
 } from '../../AppState'
 import { ObjectV8ClassNames } from '../../assets/ObjClass/yolov8_class_names'
@@ -54,8 +55,11 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([])
   const [isClear, setIsClear] = useState(false)
-  const [trigger, result] = useLazyGetObjectsByPositionQuery()
+  // const [trigger, result] = useLazyGetObjectsByPositionQuery()
+  const [trigger, result] = useLazyGetImagesQuery()
   const { data, error, isError, isFetching } = result
+
+  const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
   const dispatch = useAppDispatch()
   const setLoadingPopUp = useCallback(
@@ -137,6 +141,15 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     }
     console.log('Query:', searchQuery)
     // trigger(query);
+    trigger({
+      text_query: txtQuery,
+      mode: queryPayload.mode,
+      model: queryPayload.model,
+      object_global_encoding: obj_global_encoding,
+      object_local_encoding: obj_local_encoding,
+      color_global_encoding: color_global_encoding,
+      color_local_encoding: color_local_encoding,
+    })
   }
 
   useEffect(() => {
