@@ -16,19 +16,20 @@ def compute_mean_embedding(embeddings: list[list[float]]):
 def fetch_embeddings(data: RequestExploreSimilarImages):
     image_urls = data.image_urls
     model = data.model
-    # model = "clip_b32"
+    short_image_urls = ["/".join(url.split("/")[4:]) for url in image_urls]
     print("Image urls:", image_urls)
+    print("Short image urls:", short_image_urls)
 
     # image_urls theo thu tu similarity nhung ket qua tra ve cua ham get() lai la thu tu alphabet cua url
     # vi vay can tao map tu url den vi tri cua no trong ket qua tra ve
-    image_urls_sorted = sorted(image_urls)
-    position_in_result = {}
-    for pos, url in enumerate(image_urls_sorted):
-        position_in_result[url] = pos
+    # image_urls_sorted = sorted(image_urls)
+    # position_in_result = {}
+    # for pos, url in enumerate(image_urls_sorted):
+    #     position_in_result[url] = pos
 
     data = {
         "collection_name": dataset_name + "_" + model,
-        "ids": image_urls   
+        "ids": short_image_urls   
     }
     headers = {
         "Content-Type": "application/json"
@@ -54,6 +55,8 @@ def explore_similar_embeddings(model: str, image_embedding: list[float]):
     
     response = requests.post("http://localhost:8004/search_milvus", json=data, headers=headers)
     raw_results = response.json()
+
+    print(f"Number of similar results: {len(raw_results['response'][0])}")
 
     urls = [entity['id'] for entity in raw_results['response'][0]]
     scores = [entity['distance'] for entity in raw_results['response'][0]]
