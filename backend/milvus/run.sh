@@ -1,4 +1,4 @@
-source /home/pc/miniconda3/etc/profile.d/conda.sh
+source /root/miniconda3/etc/profile.d/conda.sh
 conda activate milvus
 conda env export > environment.yml
 sudo docker compose up -d

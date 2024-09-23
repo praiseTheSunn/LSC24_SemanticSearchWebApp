@@ -26,14 +26,14 @@ try:
     print("List of collections: ", collection_names)
     for collection_name in collection_names:        
         collection = Collection(collection_name)
-        print(collection_name, collection.num_entities)
+        load_state = utility.load_state(collection_name)
+        print(collection_name, collection.num_entities, load_state)
 
-        load_state = milvus_client.get_load_state(collection_name)
-        if collection_name.startswith(dataset_name):
-            milvus_client.load_collection(collection_name)
+        if collection_name.startswith(dataset_name) and load_state == False:
+            collection.load(collection_name)
             print("Loaded collection: ", collection_name)
-        elif not collection_name.startswith(dataset_name):
-            milvus_client.release_collection(collection_name)
+        elif not collection_name.startswith(dataset_name) and load_state == True:
+            collection.release(collection_name)
             print("Released collection: ", collection_name)
             
 except MilvusException as e:

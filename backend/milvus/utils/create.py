@@ -1,3 +1,5 @@
+# # Pymilvus 2.4.0
+
 from pymilvus import connections, utility, MilvusException
 connections.connect(host="localhost", port="19530")
 try:
