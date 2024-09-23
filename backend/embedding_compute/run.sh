@@ -1,5 +1,5 @@
 # conda init 
-source /home/pc/miniconda3/etc/profile.d/conda.sh
+source /root/miniconda3/etc/profile.d/conda.sh
 conda activate ebd
 conda env export > environment.yml
 
