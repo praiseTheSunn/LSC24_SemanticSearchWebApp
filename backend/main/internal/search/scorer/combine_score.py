@@ -1,12 +1,19 @@
 import numpy as np
 import pandas as pd
 
-def get_standardized_scores(scores: list[float]) -> list[float]:
-    """
-    Standardize the scores to be between 0 and 100
-    """
-    max_score = np.max(scores)
-    return [score / max_score * 100.0 for score in scores]
+def get_standardized_scores(scores: list[float]) -> list[float]:    
+    # Apply log transformation (shift scores to avoid log(0))
+    min_score = np.min(scores)
+    shifted_scores = [score - min_score + 1 for score in scores]  # shift by (min_score - 1)
+    # Log transform the shifted scores
+    log_transformed = np.log(shifted_scores)    
+    # Rescale to the range [min_target, 100], where min_target is above 0
+    min_target = 10
+    max_log = np.max(log_transformed)
+    min_log = np.min(log_transformed)
+    # Scale between [min_target, 100]
+    results = [(min_target + (score - min_log) / (max_log - min_log) * (100 - min_target)) for score in log_transformed]
+    return results
 
 def get_combine_score(scores) -> float:
     """

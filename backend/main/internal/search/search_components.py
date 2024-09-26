@@ -46,12 +46,7 @@ def search_semantic(model: str, text_embeddings: list[str]):
         raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id', 'clause_id'])
         for i, urls in enumerate(clause_urls):
             for j, url in enumerate(urls):
-                raw_results_df = raw_results_df.append({
-                    'url': url,
-                    'score': clause_scores[i][j],
-                    'context_id': setup.metadata_rows.loc[url, 'context_id'],
-                    'clause_id': i,
-                }, ignore_index=True)
+                raw_results_df.loc[len(raw_results_df)] = [url, clause_scores[i][j], setup.metadata_rows.loc[url, 'context_id'], i]
 
         # drop context_id = None
         raw_results_df = raw_results_df.dropna(subset=['context_id'])
@@ -62,11 +57,26 @@ def search_semantic(model: str, text_embeddings: list[str]):
             max_score_1 = group[group['clause_id'] == 1]['score'].max() if not group[group['clause_id'] == 1].empty else 10
             combined_score = combine_score.get_combine_score([max_score_0, max_score_1])
             raw_results_df.loc[group.index, 'combined_score'] = combined_score
+            raw_results_df.loc[group.index, 'max_score_0'] = max_score_0
+            raw_results_df.loc[group.index, 'max_score_1'] = max_score_1
+            # for clause_id = 0, only keep 2 highest scores, the same to clause_id = 1
+            for clause_id, clause_group in group.groupby('clause_id'):
+                if clause_id == 0:
+                    raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
+                else:
+                    raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
+
         
         # sort by combined score, then by url
+        # remove duplicates by 'url'
+        # filter those with 'keep' = True
         raw_results_df.sort_values(by=['combined_score', 'url'], ascending=[False, True], inplace=True)
+        raw_results_df.drop_duplicates(subset='url', keep='first', inplace=True)
+        raw_results_df = raw_results_df[raw_results_df['keep'] == True]
         
-        print(f"Search semantic found {len(raw_results_df)} results")
+        print(f"Search semantic found {len(raw_results_df)} results\n")
+        print(raw_results_df.head(30))
+
         return {
             "urls": raw_results_df['url'].tolist(),
             "scores": raw_results_df["combined_score"].tolist(),
@@ -118,21 +128,10 @@ def search_objects(object_local_encoding, color_local_encoding, subset: list[str
 
 def search_keyword(text_query: str) -> list[dict]:    
     parsed_ocr = all_parsers.parse_ocr(text_query)
-    
-    response = setup.es_client.search(
-        index=index_name,
-        size=2000,
-        body={
+    body = {
+        "query": {
             "bool": {
                 "should": [
-                    {
-                        "match": {
-                            "ocr": {
-                                "query": parsed_ocr,
-                                "fuzziness": "AUTO",
-                            }                              
-                        }
-                    },
                     {
                         "match": {
                             "caption": {
@@ -148,10 +147,26 @@ def search_keyword(text_query: str) -> list[dict]:
                                 "fuzziness": "AUTO",
                             }                              
                         }
-                    },
+                    }
                 ]
             }
-        }
+        }        
+    }
+    if parsed_ocr:
+        print(f"parsed_ocr: {parsed_ocr}")
+        body["query"]["bool"]["should"].append({
+            "match": {
+                "ocr": {
+                    "query": parsed_ocr,
+                    "fuzziness": "AUTO",
+                }                              
+            }
+        })
+    
+    response = setup.es_client.search(
+        index=index_name,
+        size=2000,
+        body=body
     )
     response = response["hits"]["hits"]
     urls = [hit["_id"] for hit in response]
