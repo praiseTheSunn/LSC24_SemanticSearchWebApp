@@ -14,7 +14,7 @@ TOKEN = "root:Milvus"
 
 # 1. Set up a Milvus client
 client = MilvusClient(uri=CLUSTER_ENDPOINT, token=TOKEN)
-client.drop_collection(collection_name='aic24_clip')
+client.drop_collection(collection_name='aic24_blip2')
 
 
 collections = utility.list_collections()
