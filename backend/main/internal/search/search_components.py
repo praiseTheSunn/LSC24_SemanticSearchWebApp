@@ -126,7 +126,7 @@ def search_objects(object_local_encoding, color_local_encoding, subset: list[str
         "scores": scores,
     }
 
-def search_keyword(text_query: str) -> list[dict]:    
+def search_keyword(text_query: str, subset: list[str]) -> list[dict]:    
     parsed_ocr = all_parsers.parse_ocr(text_query)
     body = {
         "query": {
@@ -162,7 +162,12 @@ def search_keyword(text_query: str) -> list[dict]:
                 }                              
             }
         })
-    
+    if subset != []:
+        body["query"]["bool"]["must"] = {
+            "terms": {
+                "_id": subset,
+            }
+        }
     response = setup.es_client.search(
         index=index_name,
         size=2000,
