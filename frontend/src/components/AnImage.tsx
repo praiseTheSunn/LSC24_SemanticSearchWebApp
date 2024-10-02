@@ -22,7 +22,7 @@ const AnImage: React.FC<AnImageProps> = ({
   isZoomOnHover,
 }) => {
   if (isNil(data)) return null
-  isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true
+  isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true 
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true
 
   const src = data?.img_link ? data.img_link : undefined
@@ -49,6 +49,14 @@ const AnImage: React.FC<AnImageProps> = ({
     },
     [dispatch],
   )
+
+  const toggleImagePreview = React.useCallback(
+    (data: any) => {
+      dispatch(appActions.setImagePreview(data))
+    },
+    [dispatch],
+  )
+
 
   const imageDatas = useAppSelector((state) => state.app.data)
   const csvData = useAppSelector((state) => state.app.csvImages)
@@ -102,7 +110,20 @@ const AnImage: React.FC<AnImageProps> = ({
           submit(data)
         }
       }}
+      
+      
+      onMouseEnter={(e) => {
+        e.preventDefault();
+        if (e.shiftKey) {
+          console.log('Shift key pressed while hovering');
+          toggleImagePreview(data);
+        } 
+      }}
+      onMouseLeave={() => {
+        toggleImagePreview(null); // Reset the preview when the mouse leaves
+      }}
     >
+
       {(date || time) && (
         <Box
           sx={{
