@@ -30,6 +30,7 @@ import LoadingPopup from '../../components/Popup/loadingPopup'
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
+import ImagePreviewPopup from '../../components/Popup/imagePreview'
 import { LSC_addCSVImages } from '../../config/submitFunc'
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
 import { AppState } from '../../types/app'
@@ -74,6 +75,10 @@ const Home = () => {
   const similarPopupData: ImageRecord | null | undefined = useAppSelector(
     (state) => state.app.similarPopUpData,
   )
+  const imagePreviewData: ImageRecord | null | undefined = useAppSelector(
+    (state) => state.app.imagePreviewData,
+  )
+
   const loadingPopUpMessage: string = useAppSelector(
     (state) => state.app.loadingPopUpMessage,
   )
@@ -104,6 +109,13 @@ const Home = () => {
   const toggleSimilarPopup = React.useCallback(
     (data: ImageRecord | null | undefined) => {
       dispatch(appActions.setSimilarPopupData(data))
+    },
+    [dispatch],
+  )
+
+  const toggleImagePreview = React.useCallback(
+    (data: ImageRecord | null | undefined) => {
+      dispatch(appActions.setImagePreview(data))
     },
     [dispatch],
   )
@@ -179,6 +191,7 @@ const Home = () => {
       if (e.key === 'Escape') {
         dispatch(appActions.setSimilarPopupData(null))
         dispatch(appActions.setNeighborPopupData(null))
+        dispatch(appActions.setVideoDataForPopup(null))
       }
     }
 
@@ -274,6 +287,9 @@ const Home = () => {
       )}
       {similarPopupData && (
         <SinglePopup onClose={() => toggleSimilarPopup(null)} />
+      )}
+      {imagePreviewData && (
+        <ImagePreviewPopup onClose={() => toggleImagePreview(null)} data={undefined} />
       )}
       <SearchBox
         displayedFilters={displayedFilters}
