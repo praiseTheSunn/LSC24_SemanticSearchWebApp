@@ -58,7 +58,7 @@ const ConfigEditor: React.FC = () => {
             onChange={(e, newValue) =>
               handleSliderChange('ImageGridCellHeight', newValue as number)
             }
-            step={10}
+            step={2}
             min={50}
             max={500}
             valueLabelDisplay="auto"
@@ -99,7 +99,7 @@ const ConfigEditor: React.FC = () => {
             onChange={(e, newValue) =>
               handleSliderChange('ViewMorePopupCellHeight', newValue as number)
             }
-            step={10}
+            step={2}
             min={50}
             max={500}
             valueLabelDisplay="auto"
@@ -140,7 +140,7 @@ const ConfigEditor: React.FC = () => {
             onChange={(e, newValue) =>
               handleSliderChange('SinglePopupCellHeight', newValue as number)
             }
-            step={10}
+            step={2}
             min={50}
             max={500}
             valueLabelDisplay="auto"
@@ -181,7 +181,7 @@ const ConfigEditor: React.FC = () => {
             onChange={(e, newValue) =>
               handleSliderChange('NeighborPopupCellHeight', newValue as number)
             }
-            step={10}
+            step={2}
             min={50}
             max={500}
             valueLabelDisplay="auto"
