@@ -6,7 +6,11 @@ import React from 'react'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { LSC_addCSVImages } from '../config/submitFunc'
+import { AddLikeAction } from '../config/likeResponse'
+import { AddDislikeAction } from '../config/dislikeResponse'
 import type { ImageRecord } from '../types/image'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 
 interface AnImageProps {
   data: ImageRecord | null | undefined
@@ -63,6 +67,30 @@ const AnImage: React.FC<AnImageProps> = ({
 
     // REPLACE FOR EACH COMPETITION HERE
     LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData)
+  }
+
+  const like = (src_data: ImageRecord) => {
+    console.log('src', src_data.img_link)
+    const toastId = toast.loading(`Like: ${src_data.img_link}`, {
+      position: 'bottom-right',
+      closeOnClick: true,
+      autoClose: 2000,
+    })
+
+    // REPLACE FOR EACH COMPETITION HERE
+    AddLikeAction(src_data, toastId, imageDatas, dispatch, csvData)
+  }
+
+  const dislike = (src_data: ImageRecord) => {
+    console.log('src', src_data.img_link)
+    const toastId = toast.loading(`Dislike: ${src_data.img_link}`, {
+      position: 'bottom-right',
+      closeOnClick: true,
+      autoClose: 2000,
+    })
+
+    // REPLACE FOR EACH COMPETITION HERE
+    AddDislikeAction(src_data, toastId, imageDatas, dispatch, csvData)
   }
 
   return (
@@ -131,6 +159,36 @@ const AnImage: React.FC<AnImageProps> = ({
           backgroundColor: 'white',
         }}
       />
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          padding: '0.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '0.25rem',
+        }}
+      >
+        <ThumbUpIcon
+          sx={{ color: 'blue', cursor: 'pointer' }}
+          titleAccess="Like"
+          onClick={(e) => {
+            e.preventDefault();
+            // Add your like action here
+            like(data)
+          }}
+        />
+        <ThumbDownIcon
+          sx={{ color: 'red', cursor: 'pointer' }}
+          titleAccess="Dislike"
+          onClick={(e) => {
+            e.preventDefault();
+            // Add your dislike action here
+            dislike(data)
+          }}
+        />
+      </Box>
       <Box
         sx={{
           position: 'absolute',

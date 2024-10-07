@@ -3,6 +3,8 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import LoginIcon from '@mui/icons-material/Login'
 import PreviewIcon from '@mui/icons-material/Preview'
 import SettingsIcon from '@mui/icons-material/Settings'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp'
+import ThumbDownIcon from '@mui/icons-material/ThumbDown'
 import {
   Backdrop,
   Box,
@@ -25,9 +27,13 @@ import EvaluationBox from './evaluationBox'
 
 export const CSVDownloadBox = () => {
   const csvImages = useAppSelector((state) => state.app.csvImages)
+  const likeImages = useAppSelector((state) => state.app.likedImages)
+  const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
   const dispatch = useAppDispatch()
 
   const [anchorElCSV, setAnchorElCSV] = useState<HTMLElement | null>(null)
+  const [anchorElLikePreview, setAnchorElLikePreview] = useState<HTMLElement | null>(null)
+  const [anchorElDislikePreview, setAnchorElDislikePreview] = useState<HTMLElement | null>(null)
   const [anchorElEvaluation, setAnchorElEvaluation] =
     useState<HTMLElement | null>(null)
   const [anchorElSettings, setAnchorElSettings] = useState<HTMLElement | null>(
@@ -35,6 +41,8 @@ export const CSVDownloadBox = () => {
   )
   const [speedDialOpen, setSpeedDialOpen] = useState(false) // New state for SpeedDial open
   const CSVPreviewPopupOpen = Boolean(anchorElCSV)
+  const LikePreviewPopupOpen = Boolean(anchorElLikePreview)
+  const DislikePreviewPopupOpen = Boolean(anchorElDislikePreview)
   const isVisible = Boolean(anchorElEvaluation)
   const isSettingsVisible = Boolean(anchorElSettings)
 
@@ -82,6 +90,22 @@ export const CSVDownloadBox = () => {
     setAnchorElSettings(event.currentTarget)
   }
 
+  const handleLikePreviewOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElLikePreview(event.currentTarget)
+  }
+
+  const handleLikePreviewClose = () => {
+    if (LikePreviewPopupOpen) setAnchorElLikePreview(null)
+  }
+
+  const handleDislikePreviewOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElDislikePreview(event.currentTarget)
+  }
+
+  const handleDislikePreviewClose = () => {
+    if (DislikePreviewPopupOpen) setAnchorElDislikePreview(null)
+  }
+
   const handleSettingsClose = () => {
     setAnchorElSettings(null)
   }
@@ -93,6 +117,8 @@ export const CSVDownloadBox = () => {
           setSpeedDialOpen(false)
           handlePreviewCSVClose()
           handleLoginClose()
+          handleLikePreviewClose()
+          handleDislikePreviewClose()
         }}
       >
         <Box
@@ -152,6 +178,17 @@ export const CSVDownloadBox = () => {
               tooltipTitle="Settings"
               onClick={(e) => handleSettingsOpen(e)}
             />
+            <SpeedDialAction
+              icon={<ThumbUpIcon />}
+              tooltipTitle="Like"
+              onClick={(e) => handleLikePreviewOpen(e)}      
+            />  
+            <SpeedDialAction
+              icon={<ThumbDownIcon />}
+              tooltipTitle="Dislike"
+              onClick={(e) => handleDislikePreviewOpen(e)}
+            />
+            
           </SpeedDial>
           <Popover
             open={CSVPreviewPopupOpen}
@@ -182,6 +219,72 @@ export const CSVDownloadBox = () => {
               <ImageGrid
                 style={{ width: '90dvw', minHeight: '60dvw' }}
                 data={csvImages}
+              />
+            )}
+          </Popover>
+
+          <Popover
+            open={LikePreviewPopupOpen}
+            anchorEl={anchorElLikePreview}
+            onClose={handleLikePreviewClose}
+            anchorOrigin={{
+              vertical: 'center',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'center',
+              horizontal: 'right',
+            }}
+            marginThreshold={20}
+            PaperProps={{
+              sx: {
+                minWidth: '200px',
+                minHeight: '50px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              },
+            }}
+          >
+            {likeImages.length === 0 ? (
+              <Typography>No images to preview</Typography>
+            ) : (
+              <ImageGrid
+                style={{ width: '90dvw', minHeight: '60dvw' }}
+                data={likeImages}
+              />
+            )}
+          </Popover>
+
+          <Popover
+            open={DislikePreviewPopupOpen}
+            anchorEl={anchorElDislikePreview}
+            onClose={handleDislikePreviewClose}
+            anchorOrigin={{
+              vertical: 'center',
+              horizontal: 'left',
+            }}
+            transformOrigin={{
+              vertical: 'center',
+              horizontal: 'right',
+            }}
+            marginThreshold={20}
+            PaperProps={{
+              sx: {
+                minWidth: '200px',
+                minHeight: '50px',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+              },
+            }}
+          >
+            {dislikeImages.length === 0 ? (
+              <Typography>No images to preview</Typography>
+            ) : (
+              <ImageGrid
+                style={{ width: '90dvw', minHeight: '60dvw' }}
+                data={dislikeImages}
               />
             )}
           </Popover>
