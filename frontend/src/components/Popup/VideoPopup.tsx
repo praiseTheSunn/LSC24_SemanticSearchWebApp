@@ -50,10 +50,10 @@ const VideoPopup = () => {
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.currentTime = parsedTimeStamp
-      videoRef.current.playbackRate = playbackRate  
+      videoRef.current.playbackRate = playbackRate
     }
   }, [parsedTimeStamp])
-  
+
   return (
     <Box
       className="video-popup"

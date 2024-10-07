@@ -25,12 +25,12 @@ import 'react-tooltip/dist/react-tooltip.css'
 import { Box, ClickAwayListener } from '@mui/material'
 import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import VideoPopup from '../../components/Popup/VideoPopup'
+import ImagePreviewPopup from '../../components/Popup/imagePreview'
 import LoadingPopup from '../../components/Popup/loadingPopup'
 // import { usePopUp } from '../contexts/popUpContext';
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
-import ImagePreviewPopup from '../../components/Popup/imagePreview'
 import { LSC_addCSVImages } from '../../config/submitFunc'
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
 import { AppState } from '../../types/app'
@@ -288,9 +288,7 @@ const Home = () => {
       {similarPopupData && (
         <SinglePopup onClose={() => toggleSimilarPopup(null)} />
       )}
-      {imagePreviewData && (
-        <ImagePreviewPopup onClose={() => toggleImagePreview(null)} data={undefined} />
-      )}
+      {imagePreviewData && <ImagePreviewPopup />}
       <SearchBox
         displayedFilters={displayedFilters}
         setDisplayedFilters={setDisplayedFilters}

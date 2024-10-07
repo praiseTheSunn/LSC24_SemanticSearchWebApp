@@ -92,6 +92,6 @@ export const sliceApp = createSlice({
 
     setImagePreview(state, action) {
       state.imagePreviewData = action.payload
-    }
+    },
   },
 })
