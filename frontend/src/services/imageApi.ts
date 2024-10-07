@@ -85,6 +85,46 @@ export const ImageApi = createApi({
           transformResponse_AIC2024(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
+
+      getLikeSimilarImages: builder.query<ImageRecord[], string[] | undefined | null>({
+        query: (urls) => ({
+          url: '/explore/explore_like_similar_images',
+          method: 'POST',
+          body: { image_urls: urls, model: 'clip' },
+        }),
+        transformResponse: (response: ApiResponse) =>
+          transformResponse_AIC2024(response),
+        providesTags: (result) =>
+          result
+            ? [
+                ...result.map(({ img_link }) => ({
+                  type: 'Image' as const,
+                  id: img_link,
+                })),
+                { type: 'Image', id: 'SIMILAR_IMAGES' },
+              ]
+            : [{ type: 'Image', id: 'SIMILAR_IMAGES' }],
+      }),
+
+      getDislikeSimilarImages: builder.query<ImageRecord[], string[] | undefined | null>({
+        query: (urls) => ({
+          url: '/explore/explore_dislike_similar_images',
+          method: 'POST',
+          body: { image_urls: urls, model: 'clip' },
+        }),
+        transformResponse: (response: ApiResponse) =>
+          transformResponse_AIC2024(response),
+        providesTags: (result) =>
+          result
+            ? [
+                ...result.map(({ img_link }) => ({
+                  type: 'Image' as const,
+                  id: img_link,
+                })),
+                { type: 'Image', id: 'SIMILAR_IMAGES' },
+              ]
+            : [{ type: 'Image', id: 'SIMILAR_IMAGES' }],
+      }),      
     }
   },
 })

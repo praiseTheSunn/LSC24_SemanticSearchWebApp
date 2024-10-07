@@ -22,6 +22,8 @@ const initialState: AppState = {
   queryHistory: [],
 
   csvImages: [],
+  likedImages: [],
+  dislikedImages: [],
   isCsvPreviewPopupOpen: false,
 
   isEvaluationBoxOpen: false,
@@ -88,5 +90,13 @@ export const sliceApp = createSlice({
     setConfig: (state, action) => {
       state.config = action.payload
     },
+
+    setLikedImages: (state, action) => {
+      state.likedImages = action.payload
+    },
+
+    setDislikedImages: (state, action) => {
+      state.dislikedImages = action.payload
+    }
   },
 })
