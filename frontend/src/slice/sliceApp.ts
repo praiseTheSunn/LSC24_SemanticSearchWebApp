@@ -7,6 +7,7 @@ const initialState: AppState = {
   loadingPopUpMessage: '',
   neighborPopUpData: null,
   similarPopUpData: null,
+  imagePreviewData: null,
   isObjPosPopUpOpen: false,
   isMessagePopUpOpen: false,
   isHistoryPopUpOpen: false,
@@ -87,6 +88,10 @@ export const sliceApp = createSlice({
 
     setConfig: (state, action) => {
       state.config = action.payload
+    },
+
+    setImagePreview(state, action) {
+      state.imagePreviewData = action.payload
     },
   },
 })

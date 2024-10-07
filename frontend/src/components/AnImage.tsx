@@ -50,6 +50,13 @@ const AnImage: React.FC<AnImageProps> = ({
     [dispatch],
   )
 
+  const toggleImagePreview = React.useCallback(
+    (data: any) => {
+      dispatch(appActions.setImagePreview(data))
+    },
+    [dispatch],
+  )
+
   const imageDatas = useAppSelector((state) => state.app.data)
   const csvData = useAppSelector((state) => state.app.csvImages)
 
@@ -101,6 +108,15 @@ const AnImage: React.FC<AnImageProps> = ({
         if (e.ctrlKey) {
           submit(data)
         }
+      }}
+      onMouseEnter={(e) => {
+        e.preventDefault()
+        if (e.shiftKey) {
+          toggleImagePreview(data)
+        }
+      }}
+      onMouseLeave={() => {
+        toggleImagePreview(null) // Reset the preview when the mouse leaves
       }}
     >
       {(date || time) && (

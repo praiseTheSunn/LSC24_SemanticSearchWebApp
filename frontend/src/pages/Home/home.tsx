@@ -25,6 +25,7 @@ import 'react-tooltip/dist/react-tooltip.css'
 import { Box, ClickAwayListener } from '@mui/material'
 import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import VideoPopup from '../../components/Popup/VideoPopup'
+import ImagePreviewPopup from '../../components/Popup/imagePreview'
 import LoadingPopup from '../../components/Popup/loadingPopup'
 // import { usePopUp } from '../contexts/popUpContext';
 // Popup
@@ -74,6 +75,10 @@ const Home = () => {
   const similarPopupData: ImageRecord | null | undefined = useAppSelector(
     (state) => state.app.similarPopUpData,
   )
+  const imagePreviewData: ImageRecord | null | undefined = useAppSelector(
+    (state) => state.app.imagePreviewData,
+  )
+
   const loadingPopUpMessage: string = useAppSelector(
     (state) => state.app.loadingPopUpMessage,
   )
@@ -104,6 +109,13 @@ const Home = () => {
   const toggleSimilarPopup = React.useCallback(
     (data: ImageRecord | null | undefined) => {
       dispatch(appActions.setSimilarPopupData(data))
+    },
+    [dispatch],
+  )
+
+  const toggleImagePreview = React.useCallback(
+    (data: ImageRecord | null | undefined) => {
+      dispatch(appActions.setImagePreview(data))
     },
     [dispatch],
   )
@@ -179,6 +191,7 @@ const Home = () => {
       if (e.key === 'Escape') {
         dispatch(appActions.setSimilarPopupData(null))
         dispatch(appActions.setNeighborPopupData(null))
+        dispatch(appActions.setVideoDataForPopup(null))
       }
     }
 
@@ -275,6 +288,7 @@ const Home = () => {
       {similarPopupData && (
         <SinglePopup onClose={() => toggleSimilarPopup(null)} />
       )}
+      {imagePreviewData && <ImagePreviewPopup />}
       <SearchBox
         displayedFilters={displayedFilters}
         setDisplayedFilters={setDisplayedFilters}
