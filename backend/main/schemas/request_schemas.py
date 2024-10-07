@@ -51,3 +51,9 @@ class RequestExploreNeighborImages(BaseModel):
                     "span": 30
             }
         }
+
+class RequestFeedbackRelevant(BaseModel):
+    text_embedding: list[float]
+    image_urls: list[str]
+    model: options_schemas.ModelOptions
+    limit: int

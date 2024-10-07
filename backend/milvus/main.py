@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List
+from typing import List, Optional
 import numpy as np
 
 
@@ -28,20 +28,24 @@ app.add_middleware(
 class SearchRequest(BaseModel):
     model: str
     embedding: List[List[float]]
+    limit: Optional[int] = 1000
+
 class GetRequest(BaseModel):
     collection_name: str
     ids: List[str]
+
 
 # Include the routes
 @app.post("/search_milvus")
 async def search_milvus(data: SearchRequest):
     milvus_collection = dataset_config['dataset_name'] + "_" + data.model
-    # milvus_collection = dataset_config['dataset_name'] + "_" + "clip_b32"
     text_embedding = data.embedding
+    limit = data.limit
+    print("Milvus limit: ", limit)
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    response = setup.milvus_client.search(collection_name=milvus_collection, data=text_embedding, limit=2000)
+    response = setup.milvus_client.search(collection_name=milvus_collection, data=text_embedding, limit=limit)
 
     return JSONResponse(content={"response": response}, headers=header)
 

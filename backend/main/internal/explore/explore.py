@@ -1,14 +1,12 @@
 from schemas.request_schemas import RequestExploreSimilarImages, RequestExploreNeighborImages
-from internal.explore.helper import *
+from internal.helper import *
 import setup
 from internal.prepare_response import prepare_response
 
-def explore_similar_images(data: RequestExploreSimilarImages):
 
+async def explore_similar_images(data: RequestExploreSimilarImages):
     model = data.model
-
-    input_embeddings = fetch_embeddings(data)
-    # input_embeddings = None
+    input_embeddings = await fetch_embeddings(data)
     if not input_embeddings:
         return None
     
@@ -17,6 +15,7 @@ def explore_similar_images(data: RequestExploreSimilarImages):
     results = explore_similar_embeddings(model, mean_embedding)
 
     return prepare_response(results["urls"], results["scores"])
+
 
 def explore_neighbor_images(data: RequestExploreNeighborImages):
     image_url = data.image_url
