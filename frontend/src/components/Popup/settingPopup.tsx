@@ -1,5 +1,12 @@
-import { Paper, Slider, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Paper,
+  Slider,
+  Typography,
+} from '@mui/material'
 import type React from 'react'
 import { useState } from 'react'
 import { saveConfigToLocalStorage } from '..'
