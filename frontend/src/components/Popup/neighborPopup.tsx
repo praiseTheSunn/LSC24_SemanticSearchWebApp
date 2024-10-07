@@ -119,7 +119,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
             padding: Config.gridRowGap,
           }}
         >
-          <AnImage key={index} data={data} index={index} />
+          <AnImage key={index} data={data} index={index}/>
         </Box>
       </div>
     )
