@@ -32,6 +32,8 @@ def search_semantic(model: str, text_embeddings: list[str]):
     # Single query
     if len(text_embeddings) == 1:  
         print(f"Search semantic found {len(clause_urls[0])} results")
+        for i in range(20):
+            print(i, clause_urls[0][i], clause_scores[0][i])
         return {
             "urls": clause_urls[0],
             "scores": clause_scores[0],
@@ -170,7 +172,7 @@ def search_keyword(text_query: str, subset: list[str]) -> list[dict]:
         }
     response = setup.es_client.search(
         index=index_name,
-        size=2000,
+        size=1000,
         body=body
     )
     response = response["hits"]["hits"]

@@ -42,6 +42,7 @@ print("Waiting to count total number of metadata records...")
 # print(f"Length of image_urls: {len(image_urls)}")
 
 metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
+# metadata_rows = pd.DataFrame(columns=['image_link', 'caption'])
 metadata_rows.set_index('image_link', inplace=True)
 image_names = sorted(metadata_rows.index.tolist())
 print(f"Length of metadata_rows: {len(metadata_rows)}")

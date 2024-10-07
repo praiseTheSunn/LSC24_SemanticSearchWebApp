@@ -34,13 +34,13 @@ def compute_image_embedding(image_base64: str, model: str):
 def compute_text_embedding(text_query: str, model: str):
     if text_query == None or model == None:
         return None
-    if model == 'clip_v32':
-        text_query_tokens = clip.tokenize(text_query)
-        text_embedding = setup.clip_v32_model.encode_text(text_query_tokens)
-        return text_embedding
     if model == 'clip':
         text_query_tokens = open_clip.tokenize(text_query)
         text_embedding = setup.clip_model.encode_text(text_query_tokens)
+        # with open('text_embedding.txt', 'w') as f:
+        #     for row in text_embedding:
+        #         for element in row:
+        #             f.write(f"{str(element.item())},\n")
         return text_embedding
     if model == 'blip2':
         txt = setup.blip2_txt_processors["eval"](text_query)

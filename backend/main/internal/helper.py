@@ -13,12 +13,15 @@ def compute_mean_embedding(embeddings: list[list[float]]):
     return mean_embedding
 
 
-def fetch_embeddings(data: RequestExploreSimilarImages):
+async def fetch_embeddings(data: RequestExploreSimilarImages):
     image_urls = data.image_urls
     model = data.model
-    short_image_urls = ["/".join(url.split("/")[4:]) for url in image_urls]
-    print("Image urls:", image_urls)
-    print("Short image urls:", short_image_urls)
+    if image_urls[0].startswith("http"):
+        short_image_urls = ["/".join(url.split("/")[4:]) for url in image_urls]
+    else:
+        short_image_urls = image_urls
+    # print("Image urls:", image_urls[:3])
+    # print("Short image urls:", short_image_urls[:3])
 
     # image_urls theo thu tu similarity nhung ket qua tra ve cua ham get() lai la thu tu alphabet cua url
     # vi vay can tao map tu url den vi tri cua no trong ket qua tra ve
@@ -43,19 +46,18 @@ def fetch_embeddings(data: RequestExploreSimilarImages):
         return None       
     # vi du lieu nhan duoc la float32 nhung muon serialize de chuyen di phai convert sang float64 -> dung np.array de convert
 
-def explore_similar_embeddings(model: str, image_embedding: list[float]):
-    
+def explore_similar_embeddings(model: str, image_embedding: list[list[float]], limit: int = 1000):
     data = {
         "model": model,
         "embedding": image_embedding,    
+        "limit": limit
     }
+
     headers = {
         "Content-Type": "application/json"
-    }
-    
+    }    
     response = requests.post("http://localhost:8004/search_milvus", json=data, headers=headers)
     raw_results = response.json()
-
     print(f"Number of similar results: {len(raw_results['response'][0])}")
 
     urls = [entity['id'] for entity in raw_results['response'][0]]

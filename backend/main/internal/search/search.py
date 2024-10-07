@@ -20,7 +20,7 @@ def search_with_image_query(data: RequestSearchByImageQuery):
         if model == "stfm":                                             # image embedding must be at format [[]], but 'stfm' model returns [] so I have to wrap it
             image_embedding = [image_embedding]
         
-        results_semantic = search_semantic(model, image_embedding)  
+        results_semantic = search_semantic(model, [image_embedding])  
         return prepare_response(results_semantic["urls"], results_semantic["scores"]), status.HTTP_200_OK            
     else:
         return response.text, response.status_code

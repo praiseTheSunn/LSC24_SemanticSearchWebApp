@@ -41,4 +41,6 @@ def prepare_response(image_names, scores = None):
             break      
     
     print("Number of records:", len(records))
+    for i in range(min(len(records), 60)):
+        print(i, '\t', records[i]['img_link'])
     return records
