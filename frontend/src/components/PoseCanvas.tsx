@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, type FC, type MouseEvent } from 'react';
 import { Box } from '@mui/material';
 
 const PoseCanvas: React.FC = () => {
@@ -23,19 +23,46 @@ const PoseCanvas: React.FC = () => {
     left_ear: [170, 20],
   });
   const [draggingJoint, setDraggingJoint] = useState<string | null>(null);
+  const [draggingSelection, setDraggingSelection] = useState<boolean>(false);
+  const [selectionBox, setSelectionBox] = useState<[number, number, number, number] | null>(null);
+  const [selectedJoints, setSelectedJoints] = useState<string[]>([]);
+  const [dragStart, setDragStart] = useState<[number, number] | null>(null);
+
+  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+    const columns = 20;
+    const rows = 20;
+    const cellWidth = width / columns;
+    const cellHeight = height / rows;
+
+    ctx.strokeStyle = 'lightgray';
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i <= columns; i++) {
+      const x = i * cellWidth;
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+
+    for (let i = 0; i <= rows; i++) {
+      const y = i * cellHeight;
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+  };
 
   const drawPose = (ctx: CanvasRenderingContext2D) => {
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const canvasWidth = ctx.canvas.width;
+    const canvasHeight = ctx.canvas.height;
 
-    // Draw joints
-    Object.entries(joints).forEach(([joint, [x, y]]) => {
-      ctx.beginPath();
-      ctx.arc(x, y, 3, 0, Math.PI * 2);
-      ctx.fillStyle = 'black';
-      ctx.fill();
-      // joints radius
-      // ctx.fillText(joint, x + 10, y);
-    });
+    // Clear the canvas before drawing to avoid "imprints"
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
+    // Draw the grid first
+    drawGrid(ctx, canvasWidth, canvasHeight);
 
     // Draw connections
     const connections: [string, string][] = [
@@ -64,14 +91,33 @@ const PoseCanvas: React.FC = () => {
       ctx.moveTo(...joints[start]);
       ctx.lineTo(...joints[end]);
       ctx.strokeStyle = 'black';
-      // stroke width
       ctx.lineWidth = 5;
       ctx.stroke();
     });
+
+    // Draw joints
+    Object.entries(joints).forEach(([joint, [x, y]]) => {
+      ctx.beginPath();
+      ctx.arc(x, y, 5, 0, Math.PI * 2);
+      ctx.fillStyle = selectedJoints.includes(joint) ? 'red' : 'black'; // Highlight selected joints in red
+      ctx.fill();
+    });
+
+
+
+    // Draw selection box if dragging
+    if (selectionBox) {
+      const [x1, y1, x2, y2] = selectionBox;
+      ctx.beginPath();
+      ctx.rect(x1, y1, x2 - x1, y2 - y1);
+      ctx.strokeStyle = 'blue';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
   };
 
   const getJointAtPosition = (x: number, y: number) => {
-    return Object.entries(joints).find(([joint, [jointX, jointY]]) => {
+    return Object.entries(joints).find(([, [jointX, jointY]]) => {
       return Math.hypot(jointX - x, jointY - y) < 10; // Detect click within radius
     })?.[0] || null;
   };
@@ -86,28 +132,71 @@ const PoseCanvas: React.FC = () => {
       const joint = getJointAtPosition(mouseX, mouseY);
       if (joint) {
         setDraggingJoint(joint);
+      } else {
+        setDragStart([mouseX, mouseY]);
+        setDraggingSelection(true);
+        setSelectedJoints([]);
       }
     }
   };
 
   const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    if (draggingJoint) {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const rect = canvas.getBoundingClientRect();
-        const mouseX = event.clientX - rect.left;
-        const mouseY = event.clientY - rect.top;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const rect = canvas.getBoundingClientRect();
+    const mouseX = event.clientX - rect.left;
+    const mouseY = event.clientY - rect.top;
 
-        setJoints((prevJoints) => ({
-          ...prevJoints,
-          [draggingJoint]: [mouseX, mouseY],
-        }));
-      }
+    if (draggingJoint) {
+      setJoints((prevJoints) => ({
+        ...prevJoints,
+        [draggingJoint]: [mouseX, mouseY],
+      }));
+    } else if (draggingSelection && dragStart) {
+      const [startX, startY] = dragStart;
+      setSelectionBox([startX, startY, mouseX, mouseY]);
+
+      const smallerX = Math.min(startX, mouseX);
+      const largerX = Math.max(startX, mouseX);
+      const smallerY = Math.min(startY, mouseY);
+      const largerY = Math.max(startY, mouseY);
+
+      const newSelectedJoints = Object.entries(joints)
+        .filter(([, [x, y]]) => x > smallerX && x < largerX && y > smallerY && y < largerY)
+        .map(([joint]) => joint);
+      // console.log("NEW selected: ", newSelectedJoints, startX, startY, mouseX, mouseY);
+      setSelectedJoints(newSelectedJoints);
     }
   };
 
   const handleMouseUp = () => {
     setDraggingJoint(null);
+
+    if (draggingSelection) {
+      setDraggingSelection(false);
+      setSelectionBox(null);
+    }
+  };
+
+  const handleMouseMoveSelection = (event: MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (canvas && draggingJoint && selectedJoints.length > 0) {
+      const rect = canvas.getBoundingClientRect();
+      const mouseX = event.clientX - rect.left;
+      const mouseY = event.clientY - rect.top;
+
+      const deltaX = mouseX - joints[draggingJoint][0];
+      const deltaY = mouseY - joints[draggingJoint][1];
+
+      setJoints((prevJoints) => {
+        const newJoints = { ...prevJoints };
+        for (const joint of selectedJoints) {
+          newJoints[joint] = [newJoints[joint][0] + deltaX, newJoints[joint][1] + deltaY];
+        }
+        return newJoints;
+      });
+    }
   };
 
   useEffect(() => {
@@ -118,7 +207,7 @@ const PoseCanvas: React.FC = () => {
         drawPose(ctx);
       }
     }
-  }, [joints]);
+  }, [drawPose, joints, selectionBox]);
 
   return (
     <Box>
@@ -129,6 +218,7 @@ const PoseCanvas: React.FC = () => {
         style={{ border: '1px solid black' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
+        onMouseMoveCapture={handleMouseMoveSelection}
         onMouseUp={handleMouseUp}
       />
     </Box>
