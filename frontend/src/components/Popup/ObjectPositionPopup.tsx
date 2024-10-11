@@ -25,8 +25,10 @@ import { InitPoseCoor } from '../../data/InitPoseCoor'
 import { DragIconList } from '../../data/icon'
 import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
+import BrushWhiteboard from '../BrushCanvas'
 import PoseCanvas from '../PoseCanvas'
 import { Whiteboard } from '..'
+import BrushIcon from '@mui/icons-material/Brush';
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -54,6 +56,14 @@ export interface Icon {
   color?: string
 }
 
+// define a dict type
+export interface GridDict {
+  // color as string
+  color: string
+  // object name as string
+  objectName: string
+}
+
 const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null)
   const [selectedPose, setSelectedPose] = useState<Record<
@@ -68,6 +78,18 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const { data, error, isError, isFetching } = result
 
   const [openPoseSpeedDial, setOpenPoseSpeedDial] = useState(false)
+
+  // TO DO: move to config
+  const gridSize = 20
+  const initDataGrid = Array(gridSize)
+    .fill(null)
+    .map(() =>
+      Array(gridSize).fill({
+        color: '',
+        objectName: '',
+      }),
+    )
+  const [dataGrid, setDataGrid] = useState<GridDict[][]>(initDataGrid)
 
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
@@ -109,6 +131,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   }
 
   const handleClear = () => {
+    setDataGrid(initDataGrid)
     setSelectedIcon(null)
     setIsClear(true)
   }
@@ -280,6 +303,15 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
           }}>
             <PoseCanvas joints={selectedPose} setJoints={setSelectedPose} />
           </Box>
+          <BrushWhiteboard
+          setSelecObjects={setSelectedObjects}
+          onDraw={handleDraw}
+          selectedIcon={selectedIcon}
+          onClear={isClear}
+          setIsClear={setIsClear}
+          dataGrid={dataGrid}
+          setDataGrid={setDataGrid}
+        />
         </Box>
         <Grid
           style={{
@@ -298,7 +330,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
               key={colorKeys as string}
               sx={{
                 boxSizing: 'border-box',
-                width: '33px',
                 height: '33px',
                 cursor: 'pointer',
                 borderWidth: '1px',
@@ -352,16 +383,24 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         <Box
           sx={{
             position: 'relative',
-            alignItems: 'flex-start',
+            // alignItems: 'flex-start',
             width: '100%',
             height: '100%',
             display: 'flex',
-            justifyContent: 'center',
+            // justifyContent: 'center',
+            flexDirection: 'column',
+            gap: '15px',
           }}
         >
           <SpeedDial
             ariaLabel="SpeedDial basic example"
-            sx={{ position: 'absolute', top: 10, zIndex: 20000 }}
+            sx={{ zIndex: 20000 }}
+            icon={<BrushIcon/>}
+            FabProps={{ size: 'small', color: 'secondary' }}
+            />
+          <SpeedDial
+            ariaLabel="SpeedDial basic example"
+            sx={{ zIndex: 20000 }}
             icon={
               <AccessibilityIcon
                 onClick={() => {
@@ -400,6 +439,9 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
               onClick={() => setSelectedPose(null)}
             />
           </SpeedDial>
+
+
+             {/* </SpeedDial> */}
         </Box>
       </Box>
     </Box>
