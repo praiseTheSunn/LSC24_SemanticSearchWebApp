@@ -24,6 +24,9 @@ const initialState: AppState = {
   csvImages: [],
   likedImages: [],
   dislikedImages: [],
+  likedSimilarImages: [],
+  dislikedSimilarImages: [],
+  textQuery: '',
   isCsvPreviewPopupOpen: false,
 
   isEvaluationBoxOpen: false,
@@ -97,6 +100,18 @@ export const sliceApp = createSlice({
 
     setDislikedImages: (state, action) => {
       state.dislikedImages = action.payload
+    },
+
+    setLikedSimilarImages: (state, action) => {
+      state.likedSimilarImages = action.payload
+    },
+
+    setDislikedSimilarImages: (state, action) => {
+      state.dislikedSimilarImages = action.payload
+    },
+
+    setTextQuery: (state, action) => {
+      state.textQuery = action.payload
     }
   },
 })

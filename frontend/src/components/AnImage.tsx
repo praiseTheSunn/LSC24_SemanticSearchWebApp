@@ -56,6 +56,8 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const imageDatas = useAppSelector((state) => state.app.data)
   const csvData = useAppSelector((state) => state.app.csvImages)
+  const likeImages = useAppSelector((state) => state.app.likedImages)
+  const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
 
   const submit = (src_data: ImageRecord) => {
     console.log('src', src_data.img_link)
@@ -78,7 +80,7 @@ const AnImage: React.FC<AnImageProps> = ({
     })
 
     // REPLACE FOR EACH COMPETITION HERE
-    AddLikeAction(src_data, toastId, imageDatas, dispatch, csvData)
+    AddLikeAction(src_data, toastId, imageDatas, dispatch, likeImages)
   }
 
   const dislike = (src_data: ImageRecord) => {
@@ -90,7 +92,7 @@ const AnImage: React.FC<AnImageProps> = ({
     })
 
     // REPLACE FOR EACH COMPETITION HERE
-    AddDislikeAction(src_data, toastId, imageDatas, dispatch, csvData)
+    AddDislikeAction(src_data, toastId, imageDatas, dispatch, dislikeImages)
   }
 
   return (
@@ -164,11 +166,14 @@ const AnImage: React.FC<AnImageProps> = ({
           position: 'absolute',
           top: 0,
           right: 0,
+          opacity: 0.8,
+          zIndex: 50,
           padding: '0.5rem',
-          display: 'flex',
+          display: 'none',
           flexDirection: 'column',
           gap: '0.25rem',
         }}
+        className="img-action-eye"
       >
         <ThumbUpIcon
           sx={{ color: 'blue', cursor: 'pointer' }}
@@ -180,7 +185,7 @@ const AnImage: React.FC<AnImageProps> = ({
           }}
         />
         <ThumbDownIcon
-          sx={{ color: 'red', cursor: 'pointer' }}
+          sx={{ width: '1.75rem', color: 'red', cursor: 'pointer' }}
           titleAccess="Dislike"
           onClick={(e) => {
             e.preventDefault();

@@ -244,6 +244,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           }
           const filter = { category: 'query', value, status: 1 }
           setQuery(value)
+          ////////////
+
+          
           trigger({
             text_query: value,
             mode: queryPayload.mode,
