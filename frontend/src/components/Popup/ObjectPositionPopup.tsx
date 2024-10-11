@@ -27,6 +27,7 @@ import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 import BrushWhiteboard from '../BrushCanvas'
 import PoseCanvas from '../PoseCanvas'
+import BrushIcon from '@mui/icons-material/Brush';
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -357,16 +358,24 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         <Box
           sx={{
             position: 'relative',
-            alignItems: 'flex-start',
+            // alignItems: 'flex-start',
             width: '100%',
             height: '100%',
             display: 'flex',
-            justifyContent: 'center',
+            // justifyContent: 'center',
+            flexDirection: 'column',
+            gap: '15px',
           }}
         >
           <SpeedDial
             ariaLabel="SpeedDial basic example"
-            sx={{ position: 'absolute', top: 10, zIndex: 20000 }}
+            sx={{ zIndex: 20000 }}
+            icon={<BrushIcon/>}
+            FabProps={{ size: 'small', color: 'secondary' }}
+            />
+          <SpeedDial
+            ariaLabel="SpeedDial basic example"
+            sx={{ zIndex: 20000 }}
             icon={
               <AccessibilityIcon
                 onClick={() => {
@@ -403,6 +412,9 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
               onClick={() => setSelectedPose(null)}
             />
           </SpeedDial>
+
+
+             {/* </SpeedDial> */}
         </Box>
       </Box>
     </Box>
