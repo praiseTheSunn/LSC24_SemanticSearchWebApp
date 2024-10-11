@@ -21,7 +21,7 @@ export const AddLikeAction = (
   })
 
   const updatedLikedImages = [...prevImages, src_data]
-  // console.log('updatedCSVImages', updatedCSVImages);
+  console.log('updatedLikedImages', updatedLikedImages);
 
   dispatch(appActions.setLikedImages(updatedLikedImages))
 }

@@ -5,6 +5,8 @@ import PreviewIcon from '@mui/icons-material/Preview'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import ThumbDownIcon from '@mui/icons-material/ThumbDown'
+import FeedbackIcon from '@mui/icons-material/Feedback';
+import { useEffect } from 'react'
 import {
   Backdrop,
   Box,
@@ -16,7 +18,7 @@ import {
   SpeedDialIcon,
   Typography,
 } from '@mui/material'
-import { set } from 'lodash'
+import { get, set } from 'lodash'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
@@ -24,6 +26,8 @@ import ImageGrid from '../containers/similarity/image-grid'
 import { CSVPreviewPopup } from './Popup/CSVPreviewPopup'
 import ConfigEditor from './Popup/settingPopup'
 import EvaluationBox from './evaluationBox'
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useGetFeedbackImagesQuery } from '../AppState'
 
 export const CSVDownloadBox = () => {
   const csvImages = useAppSelector((state) => state.app.csvImages)
@@ -70,6 +74,20 @@ export const CSVDownloadBox = () => {
     })
   }
 
+  const handleClearLike = () => {
+    dispatch(appActions.setLikedImages([]))
+    toast.success('Cleared Liked Images', {
+      position: 'bottom-left',
+    })
+  }
+
+  const handleClearDislike = () => {
+    dispatch(appActions.setDislikedImages([]))
+    toast.success('Cleared Disliked Images', {
+      position: 'bottom-left',
+    })
+  }
+
   const handlePreviewCSVOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElCSV(event.currentTarget)
   }
@@ -109,6 +127,46 @@ export const CSVDownloadBox = () => {
   const handleSettingsClose = () => {
     setAnchorElSettings(null)
   }
+  
+  const [feedback, setFeedback] = useState(null)
+
+  const handleSubmitFeedback = (event: React.MouseEvent<HTMLElement>) => {
+    const like = {
+      text_query: 'halo',
+      image_urls: likeImages.map((image) => image.img_link),
+      model: "clip",
+      limit: 30,
+    }
+    const dislike = {
+      text_query: 'dislike',
+      image_urls: dislikeImages.map((image) => image.img_link),
+      model: "clip",
+      limit: 30,
+    }
+    const feedbackData = {
+      like: like,
+      dislike: dislike,
+    }
+    setFeedback(feedbackData)
+    console.log('Submitted feedback:', feedbackData)
+
+  }
+
+  const feedbackResult = useGetFeedbackImagesQuery(feedback)
+  const { data, error, isError, isFetching } = feedbackResult
+
+  // useGetFeedbackImagesQuery(feedback)
+  useEffect(() => {
+    if (feedbackResult) {
+      if (data) {
+        console.log('Feedback result data:', data)
+      }
+      if (isError) {
+        console.error('Error fetching feedback result:', error)
+      }
+    }
+  }, [feedbackResult])
+
 
   return (
     <React.Fragment>
@@ -180,13 +238,18 @@ export const CSVDownloadBox = () => {
             />
             <SpeedDialAction
               icon={<ThumbUpIcon />}
-              tooltipTitle="Like"
+              tooltipTitle="Preview Liked Images"
               onClick={(e) => handleLikePreviewOpen(e)}      
             />  
             <SpeedDialAction
               icon={<ThumbDownIcon />}
-              tooltipTitle="Dislike"
+              tooltipTitle="Preview Dislike Images"
               onClick={(e) => handleDislikePreviewOpen(e)}
+            />
+            <SpeedDialAction
+              icon={<FeedbackIcon />}
+              tooltipTitle="Submit feedback"
+              onClick={(e) => handleSubmitFeedback(e)}
             />
             
           </SpeedDial>
@@ -249,10 +312,14 @@ export const CSVDownloadBox = () => {
             {likeImages.length === 0 ? (
               <Typography>No images to preview</Typography>
             ) : (
+              <>
+              {/* Add delete Icon here add the right corner of the row */}
+              <DeleteIcon onClick={handleClearLike} style={{right: '0', top: '0'}}/>
               <ImageGrid
                 style={{ width: '90dvw', minHeight: '60dvw' }}
                 data={likeImages}
               />
+              </>
             )}
           </Popover>
 
@@ -282,10 +349,14 @@ export const CSVDownloadBox = () => {
             {dislikeImages.length === 0 ? (
               <Typography>No images to preview</Typography>
             ) : (
+              <>
+              {/* Add delete Icon here add the right corner of the row */}
+              <DeleteIcon onClick={handleClearDislike} style={{right: '0', top: '0'}}/>
               <ImageGrid
                 style={{ width: '90dvw', minHeight: '60dvw' }}
                 data={dislikeImages}
               />
+              </>
             )}
           </Popover>
 

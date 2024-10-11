@@ -55,10 +55,9 @@ export const { useLazyGetObjectsByPositionQuery } = ObjectPosApi
 export const {
   useLazyGetImagesQuery,
   useGetSimilarsQuery,
-  useLazyGetNeighborsQuery,
+  useLazyGetNeighborsQuery, 
   useLazySearchByImageQuery,
-  useGetLikeSimilarImagesQuery,
-  useGetDislikeSimilarImagesQuery,
+  useGetFeedbackImagesQuery,
 } = ImageApi
 
 export const { useLazyGetTranslatedTextQuery } = GoogleApi

@@ -1,10 +1,11 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { ImageQuery } from '.'
-import { transformResponse_AIC2024 } from '../config/transformResponse'
+import { transformResponse_AIC2024, transformResponse_Feedback_AIC } from '../config/transformResponse'
 import type {
   ApiResponse,
   ImageQueryParams,
   TextQueryParams,
+  FeedbackQueryParams
 } from '../types/api'
 import type { ImageRecord } from '../types/image'
 
@@ -86,45 +87,17 @@ export const ImageApi = createApi({
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 
-      getLikeSimilarImages: builder.query<ImageRecord[], string[] | undefined | null>({
-        query: (urls) => ({
-          url: '/explore/explore_like_similar_images',
-          method: 'POST',
-          body: { image_urls: urls, model: 'clip' },
-        }),
+      getFeedbackImages: builder.query<ImageRecord[], FeedbackQueryParams | undefined | null>({
+        query: (params) => {
+          return {
+            url: '/feedback',
+            method: 'POST',
+            body: params,
+          }
+        },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
-        providesTags: (result) =>
-          result
-            ? [
-                ...result.map(({ img_link }) => ({
-                  type: 'Image' as const,
-                  id: img_link,
-                })),
-                { type: 'Image', id: 'SIMILAR_IMAGES' },
-              ]
-            : [{ type: 'Image', id: 'SIMILAR_IMAGES' }],
+          transformResponse_Feedback_AIC(response),
       }),
-
-      getDislikeSimilarImages: builder.query<ImageRecord[], string[] | undefined | null>({
-        query: (urls) => ({
-          url: '/explore/explore_dislike_similar_images',
-          method: 'POST',
-          body: { image_urls: urls, model: 'clip' },
-        }),
-        transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
-        providesTags: (result) =>
-          result
-            ? [
-                ...result.map(({ img_link }) => ({
-                  type: 'Image' as const,
-                  id: img_link,
-                })),
-                { type: 'Image', id: 'SIMILAR_IMAGES' },
-              ]
-            : [{ type: 'Image', id: 'SIMILAR_IMAGES' }],
-      }),      
     }
   },
 })
