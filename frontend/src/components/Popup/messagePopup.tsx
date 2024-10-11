@@ -167,7 +167,7 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
                     minWidth: '470px',
                     width: 'fit-content',
                     height: 'fit-content',
-                    maxWidth: '480px',
+                    // maxWidth: '480px',
                     zIndex: 10005,
                   },
                 },

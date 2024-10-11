@@ -155,6 +155,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
       )
       newItem.encodeColors = encodeStrings.encodeColorStrings.join(' ')
       newItem.encodeObjects = encodeStrings.encodeObjectStrings.join(' ')
+      // console.log('New item:', newItem)
 
       setDrawnItems((prevItems) => [...prevItems, newItem])
       onDraw(newItem) // Pass the drawn item to the parent component

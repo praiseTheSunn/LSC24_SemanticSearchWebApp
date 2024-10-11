@@ -73,4 +73,7 @@ export type ConfigType = {
 
   WhiteboardGridRowCount: number
   WhiteboardGridColumnCount: number
+
+  WhiteboardCanvasWidth: number
+  WhiteboardCanvasHeight: number
 }

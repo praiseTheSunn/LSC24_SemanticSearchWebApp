@@ -22,6 +22,7 @@ import pico8Colors from '../../assets/ObjColors/pico8'
 import { DragIconList } from '../../data/icon'
 import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
+import BrushWhiteboard from '../BrushCanvas'
 // import { ObjectService } from '../../services/objectService';
 import Whiteboard from '../WhiteBoard'
 
@@ -51,6 +52,14 @@ export interface Icon {
   color?: string
 }
 
+// define a dict type
+export interface GridDict {
+  // color as string
+  color: string
+  // object name as string
+  objectName: string
+}
+
 const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([])
@@ -58,6 +67,18 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   // const [trigger, result] = useLazyGetObjectsByPositionQuery()
   const [trigger, result] = useLazyGetImagesQuery()
   const { data, error, isError, isFetching } = result
+
+  // TO DO: move to config
+  const gridSize = 20
+  const initDataGrid = Array(gridSize)
+    .fill(null)
+    .map(() =>
+      Array(gridSize).fill({
+        color: '',
+        objectName: '',
+      }),
+    )
+  const [dataGrid, setDataGrid] = useState<GridDict[][]>(initDataGrid)
 
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
@@ -99,6 +120,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   }
 
   const handleClear = () => {
+    setDataGrid(initDataGrid)
     setSelectedIcon(null)
     setIsClear(true)
   }
@@ -182,7 +204,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         height: 'fit-content',
         width: 'fit-content',
         overflow: 'hidden',
-        border: '1px solid black',
+        // border: '1px solid black',
         padding: '8px',
       }}
     >
@@ -241,17 +263,19 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         />
       </Box>
       <Box>
-        <Whiteboard
+        <BrushWhiteboard
           setSelecObjects={setSelectedObjects}
           onDraw={handleDraw}
           selectedIcon={selectedIcon}
           onClear={isClear}
           setIsClear={setIsClear}
+          dataGrid={dataGrid}
+          setDataGrid={setDataGrid}
         />
         <Grid
           style={{
-            minWidth: '100px',
-            maxWidth: '100%',
+            // minWidth: '100px',
+            // maxWidth: '100%',
             marginTop: '8px',
           }}
           columns={8}
@@ -265,7 +289,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
               key={colorKeys as string}
               sx={{
                 boxSizing: 'border-box',
-                width: '33px',
                 height: '33px',
                 cursor: 'pointer',
                 borderWidth: '1px',

@@ -74,6 +74,9 @@ export const defaultConfig: ConfigType = {
 
   WhiteboardGridRowCount: 7,
   WhiteboardGridColumnCount: 7,
+
+  WhiteboardCanvasWidth: 600,
+  WhiteboardCanvasHeight: 400,
 }
 
 // Load user config if it exists in localStorage, otherwise use default
