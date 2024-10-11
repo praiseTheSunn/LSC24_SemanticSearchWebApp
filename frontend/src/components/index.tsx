@@ -72,11 +72,11 @@ export const defaultConfig: ConfigType = {
   NeighborPopupCellHeight: 90,
   NeighborPopupColumnCount: 9,
 
-  WhiteboardGridRowCount: 7,
-  WhiteboardGridColumnCount: 7,
+  WhiteboardGridRowCount: 20,
+  WhiteboardGridColumnCount: 20,
 
-  WhiteboardCanvasWidth: 600,
-  WhiteboardCanvasHeight: 400,
+  WhiteboardCanvasWidth: 402,
+  WhiteboardCanvasHeight: 270,
 }
 
 // Load user config if it exists in localStorage, otherwise use default

@@ -9,6 +9,7 @@ import {
   useRef,
   useState,
 } from 'react'
+import { useAppSelector } from '../AppState'
 import { PoseConnection } from '../data/PoseConnection'
 
 interface PoseCanvasProps {
@@ -29,8 +30,8 @@ const PoseCanvas = ({ joints, setJoints }: PoseCanvasProps) => {
 
   const drawGrid = useCallback(
     (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-      const columns = 10
-      const rows = 10
+      const columns = 20
+      const rows = 20
       const cellWidth = width / columns
       const cellHeight = height / rows
 
@@ -212,12 +213,14 @@ const PoseCanvas = ({ joints, setJoints }: PoseCanvasProps) => {
     }
   }, [drawPose])
 
+  const systemConfig = useAppSelector((state) => state.app.config)
+
   return (
     <Box height="100%">
       <canvas
         ref={canvasRef}
-        height="270px"
-        width="402px"
+        height={`${systemConfig.WhiteboardCanvasHeight}px`}
+        width={`${systemConfig.WhiteboardCanvasWidth}px`}
         style={{ border: '1px solid black' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
