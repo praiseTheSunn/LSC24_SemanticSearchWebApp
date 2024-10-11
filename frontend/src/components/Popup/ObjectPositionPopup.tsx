@@ -26,6 +26,7 @@ import { DragIconList } from '../../data/icon'
 import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 import PoseCanvas from '../PoseCanvas'
+import { Whiteboard } from '..'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -60,6 +61,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     [number, number]
   > | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([])
+  const [layer, setLayer] = useState(0)
   const [isClear, setIsClear] = useState(false)
   // const [trigger, result] = useLazyGetObjectsByPositionQuery()
   const [trigger, result] = useLazyGetImagesQuery()
@@ -247,15 +249,38 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
           )}
         />
       </Box>
-      <Box display="flex" flexDirection="column">
-        {/* <Whiteboard
-          setSelecObjects={setSelectedObjects}
-          onDraw={handleDraw}
-          selectedIcon={selectedIcon}
-          onClear={isClear}
-          setIsClear={setIsClear}
-        /> */}
-        <PoseCanvas joints={selectedPose} setJoints={setSelectedPose} />
+      <Box display="flex" flexDirection="column" position="relative">
+        <Box position="relative" sx={{
+          width: '402px',
+          height: '270px',
+        }}>
+          <Box id='whiteboard-container' sx={{
+            opacity: layer === 0 ? 1 : 0.5,
+            zIndex: 1010 + layer === 0 ? 1000 : 0,
+            position: 'absolute',
+            width: '402px',
+            height: '270px',
+            padding: 0
+          }}>
+            <Whiteboard
+              setSelecObjects={setSelectedObjects}
+              onDraw={handleDraw}
+              selectedIcon={selectedIcon}
+              onClear={isClear}
+              setIsClear={setIsClear}
+            />
+          </Box>
+          <Box id='pose-container' sx={{
+            opacity: layer === 1 ? 1 : 0.5,
+            zIndex: 1010 + layer === 1 ? 1000 : 0,
+            position: 'absolute',
+            width: '402px',
+            height: '270px',
+            padding: 0
+          }}>
+            <PoseCanvas joints={selectedPose} setJoints={setSelectedPose} />
+          </Box>
+        </Box>
         <Grid
           style={{
             minWidth: '100px',
@@ -343,7 +368,9 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                   if (selectedPose === null) {
                     setSelectedPose(InitPoseCoor)
                     setOpenPoseSpeedDial(true)
+                    setLayer(1)
                   } else setOpenPoseSpeedDial(!openPoseSpeedDial)
+                  setLayer(openPoseSpeedDial ? 0 : 1)
                 }}
               />
             }

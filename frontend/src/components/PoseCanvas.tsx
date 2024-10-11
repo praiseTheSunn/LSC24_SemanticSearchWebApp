@@ -216,8 +216,8 @@ const PoseCanvas = ({ joints, setJoints }: PoseCanvasProps) => {
     <Box height="100%">
       <canvas
         ref={canvasRef}
-        height={270}
-        width={402}
+        height="270px"
+        width="402px"
         style={{ border: '1px solid black' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
