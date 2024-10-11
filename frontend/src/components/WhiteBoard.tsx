@@ -1,5 +1,6 @@
 import { Box, Tooltip, Typography } from '@mui/material'
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { useAppSelector } from '../AppState'
 import type { DrawnItem, Icon, Rect } from './Popup/ObjectPositionPopup'
