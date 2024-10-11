@@ -1,29 +1,31 @@
+import AccessibilityIcon from '@mui/icons-material/Accessibility'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   Autocomplete,
   Box,
   Button,
   Grid,
   IconButton,
+  SpeedDial,
+  SpeedDialAction,
   TextField,
 } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
 import {
   appActions,
   useAppDispatch,
   useAppSelector,
   useLazyGetImagesQuery,
-  useLazyGetObjectsByPositionQuery,
 } from '../../AppState'
 import { ObjectV8ClassNames } from '../../assets/ObjClass/yolov8_class_names'
 import { ObjectV10ClassNames } from '../../assets/ObjClass/yolov10_class_names'
 import pico8Colors from '../../assets/ObjColors/pico8'
-// import { usePopUp } from '../../contexts/popUpContext';
+import { HumanPoses } from '../../data/HumanPoses'
+import { InitPoseCoor } from '../../data/InitPoseCoor'
 import { DragIconList } from '../../data/icon'
 import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
-// import { ObjectService } from '../../services/objectService';
-import Whiteboard from '../WhiteBoard'
+import PoseCanvas from '../PoseCanvas'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -53,11 +55,17 @@ export interface Icon {
 
 const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null)
+  const [selectedPose, setSelectedPose] = useState<Record<
+    string,
+    [number, number]
+  > | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([])
   const [isClear, setIsClear] = useState(false)
   // const [trigger, result] = useLazyGetObjectsByPositionQuery()
   const [trigger, result] = useLazyGetImagesQuery()
   const { data, error, isError, isFetching } = result
+
+  const [openPoseSpeedDial, setOpenPoseSpeedDial] = useState(false)
 
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
@@ -181,8 +189,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         boxShadow: '2px 4px 4px rgba(0, 0, 0, 0.5)',
         height: 'fit-content',
         width: 'fit-content',
-        overflow: 'hidden',
-        border: '1px solid black',
+        overflow: 'visible',
         padding: '8px',
       }}
     >
@@ -240,19 +247,20 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
           )}
         />
       </Box>
-      <Box>
-        <Whiteboard
+      <Box display="flex" flexDirection="column">
+        {/* <Whiteboard
           setSelecObjects={setSelectedObjects}
           onDraw={handleDraw}
           selectedIcon={selectedIcon}
           onClear={isClear}
           setIsClear={setIsClear}
-        />
+        /> */}
+        <PoseCanvas joints={selectedPose} setJoints={setSelectedPose} />
         <Grid
           style={{
             minWidth: '100px',
-            maxWidth: '100%',
             marginTop: '8px',
+            position: 'relative',
           }}
           columns={8}
           container
@@ -316,6 +324,56 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         >
           Send
         </Button>
+        <Box
+          sx={{
+            position: 'relative',
+            alignItems: 'flex-start',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <SpeedDial
+            ariaLabel="SpeedDial basic example"
+            sx={{ position: 'absolute', top: 10, zIndex: 20000 }}
+            icon={
+              <AccessibilityIcon
+                onClick={() => {
+                  if (selectedPose === null) {
+                    setSelectedPose(InitPoseCoor)
+                    setOpenPoseSpeedDial(true)
+                  } else setOpenPoseSpeedDial(!openPoseSpeedDial)
+                }}
+              />
+            }
+            direction="down"
+            open={openPoseSpeedDial}
+            FabProps={{ size: 'small', color: 'secondary' }}
+          >
+            {HumanPoses.map((pose) => (
+              <SpeedDialAction
+                key={pose.name}
+                icon={
+                  <Box
+                    component="img"
+                    src={pose.icon}
+                    alt={pose.name}
+                    sx={{ objectFit: 'contain', height: '20px', width: '20px' }}
+                  />
+                }
+                tooltipTitle={pose.name}
+                onClick={() => setSelectedPose(pose.joints)}
+              />
+            ))}
+            <SpeedDialAction
+              key="clear"
+              icon={<CloseIcon />}
+              tooltipTitle="Clear poses"
+              onClick={() => setSelectedPose(null)}
+            />
+          </SpeedDial>
+        </Box>
       </Box>
     </Box>
   )

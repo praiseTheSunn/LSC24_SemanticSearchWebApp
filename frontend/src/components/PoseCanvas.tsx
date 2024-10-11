@@ -1,220 +1,223 @@
-import React, { useEffect, useRef, useState, type FC, type MouseEvent } from 'react';
-import { Box } from '@mui/material';
+import { Box } from '@mui/material'
+import {
+  type Dispatch,
+  type FC,
+  type MouseEvent,
+  type SetStateAction,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from 'react'
+import { PoseConnection } from '../data/PoseConnection'
 
-const PoseCanvas: React.FC = () => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [joints, setJoints] = useState<Record<string, [number, number]>>({
-    nose: [200, 20],
-    right_shoulder: [250, 80],
-    right_elbow: [270, 100],
-    right_wrist: [290, 120],
-    left_shoulder: [150, 80],
-    left_elbow: [130, 100],
-    left_wrist: [110, 120],
-    right_hip: [250, 150],
-    right_knee: [250, 200],
-    right_ankle: [250, 250],
-    left_hip: [150, 150],
-    left_knee: [150, 200],
-    left_ankle: [150, 250],
-    right_eye: [210, 10],
-    left_eye: [190, 10],
-    right_ear: [230, 20],
-    left_ear: [170, 20],
-  });
-  const [draggingJoint, setDraggingJoint] = useState<string | null>(null);
-  const [draggingSelection, setDraggingSelection] = useState<boolean>(false);
-  const [selectionBox, setSelectionBox] = useState<[number, number, number, number] | null>(null);
-  const [selectedJoints, setSelectedJoints] = useState<string[]>([]);
-  const [dragStart, setDragStart] = useState<[number, number] | null>(null);
+interface PoseCanvasProps {
+  joints: Record<string, [number, number]> | null
+  setJoints: Dispatch<SetStateAction<Record<string, [number, number]> | null>>
+}
 
-  const drawGrid = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
-    const columns = 20;
-    const rows = 20;
-    const cellWidth = width / columns;
-    const cellHeight = height / rows;
+let draggingSelection = false
+let draggingJoint: string | null = null
 
-    ctx.strokeStyle = 'lightgray';
-    ctx.lineWidth = 1;
+const PoseCanvas = ({ joints, setJoints }: PoseCanvasProps) => {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
+  const [selectionBox, setSelectionBox] = useState<
+    [number, number, number, number] | null
+  >(null)
+  const [selectedJoints, setSelectedJoints] = useState<string[]>([])
+  const [dragStart, setDragStart] = useState<[number, number] | null>(null)
 
-    for (let i = 0; i <= columns; i++) {
-      const x = i * cellWidth;
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, height);
-      ctx.stroke();
-    }
+  const drawGrid = useCallback(
+    (ctx: CanvasRenderingContext2D, width: number, height: number) => {
+      const columns = 10
+      const rows = 10
+      const cellWidth = width / columns
+      const cellHeight = height / rows
 
-    for (let i = 0; i <= rows; i++) {
-      const y = i * cellHeight;
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(width, y);
-      ctx.stroke();
-    }
-  };
+      ctx.strokeStyle = 'lightgray'
+      ctx.lineWidth = 1
 
-  const drawPose = (ctx: CanvasRenderingContext2D) => {
-    const canvasWidth = ctx.canvas.width;
-    const canvasHeight = ctx.canvas.height;
-
-    // Clear the canvas before drawing to avoid "imprints"
-    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-
-    // Draw the grid first
-    drawGrid(ctx, canvasWidth, canvasHeight);
-
-    // Draw connections
-    const connections: [string, string][] = [
-      ['right_shoulder', 'right_elbow'],
-      ['right_elbow', 'right_wrist'],
-      ['left_shoulder', 'left_elbow'],
-      ['left_elbow', 'left_wrist'],
-      ['right_hip', 'right_knee'],
-      ['right_knee', 'right_ankle'],
-      ['left_hip', 'left_knee'],
-      ['left_knee', 'left_ankle'],
-      ['right_eye', 'nose'],
-      ['left_eye', 'nose'],
-      ['right_ear', 'right_eye'],
-      ['left_ear', 'left_eye'],
-      ['left_shoulder', 'right_shoulder'],
-      ['left_shoulder', 'left_hip'],
-      ['right_shoulder', 'right_hip'],
-      ['right_hip', 'left_hip'],
-      ['left_shoulder', 'nose'],
-      ['right_shoulder', 'nose'],
-    ];
-
-    connections.forEach(([start, end]) => {
-      ctx.beginPath();
-      ctx.moveTo(...joints[start]);
-      ctx.lineTo(...joints[end]);
-      ctx.strokeStyle = 'black';
-      ctx.lineWidth = 5;
-      ctx.stroke();
-    });
-
-    // Draw joints
-    Object.entries(joints).forEach(([joint, [x, y]]) => {
-      ctx.beginPath();
-      ctx.arc(x, y, 5, 0, Math.PI * 2);
-      ctx.fillStyle = selectedJoints.includes(joint) ? 'red' : 'black'; // Highlight selected joints in red
-      ctx.fill();
-    });
-
-
-
-    // Draw selection box if dragging
-    if (selectionBox) {
-      const [x1, y1, x2, y2] = selectionBox;
-      ctx.beginPath();
-      ctx.rect(x1, y1, x2 - x1, y2 - y1);
-      ctx.strokeStyle = 'blue';
-      ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-  };
-
-  const getJointAtPosition = (x: number, y: number) => {
-    return Object.entries(joints).find(([, [jointX, jointY]]) => {
-      return Math.hypot(jointX - x, jointY - y) < 10; // Detect click within radius
-    })?.[0] || null;
-  };
-
-  const handleMouseDown = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (canvas) {
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
-
-      const joint = getJointAtPosition(mouseX, mouseY);
-      if (joint) {
-        setDraggingJoint(joint);
-      } else {
-        setDragStart([mouseX, mouseY]);
-        setDraggingSelection(true);
-        setSelectedJoints([]);
+      for (let i = 0; i <= columns; i++) {
+        const x = i * cellWidth
+        ctx.beginPath()
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, height)
+        ctx.stroke()
       }
-    }
-  };
 
-  const handleMouseMove = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const rect = canvas.getBoundingClientRect();
-    const mouseX = event.clientX - rect.left;
-    const mouseY = event.clientY - rect.top;
+      for (let i = 0; i <= rows; i++) {
+        const y = i * cellHeight
+        ctx.beginPath()
+        ctx.moveTo(0, y)
+        ctx.lineTo(width, y)
+        ctx.stroke()
+      }
+    },
+    [],
+  )
 
-    if (draggingJoint) {
-      setJoints((prevJoints) => ({
-        ...prevJoints,
-        [draggingJoint]: [mouseX, mouseY],
-      }));
-    } else if (draggingSelection && dragStart) {
-      const [startX, startY] = dragStart;
-      setSelectionBox([startX, startY, mouseX, mouseY]);
+  const drawPose = useCallback(
+    (ctx: CanvasRenderingContext2D) => {
+      const canvasWidth = ctx.canvas.width
+      const canvasHeight = ctx.canvas.height
 
-      const smallerX = Math.min(startX, mouseX);
-      const largerX = Math.max(startX, mouseX);
-      const smallerY = Math.min(startY, mouseY);
-      const largerY = Math.max(startY, mouseY);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight)
+      drawGrid(ctx, canvasWidth, canvasHeight)
 
-      const newSelectedJoints = Object.entries(joints)
-        .filter(([, [x, y]]) => x > smallerX && x < largerX && y > smallerY && y < largerY)
-        .map(([joint]) => joint);
-      // console.log("NEW selected: ", newSelectedJoints, startX, startY, mouseX, mouseY);
-      setSelectedJoints(newSelectedJoints);
-    }
-  };
+      if (!joints) return
 
-  const handleMouseUp = () => {
-    setDraggingJoint(null);
+      const connections: string[][] = PoseConnection
+      for (const [start, end] of connections) {
+        ctx.beginPath()
+        ctx.moveTo(...joints[start])
+        ctx.lineTo(...joints[end])
+        ctx.strokeStyle = 'black'
+        ctx.lineWidth = 5
+        ctx.stroke()
+      }
 
-    if (draggingSelection) {
-      setDraggingSelection(false);
-      setSelectionBox(null);
-    }
-  };
+      // Draw joints
+      for (const [joint, [x, y]] of Object.entries(joints)) {
+        ctx.beginPath()
+        ctx.arc(x, y, 5, 0, Math.PI * 2)
+        ctx.fillStyle = selectedJoints.includes(joint) ? 'red' : 'black' // Highlight selected joints in red
+        ctx.fill()
+      }
 
-  const handleMouseMoveSelection = (event: MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (canvas && draggingJoint && selectedJoints.length > 0) {
-      const rect = canvas.getBoundingClientRect();
-      const mouseX = event.clientX - rect.left;
-      const mouseY = event.clientY - rect.top;
+      // Draw selection box if dragging
+      if (selectionBox) {
+        const [x1, y1, x2, y2] = selectionBox
+        ctx.beginPath()
+        ctx.rect(x1, y1, x2 - x1, y2 - y1)
+        ctx.strokeStyle = 'blue'
+        ctx.lineWidth = 1
+        ctx.stroke()
+      }
+    },
+    [joints, selectedJoints, selectionBox, drawGrid],
+  )
 
-      const deltaX = mouseX - joints[draggingJoint][0];
-      const deltaY = mouseY - joints[draggingJoint][1];
+  const getJointAtPosition = useCallback(
+    (x: number, y: number) => {
+      if (joints === null) return null
+      return (
+        Object.entries(joints).find(([, [jointX, jointY]]) => {
+          return Math.hypot(jointX - x, jointY - y) < 10
+        })?.[0] || null
+      )
+    },
+    [joints],
+  )
 
-      setJoints((prevJoints) => {
-        const newJoints = { ...prevJoints };
-        for (const joint of selectedJoints) {
-          newJoints[joint] = [newJoints[joint][0] + deltaX, newJoints[joint][1] + deltaY];
+  const handleMouseDown = useCallback(
+    (event: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current
+      if (canvas) {
+        const rect = canvas.getBoundingClientRect()
+        const mouseX = event.clientX - rect.left
+        const mouseY = event.clientY - rect.top
+
+        const joint = getJointAtPosition(mouseX, mouseY)
+        if (joint) {
+          draggingJoint = joint
+        } else {
+          setDragStart([mouseX, mouseY])
+          draggingSelection = true
+          setSelectedJoints([])
         }
-        return newJoints;
-      });
+      }
+    },
+    [getJointAtPosition],
+  )
+
+  const handleMouseMove = useCallback(
+    (event: React.MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current
+      if (!canvas) return
+
+      const rect = canvas.getBoundingClientRect()
+      const mouseX = event.clientX - rect.left
+      const mouseY = event.clientY - rect.top
+
+      if (draggingJoint) {
+        setJoints((prevJoints) => ({
+          ...prevJoints,
+          [draggingJoint as string]: [mouseX, mouseY],
+        }))
+      } else if (draggingSelection && dragStart) {
+        const [startX, startY] = dragStart
+        setSelectionBox([startX, startY, mouseX, mouseY])
+
+        const smallerX = Math.min(startX, mouseX)
+        const largerX = Math.max(startX, mouseX)
+        const smallerY = Math.min(startY, mouseY)
+        const largerY = Math.max(startY, mouseY)
+
+        const newSelectedJoints = joints
+          ? Object.entries(joints)
+              .filter(
+                ([, [x, y]]) =>
+                  x > smallerX && x < largerX && y > smallerY && y < largerY,
+              )
+              .map(([joint]) => joint)
+          : []
+        setSelectedJoints(newSelectedJoints)
+      }
+    },
+    [dragStart, joints],
+  )
+
+  const handleMouseUp = useCallback(() => {
+    draggingJoint = null
+    if (draggingSelection) {
+      draggingSelection = false
+      setSelectionBox(null)
     }
-  };
+  }, [])
+
+  const handleMouseMoveSelection = useCallback(
+    (event: MouseEvent<HTMLCanvasElement>) => {
+      const canvas = canvasRef.current
+      if (canvas && draggingJoint && selectedJoints.length > 0) {
+        const rect = canvas.getBoundingClientRect()
+        const mouseX = event.clientX - rect.left
+        const mouseY = event.clientY - rect.top
+
+        if (!joints) return
+        const deltaX = mouseX - joints[draggingJoint][0]
+        const deltaY = mouseY - joints[draggingJoint][1]
+
+        setJoints((prevJoints) => {
+          const newJoints = { ...prevJoints }
+          for (const joint of selectedJoints) {
+            newJoints[joint] = [
+              newJoints[joint][0] + deltaX,
+              newJoints[joint][1] + deltaY,
+            ]
+          }
+          return newJoints
+        })
+      }
+    },
+    [selectedJoints, joints],
+  )
 
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = canvasRef.current
     if (canvas) {
-      const ctx = canvas.getContext('2d');
+      const ctx = canvas.getContext('2d')
       if (ctx) {
-        drawPose(ctx);
+        drawPose(ctx)
       }
     }
-  }, [drawPose, joints, selectionBox]);
+  }, [drawPose])
 
   return (
-    <Box>
+    <Box height="100%">
       <canvas
         ref={canvasRef}
-        width={800}
-        height={800}
+        height={270}
+        width={402}
         style={{ border: '1px solid black' }}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
@@ -222,7 +225,7 @@ const PoseCanvas: React.FC = () => {
         onMouseUp={handleMouseUp}
       />
     </Box>
-  );
-};
+  )
+}
 
-export default PoseCanvas;
+export default PoseCanvas

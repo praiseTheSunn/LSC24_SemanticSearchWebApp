@@ -30,3 +30,8 @@ export { default as TrafficLightIcon } from './obj_icons/Traffic Light.svg'
 
 export { default as ObjectPosIcon } from './objectPosIcon.svg'
 export { default as HistoryIcon } from './historyIcon.png'
+
+export { default as jogging } from './Poses/jogging.png'
+export { default as yoga } from './Poses/yoga.png'
+export { default as halfBody } from './Poses/halfBody.png'
+export { default as pushUp } from './Poses/pushUp.png'
