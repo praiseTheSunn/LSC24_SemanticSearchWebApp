@@ -238,10 +238,15 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           if (isVietnameseEnabled) {
             // Translate to english
             TriggerTranslate({ q: value, target: 'en' })
+            dispatch(appActions.setTextQuery(value))
             setTextareaValue('')
             setMessagePopup(true)
             return
           }
+          else {
+            dispatch(appActions.setTextQuery(value))
+          }
+          console.log('Updated textQuery:', value)  // <--- In ra textQuery
           const filter = { category: 'query', value, status: 1 }
           setQuery(value)
           ////////////

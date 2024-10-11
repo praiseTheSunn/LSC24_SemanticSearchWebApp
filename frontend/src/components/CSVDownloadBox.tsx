@@ -33,6 +33,8 @@ export const CSVDownloadBox = () => {
   const csvImages = useAppSelector((state) => state.app.csvImages)
   const likeImages = useAppSelector((state) => state.app.likedImages)
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
+  const textQuery = useAppSelector((state) => state.app.textQuery)
+  const queryData = useAppSelector((state) => state.app.data)
   const dispatch = useAppDispatch()
 
   const [anchorElCSV, setAnchorElCSV] = useState<HTMLElement | null>(null)
@@ -129,10 +131,13 @@ export const CSVDownloadBox = () => {
   }
   
   const [feedback, setFeedback] = useState(null)
+  const [likeSimilarImages, setLikeSimilarImages] = useState([])
+  const [dislikeSimilarImages, setDislikeSimilarImages] = useState([])
 
+  
   const handleSubmitFeedback = (event: React.MouseEvent<HTMLElement>) => {
     const like = {
-      text_query: 'halo',
+      text_query: textQuery,
       image_urls: likeImages.map((image) => image.img_link),
       model: "clip",
       limit: 30,
@@ -148,8 +153,7 @@ export const CSVDownloadBox = () => {
       dislike: dislike,
     }
     setFeedback(feedbackData)
-    console.log('Submitted feedback:', feedbackData)
-
+    console.log('Feedback data:', feedbackData)
   }
 
   const feedbackResult = useGetFeedbackImagesQuery(feedback)
@@ -159,14 +163,39 @@ export const CSVDownloadBox = () => {
   useEffect(() => {
     if (feedbackResult) {
       if (data) {
-        console.log('Feedback result data:', data)
+        console.log('Feedback like result data:', data.like[0])
+        console.log('Feedback dislike result data:', data.dislike[0])
+        // dispatch(appActions.setLikedSimilarImages(data.like[0]))
+        // dispatch(appActions.setDislikedSimilarImages(data.dislike[0]))
+        const likeSimilarImages = data.like[0].map((image: any) => image.img_link)
+        const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link)
+
+        const afterFeedbackImage = queryData
+        // Loại bỏ các ảnh có img_link trong dislikeSimilarImages
+        .filter((image: any) => !dislikeSimilarImages.includes(image.img_link))
+        // Sắp xếp ảnh có img_link trong likeSimilarImages lên đầu
+        .sort((a: any, b: any) => {
+          const aLiked = likeSimilarImages.includes(a.img_link);
+          const bLiked = likeSimilarImages.includes(b.img_link);
+      
+          if (aLiked && !bLiked) {
+            return -1; // Ưu tiên a
+          } else if (!aLiked && bLiked) {
+            return 1; // Ưu tiên b
+          } else {
+            return 0; // Giữ nguyên vị trí
+          }
+        });
+          
+        // console.log('afterFeedbackImage:', afterFeedbackImage)
+        dispatch(appActions.setAppImageData(afterFeedbackImage))
+        
       }
       if (isError) {
         console.error('Error fetching feedback result:', error)
       }
     }
   }, [feedbackResult])
-
 
   return (
     <React.Fragment>
