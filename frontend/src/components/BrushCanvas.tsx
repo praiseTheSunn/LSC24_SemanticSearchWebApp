@@ -11,6 +11,9 @@ import type {
   Icon,
   Rect,
 } from './Popup/ObjectPositionPopup'
+// import { Grid } from 'react-virtualized'
+
+import { Grid } from '@mui/material'
 
 interface WhiteboardProps {
   selectedIcon: Icon | null
@@ -137,9 +140,10 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
     <Box
       sx={{
         cursor: selectedIcon ? 'crosshair' : 'default',
+        border: '1px solid black',
       }}
     >
-      <Box
+      {/* <Box
         sx={{
           width: '100%',
           display: 'flex',
@@ -150,7 +154,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
           gap: '10px',
         }}
       >
-        {/* Brush Size Slider */}
         <Typography
           gutterBottom
           sx={{
@@ -172,19 +175,27 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
           onChange={handleBrushSizeChange}
           valueLabelDisplay="off"
         />
-      </Box>
+      </Box> */}
 
       {/* Whiteboard Grid */}
-      <Box
-        display="grid"
-        gridTemplateColumns={`repeat(${gridSize}, 1fr)`}
-        gridTemplateRows={`repeat(${gridSize}, 1fr)`}
-        gap={0} // Reduce gap between cells to 0
+      <Grid
+        container
+        spacing={0} // Reduce gap between cells to 0
+        // columns={gridSize}
+        // rows={gridSize}
         // onMouseLeave={() => setIsDrawing(false)} // Reset drawing when mouse leaves
+        columns={gridSize}
+        sx={{
+          width: Config.WhiteboardCanvasWidth,
+          height: Config.WhiteboardCanvasHeight,
+        }}
+        // rows={gridSize}
       >
         {dataGrid.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
-            <Box
+            <Grid
+              item
+              xs={1}
               // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
               key={`${rowIndex}-${colIndex}`}
               sx={{
@@ -218,10 +229,10 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
               >
                 {dataGrid[rowIndex][colIndex].objectName}{' '}
               </Typography>
-            </Box>
+            </Grid>
           )),
         )}
-      </Box>
+      </Grid>
     </Box>
   )
 }

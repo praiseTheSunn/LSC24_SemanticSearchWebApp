@@ -280,33 +280,33 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         height="fit-content"
       >
         <Box
-          id="brush-container"
-          sx={{
-            opacity: layer === 0 ? 1 : 0.5,
-            zIndex: 1010 + (layer === 0 ? 1000 : 0),
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            padding: 0,
-          }}
-        >
-          <BrushWhiteboard
-            setSelecObjects={setSelectedObjects}
-            onDraw={handleDraw}
-            selectedIcon={selectedIcon}
-            onClear={isClear}
-            setIsClear={setIsClear}
-            dataGrid={dataGrid}
-            setDataGrid={setDataGrid}
-          />
-        </Box>
-        <Box
           position="relative"
           sx={{
             width: `${systemConfig.WhiteboardCanvasWidth}px`,
             height: `${systemConfig.WhiteboardCanvasHeight}px`,
           }}
         >
+          <Box
+            id="brush-container"
+            sx={{
+              opacity: layer === 0 ? 1 : 0.5,
+              zIndex: 1010 + (layer === 0 ? 1000 : 0),
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              padding: 0,
+            }}
+          >
+            <BrushWhiteboard
+              setSelecObjects={setSelectedObjects}
+              onDraw={handleDraw}
+              selectedIcon={selectedIcon}
+              onClear={isClear}
+              setIsClear={setIsClear}
+              dataGrid={dataGrid}
+              setDataGrid={setDataGrid}
+            />
+          </Box>
           <Box
             id="whiteboard-container"
             sx={{
