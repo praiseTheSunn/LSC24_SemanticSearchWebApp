@@ -1,6 +1,7 @@
 import type { Dispatch } from '@reduxjs/toolkit'
 import { type Id, toast } from 'react-toastify'
 import { appActions } from '../AppState'
+import type { AppState } from '../types/app'
 import type { ImageRecord } from '../types/image'
 
 export const AddLikeAction = (
