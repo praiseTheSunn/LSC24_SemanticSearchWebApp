@@ -7,7 +7,6 @@ import type { ImageRecord } from '../types/image'
 export const AddDislikeAction = (
   src_data: ImageRecord,
   toastId: Id,
-  imageDatas: ImageRecord[],
   dispatch: Dispatch,
   prevImages: ImageRecord[],
 ) => {
@@ -21,7 +20,5 @@ export const AddDislikeAction = (
   })
 
   const updatedDislikedImages = [...prevImages, src_data]
-  // console.log('updatedCSVImages', updatedCSVImages);
-
   dispatch(appActions.setDislikedImages(updatedDislikedImages))
 }

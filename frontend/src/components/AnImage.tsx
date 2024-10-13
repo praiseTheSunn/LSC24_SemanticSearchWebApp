@@ -67,7 +67,6 @@ const AnImage: React.FC<AnImageProps> = ({
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
 
   const submit = (src_data: ImageRecord) => {
-    console.log('src', src_data.img_link)
     const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
       position: 'bottom-right',
       closeOnClick: true,
@@ -79,7 +78,6 @@ const AnImage: React.FC<AnImageProps> = ({
   }
 
   const like = (src_data: ImageRecord) => {
-    console.log('src', src_data.img_link)
     const toastId = toast.loading(`Like: ${src_data.img_link}`, {
       position: 'bottom-right',
       closeOnClick: true,

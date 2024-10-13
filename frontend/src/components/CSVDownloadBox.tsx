@@ -131,8 +131,6 @@ export const CSVDownloadBox = () => {
   }
   
   const [feedback, setFeedback] = useState(null)
-  const [likeSimilarImages, setLikeSimilarImages] = useState([])
-  const [dislikeSimilarImages, setDislikeSimilarImages] = useState([])
 
   
   const handleSubmitFeedback = (event: React.MouseEvent<HTMLElement>) => {
@@ -140,7 +138,7 @@ export const CSVDownloadBox = () => {
       text_query: textQuery,
       image_urls: likeImages.map((image) => image.img_link),
       model: "clip",
-      limit: 30,
+      limit: 10,
     }
     const dislike = {
       text_query: 'dislike',
@@ -163,32 +161,17 @@ export const CSVDownloadBox = () => {
   useEffect(() => {
     if (feedbackResult) {
       if (data) {
-        // console.log('Feedback like result data:', data.like[0])
-        // console.log('Feedback dislike result data:', data.dislike[0])
-        // dispatch(appActions.setLikedSimilarImages(data.like[0]))
-        // dispatch(appActions.setDislikedSimilarImages(data.dislike[0]))
         const likeSimilarImages = data.like[0].map((image: any) => image.img_link)
         const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link)
 
-        const afterFeedbackImage = queryData
-        // Loại bỏ các ảnh có img_link trong dislikeSimilarImages
-        .filter((image: any) => !dislikeSimilarImages.includes(image.img_link))
-        // Sắp xếp ảnh có img_link trong likeSimilarImages lên đầu
-        .sort((a: any, b: any) => {
-          const aLiked = likeSimilarImages.includes(a.img_link);
-          const bLiked = likeSimilarImages.includes(b.img_link);
-      
-          if (aLiked && !bLiked) {
-            return -1; // Ưu tiên a
-          } else if (!aLiked && bLiked) {
-            return 1; // Ưu tiên b
-          } else {
-            return 0; // Giữ nguyên vị trí
-          }
-        });
-          
-        // console.log('afterFeedbackImage:', afterFeedbackImage)
-        dispatch(appActions.setAppImageData(afterFeedbackImage))
+        const likedImages = queryData.filter((image: any) => likeSimilarImages.includes(image.img_link));
+        const otherImages = queryData.filter((image: any) => 
+          !likeSimilarImages.includes(image.img_link) && !dislikeSimilarImages.includes(image.img_link)
+        );
+        
+        const afterFeedbackImage = [...likedImages, ...otherImages];
+        
+        dispatch(appActions.setAppImageData(afterFeedbackImage));
         
       }
       if (isError) {
@@ -328,15 +311,6 @@ export const CSVDownloadBox = () => {
               horizontal: 'right',
             }}
             marginThreshold={20}
-            PaperProps={{
-              sx: {
-                minWidth: '200px',
-                minHeight: '50px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              },
-            }}
           >
             {likeImages.length === 0 ? (
               <Typography>No images to preview</Typography>
