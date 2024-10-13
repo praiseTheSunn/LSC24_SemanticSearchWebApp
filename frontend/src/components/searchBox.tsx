@@ -148,6 +148,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       if (event.key === 'Enter') {
         // setDisplayedImages(false);
         event.preventDefault() // Prevent default behavior
+        dispatch(appActions.setLikedImages([]))
+        dispatch(appActions.setDislikedImages([]))
+
         const input = event.target.value.trim()
         const timestamp = new Date().toLocaleTimeString()
         let updatedQuery = input

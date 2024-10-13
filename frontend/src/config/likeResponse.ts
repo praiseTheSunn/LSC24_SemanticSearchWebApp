@@ -1,13 +1,11 @@
 import type { Dispatch } from '@reduxjs/toolkit'
 import { type Id, toast } from 'react-toastify'
 import { appActions } from '../AppState'
-import type { AppState } from '../types/app'
 import type { ImageRecord } from '../types/image'
 
 export const AddLikeAction = (
   src_data: ImageRecord,
   toastId: Id,
-  imageDatas: ImageRecord[],
   dispatch: Dispatch,
   prevImages: ImageRecord[],
 ) => {
@@ -21,7 +19,6 @@ export const AddLikeAction = (
   })
 
   const updatedLikedImages = [...prevImages, src_data]
-  console.log('updatedLikedImages', updatedLikedImages);
 
   dispatch(appActions.setLikedImages(updatedLikedImages))
 }
