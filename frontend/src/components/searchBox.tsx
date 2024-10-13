@@ -246,7 +246,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           else {
             dispatch(appActions.setTextQuery(value))
           }
-          console.log('Updated textQuery:', value)  // <--- In ra textQuery
+          
           const filter = { category: 'query', value, status: 1 }
           setQuery(value)
           ////////////
