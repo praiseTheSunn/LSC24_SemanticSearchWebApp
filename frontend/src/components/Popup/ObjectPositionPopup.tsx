@@ -7,9 +7,11 @@ import {
   Button,
   Grid,
   IconButton,
+  Slider,
   SpeedDial,
   SpeedDialAction,
   TextField,
+  Typography,
 } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Whiteboard } from '..'
@@ -78,6 +80,9 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const { data, error, isError, isFetching } = result
 
   const [openPoseSpeedDial, setOpenPoseSpeedDial] = useState(false)
+  const [openBrushSpeedDial, setOpenBrushSpeedDial] = useState(true)
+
+  const [brushSize, setBrushSize] = useState<number>(3) // Default brush size is 3x3
 
   const systemConfig = useAppSelector((state) => state.app.config)
   // TO DO: move to config
@@ -135,6 +140,10 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     setDataGrid(initDataGrid)
     setSelectedIcon(null)
     setIsClear(true)
+  }
+
+  const handleBrushSizeChange = (event: Event, newValue: number | number[]) => {
+    setBrushSize(newValue as number)
   }
 
   const txtQuery = useAppSelector((state) => state.app.queryPayload.text_query)
@@ -305,6 +314,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
               setIsClear={setIsClear}
               dataGrid={dataGrid}
               setDataGrid={setDataGrid}
+              brushSize={brushSize}
             />
           </Box>
           <Box
@@ -420,10 +430,65 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
             <SpeedDial
               ariaLabel="SpeedDial basic example"
               sx={{ position: 'absolute', zIndex: 20000, width: '100%' }}
-              icon={<BrushIcon onClick={() => setLayer(layer === 0 ? 1 : 0)} />}
+              icon={<BrushIcon onClick={() => {
+                setOpenBrushSpeedDial(!openBrushSpeedDial)
+                setLayer(layer === 0 ? 1 : 0)}
+                }
+                />}
               direction="down"
+              open={openBrushSpeedDial}
               FabProps={{ size: 'small', color: 'secondary' }}
             />
+            {layer === 0 && (
+              <Box
+                  sx={{
+                    // width: '100%',
+                    position: 'absolute',
+                    width: '160px',
+                    height: 'fit-content',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    // marginTop: '10px',
+                    // marginBottom: '10px',
+                    marginLeft: '80px',
+                    gap: '5px',
+                    paddingX: '15px',
+                    backgroundColor: 'white',
+                    borderRadius: '10px',
+                    boxShadow: '2px 4px 4px rgba(0, 0, 0, 0.5)',
+                  }}
+                >
+                  <Typography
+
+                    gutterBottom
+                    sx={{
+                      width: '100%',
+                    }}
+                    align='center'
+                  >
+                    Brush Size: {brushSize}
+                  </Typography>
+                  <Slider
+                    sx={
+                      {
+                        // marginRight: '10px',
+                        
+                        // rotate: '180deg',
+                      }
+                    }
+                    // orientation='vertical'
+                    // track="inverted"
+                    // track={false}
+                    value={brushSize}
+                    min={1}
+                    max={7} // You can adjust the max brush size here
+                    step={2}
+                    onChange={handleBrushSizeChange}
+                    valueLabelDisplay="off"
+                  />
+                </Box>
+            )}
           </Box>
           <Box position="relative" width="100%" height="40px">
             <SpeedDial
@@ -440,6 +505,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                     setLayer(openPoseSpeedDial ? 1 : 2)
                   }}
                 />
+
               }
               direction="down"
               open={openPoseSpeedDial}
