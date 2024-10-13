@@ -153,7 +153,7 @@ export const CSVDownloadBox = () => {
       dislike: dislike,
     }
     setFeedback(feedbackData)
-    console.log('Feedback data:', feedbackData)
+    // console.log('Feedback data:', feedbackData)
   }
 
   const feedbackResult = useGetFeedbackImagesQuery(feedback)
@@ -163,8 +163,8 @@ export const CSVDownloadBox = () => {
   useEffect(() => {
     if (feedbackResult) {
       if (data) {
-        console.log('Feedback like result data:', data.like[0])
-        console.log('Feedback dislike result data:', data.dislike[0])
+        // console.log('Feedback like result data:', data.like[0])
+        // console.log('Feedback dislike result data:', data.dislike[0])
         // dispatch(appActions.setLikedSimilarImages(data.like[0]))
         // dispatch(appActions.setDislikedSimilarImages(data.dislike[0]))
         const likeSimilarImages = data.like[0].map((image: any) => image.img_link)
