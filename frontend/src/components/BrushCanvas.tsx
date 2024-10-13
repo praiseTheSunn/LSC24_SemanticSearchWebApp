@@ -23,6 +23,7 @@ interface WhiteboardProps {
   setSelecObjects: Dispatch<SetStateAction<DrawnItem[]>>
   dataGrid: GridDict[][]
   setDataGrid: Dispatch<SetStateAction<GridDict[][]>>
+  brushSize: number
 }
 
 const getOppositeColor = (HexaStr: string): string => {
@@ -46,6 +47,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
   setSelecObjects,
   dataGrid,
   setDataGrid,
+  brushSize,
 }) => {
   const gridSize = 20
   const Config = useAppSelector((state) => state.app.config)
@@ -60,7 +62,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
     )
 
   const [isDrawing, setIsDrawing] = useState<boolean>(false)
-  const [brushSize, setBrushSize] = useState<number>(1) // Default brush size is 1x1
   const [drawnItems, setDrawnItems] = useState<DrawnItem[]>([])
 
   useEffect(() => {
@@ -132,10 +133,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
     }
   }
 
-  const handleBrushSizeChange = (event: Event, newValue: number | number[]) => {
-    setBrushSize(newValue as number)
-  }
-
   return (
     <Box
       sx={{
@@ -143,39 +140,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
         border: '1px solid black',
       }}
     >
-      {/* <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: '10px',
-          marginBottom: '10px',
-          gap: '10px',
-        }}
-      >
-        <Typography
-          gutterBottom
-          sx={{
-            width: '25%',
-          }}
-        >
-          Brush Size: {brushSize}
-        </Typography>
-        <Slider
-          sx={
-            {
-              // marginRight: '10px',
-            }
-          }
-          value={brushSize}
-          min={1}
-          max={7} // You can adjust the max brush size here
-          step={2}
-          onChange={handleBrushSizeChange}
-          valueLabelDisplay="off"
-        />
-      </Box> */}
 
       {/* Whiteboard Grid */}
       <Grid
