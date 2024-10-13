@@ -1,7 +1,7 @@
 import { Box, Tooltip, Typography } from '@mui/material'
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
+import type React from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
-import { Config } from '.'
 import { useAppSelector } from '../AppState'
 import type { DrawnItem, Icon, Rect } from './Popup/ObjectPositionPopup'
 
@@ -101,6 +101,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      console.log('selectedIcon:', selectedIcon)
       if (selectedIcon && whiteboardRef.current) {
         const rect = whiteboardRef.current.getBoundingClientRect()
         const x = e.clientX - rect.left
@@ -124,6 +125,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         const y_percent = (e.clientY - rect.top) / whiteboardHeight
         const startX = startPos.x / whiteboardWidth
         const startY = startPos.y / whiteboardHeight
+        console.log('startX:', startX)
 
         setRect({
           x: Math.min(x, startPos.x),
@@ -155,6 +157,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
       )
       newItem.encodeColors = encodeStrings.encodeColorStrings.join(' ')
       newItem.encodeObjects = encodeStrings.encodeObjectStrings.join(' ')
+      // console.log('New item:', newItem)
 
       setDrawnItems((prevItems) => [...prevItems, newItem])
       onDraw(newItem) // Pass the drawn item to the parent component
@@ -201,10 +204,10 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
     <Box
       sx={{
         border: '1px solid black',
-        position: 'relative',
+        position: 'absolute',
         cursor: selectedIcon ? 'crosshair' : 'default',
-        width: '280px',
-        height: '200px',
+        height: '100%',
+        width: '100%',
       }}
       component="div"
       ref={whiteboardRef}
@@ -340,4 +343,4 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
   )
 }
 
-export default React.memo(Whiteboard)
+export default Whiteboard
