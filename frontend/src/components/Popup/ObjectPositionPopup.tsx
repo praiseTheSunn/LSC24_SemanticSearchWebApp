@@ -1,29 +1,34 @@
+import AccessibilityIcon from '@mui/icons-material/Accessibility'
+import BrushIcon from '@mui/icons-material/Brush'
+import CloseIcon from '@mui/icons-material/Close'
 import {
   Autocomplete,
   Box,
   Button,
   Grid,
   IconButton,
+  SpeedDial,
+  SpeedDialAction,
   TextField,
 } from '@mui/material'
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { toast } from 'react-toastify'
+import { Whiteboard } from '..'
 import {
   appActions,
   useAppDispatch,
   useAppSelector,
   useLazyGetImagesQuery,
-  useLazyGetObjectsByPositionQuery,
 } from '../../AppState'
 import { ObjectV8ClassNames } from '../../assets/ObjClass/yolov8_class_names'
 import { ObjectV10ClassNames } from '../../assets/ObjClass/yolov10_class_names'
 import pico8Colors from '../../assets/ObjColors/pico8'
-// import { usePopUp } from '../../contexts/popUpContext';
+import { HumanPoses } from '../../data/HumanPoses'
+import { InitPoseCoor } from '../../data/InitPoseCoor'
 import { DragIconList } from '../../data/icon'
 import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
-// import { ObjectService } from '../../services/objectService';
-import Whiteboard from '../WhiteBoard'
+import BrushWhiteboard from '../BrushCanvas'
+import PoseCanvas from '../PoseCanvas'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -51,13 +56,41 @@ export interface Icon {
   color?: string
 }
 
+// define a dict type
+export interface GridDict {
+  // color as string
+  color: string
+  // object name as string
+  objectName: string
+}
+
 const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const [selectedIcon, setSelectedIcon] = useState<Icon | null>(null)
+  const [selectedPose, setSelectedPose] = useState<Record<
+    string,
+    [number, number]
+  > | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([])
+  const [layer, setLayer] = useState(0)
   const [isClear, setIsClear] = useState(false)
   // const [trigger, result] = useLazyGetObjectsByPositionQuery()
   const [trigger, result] = useLazyGetImagesQuery()
   const { data, error, isError, isFetching } = result
+
+  const [openPoseSpeedDial, setOpenPoseSpeedDial] = useState(false)
+
+  const systemConfig = useAppSelector((state) => state.app.config)
+  // TO DO: move to config
+  const gridSize = 20
+  const initDataGrid = Array(gridSize)
+    .fill(null)
+    .map(() =>
+      Array(gridSize).fill({
+        color: '',
+        objectName: '',
+      }),
+    )
+  const [dataGrid, setDataGrid] = useState<GridDict[][]>(initDataGrid)
 
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
@@ -99,6 +132,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   }
 
   const handleClear = () => {
+    setDataGrid(initDataGrid)
     setSelectedIcon(null)
     setIsClear(true)
   }
@@ -181,8 +215,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         boxShadow: '2px 4px 4px rgba(0, 0, 0, 0.5)',
         height: 'fit-content',
         width: 'fit-content',
-        overflow: 'hidden',
-        border: '1px solid black',
+        overflow: 'visible',
         padding: '8px',
       }}
     >
@@ -240,19 +273,78 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
           )}
         />
       </Box>
-      <Box>
-        <Whiteboard
-          setSelecObjects={setSelectedObjects}
-          onDraw={handleDraw}
-          selectedIcon={selectedIcon}
-          onClear={isClear}
-          setIsClear={setIsClear}
-        />
+      <Box
+        display="flex"
+        flexDirection="column"
+        position="relative"
+        height="fit-content"
+      >
+        <Box
+          id="brush-container"
+          sx={{
+            opacity: layer === 0 ? 1 : 0.5,
+            zIndex: 1010 + (layer === 0 ? 1000 : 0),
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            padding: 0,
+          }}
+        >
+          <BrushWhiteboard
+            setSelecObjects={setSelectedObjects}
+            onDraw={handleDraw}
+            selectedIcon={selectedIcon}
+            onClear={isClear}
+            setIsClear={setIsClear}
+            dataGrid={dataGrid}
+            setDataGrid={setDataGrid}
+          />
+        </Box>
+        <Box
+          position="relative"
+          sx={{
+            width: `${systemConfig.WhiteboardCanvasWidth}px`,
+            height: `${systemConfig.WhiteboardCanvasHeight}px`,
+          }}
+        >
+          <Box
+            id="whiteboard-container"
+            sx={{
+              opacity: layer === 1 ? 1 : 0.5,
+              zIndex: 1010 + (layer === 1 ? 1000 : 0),
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              padding: 0,
+            }}
+          >
+            <Whiteboard
+              setSelecObjects={setSelectedObjects}
+              onDraw={handleDraw}
+              selectedIcon={selectedIcon}
+              onClear={isClear}
+              setIsClear={setIsClear}
+            />
+          </Box>
+          <Box
+            id="pose-container"
+            sx={{
+              opacity: layer === 2 ? 1 : 0.5,
+              zIndex: 1010 + (layer === 2 ? 1000 : 0),
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              padding: 0,
+            }}
+          >
+            <PoseCanvas joints={selectedPose} setJoints={setSelectedPose} />
+          </Box>
+        </Box>
         <Grid
           style={{
             minWidth: '100px',
-            maxWidth: '100%',
             marginTop: '8px',
+            position: 'relative',
           }}
           columns={8}
           container
@@ -265,7 +357,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
               key={colorKeys as string}
               sx={{
                 boxSizing: 'border-box',
-                width: '33px',
                 height: '33px',
                 cursor: 'pointer',
                 borderWidth: '1px',
@@ -291,10 +382,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
           ))}
         </Grid>
       </Box>
-      <Box
-        sx={{ display: 'flex', flexDirection: 'column', marginLeft: 1 }}
-        className="flex flex-col ml-1"
-      >
+      <Box sx={{ display: 'flex', flexDirection: 'column', marginLeft: 1 }}>
         <Button
           variant="contained"
           color="error"
@@ -316,6 +404,77 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
         >
           Send
         </Button>
+        <Box
+          sx={{
+            position: 'relative',
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'center',
+            flexDirection: 'column',
+            gap: '15px',
+            top: '10px',
+          }}
+        >
+          <Box position="relative" width="100%" height="40px">
+            <SpeedDial
+              ariaLabel="SpeedDial basic example"
+              sx={{ position: 'absolute', zIndex: 20000, width: '100%' }}
+              icon={<BrushIcon onClick={() => setLayer(layer === 0 ? 1 : 0)} />}
+              direction="down"
+              FabProps={{ size: 'small', color: 'secondary' }}
+            />
+          </Box>
+          <Box position="relative" width="100%" height="40px">
+            <SpeedDial
+              ariaLabel="SpeedDial basic example"
+              sx={{ position: 'absolute', zIndex: 20000, width: '100%' }}
+              icon={
+                <AccessibilityIcon
+                  onClick={() => {
+                    if (selectedPose === null) {
+                      setSelectedPose(InitPoseCoor)
+                      setOpenPoseSpeedDial(true)
+                      setLayer(1)
+                    } else setOpenPoseSpeedDial(!openPoseSpeedDial)
+                    setLayer(openPoseSpeedDial ? 1 : 2)
+                  }}
+                />
+              }
+              direction="down"
+              open={openPoseSpeedDial}
+              FabProps={{ size: 'small', color: 'secondary' }}
+            >
+              {HumanPoses.map((pose) => (
+                <SpeedDialAction
+                  key={pose.name}
+                  icon={
+                    <Box
+                      component="img"
+                      src={pose.icon}
+                      alt={pose.name}
+                      sx={{
+                        objectFit: 'contain',
+                        height: '20px',
+                        width: '20px',
+                      }}
+                    />
+                  }
+                  tooltipTitle={pose.name}
+                  onClick={() => setSelectedPose(pose.joints)}
+                />
+              ))}
+              <SpeedDialAction
+                key="clear"
+                icon={<CloseIcon />}
+                tooltipTitle="Clear poses"
+                onClick={() => setSelectedPose(null)}
+              />
+            </SpeedDial>
+          </Box>
+
+          {/* </SpeedDial> */}
+        </Box>
       </Box>
     </Box>
   )

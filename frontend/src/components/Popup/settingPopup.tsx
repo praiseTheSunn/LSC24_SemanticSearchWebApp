@@ -1,5 +1,13 @@
-import { Paper, Slider, Typography, Accordion, AccordionSummary, AccordionDetails } from '@mui/material'
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
+import {
+  Accordion,
+  AccordionDetails,
+  AccordionSummary,
+  Box,
+  Paper,
+  Slider,
+  Typography,
+} from '@mui/material'
 import type React from 'react'
 import { useState } from 'react'
 import { saveConfigToLocalStorage } from '..'
@@ -25,8 +33,8 @@ const ConfigEditor: React.FC = () => {
   }
 
   return (
-    <Paper elevation={3} style={{ padding: '16px', margin: '16px' }}>
-      <Accordion defaultExpanded>
+    <Box style={{ padding: '10px', margin: '10px' }}>
+      <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">Image Grid Settings</Typography>
         </AccordionSummary>
@@ -188,7 +196,38 @@ const ConfigEditor: React.FC = () => {
           />
         </AccordionDetails>
       </Accordion>
-    </Paper>
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">Whiteboard Settings</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography gutterBottom> Whiteboard Height</Typography>
+          <Slider
+            value={config.WhiteboardCanvasHeight}
+            onChange={(e, newValue) =>
+              handleSliderChange('WhiteboardCanvasHeight', newValue as number)
+            }
+            step={2}
+            min={200}
+            max={700}
+            valueLabelDisplay="auto"
+          />
+
+          <Typography gutterBottom> Whiteboard Width</Typography>
+          <Slider
+            value={config.WhiteboardCanvasWidth}
+            onChange={(e, newValue) =>
+              handleSliderChange('WhiteboardCanvasWidth', newValue as number)
+            }
+            step={2}
+            min={200}
+            max={700}
+            valueLabelDisplay="auto"
+          />
+        </AccordionDetails>
+      </Accordion>
+    </Box>
   )
 }
 
