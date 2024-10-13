@@ -27,6 +27,7 @@ import pico8Colors from '../../assets/ObjColors/pico8'
 import { HumanPoses } from '../../data/HumanPoses'
 import { InitPoseCoor } from '../../data/InitPoseCoor'
 import { DragIconList } from '../../data/icon'
+import bodyPartToIndex from '../../data/JointMapping'
 import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 import BrushWhiteboard from '../BrushCanvas'
@@ -153,6 +154,76 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     const color_global_encoding: { [key: string]: number } = {}
     let obj_local_encoding = ''
     let color_local_encoding = ''
+
+    let pose_local_encoding = ''
+    const pose_parts: string[] = []
+
+    // Helper function to calculate the Euclidean distance
+    function calculateDistance(x1: number, y1: number, x2: number, y2: number): number {
+      return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+    }
+
+    // Loop through selectedPose to get the pose encoding
+    for (const key in selectedPose) {
+      const [x, y] = selectedPose[key];
+      
+      // Compute the cell coordinates
+      const cellY = Math.ceil(y / (systemConfig.WhiteboardCanvasHeight / 20)) - 1;
+      const cellX = Math.ceil(x / (systemConfig.WhiteboardCanvasWidth / 20)) - 1;
+
+      console.log('Key:', key, 'Y:', cellY, 'X:', cellX);
+      const encode = `${String.fromCharCode(65 + cellY)}${String.fromCharCode(97 + cellX)}${bodyPartToIndex[key]}`;
+
+      pose_parts.push(encode);
+
+      // Iterate over surrounding cells (-1, 0, 1)
+      for (let i = -1; i <= 1; i++) {
+        for (let j = -1; j <= 1; j++) {
+          if (i === 0 && j === 0) continue; // Skip the current cell
+
+          const surroundingCellRow = cellY + i;
+          const surroundingCellCol = cellX + j;
+
+          // Ensure surrounding cells are within grid bounds
+          const gridRows = 20;  // Assuming a 20x20 grid
+          const gridCols = 20;
+
+          if (
+            surroundingCellRow < 0 || surroundingCellRow >= gridRows ||
+            surroundingCellCol < 0 || surroundingCellCol >= gridCols
+          ) {
+            continue;
+          }
+
+          // Calculate the surrounding cell's center
+          const cellSizeHeight = systemConfig.WhiteboardCanvasHeight / gridRows;
+          const cellSizeWidth = systemConfig.WhiteboardCanvasWidth / gridCols;
+
+          const surroundingCenterX = (surroundingCellCol + 0.5) * cellSizeWidth;
+          const surroundingCenterY = (surroundingCellRow + 0.5) * cellSizeHeight;
+
+          // Calculate distances from the keypoint to the surrounding cell's center
+          const distanceY = calculateDistance(x, y, x, surroundingCenterY);
+          const distanceX = calculateDistance(x, y, surroundingCenterX, y);
+          // console.log('Checking cell:', surroundingCellRow, surroundingCellCol);
+          // console.log('DistanceY:', distanceY, 'DistanceX:', distanceX);
+
+          // If the keypoint is near the center of the surrounding cell, add it to the grid
+          if (
+            distanceY < 0.8 * cellSizeHeight &&
+            distanceX < 0.8 * cellSizeWidth
+          ) {
+            // console.log("SURROUND: ", surroundingCellRow, surroundingCellCol, key);
+            const encode = `${String.fromCharCode(65 + surroundingCellRow)}${String.fromCharCode(97 + surroundingCellCol)}${bodyPartToIndex[key]}`;
+            pose_parts.push(encode);
+          }
+        }
+      }
+    }
+
+    pose_local_encoding = pose_parts.join(' ');
+
+    console.log('Pose Encoding:', pose_local_encoding);
 
     for (const item of selectedObjects) {
       const { encodeObjects, encodeColors, icon } = item
