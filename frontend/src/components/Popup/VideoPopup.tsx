@@ -45,9 +45,12 @@ const VideoPopup = () => {
     )
   }, [dispatch])
 
+  const playbackRate = 1.5 // Adjust this value to change the playback speed
+
   useEffect(() => {
     if (videoRef.current) {
       videoRef.current.currentTime = parsedTimeStamp
+      videoRef.current.playbackRate = playbackRate
     }
   }, [parsedTimeStamp])
 
