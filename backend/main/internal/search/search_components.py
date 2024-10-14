@@ -7,7 +7,9 @@ from internal.search.parser import all_parsers, time_helpers
 from internal.search.scorer import combine_score
 
 
-index_name = dataset_config['dataset_name']
+dataset_name = dataset_config['dataset_name']
+metadata_index_name = dataset_name
+encoding_index_name = dataset_name + "_encoding"
 
 
 def search_semantic(model: str, text_embeddings: list[str]):
@@ -85,7 +87,7 @@ def search_semantic(model: str, text_embeddings: list[str]):
         }
 
 
-def search_objects(object_local_encoding, color_local_encoding, subset: list[str]) -> list[dict]: 
+def search_objects(object_local_encoding, color_local_encoding, pose_local_encoding, subset: list[str]) -> list[dict]: 
     body = {
         "query": {
             "bool": {
@@ -103,7 +105,14 @@ def search_objects(object_local_encoding, color_local_encoding, subset: list[str
                                 "query": color_local_encoding,
                             }
                         }
-                    }
+                    },
+                    {
+                        "match": {
+                            "pose_local_encoding": {
+                                "query": pose_local_encoding,
+                            }
+                        }
+                    },
                 ],
             },
         }
@@ -115,7 +124,7 @@ def search_objects(object_local_encoding, color_local_encoding, subset: list[str
             }
         }
     response = setup.es_client.search(
-        index=index_name,
+        index=encoding_index_name,
         size=1000,
         body=body
     )
@@ -171,7 +180,7 @@ def search_keyword(text_query: str, subset: list[str]) -> list[dict]:
             }
         }
     response = setup.es_client.search(
-        index=index_name,
+        index=metadata_index_name,
         size=1000,
         body=body
     )
@@ -189,7 +198,7 @@ def search_match_object_tags(text_query: str) -> list[dict]:
     if parsed_object_tags is None:
         return None
     response = setup.es_client.search(
-        index=index_name,
+        index=metadata_index_name,
         size=5000,
         query={
             "match": {
@@ -213,7 +222,7 @@ def search_match_location(text_query: str) -> list[dict]:
     if parsed_location is None:
         return None
     response = setup.es_client.search(
-        index=index_name,
+        index=metadata_index_name,
         size=5000,
         query={
             "match": {
@@ -234,7 +243,7 @@ def search_match_location(text_query: str) -> list[dict]:
 
 def search_match_caption(text_query: str) -> list[dict]:
     response = setup.es_client.search(
-        index=index_name,
+        index=metadata_index_name,
         size=5000,
         query={
             "match": {
@@ -259,7 +268,7 @@ def search_datetime(text_query: str) -> list[dict]:
         return []
     date1, time1, date2, time2 = time_helpers.fill_date_time(date1, time1, date2, time2)
     response = setup.es_client.search(
-        index=index_name,
+        index=metadata_index_name,
         size=10000,
         query={
             "bool": {
@@ -294,7 +303,7 @@ def search_datetime(text_query: str) -> list[dict]:
 
 def search_multimatch(text_query: str):
     response = setup.es_client.search(
-        index=index_name,
+        index=metadata_index_name,
         size=10000,
         query={
             "multi_match": {
@@ -319,7 +328,7 @@ def search_multimatch_datetime(text_query: str):
     date1, time1, date2, time2, date_boost, time_boost = time_helpers.fill_date_time(date1, time1, date2, time2)
 
     response = setup.es_client.search(
-        index=index_name,
+        index=metadata_index_name,
         size=10000,
         query={
             "bool": {
@@ -377,7 +386,7 @@ def search_3match_datetime(text_query: str):
     print(f"parsed_ocr: {parsed_ocr}")
 
     response = setup.es_client.search(
-        index=index_name,
+        index=metadata_index_name,
         size=10000,
         query={
             "bool": {

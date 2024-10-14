@@ -13,6 +13,7 @@ def prepare_response(image_names, scores = None):
 
     records = []
     rows = setup.metadata_rows
+
     if scores == None:
         scores = [0] * len(image_names)
 

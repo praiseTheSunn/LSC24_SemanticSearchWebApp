@@ -14,6 +14,7 @@ class RequestSearchByTextQuery(BaseModel):
     object_local_encoding: Optional[str] = ""
     color_global_encoding: Optional[Dict[str, int]] = {}
     color_local_encoding: Optional[str] = ""
+    pose_local_encoding: Optional[str] = ""
 
     class Config:
         json_schema_extra = {
@@ -53,7 +54,16 @@ class RequestExploreNeighborImages(BaseModel):
         }
 
 class RequestFeedbackRelevant(BaseModel):
-    text_embedding: list[float]
+    text_query: str
     image_urls: list[str]
     model: options_schemas.ModelOptions
     limit: int
+
+class RequestFeedbackIrrelevant(BaseModel):
+    image_urls: list[str]
+    model: options_schemas.ModelOptions
+    limit: int
+
+class RequestFeedback(BaseModel):
+    like: RequestFeedbackRelevant
+    dislike: RequestFeedbackIrrelevant

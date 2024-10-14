@@ -36,6 +36,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     object_local_encoding = data.object_local_encoding
     color_global_encoding = data.color_global_encoding
     color_local_encoding = data.color_local_encoding
+    pose_local_encoding = data.pose_local_encoding
 
     # Make the POST request for text embedding
     text_embeddings = []
@@ -62,7 +63,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     if mode == "smt":
         results_semantic = search_semantic(model, text_embeddings) if text_query else None
         urls_semantic = results_semantic["urls"] if results_semantic else []
-        results_objects = search_objects(object_local_encoding, color_local_encoding, subset=urls_semantic) if (object_local_encoding or color_local_encoding) else None   
+        results_objects = search_objects(object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_semantic) if (object_local_encoding or color_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
     
@@ -72,7 +73,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         urls_semantic = results_semantic["urls"] if results_semantic else []
         results_keywords = search_keyword(text_query, subset=urls_semantic) if text_query else None
         urls_keywords = results_keywords["urls"] if results_keywords else []
-        results_objects = search_objects(object_local_encoding, color_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding) else None   
+        results_objects = search_objects(object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_keywords, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
         
