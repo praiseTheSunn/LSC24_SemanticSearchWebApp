@@ -85,7 +85,9 @@ const AnImage: React.FC<AnImageProps> = ({
     })
 
     // REPLACE FOR EACH COMPETITION HERE
-    AddLikeAction(src_data, toastId, dispatch, likeImages)
+    if (!likeImages.includes(src_data)) {
+      AddLikeAction(src_data, toastId, dispatch, likeImages)
+    }
   }
 
   const dislike = (src_data: ImageRecord) => {
@@ -97,7 +99,9 @@ const AnImage: React.FC<AnImageProps> = ({
     })
 
     // REPLACE FOR EACH COMPETITION HERE
-    AddDislikeAction(src_data, toastId, dispatch, dislikeImages)
+    if (!dislikeImages.includes(src_data)) {
+      AddDislikeAction(src_data, toastId, dispatch, dislikeImages)
+    }
   }
 
   return (

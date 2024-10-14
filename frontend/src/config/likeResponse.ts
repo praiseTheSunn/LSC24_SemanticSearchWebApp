@@ -17,8 +17,8 @@ export const AddLikeAction = (
     closeOnClick: true,
     autoClose: 500,
     delay: 500,
-  })
-
+  }) 
+  
   const updatedLikedImages = [...prevImages, src_data]
 
   dispatch(appActions.setLikedImages(updatedLikedImages))
