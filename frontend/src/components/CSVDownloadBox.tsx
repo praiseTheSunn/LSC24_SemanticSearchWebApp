@@ -27,7 +27,11 @@ import { CSVPreviewPopup } from './Popup/CSVPreviewPopup'
 import ConfigEditor from './Popup/settingPopup'
 import EvaluationBox from './evaluationBox'
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useGetFeedbackImagesQuery } from '../AppState'
+import { 
+  useGetFeedbackImagesQuery, 
+  useGetFeedbackLikedImagesQuery, 
+  useGetFeedbackDislikedImagesQuery 
+} from '../AppState'
 
 export const CSVDownloadBox = () => {
   const csvImages = useAppSelector((state) => state.app.csvImages)
@@ -51,6 +55,9 @@ export const CSVDownloadBox = () => {
   const DislikePreviewPopupOpen = Boolean(anchorElDislikePreview)
   const isVisible = Boolean(anchorElEvaluation)
   const isSettingsVisible = Boolean(anchorElSettings)
+  const Config = useAppSelector((state) => state.app.config)
+  const likeLimit = Config.LikeNumber
+  const dislikeLimit = Config.DislikeNumber
 
   const handleDownloadCSV = () => {
     if (csvImages.length > 0) {
@@ -131,46 +138,73 @@ export const CSVDownloadBox = () => {
   }
   
   const [feedback, setFeedback] = useState(null)
-
   
-  const handleSubmitFeedback = (event: React.MouseEvent<HTMLElement>) => {
-    const like = {
-      text_query: textQuery,
-      image_urls: likeImages.map((image) => image.img_link),
-      model: "clip",
-      limit: 10,
+  const handleSubmitFeedback = (event: any) => {
+    if (likeImages.length === 0 && dislikeImages.length === 0) {
+      toast.error('No images to submit feedback', {
+        position: 'bottom-left',
+      })
     }
-    const dislike = {
-      text_query: 'dislike',
-      image_urls: dislikeImages.map((image) => image.img_link),
-      model: "clip",
-      limit: 30,
+    else  {
+      const feedbackData: any = {};
+      if (likeImages.length !== 0) {
+        feedbackData.like = {
+          text_query: textQuery,
+          image_urls: likeImages.map((image) => image.img_link),
+          model: "clip",
+          limit: likeLimit,
+        };
+      }
+      
+      if (dislikeImages.length !== 0) {
+        feedbackData.dislike = {
+          image_urls: dislikeImages.map((image) => image.img_link),
+          model: "clip",
+          limit: dislikeLimit,
+        };
+      }
+      console.log('Feedback data:', feedbackData)
+      setFeedback(feedbackData);
+
     }
-    const feedbackData = {
-      like: like,
-      dislike: dislike,
-    }
-    setFeedback(feedbackData)
     // console.log('Feedback data:', feedbackData)
+    dispatch(appActions.setLikedImages([]))
+    dispatch(appActions.setDislikedImages([]))
+    toast.success('Feedback submitted and images cleared', {
+      position: 'bottom-left',
+    });
   }
 
-  const feedbackResult = useGetFeedbackImagesQuery(feedback)
-  const { data, error, isError, isFetching } = feedbackResult
+  // const feedbackResult = useGetFeedbackImagesQuery(feedback)
 
-  // useGetFeedbackImagesQuery(feedback)
+  // let feedbackResult = null;
+
+  // if (feedback && feedback.like && feedback.dislike) {
+  // feedbackResult = useGetFeedbackImagesQuery(feedback);
+  // } else if (feedback && feedback.like) {
+  // feedbackResult = useGetFeedbackLikedImagesQuery(feedback);
+  // } else if (feedback && feedback.dislike) {
+  // feedbackResult = useGetFeedbackDislikedImagesQuery(feedback);
+  // }
+
+  const feedbackResult = useGetFeedbackImagesQuery(feedback);
+
+  const { data, error, isError, isFetching } = feedbackResult || {};
+
   useEffect(() => {
     if (feedbackResult) {
       if (data) {
-        const likeSimilarImages = data.like[0].map((image: any) => image.img_link)
-        const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link)
+        const likeSimilarImages = data.like[0].map((image: any) => image.img_link) ? data.like[0].map((image: any) => image.img_link) : []
+        const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link) ? data.dislike[0].map((image: any) => image.img_link) : []
 
         const likedImages = queryData.filter((image: any) => likeSimilarImages.includes(image.img_link));
         const otherImages = queryData.filter((image: any) => 
-          !likeSimilarImages.includes(image.img_link) && !dislikeSimilarImages.includes(image.img_link)
+          !likeSimilarImages.includes(image.img_link)
         );
         
-        const afterFeedbackImage = [...likedImages, ...otherImages];
-        
+        const tempFeedbackImage = [...likedImages, ...otherImages];
+
+        const afterFeedbackImage = tempFeedbackImage.filter((image: any) => !dislikeSimilarImages.includes(image.img_link));
         dispatch(appActions.setAppImageData(afterFeedbackImage));
         
       }
@@ -179,6 +213,22 @@ export const CSVDownloadBox = () => {
       }
     }
   }, [feedbackResult])
+
+  useEffect(() => {
+    const handleKeyDown = (e: any) => {
+      if (e.shiftKey && e.key === 'Enter') {
+        e.preventDefault(); // Ngăn chặn các hành động mặc định khác của "Enter"
+        console.log('Shift + Enter pressed');
+        handleSubmitFeedback(e); // Gọi hàm khi nhấn Shift + Enter
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [handleSubmitFeedback]);
 
   return (
     <React.Fragment>

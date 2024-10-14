@@ -79,4 +79,7 @@ export type ConfigType = {
 
   WhiteboardCanvasWidth: number
   WhiteboardCanvasHeight: number
+
+  LikeNumber: number
+  DislikeNumber: number
 }

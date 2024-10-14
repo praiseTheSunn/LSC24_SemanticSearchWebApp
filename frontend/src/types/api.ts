@@ -80,3 +80,16 @@ export type FeedbackQueryParams = {
     limit: 0
   }
 }
+
+export type FeedbackLikeQueryParams = {
+  text_query: string
+  image_urls: string[]
+  model: string
+  limit: number
+}
+
+export type FeedbackDislikeQueryParams = {
+  image_urls: string[]
+  model: string
+  limit: number
+}
