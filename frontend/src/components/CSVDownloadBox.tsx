@@ -181,17 +181,7 @@ export const CSVDownloadBox = () => {
       position: 'bottom-left',
     });
   }
-  // let feedbackResult = null;
-
-  // if (feedback && feedback.like && feedback.dislike) {
-  // feedbackResult = useGetFeedbackImagesQuery(feedback);
-  // } else if (feedback && feedback.like) {
-  // feedbackResult = useGetFeedbackLikedImagesQuery(feedback);
-  // } else if (feedback && feedback.dislike) {
-  // feedbackResult = useGetFeedbackDislikedImagesQuery(feedback);
-  // }
-
-  // const feedbackResult = useGetFeedbackImagesQuery(feedback);
+  
   const likeFeedback = feedback?.like
   ? feedback.like 
   : null;
@@ -221,15 +211,12 @@ export const CSVDownloadBox = () => {
   } else if (feedback?.dislike) {
     feedbackResult = feedbackDislikedImagesResult;
   }
-  // console.log('Feedback result:', feedbackResult);
   const { data, error, isError, isFetching } = feedbackResult || {};
 
 
   useEffect(() => {
     if (feedbackResult) {
       if (data) {
-        // const likeSimilarImages = data.like[0].map((image: any) => image.img_link) ? data.like : []
-        // const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link) ? data.dislike : []
         let likeSimilarImages = []
         let dislikeSimilarImages = []
         if (feedback?.like && feedback?.dislike) {
@@ -357,12 +344,6 @@ export const CSVDownloadBox = () => {
               tooltipTitle="Preview Dislike Images"
               onClick={(e) => handleDislikePreviewOpen(e)}
             />
-            <SpeedDialAction
-              icon={<FeedbackIcon />}
-              tooltipTitle="Submit feedback"
-              onClick={(e) => handleSubmitFeedback(e)}
-            />
-
           </SpeedDial>
           <Popover
             open={CSVPreviewPopupOpen}
