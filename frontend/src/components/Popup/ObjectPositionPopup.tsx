@@ -263,6 +263,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
       object_local_encoding: obj_local_encoding,
       color_global_encoding: color_global_encoding,
       color_local_encoding: color_local_encoding,
+      dataset: queryPayload.dataset,
     })
   }
 

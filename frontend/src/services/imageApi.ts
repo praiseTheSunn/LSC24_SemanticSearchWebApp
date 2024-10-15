@@ -5,6 +5,8 @@ import type {
   ApiResponse,
   ImageQueryParams,
   TextQueryParams,
+  ExploreSimilarParams,
+  ExploreNeighborParams,
 } from '../types/api'
 import type { ImageRecord } from '../types/image'
 
@@ -35,11 +37,12 @@ export const ImageApi = createApi({
               ]
             : [{ type: 'Image', id: 'LIST' }],
       }),
-      getSimilars: builder.query<ImageRecord[], string[] | undefined | null>({
-        query: (urls) => ({
+      getSimilars: builder.query<ImageRecord[], ExploreSimilarParams>({
+        query: (params) => ({
           url: '/explore/explore_similar_images',
           method: 'POST',
-          body: { image_urls: urls, model: 'clip' },
+          // body: { image_urls: urls, model: 'clip', dataset: 'aic24' },
+          body: params,
         }),
         transformResponse: (response: ApiResponse) =>
           transformResponse_AIC2024(response),
@@ -55,11 +58,12 @@ export const ImageApi = createApi({
             : [{ type: 'Image', id: 'SIMILAR_IMAGES' }],
       }),
 
-      getNeighbors: builder.query<ImageRecord[], string>({
-        query: (img_url) => ({
+      getNeighbors: builder.query<ImageRecord[], ExploreNeighborParams>({
+        query: (params) => ({
           url: '/explore/explore_neighbor_images',
           method: 'POST',
-          body: { image_url: img_url, span: 30 },
+          // body: { image_url: img_url, span: 30, dataset: 'aic24' },
+          body: params,
         }),
         transformResponse: (response: ApiResponse) =>
           transformResponse_AIC2024(response),

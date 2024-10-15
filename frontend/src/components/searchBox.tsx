@@ -313,6 +313,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           text_query: translatedText,
           mode: queryPayload.mode,
           model: queryPayload.model,
+          dataset: queryPayload.dataset,
         })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 
