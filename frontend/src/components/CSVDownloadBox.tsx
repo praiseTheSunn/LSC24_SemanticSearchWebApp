@@ -27,10 +27,10 @@ import { CSVPreviewPopup } from './Popup/CSVPreviewPopup'
 import ConfigEditor from './Popup/settingPopup'
 import EvaluationBox from './evaluationBox'
 import DeleteIcon from '@mui/icons-material/Delete';
-import { 
-  useGetFeedbackImagesQuery, 
-  useGetFeedbackLikedImagesQuery, 
-  useGetFeedbackDislikedImagesQuery 
+import {
+  useGetFeedbackImagesQuery,
+  useGetFeedbackLikedImagesQuery,
+  useGetFeedbackDislikedImagesQuery
 } from '../AppState'
 
 export const CSVDownloadBox = () => {
@@ -39,6 +39,8 @@ export const CSVDownloadBox = () => {
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
   const textQuery = useAppSelector((state) => state.app.textQuery)
   const queryData = useAppSelector((state) => state.app.data)
+  const queryPayload = useAppSelector((state) => state.app.queryPayload)
+
   const dispatch = useAppDispatch()
 
   const [anchorElCSV, setAnchorElCSV] = useState<HTMLElement | null>(null)
@@ -136,16 +138,16 @@ export const CSVDownloadBox = () => {
   const handleSettingsClose = () => {
     setAnchorElSettings(null)
   }
-  
+
   const [feedback, setFeedback] = useState(null)
-  
+
   const handleSubmitFeedback = (event: any) => {
     if (likeImages.length === 0 && dislikeImages.length === 0) {
       toast.error('No images to submit feedback', {
         position: 'bottom-left',
       })
     }
-    else  {
+    else {
       const feedbackData: any = {};
       if (likeImages.length !== 0) {
         feedbackData.like = {
@@ -153,16 +155,21 @@ export const CSVDownloadBox = () => {
           image_urls: likeImages.map((image) => image.img_link),
           model: "clip",
           limit: likeLimit,
+          dataset: "aic24"
         };
       }
-      
+
       if (dislikeImages.length !== 0) {
         feedbackData.dislike = {
           image_urls: dislikeImages.map((image) => image.img_link),
           model: "clip",
           limit: dislikeLimit,
+          dataset: "aic24"
         };
       }
+
+      if (likeImages.length !== 0 && dislikeImages.length !== 0)
+        feedbackData.dataset = "aic24";
       console.log('Feedback data:', feedbackData)
       setFeedback(feedbackData);
 
@@ -174,9 +181,6 @@ export const CSVDownloadBox = () => {
       position: 'bottom-left',
     });
   }
-
-  // const feedbackResult = useGetFeedbackImagesQuery(feedback)
-
   // let feedbackResult = null;
 
   // if (feedback && feedback.like && feedback.dislike) {
@@ -187,32 +191,77 @@ export const CSVDownloadBox = () => {
   // feedbackResult = useGetFeedbackDislikedImagesQuery(feedback);
   // }
 
-  const feedbackResult = useGetFeedbackImagesQuery(feedback);
+  // const feedbackResult = useGetFeedbackImagesQuery(feedback);
+  const likeFeedback = feedback?.like
+  ? feedback.like 
+  : null;
 
+  const dislikeFeedback = feedback?.dislike
+    ? feedback.dislike
+    : null;
+
+  const feedbackImagesResult = useGetFeedbackImagesQuery(feedback, {
+    skip: !(feedback?.like && feedback?.dislike), // Chỉ gọi khi có cả like và dislike
+  });
+
+  const feedbackLikedImagesResult = useGetFeedbackLikedImagesQuery(likeFeedback, {
+    skip: !(feedback?.like && !feedback?.dislike), // Chỉ gọi khi chỉ có like
+  });
+
+  const feedbackDislikedImagesResult = useGetFeedbackDislikedImagesQuery(dislikeFeedback, {
+    skip: !(feedback?.dislike && !feedback?.like), // Chỉ gọi khi chỉ có dislike
+  });
+
+  // Chọn kết quả phù hợp
+  let feedbackResult = null;
+  if (feedback?.like && feedback?.dislike) {
+    feedbackResult = feedbackImagesResult;
+  } else if (feedback?.like) {
+    feedbackResult = feedbackLikedImagesResult;
+  } else if (feedback?.dislike) {
+    feedbackResult = feedbackDislikedImagesResult;
+  }
+  // console.log('Feedback result:', feedbackResult);
   const { data, error, isError, isFetching } = feedbackResult || {};
+
 
   useEffect(() => {
     if (feedbackResult) {
       if (data) {
-        const likeSimilarImages = data.like[0].map((image: any) => image.img_link) ? data.like[0].map((image: any) => image.img_link) : []
-        const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link) ? data.dislike[0].map((image: any) => image.img_link) : []
+        // const likeSimilarImages = data.like[0].map((image: any) => image.img_link) ? data.like : []
+        // const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link) ? data.dislike : []
+        let likeSimilarImages = []
+        let dislikeSimilarImages = []
+        if (feedback?.like && feedback?.dislike) {
+          likeSimilarImages = data.like[0].map((image: any) => image.img_link) 
+          dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link)
+        }
+        else if (feedback?.like) {
+          likeSimilarImages = data[0].map((image: any) => image.img_link)
+          dislikeSimilarImages = []
+        }
+        else if (feedback?.dislike) {
+          likeSimilarImages = []
+          dislikeSimilarImages = data[0].map((image: any) => image.img_link)
+        }
 
         const likedImages = queryData.filter((image: any) => likeSimilarImages.includes(image.img_link));
-        const otherImages = queryData.filter((image: any) => 
+        const otherImages = queryData.filter((image: any) =>
           !likeSimilarImages.includes(image.img_link)
         );
-        
+
         const tempFeedbackImage = [...likedImages, ...otherImages];
 
         const afterFeedbackImage = tempFeedbackImage.filter((image: any) => !dislikeSimilarImages.includes(image.img_link));
         dispatch(appActions.setAppImageData(afterFeedbackImage));
-        
+
       }
       if (isError) {
         console.error('Error fetching feedback result:', error)
       }
     }
   }, [feedbackResult])
+
 
   useEffect(() => {
     const handleKeyDown = (e: any) => {
@@ -301,8 +350,8 @@ export const CSVDownloadBox = () => {
             <SpeedDialAction
               icon={<ThumbUpIcon />}
               tooltipTitle="Preview Liked Images"
-              onClick={(e) => handleLikePreviewOpen(e)}      
-            />  
+              onClick={(e) => handleLikePreviewOpen(e)}
+            />
             <SpeedDialAction
               icon={<ThumbDownIcon />}
               tooltipTitle="Preview Dislike Images"
@@ -313,7 +362,7 @@ export const CSVDownloadBox = () => {
               tooltipTitle="Submit feedback"
               onClick={(e) => handleSubmitFeedback(e)}
             />
-            
+
           </SpeedDial>
           <Popover
             open={CSVPreviewPopupOpen}
@@ -366,12 +415,12 @@ export const CSVDownloadBox = () => {
               <Typography>No images to preview</Typography>
             ) : (
               <>
-              {/* Add delete Icon here add the right corner of the row */}
-              <DeleteIcon onClick={handleClearLike} style={{right: '0', top: '0'}}/>
-              <ImageGrid
-                style={{ width: '90dvw', minHeight: '60dvw' }}
-                data={likeImages}
-              />
+                {/* Add delete Icon here add the right corner of the row */}
+                <DeleteIcon onClick={handleClearLike} style={{ right: '0', top: '0' }} />
+                <ImageGrid
+                  style={{ width: '90dvw', minHeight: '60dvw' }}
+                  data={likeImages}
+                />
               </>
             )}
           </Popover>
@@ -403,12 +452,12 @@ export const CSVDownloadBox = () => {
               <Typography>No images to preview</Typography>
             ) : (
               <>
-              {/* Add delete Icon here add the right corner of the row */}
-              <DeleteIcon onClick={handleClearDislike} style={{right: '0', top: '0'}}/>
-              <ImageGrid
-                style={{ width: '90dvw', minHeight: '60dvw' }}
-                data={dislikeImages}
-              />
+                {/* Add delete Icon here add the right corner of the row */}
+                <DeleteIcon onClick={handleClearDislike} style={{ right: '0', top: '0' }} />
+                <ImageGrid
+                  style={{ width: '90dvw', minHeight: '60dvw' }}
+                  data={dislikeImages}
+                />
               </>
             )}
           </Popover>

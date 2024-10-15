@@ -39,6 +39,7 @@ export type TextQueryParams = {
   text_query: string
   mode: string
   model: string
+  dataset: string
   object_global_encoding?: { [key: string]: number }
   object_local_encoding?: string
   color_global_encoding?: { [key: string]: number }
@@ -70,15 +71,18 @@ export type FeedbackQueryParams = {
       string
     ],
     model: string,
-    limit: 0
+    limit: 0,
+    dataset: string
   },
   dislike: {
     image_urls: [
       string
     ],
     model: string,
-    limit: 0
+    limit: 0,
+    dataset: string
   }
+  dataset: string
 }
 
 export type FeedbackLikeQueryParams = {
@@ -86,10 +90,12 @@ export type FeedbackLikeQueryParams = {
   image_urls: string[]
   model: string
   limit: number
+  dataset: string
 }
 
 export type FeedbackDislikeQueryParams = {
   image_urls: string[]
   model: string
   limit: number
+  dataset: string
 }
