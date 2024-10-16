@@ -158,15 +158,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
       brush_color_local_encoding,
     } = brushEncoding(dataGrid)
 
-    console.log('obj_global_encoding:', obj_global_encoding)
-    console.log('color_global_encoding:', color_global_encoding)
-    console.log('obj_local_encoding:', obj_local_encoding)
-    console.log('color_local_encoding:', color_local_encoding)
-    console.log('pose_local_encoding:', pose_local_encoding)
-    console.log('brush_color_global_encoding:', brush_color_global_encoding)
-    console.log('brush_obj_local_encoding:', brush_obj_local_encoding)
-    console.log('brush_color_local_encoding:', brush_color_local_encoding)
-
     const finalColorLocalEncoding = color_local_encoding
       .trim()
       .concat(' ', brush_color_local_encoding.trim())
@@ -310,7 +301,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
             }}
           >
             <BrushWhiteboard
-              setSelecObjects={setSelectedObjects}
               onDraw={handleDraw}
               selectedIcon={selectedIcon}
               onClear={isClear}
@@ -474,7 +464,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                 <Slider
                   value={brushSize}
                   min={1}
-                  max={7} // You can adjust the max brush size here
+                  max={7} 
                   step={2}
                   onChange={handleBrushSizeChange}
                   valueLabelDisplay="off"
