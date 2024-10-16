@@ -236,7 +236,7 @@ export const CSVDownloadBox = () => {
 
   const ImageBox = ({ image, onDelete }) => {
     return (
-      <div style={{ position: 'relative', width: '95%', height: '95%', margin: '5px' }}>
+      <div style={{ position: 'relative', width: '95%', height: '95%', margin: '10px' }}>
         <img
           src={image}
           alt="Disliked"
@@ -244,7 +244,7 @@ export const CSVDownloadBox = () => {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            maxHeight: '25%',
+            maxHeight: '15%',
             borderRadius: '7%',
           }}
         />
@@ -403,7 +403,7 @@ export const CSVDownloadBox = () => {
               <>
                 <Grid container direction="row" style={{ width: '90dvw', minHeight: '60dvw' }}>
                   {likeImages.map((image, index) => (
-                    <Grid item xs={3} style={{ height: 'auto', maxHeight: '10dw' }} key={index}>
+                    <Grid item xs={2} style={{maxHeight: '8dw' }} key={index}>
                       <ImageBox image={image.img_link} onDelete={() => handleDeleteLikedImage(image)} />
                     </Grid>
                   ))}
@@ -441,7 +441,7 @@ export const CSVDownloadBox = () => {
               <>
                 <Grid container direction="row" style={{ width: '90dvw', minHeight: '60dvw' }}>
                   {dislikeImages.map((image, index) => (
-                    <Grid item xs={3} style={{ height: 'auto', maxHeight: '10dw' }} key={index}>
+                    <Grid item xs={2} style={{ height: 'auto', maxHeight: '1dw' }} key={index}>
                       <ImageBox image={image.img_link} onDelete={() => handleDeleteDislikedImage(image)} />
                     </Grid>
                   ))}
