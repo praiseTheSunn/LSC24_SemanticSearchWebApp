@@ -22,7 +22,7 @@ const SinglePopup = ({
   const viewImage = useAppSelector((state) => state.app.similarPopUpData)
   const exploreSimilarParams = {
     image_urls: viewImage ? [viewImage?.img_link] : undefined, 
-    model: 'clip', 
+    model: queryPayload.model,
     dataset: queryPayload.dataset,
   }
   const result = useGetSimilarsQuery(
