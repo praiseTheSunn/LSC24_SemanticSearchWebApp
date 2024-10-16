@@ -43,11 +43,25 @@ export type TextQueryParams = {
   object_local_encoding?: string
   color_global_encoding?: { [key: string]: number }
   color_local_encoding?: string
+  dataset?: string
+}
+
+export type ExploreSimilarParams = {
+  image_urls: string[] | undefined
+  model: string
+  dataset?: string
+}
+
+export type ExploreNeighborParams = {
+  image_url: string
+  span: number
+  dataset?: string
 }
 
 export type ImageQueryParams = {
   image_base64: string | ArrayBuffer
   model: string
+  dataset?: string
 }
 
 export type ObjPosParams = {

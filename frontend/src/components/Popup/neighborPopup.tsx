@@ -28,11 +28,17 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     (state) => state.app.neighborPopUpData?.img_link,
   )
   const Config = useAppSelector((state) => state.app.config)
+  const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
   const fetchNeighbors = useCallback(
     async (imageId: string, position: 'start' | 'end') => {
       try {
-        const response = await triggerGetNeighbors(imageId).unwrap()
+        const exploreParams = {
+          image_url: imageId,
+          span: 20,
+          dataset: queryPayload.dataset,
+        }
+        const response = await triggerGetNeighbors(exploreParams).unwrap()
         const newNeighbors: ImageRecord[] = response
         // console.log('newNeighbors:', newNeighbors);
         const middleIndex = Math.floor(newNeighbors.length / 2)
