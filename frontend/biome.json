@@ -15,7 +15,8 @@
       "*-lock.json",
       "*-lock.yaml",
       "*-lock.yml",
-      "*.lock"
+      "*.lock",
+      "ColorToCode.ts"
     ],
     "include": ["src/**", "public/**"]
   },

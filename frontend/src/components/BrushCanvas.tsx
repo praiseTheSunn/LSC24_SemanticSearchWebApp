@@ -37,13 +37,12 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
   setDataGrid,
   brushSize,
 }) => {
-  const gridSize = 20
   const Config = useAppSelector((state) => state.app.config)
 
-  const initDataGrid = Array(gridSize)
+  const initDataGrid = Array(Config.WhiteboardGridRowCount)
     .fill(null)
     .map(() =>
-      Array(gridSize).fill({
+      Array(Config.WhiteboardGridColumnCount).fill({
         color: '',
         objectName: '',
       }),
@@ -91,9 +90,9 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
         const newCol = col + j
         if (
           newRow >= 0 &&
-          newRow < gridSize &&
+          newRow < Config.WhiteboardGridRowCount &&
           newCol >= 0 &&
-          newCol < gridSize
+          newCol < Config.WhiteboardGridColumnCount
         ) {
           dataGrid[newRow][newCol] = {
             color: selectedIcon.color ? selectedIcon.color : '',
@@ -128,15 +127,11 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
         border: '1px solid black',
       }}
     >
-
       {/* Whiteboard Grid */}
       <Grid
         container
         spacing={0} // Reduce gap between cells to 0
-        // columns={gridSize}
-        // rows={gridSize}
-        // onMouseLeave={() => setIsDrawing(false)} // Reset drawing when mouse leaves
-        columns={gridSize}
+        columns={Config.WhiteboardGridColumnCount}
         sx={{
           width: Config.WhiteboardCanvasWidth,
           height: Config.WhiteboardCanvasHeight,
@@ -151,8 +146,11 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
               // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
               key={`${rowIndex}-${colIndex}`}
               sx={{
-                width: Config.WhiteboardCanvasWidth / gridSize,
-                height: Config.WhiteboardCanvasHeight / gridSize,
+                width:
+                  Config.WhiteboardCanvasWidth /
+                  Config.WhiteboardGridColumnCount,
+                height:
+                  Config.WhiteboardCanvasHeight / Config.WhiteboardGridRowCount,
                 // minHeight: '20px',
                 // minWidth: '20px',
                 backgroundColor:

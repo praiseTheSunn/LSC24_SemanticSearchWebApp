@@ -3,10 +3,10 @@ import { ImageQuery } from '.'
 import { transformResponse_AIC2024 } from '../config/transformResponse'
 import type {
   ApiResponse,
+  ExploreNeighborParams,
+  ExploreSimilarParams,
   ImageQueryParams,
   TextQueryParams,
-  ExploreSimilarParams,
-  ExploreNeighborParams,
 } from '../types/api'
 import type { ImageRecord } from '../types/image'
 
