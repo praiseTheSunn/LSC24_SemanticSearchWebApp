@@ -11,6 +11,10 @@ import type {
   Icon,
   Rect,
 } from './Popup/ObjectPositionPopup'
+// import { Grid } from 'react-virtualized'
+
+import { Grid } from '@mui/material'
+import { getOppositeColor } from '../utils/getOppositeColor'
 
 interface WhiteboardProps {
   selectedIcon: Icon | null
@@ -20,19 +24,7 @@ interface WhiteboardProps {
   setSelecObjects: Dispatch<SetStateAction<DrawnItem[]>>
   dataGrid: GridDict[][]
   setDataGrid: Dispatch<SetStateAction<GridDict[][]>>
-}
-
-const getOppositeColor = (HexaStr: string): string => {
-  // Remove the hash symbol if present
-  const hex = HexaStr.replace('#', '')
-
-  // Convert hex string to an integer, invert the bits, and mask with 0xFFFFFF
-  const invertedColor = (Number.parseInt(hex, 16) ^ 0xffffff)
-    .toString(16)
-    .padStart(6, '0')
-
-  // Return the inverted color as a hex string with a hash symbol
-  return `#${invertedColor}`
+  brushSize: number
 }
 
 const BrushWhiteboard: React.FC<WhiteboardProps> = ({
@@ -43,6 +35,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
   setSelecObjects,
   dataGrid,
   setDataGrid,
+  brushSize,
 }) => {
   const gridSize = 20
   const Config = useAppSelector((state) => state.app.config)
@@ -57,7 +50,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
     )
 
   const [isDrawing, setIsDrawing] = useState<boolean>(false)
-  const [brushSize, setBrushSize] = useState<number>(1) // Default brush size is 1x1
   const [drawnItems, setDrawnItems] = useState<DrawnItem[]>([])
 
   useEffect(() => {
@@ -129,62 +121,33 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
     }
   }
 
-  const handleBrushSizeChange = (event: Event, newValue: number | number[]) => {
-    setBrushSize(newValue as number)
-  }
-
   return (
     <Box
       sx={{
         cursor: selectedIcon ? 'crosshair' : 'default',
+        border: '1px solid black',
       }}
     >
-      <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: '10px',
-          marginBottom: '10px',
-          gap: '10px',
-        }}
-      >
-        {/* Brush Size Slider */}
-        <Typography
-          gutterBottom
-          sx={{
-            width: '25%',
-          }}
-        >
-          Brush Size: {brushSize}
-        </Typography>
-        <Slider
-          sx={
-            {
-              // marginRight: '10px',
-            }
-          }
-          value={brushSize}
-          min={1}
-          max={7} // You can adjust the max brush size here
-          step={2}
-          onChange={handleBrushSizeChange}
-          valueLabelDisplay="off"
-        />
-      </Box>
 
       {/* Whiteboard Grid */}
-      <Box
-        display="grid"
-        gridTemplateColumns={`repeat(${gridSize}, 1fr)`}
-        gridTemplateRows={`repeat(${gridSize}, 1fr)`}
-        gap={0} // Reduce gap between cells to 0
+      <Grid
+        container
+        spacing={0} // Reduce gap between cells to 0
+        // columns={gridSize}
+        // rows={gridSize}
         // onMouseLeave={() => setIsDrawing(false)} // Reset drawing when mouse leaves
+        columns={gridSize}
+        sx={{
+          width: Config.WhiteboardCanvasWidth,
+          height: Config.WhiteboardCanvasHeight,
+        }}
+        // rows={gridSize}
       >
         {dataGrid.map((row, rowIndex) =>
           row.map((cell, colIndex) => (
-            <Box
+            <Grid
+              item
+              xs={1}
               // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
               key={`${rowIndex}-${colIndex}`}
               sx={{
@@ -218,10 +181,10 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
               >
                 {dataGrid[rowIndex][colIndex].objectName}{' '}
               </Typography>
-            </Box>
+            </Grid>
           )),
         )}
-      </Box>
+      </Grid>
     </Box>
   )
 }
