@@ -1,4 +1,5 @@
 import type { DrawnItem } from '../../components/Popup/ObjectPositionPopup'
+import { hex_to_number } from '../../data/ColorToCode'
 
 interface ObjColorPosEncoding {
   selectedObjects: DrawnItem[]
@@ -16,20 +17,20 @@ export const objColorPosEncoding = ({
     const { encodeObjects, encodeColors, icon } = item
     const iconName = icon.name.replace(' ', '_')
     const iconColor = icon.color ? icon.color.replace('#', '') : 'none'
-    if (!obj_global_encoding[iconName]) {
-      obj_global_encoding[iconName] = 0
+
+    if (iconColor && iconColor !== 'none') {
+      const colorCode = hex_to_number[iconColor as keyof typeof hex_to_number]
+      color_global_encoding[colorCode] = !color_global_encoding[colorCode]
+        ? 1
+        : color_global_encoding[colorCode] + 1
+      color_local_encoding = color_local_encoding.concat(' ', encodeColors)
     }
-    if (
-      iconColor &&
-      iconColor !== 'none' &&
-      !color_global_encoding[iconColor]
-    ) {
-      color_global_encoding[iconColor] = 0
+    if (iconName && iconName !== 'none') {
+      obj_global_encoding[iconName] = !obj_global_encoding[iconName]
+        ? 1
+        : obj_global_encoding[iconName] + 1
+      obj_local_encoding = obj_local_encoding.concat(' ', encodeObjects)
     }
-    if (iconColor && iconColor !== 'none') color_global_encoding[iconColor] += 1
-    obj_global_encoding[iconName] += 1
-    obj_local_encoding = obj_local_encoding.concat(' ', encodeObjects)
-    color_local_encoding = color_local_encoding.concat(' ', encodeColors)
   }
 
   return {

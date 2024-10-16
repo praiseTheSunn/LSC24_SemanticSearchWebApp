@@ -32,7 +32,7 @@ import type { ImageRecord } from '../../types/image'
 import { brushEncoding } from '../../utils/encoding/brushEncoding'
 import { objColorPosEncoding } from '../../utils/encoding/objColorPosEncoding'
 import { poseEncoding } from '../../utils/encoding/poseEncoding'
-import BrushWhiteboard from '../BrushCanvas'
+import BrushWhiteboard from '../BrushWhiteboard'
 import PoseCanvas from '../PoseCanvas'
 
 const ObjectClassNames = Array.from(
@@ -154,16 +154,25 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     const pose_local_encoding = poseEncoding({ selectedPose, systemConfig })
     const {
       brush_color_global_encoding,
-      brush_color_local_encoding,
       brush_obj_local_encoding,
+      brush_color_local_encoding,
     } = brushEncoding(dataGrid)
+
+    console.log('obj_global_encoding:', obj_global_encoding)
+    console.log('color_global_encoding:', color_global_encoding)
+    console.log('obj_local_encoding:', obj_local_encoding)
+    console.log('color_local_encoding:', color_local_encoding)
+    console.log('pose_local_encoding:', pose_local_encoding)
+    console.log('brush_color_global_encoding:', brush_color_global_encoding)
+    console.log('brush_obj_local_encoding:', brush_obj_local_encoding)
+    console.log('brush_color_local_encoding:', brush_color_local_encoding)
 
     const finalColorLocalEncoding = color_local_encoding
       .trim()
-      .concat(brush_color_local_encoding.trim())
+      .concat(' ', brush_color_local_encoding.trim())
     const finalObjLocalEncoding = obj_local_encoding
       .trim()
-      .concat(brush_obj_local_encoding.trim())
+      .concat(' ', brush_obj_local_encoding.trim())
     const finalColorGlobalEncoding = { ...color_global_encoding }
 
     for (const [key, value] of Object.entries(brush_color_global_encoding)) {
@@ -516,7 +525,10 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                 key="clear"
                 icon={<CloseIcon />}
                 tooltipTitle="Clear poses"
-                onClick={() => setSelectedPose(null)}
+                onClick={() => {
+                  setSelectedPose(null)
+                  setOpenPoseSpeedDial(false)
+                }}
               />
             </SpeedDial>
           </Box>
