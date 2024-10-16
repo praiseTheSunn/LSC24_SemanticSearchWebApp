@@ -75,6 +75,13 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       },
       [queryPayload, dispatch],
     )
+    const setDataset = useCallback(
+      (value: string) => {
+        const newPayload = { ...queryPayload, mode: value }
+        dispatch(appActions.setQueryPayload(newPayload))
+      },
+      [queryPayload, dispatch],
+    )
     const setModel = useCallback(
       (value: string) => {
         const newPayload = { ...queryPayload, model: value }
@@ -241,13 +248,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           if (isVietnameseEnabled) {
             // Translate to english
             TriggerTranslate({ q: value, target: 'en' })
-            dispatch(appActions.setTextQuery(value))
             setTextareaValue('')
             setMessagePopup(true)
             return
-          }
-          else {
-            dispatch(appActions.setTextQuery(value))
           }
           
           const filter = { category: 'query', value, status: 1 }
@@ -426,8 +429,20 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
               'Semantic-Full text',
               'Semantic-Autoparse',
             ]}
-            valueItems={['smt', 'smt-mm-dtin', 'smt-3m-dtin']}
+            valueItems={['vec', 'vec-kw', 'kw']}
             setData={setMode}
+          />
+        </Box>
+        <Box sx={{ marginLeft: '12px' }}>
+          <Dropdown
+            label="Dataset"
+            displayItems={[
+              'aic24',
+              'aic24_lesson',
+              'aic24_cooking',
+            ]}
+            valueItems={['aic24', 'aic24_lesson', 'aic24_cooking']}
+            setData={setDataset}
           />
         </Box>
         <Box

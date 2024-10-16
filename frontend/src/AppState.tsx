@@ -57,9 +57,7 @@ export const {
   useGetSimilarsQuery,
   useLazyGetNeighborsQuery, 
   useLazySearchByImageQuery,
-  useGetFeedbackImagesQuery,
-  useGetFeedbackLikedImagesQuery,
-  useGetFeedbackDislikedImagesQuery
+  useGetFeedbackImagesQuery
 } = ImageApi
 
 export const { useLazyGetTranslatedTextQuery } = GoogleApi

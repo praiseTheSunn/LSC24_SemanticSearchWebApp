@@ -17,7 +17,12 @@ import {
   SpeedDialAction,
   SpeedDialIcon,
   Typography,
+  IconButton,
+  Grid
 } from '@mui/material'
+import type {
+  FeedbackQueryParams
+} from '../types/api'
 import { get, set } from 'lodash'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -27,11 +32,13 @@ import { CSVPreviewPopup } from './Popup/CSVPreviewPopup'
 import ConfigEditor from './Popup/settingPopup'
 import EvaluationBox from './evaluationBox'
 import DeleteIcon from '@mui/icons-material/Delete';
-import { 
-  useGetFeedbackImagesQuery, 
-  useGetFeedbackLikedImagesQuery, 
-  useGetFeedbackDislikedImagesQuery 
+import {
+  useGetFeedbackImagesQuery
 } from '../AppState'
+import { Feed, Feedback } from '@mui/icons-material'
+import CloseIcon from '@mui/icons-material/Close';
+import AnImage from './AnImage'
+import HighlightOffIcon from '@mui/icons-material/HighlightOff';
 
 export const CSVDownloadBox = () => {
   const csvImages = useAppSelector((state) => state.app.csvImages)
@@ -39,6 +46,8 @@ export const CSVDownloadBox = () => {
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
   const textQuery = useAppSelector((state) => state.app.textQuery)
   const queryData = useAppSelector((state) => state.app.data)
+  const queryPayload = useAppSelector((state) => state.app.queryPayload)
+
   const dispatch = useAppDispatch()
 
   const [anchorElCSV, setAnchorElCSV] = useState<HTMLElement | null>(null)
@@ -136,56 +145,51 @@ export const CSVDownloadBox = () => {
   const handleSettingsClose = () => {
     setAnchorElSettings(null)
   }
+
+  const initialFeedback: FeedbackQueryParams = {
+    like: {
+      text_query: '',
+      image_urls: [''],
+      limit: 0,
+    },
+    dislike: {
+      image_urls: [''],
+      limit: 0,
+    },
+    model: 'clip',
+    dataset: 'aic24',
+  };
   
-  const [feedback, setFeedback] = useState(null)
-  
+  const [feedback, setFeedback] = useState<FeedbackQueryParams>(initialFeedback);
+
   const handleSubmitFeedback = (event: any) => {
     if (likeImages.length === 0 && dislikeImages.length === 0) {
       toast.error('No images to submit feedback', {
         position: 'bottom-left',
       })
     }
-    else  {
+    else {
       const feedbackData: any = {};
-      if (likeImages.length !== 0) {
         feedbackData.like = {
           text_query: textQuery,
           image_urls: likeImages.map((image) => image.img_link),
-          model: "clip",
           limit: likeLimit,
         };
-      }
-      
-      if (dislikeImages.length !== 0) {
         feedbackData.dislike = {
           image_urls: dislikeImages.map((image) => image.img_link),
-          model: "clip",
           limit: dislikeLimit,
         };
-      }
-      console.log('Feedback data:', feedbackData)
-      setFeedback(feedbackData);
-
+        feedbackData.model = queryPayload.model;
+        feedbackData.dataset = queryPayload.dataset;
+        console.log('Feedback data:', feedbackData)
+        setFeedback(feedbackData);
     }
-    // console.log('Feedback data:', feedbackData)
     dispatch(appActions.setLikedImages([]))
     dispatch(appActions.setDislikedImages([]))
     toast.success('Feedback submitted and images cleared', {
       position: 'bottom-left',
     });
   }
-
-  // const feedbackResult = useGetFeedbackImagesQuery(feedback)
-
-  // let feedbackResult = null;
-
-  // if (feedback && feedback.like && feedback.dislike) {
-  // feedbackResult = useGetFeedbackImagesQuery(feedback);
-  // } else if (feedback && feedback.like) {
-  // feedbackResult = useGetFeedbackLikedImagesQuery(feedback);
-  // } else if (feedback && feedback.dislike) {
-  // feedbackResult = useGetFeedbackDislikedImagesQuery(feedback);
-  // }
 
   const feedbackResult = useGetFeedbackImagesQuery(feedback);
 
@@ -198,15 +202,15 @@ export const CSVDownloadBox = () => {
         const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link) ? data.dislike[0].map((image: any) => image.img_link) : []
 
         const likedImages = queryData.filter((image: any) => likeSimilarImages.includes(image.img_link));
-        const otherImages = queryData.filter((image: any) => 
+        const otherImages = queryData.filter((image: any) =>
           !likeSimilarImages.includes(image.img_link)
         );
-        
+
         const tempFeedbackImage = [...likedImages, ...otherImages];
 
         const afterFeedbackImage = tempFeedbackImage.filter((image: any) => !dislikeSimilarImages.includes(image.img_link));
         dispatch(appActions.setAppImageData(afterFeedbackImage));
-        
+
       }
       if (isError) {
         console.error('Error fetching feedback result:', error)
@@ -229,6 +233,42 @@ export const CSVDownloadBox = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [handleSubmitFeedback]);
+
+  const ImageBox = ({ image, onDelete }) => {
+    return (
+      <div style={{ position: 'relative', width: '95%', height: '95%', margin: '5px' }}>
+        <img
+          src={image}
+          alt="Disliked"
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+            maxHeight: '25%',
+            borderRadius: '7%',
+          }}
+        />
+        <IconButton
+          size="small"
+          style={{ position: 'absolute', top: '0', right: '0', color: '#17f8fc', border: '1px solid #17f8fc' }}
+          onClick={onDelete}
+        >
+          {/* <HighlightOffIcon /> */}
+          <DeleteIcon />
+        </IconButton>
+      </div>
+    );
+  };
+
+  const handleDeleteDislikedImage = (imageToRemove: any) => {
+    const updatedImages = dislikeImages.filter((image) => image !== imageToRemove);
+    dispatch(appActions.setDislikedImages(updatedImages));
+  };
+
+  const handleDeleteLikedImage = (imageToRemove: any) => {
+    const updatedImages = likeImages.filter((image) => image !== imageToRemove);
+    dispatch(appActions.setLikedImages(updatedImages));
+  };
 
   return (
     <React.Fragment>
@@ -301,19 +341,14 @@ export const CSVDownloadBox = () => {
             <SpeedDialAction
               icon={<ThumbUpIcon />}
               tooltipTitle="Preview Liked Images"
-              onClick={(e) => handleLikePreviewOpen(e)}      
-            />  
+              onClick={(e) => handleLikePreviewOpen(e)}
+            />
             <SpeedDialAction
               icon={<ThumbDownIcon />}
               tooltipTitle="Preview Dislike Images"
               onClick={(e) => handleDislikePreviewOpen(e)}
             />
-            <SpeedDialAction
-              icon={<FeedbackIcon />}
-              tooltipTitle="Submit feedback"
-              onClick={(e) => handleSubmitFeedback(e)}
-            />
-            
+
           </SpeedDial>
           <Popover
             open={CSVPreviewPopupOpen}
@@ -366,12 +401,13 @@ export const CSVDownloadBox = () => {
               <Typography>No images to preview</Typography>
             ) : (
               <>
-              {/* Add delete Icon here add the right corner of the row */}
-              <DeleteIcon onClick={handleClearLike} style={{right: '0', top: '0'}}/>
-              <ImageGrid
-                style={{ width: '90dvw', minHeight: '60dvw' }}
-                data={likeImages}
-              />
+                <Grid container direction="row" style={{ width: '90dvw', minHeight: '60dvw' }}>
+                  {likeImages.map((image, index) => (
+                    <Grid item xs={3} style={{ height: 'auto', maxHeight: '10dw' }} key={index}>
+                      <ImageBox image={image.img_link} onDelete={() => handleDeleteLikedImage(image)} />
+                    </Grid>
+                  ))}
+                  </Grid>
               </>
             )}
           </Popover>
@@ -403,12 +439,13 @@ export const CSVDownloadBox = () => {
               <Typography>No images to preview</Typography>
             ) : (
               <>
-              {/* Add delete Icon here add the right corner of the row */}
-              <DeleteIcon onClick={handleClearDislike} style={{right: '0', top: '0'}}/>
-              <ImageGrid
-                style={{ width: '90dvw', minHeight: '60dvw' }}
-                data={dislikeImages}
-              />
+                <Grid container direction="row" style={{ width: '90dvw', minHeight: '60dvw' }}>
+                  {dislikeImages.map((image, index) => (
+                    <Grid item xs={3} style={{ height: 'auto', maxHeight: '10dw' }} key={index}>
+                      <ImageBox image={image.img_link} onDelete={() => handleDeleteDislikedImage(image)} />
+                    </Grid>
+                  ))}
+                  </Grid>
               </>
             )}
           </Popover>
