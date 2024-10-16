@@ -419,11 +419,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Mode"
-            displayItems={[
-              'Vector',
-              'Vector + Keyword',
-              'Keyword',
-            ]}
+            displayItems={['Vector', 'Vector + Keyword', 'Keyword']}
             valueItems={['vec', 'vec_kw', 'kw']}
             setData={setMode}
           />
@@ -431,11 +427,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={[
-              'All',
-              'Lesson',
-              'Cooking',
-            ]}
+            displayItems={['All', 'Lesson', 'Cooking']}
             valueItems={['aic24', 'aic24_lesson', 'aic24_cooking']}
             setData={setDataset}
           />

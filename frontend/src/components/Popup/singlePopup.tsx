@@ -21,13 +21,11 @@ const SinglePopup = ({
   cellHeight = cellHeight ? cellHeight : Config.SinglePopupCellHeight
   const viewImage = useAppSelector((state) => state.app.similarPopUpData)
   const exploreSimilarParams = {
-    image_urls: viewImage ? [viewImage?.img_link] : undefined, 
+    image_urls: viewImage ? [viewImage?.img_link] : undefined,
     model: queryPayload.model,
     dataset: queryPayload.dataset,
   }
-  const result = useGetSimilarsQuery(
-    exploreSimilarParams
-  )
+  const result = useGetSimilarsQuery(exploreSimilarParams)
   const { data, error, isError, isFetching } = result
 
   const dispatch = useAppDispatch()

@@ -3,6 +3,7 @@ import type React from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { useAppSelector } from '../AppState'
+import { hex_to_number } from '../data/ColorToCode'
 import type { DrawnItem, Icon, Rect } from './Popup/ObjectPositionPopup'
 
 interface WhiteboardProps {
@@ -33,7 +34,7 @@ const calculateOverlappedCells = (
         encodeObjectStrings.push(encode)
       }
       if (drawnItem.icon.color && drawnItem.icon.color !== 'none') {
-        const encode = `${row}${String.fromCharCode(97 + col)}${drawnItem.icon.color.split('#')[1]}`
+        const encode = `${row}${String.fromCharCode(97 + col)}${hex_to_number[drawnItem.icon.color.split('#')[1] as keyof typeof hex_to_number]}`
         encodeColorStrings.push(encode)
       }
     }
