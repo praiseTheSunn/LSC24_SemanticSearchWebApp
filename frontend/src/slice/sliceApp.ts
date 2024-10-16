@@ -19,7 +19,7 @@ const initialState: AppState = {
 
   data: [],
   cacheData: [],
-  queryPayload: { model: 'clip', mode: 'smt', text_query: '' },
+  queryPayload: { model: 'clip', mode: 'vec', text_query: '', dataset: 'aic24' },
   queryHistory: [],
 
   csvImages: [],
@@ -103,10 +103,6 @@ export const sliceApp = createSlice({
 
     setDislikedImages: (state, action) => {
       state.dislikedImages = action.payload
-    },
-
-    setTextQuery: (state, action) => {
-      state.textQuery = action.payload
     },
 
   },

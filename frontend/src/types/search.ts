@@ -4,4 +4,4 @@ export type FilterTagType = {
   value: string | string[]
   status: number
 }
-export type QueryPayload = { model: string; mode: string; text_query: string }
+export type QueryPayload = { model: string; mode: string; text_query: string, dataset: string }

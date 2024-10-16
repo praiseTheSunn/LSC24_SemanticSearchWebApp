@@ -6,8 +6,6 @@ import type {
   ImageQueryParams,
   TextQueryParams,
   FeedbackQueryParams,
-  FeedbackLikeQueryParams,
-  FeedbackDislikeQueryParams
 } from '../types/api'
 import type { ImageRecord } from '../types/image'
 import { get } from 'lodash'
@@ -101,31 +99,6 @@ export const ImageApi = createApi({
         transformResponse: (response: ApiResponse) =>
           transformResponse_Feedback_AIC(response),
       }),
-
-      getFeedbackLikedImages: builder.query<ImageRecord[], FeedbackLikeQueryParams | undefined | null>({
-        query: (params) => {
-          return {
-            url: '/feedback/like',
-            method: 'POST',
-            body: params,
-          }
-        },
-        transformResponse: (response: ApiResponse) =>
-          transformResponse_Feedback_AIC(response),
-      }),
-
-      getFeedbackDislikedImages: builder.query<ImageRecord[], FeedbackDislikeQueryParams | undefined | null>({
-        query: (params) => {
-          return {
-            url: '/feedback/dislike',
-            method: 'POST',
-            body: params,
-          }
-        },
-        transformResponse: (response: ApiResponse) =>
-          transformResponse_Feedback_AIC(response),
-      }),
-
     }
   },
 })
