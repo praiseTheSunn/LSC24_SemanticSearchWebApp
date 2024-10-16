@@ -21,7 +21,6 @@ interface WhiteboardProps {
   onDraw: (item: DrawnItem) => void
   onClear: boolean
   setIsClear: Dispatch<SetStateAction<boolean>>
-  setSelecObjects: Dispatch<SetStateAction<DrawnItem[]>>
   dataGrid: GridDict[][]
   setDataGrid: Dispatch<SetStateAction<GridDict[][]>>
   brushSize: number
@@ -32,24 +31,13 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
   onDraw,
   onClear,
   setIsClear,
-  setSelecObjects,
   dataGrid,
   setDataGrid,
   brushSize,
 }) => {
   const Config = useAppSelector((state) => state.app.config)
 
-  const initDataGrid = Array(Config.WhiteboardGridRowCount)
-    .fill(null)
-    .map(() =>
-      Array(Config.WhiteboardGridColumnCount).fill({
-        color: '',
-        objectName: '',
-      }),
-    )
-
   const [isDrawing, setIsDrawing] = useState<boolean>(false)
-  const [drawnItems, setDrawnItems] = useState<DrawnItem[]>([])
 
   useEffect(() => {
     // Ensure that when the mouse is released, `isDrawing` is reset globally
@@ -69,15 +57,10 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
     }
   }, [onClear, setIsClear])
 
-  useEffect(() => {
-    setSelecObjects(drawnItems)
-  }, [drawnItems, setSelecObjects])
-
   const handleCellClick = (row: number, col: number) => {
     if (selectedIcon === null) {
       return
     }
-    console.log('NEW selectedIcon', selectedIcon)
     const newDataGrid = [...dataGrid]
 
     // Calculate the starting position for the brush to center it on the clicked cell
@@ -136,7 +119,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = ({
           width: Config.WhiteboardCanvasWidth,
           height: Config.WhiteboardCanvasHeight,
         }}
-        // rows={gridSize}
       >
         {dataGrid.map((row, rowIndex) =>
           row.map((cell, colIndex) => (

@@ -30,11 +30,11 @@ const calculateOverlappedCells = (
   for (let row = topRow; row <= bottomRow; row++) {
     for (let col = leftCol; col <= rightCol; col++) {
       if (drawnItem.icon.name !== 'none') {
-        const encode = `${row}${String.fromCharCode(97 + col)}${drawnItem.icon.name.replace(' ', '_')}`
+        const encode = `${String.fromCharCode(65 + row)}${String.fromCharCode(97 + col)}${drawnItem.icon.name.replace(' ', '_')}`
         encodeObjectStrings.push(encode)
       }
       if (drawnItem.icon.color && drawnItem.icon.color !== 'none') {
-        const encode = `${row}${String.fromCharCode(97 + col)}${hex_to_number[drawnItem.icon.color.split('#')[1] as keyof typeof hex_to_number]}`
+        const encode = `${String.fromCharCode(65 + row)}${String.fromCharCode(97 + col)}${hex_to_number[drawnItem.icon.color.split('#')[1] as keyof typeof hex_to_number]}`
         encodeColorStrings.push(encode)
       }
     }
