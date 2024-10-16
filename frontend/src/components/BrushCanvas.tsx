@@ -14,6 +14,7 @@ import type {
 // import { Grid } from 'react-virtualized'
 
 import { Grid } from '@mui/material'
+import { getOppositeColor } from '../utils/getOppositeColor'
 
 interface WhiteboardProps {
   selectedIcon: Icon | null
@@ -24,19 +25,6 @@ interface WhiteboardProps {
   dataGrid: GridDict[][]
   setDataGrid: Dispatch<SetStateAction<GridDict[][]>>
   brushSize: number
-}
-
-const getOppositeColor = (HexaStr: string): string => {
-  // Remove the hash symbol if present
-  const hex = HexaStr.replace('#', '')
-
-  // Convert hex string to an integer, invert the bits, and mask with 0xFFFFFF
-  const invertedColor = (Number.parseInt(hex, 16) ^ 0xffffff)
-    .toString(16)
-    .padStart(6, '0')
-
-  // Return the inverted color as a hex string with a hash symbol
-  return `#${invertedColor}`
 }
 
 const BrushWhiteboard: React.FC<WhiteboardProps> = ({

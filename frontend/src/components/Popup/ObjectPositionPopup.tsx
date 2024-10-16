@@ -32,6 +32,7 @@ import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 import BrushWhiteboard from '../BrushCanvas'
 import PoseCanvas from '../PoseCanvas'
+import { calculateDistance } from '../../utils/CalcDistance'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -158,11 +159,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     let pose_local_encoding = ''
     const pose_parts: string[] = []
 
-    // Helper function to calculate the Euclidean distance
-    function calculateDistance(x1: number, y1: number, x2: number, y2: number): number {
-      return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
-    }
-
     // Loop through selectedPose to get the pose encoding
     for (const key in selectedPose) {
       const [x, y] = selectedPose[key];
@@ -205,8 +201,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
           // Calculate distances from the keypoint to the surrounding cell's center
           const distanceY = calculateDistance(x, y, x, surroundingCenterY);
           const distanceX = calculateDistance(x, y, surroundingCenterX, y);
-          // console.log('Checking cell:', surroundingCellRow, surroundingCellCol);
-          // console.log('DistanceY:', distanceY, 'DistanceX:', distanceX);
 
           // If the keypoint is near the center of the surrounding cell, add it to the grid
           if (
@@ -514,15 +508,12 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
             {layer === 0 && (
               <Box
                   sx={{
-                    // width: '100%',
                     position: 'absolute',
                     width: '160px',
                     height: 'fit-content',
                     display: 'flex',
                     flexDirection: 'column',
                     alignItems: 'center',
-                    // marginTop: '10px',
-                    // marginBottom: '10px',
                     marginLeft: '80px',
                     gap: '5px',
                     paddingX: '15px',
@@ -542,16 +533,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                     Brush Size: {brushSize}
                   </Typography>
                   <Slider
-                    sx={
-                      {
-                        // marginRight: '10px',
-                        
-                        // rotate: '180deg',
-                      }
-                    }
-                    // orientation='vertical'
-                    // track="inverted"
-                    // track={false}
                     value={brushSize}
                     min={1}
                     max={7} // You can adjust the max brush size here
