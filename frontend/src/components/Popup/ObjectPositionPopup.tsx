@@ -464,7 +464,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                 <Slider
                   value={brushSize}
                   min={1}
-                  max={7} 
+                  max={7}
                   step={2}
                   onChange={handleBrushSizeChange}
                   valueLabelDisplay="off"
