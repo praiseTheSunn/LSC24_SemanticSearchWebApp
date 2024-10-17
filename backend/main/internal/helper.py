@@ -46,11 +46,12 @@ async def fetch_embeddings(data: RequestExploreSimilarImages):
         return None       
     # vi du lieu nhan duoc la float32 nhung muon serialize de chuyen di phai convert sang float64 -> dung np.array de convert
 
-def explore_similar_embeddings(model: str, image_embedding: list[list[float]], limit: int = 1000):
+def explore_similar_embeddings(model: str, image_embedding: list[list[float]], limit: int = 1000, dataset: str = dataset_name):
     data = {
         "model": model,
         "embedding": image_embedding,    
-        "limit": limit
+        "limit": limit,
+        "dataset": dataset
     }
 
     headers = {

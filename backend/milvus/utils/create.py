@@ -39,10 +39,10 @@ index_params.add_index(
 )
 
 # 4. Create collection
-client.create_collection(collection_name="aic24_clip", schema=schema, index_params=index_params)
+client.create_collection(collection_name="aic24_cooking_clip", schema=schema, index_params=index_params)
 
 # 5. Describe the collection
-res = client.describe_index(collection_name="aic24_clip", index_name="embedding_index")
+res = client.describe_index(collection_name="aic24_cooking_clip", index_name="embedding_index")
 print(res)
 
 collections = utility.list_collections()

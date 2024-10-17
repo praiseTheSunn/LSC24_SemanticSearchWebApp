@@ -22,17 +22,22 @@ def cluster_embeddings(embeddings: list[list[float]]) -> list[dict]:
     } for label in np.unique(labels)]
 
 
-async def get_relevant_images(data: RequestFeedbackRelevant):
-    text_query = data.text_query
-    image_urls = data.image_urls
-    model = data.model
-    limit = data.limit
+async def get_relevant_images(data: dict):
+    text_query = data['text_query']
+    image_urls = data['image_urls']
+    limit = data['limit']
+    model = data['model']
+    dataset = data['dataset']
+
+    if len(image_urls) == 0:
+        return prepare_response([]), status.HTTP_200_OK
 
     # Get embeddings for the images
     request_image_embeddings = await fetch_embeddings(
         RequestExploreSimilarImages(
             image_urls=image_urls,
-            model=model
+            model=model,
+            dataset=dataset
         )
     )
     if not request_image_embeddings:
@@ -46,13 +51,14 @@ async def get_relevant_images(data: RequestFeedbackRelevant):
     similar_urls = []
     single_limit = limit // len(centroid_embeddings)
     for centroid in centroid_embeddings:
-        urls = explore_similar_embeddings(model, [centroid], single_limit)['urls']
+        urls = explore_similar_embeddings(model, [centroid], single_limit, dataset)['urls']
         similar_urls.extend(urls)
     print(f"Len relevant urls: {len(similar_urls)}")
     similar_image_embeddings = await fetch_embeddings(
         RequestExploreSimilarImages(
             image_urls=similar_urls,
-            model=model
+            model=model,
+            dataset=dataset
         )
     )
 
@@ -60,7 +66,8 @@ async def get_relevant_images(data: RequestFeedbackRelevant):
     text_data = RequestSearchByTextQuery(
         text_query=text_query,
         model="clip",
-        mode="smt"
+        mode="vec",
+        dataset=dataset
     )
     text_response = requests.post("http://localhost:8002/embedding/text", json=text_data.dict())
     text_embedding = text_response.json()["text_embedding"]
@@ -75,16 +82,21 @@ async def get_relevant_images(data: RequestFeedbackRelevant):
     return prepare_response(sorted_urls), status.HTTP_200_OK
 
 
-async def get_irrelevant_images(data: RequestFeedbackIrrelevant):
-    image_urls = data.image_urls
-    model = data.model
-    limit = data.limit
+async def get_irrelevant_images(data: dict):
+    image_urls = data['image_urls']
+    limit = data['limit']
+    model = data['model']
+    dataset = data['dataset']
+
+    if len(image_urls) == 0:
+        return prepare_response([]), status.HTTP_200_OK
 
     # Get embeddings for the images
     request_image_embeddings = await fetch_embeddings(
         RequestExploreSimilarImages(
             image_urls=image_urls,
-            model=model
+            model=model,
+            dataset=dataset
         )
     )
     if not request_image_embeddings:
@@ -98,7 +110,7 @@ async def get_irrelevant_images(data: RequestFeedbackIrrelevant):
     similar_urls = []
     single_limit = limit // len(centroid_embeddings)
     for centroid in centroid_embeddings:
-        urls = explore_similar_embeddings(model, [centroid], single_limit)['urls']
+        urls = explore_similar_embeddings(model, [centroid], single_limit, dataset)['urls']
         similar_urls.extend(urls)
     print(f"Len irrelevant urls: {len(similar_urls)}")
     return prepare_response(similar_urls), status.HTTP_200_OK
