@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { EvalQuery } from '.'
-import type { ApiResponse, EvalLoginParams } from '../types/api'
+import type { LoginResponse, EvalLoginParams, EvalIDResponse, EvalTextParams, QAParams, KISParams } from '../types/api'
+import { QuestionAnswer } from '@mui/icons-material'
 
 export const EvalApi = createApi({
   reducerPath: 'EvalApi',
@@ -8,7 +9,7 @@ export const EvalApi = createApi({
   tagTypes: ['Eval'],
   endpoints(builder) {
     return {
-      getEval: builder.query<string, EvalLoginParams>({
+      getSessionID: builder.query<string, EvalLoginParams>({
         query: (params) => {
           return {
             url: '/api/v2/login',
@@ -16,6 +17,63 @@ export const EvalApi = createApi({
             body: params,
           }
         },
+        transformResponse: (response: LoginResponse) => response.sessionId
+      }),
+
+      getEvalID: builder.query<string[], EvalTextParams>({
+        query: (params) => {
+          return {
+            url: `/api/v2/client/evaluation/list?session=${params.session}`,
+            method: 'GET',
+          }
+        },
+        transformResponse: (response: EvalIDResponse[]) => {
+          return response.map((item) => item.id)
+        }
+      }),
+
+      QuestionAnswering: builder.mutation<void, QAParams>({
+        query: (params) => {
+          return {
+            url: `api/v2/submit/${params.evaluation_id}`,
+            method: 'POST',
+            params: { session: params.session },
+            body: {
+              answerSets: [
+                {
+                  answers: [
+                    {
+                      text: params.text,
+                    },
+                  ],
+                },
+              ],
+            },
+          }
+        }
+      }),
+
+      KISAnswering: builder.mutation<void, KISParams>({
+        query: (params) => {
+          return {
+            url: `api/v2/submit/${params.evaluation_id}`,
+            method: 'POST',
+            params: { session: params.session },
+            body: {
+              answerSets: [
+                {
+                  answers: [
+                    {
+                      mediaItemName: params.mediaItemName,
+                      start: params.start,
+                      end: params.end,  
+                    },
+                  ],
+                },
+              ],
+            },
+          }
+        }
       }),
     }
   },
