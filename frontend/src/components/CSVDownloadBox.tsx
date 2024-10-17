@@ -3,9 +3,6 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import LoginIcon from '@mui/icons-material/Login'
 import PreviewIcon from '@mui/icons-material/Preview'
 import SettingsIcon from '@mui/icons-material/Settings'
-import ThumbUpIcon from '@mui/icons-material/ThumbUp'
-import ThumbDownIcon from '@mui/icons-material/ThumbDown'
-import FeedbackIcon from '@mui/icons-material/Feedback';
 import { useEffect } from 'react'
 import {
   Backdrop,
@@ -18,11 +15,9 @@ import {
   SpeedDialIcon,
   Typography,
   IconButton,
-  Grid
+  Grid,
+  Divider
 } from '@mui/material'
-import type {
-  FeedbackQueryParams
-} from '../types/api'
 import { get, set } from 'lodash'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
@@ -35,10 +30,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import {
   useLazyGetFeedbackImagesQuery
 } from '../AppState'
-import { Feed, Feedback } from '@mui/icons-material'
-import CloseIcon from '@mui/icons-material/Close';
-import AnImage from './AnImage'
-import HighlightOffIcon from '@mui/icons-material/HighlightOff';
+import ThumbsUpDownIcon from '@mui/icons-material/ThumbsUpDown';
 
 export const CSVDownloadBox = () => {
   const csvImages = useAppSelector((state) => state.app.csvImages)
@@ -50,8 +42,7 @@ export const CSVDownloadBox = () => {
   const dispatch = useAppDispatch()
 
   const [anchorElCSV, setAnchorElCSV] = useState<HTMLElement | null>(null)
-  const [anchorElLikePreview, setAnchorElLikePreview] = useState<HTMLElement | null>(null)
-  const [anchorElDislikePreview, setAnchorElDislikePreview] = useState<HTMLElement | null>(null)
+  const [anchorElLikeDislikePreview, setAnchorElLikeDislikePreview] = useState<HTMLElement | null>(null)
   const [anchorElEvaluation, setAnchorElEvaluation] =
     useState<HTMLElement | null>(null)
   const [anchorElSettings, setAnchorElSettings] = useState<HTMLElement | null>(
@@ -59,8 +50,7 @@ export const CSVDownloadBox = () => {
   )
   const [speedDialOpen, setSpeedDialOpen] = useState(false) // New state for SpeedDial open
   const CSVPreviewPopupOpen = Boolean(anchorElCSV)
-  const LikePreviewPopupOpen = Boolean(anchorElLikePreview)
-  const DislikePreviewPopupOpen = Boolean(anchorElDislikePreview)
+  const LikeDislikePreviewPopupOpen = Boolean(anchorElLikeDislikePreview)
   const isVisible = Boolean(anchorElEvaluation)
   const isSettingsVisible = Boolean(anchorElSettings)
   const Config = useAppSelector((state) => state.app.config)
@@ -91,20 +81,6 @@ export const CSVDownloadBox = () => {
     })
   }
 
-  const handleClearLike = () => {
-    dispatch(appActions.setLikedImages([]))
-    toast.success('Cleared Liked Images', {
-      position: 'bottom-left',
-    })
-  }
-
-  const handleClearDislike = () => {
-    dispatch(appActions.setDislikedImages([]))
-    toast.success('Cleared Disliked Images', {
-      position: 'bottom-left',
-    })
-  }
-
   const handlePreviewCSVOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElCSV(event.currentTarget)
   }
@@ -124,40 +100,16 @@ export const CSVDownloadBox = () => {
   const handleSettingsOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElSettings(event.currentTarget)
   }
-
-  const handleLikePreviewOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElLikePreview(event.currentTarget)
+  const handleLikeDislikePreviewOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorElLikeDislikePreview(event.currentTarget)
   }
-
-  const handleLikePreviewClose = () => {
-    if (LikePreviewPopupOpen) setAnchorElLikePreview(null)
-  }
-
-  const handleDislikePreviewOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElDislikePreview(event.currentTarget)
-  }
-
-  const handleDislikePreviewClose = () => {
-    if (DislikePreviewPopupOpen) setAnchorElDislikePreview(null)
+  const handleLikeDislikePreviewClose = () => {
+    if (LikeDislikePreviewPopupOpen) setAnchorElLikeDislikePreview(null)
   }
 
   const handleSettingsClose = () => {
     setAnchorElSettings(null)
   }
-
-  const initialFeedback: FeedbackQueryParams = {
-    like: {
-      text_query: '',
-      image_urls: [''],
-      limit: 0,
-    },
-    dislike: {
-      image_urls: [''],
-      limit: 0,
-    },
-    model: 'clip',
-    dataset: 'aic24',
-  };
 
   const [triggerFeedbackQuery, { data, error, isError, isFetching }] = useLazyGetFeedbackImagesQuery();
 
@@ -179,8 +131,7 @@ export const CSVDownloadBox = () => {
       };
       feedbackData.model = queryPayload.model;
       feedbackData.dataset = queryPayload.dataset;
-      
-      // Trigger the feedback query
+
       triggerFeedbackQuery(feedbackData);
 
       dispatch(appActions.setLikedImages([]));
@@ -230,7 +181,7 @@ export const CSVDownloadBox = () => {
 
   const ImageBox = ({ image, onDelete }) => {
     return (
-      <div style={{ position: 'relative', width: '95%', height: '95%', margin: '10px' }}>
+      <div style={{ position: 'relative', width: '95%', height: 'auto', margin: '10px' }}>
         <img
           src={image}
           alt="Disliked"
@@ -238,13 +189,12 @@ export const CSVDownloadBox = () => {
             width: '100%',
             height: '100%',
             objectFit: 'cover',
-            maxHeight: '15%',
             borderRadius: '7%',
           }}
         />
         <IconButton
           size="small"
-          style={{ position: 'absolute', top: '0', right: '0', color: '#17f8fc', border: '1px solid #17f8fc' }}
+          style={{ position: 'absolute', top: '0', right: '0', color: 'red', border: '1px solid red' }}
           onClick={onDelete}
         >
           {/* <HighlightOffIcon /> */}
@@ -271,8 +221,7 @@ export const CSVDownloadBox = () => {
           setSpeedDialOpen(false)
           handlePreviewCSVClose()
           handleLoginClose()
-          handleLikePreviewClose()
-          handleDislikePreviewClose()
+          handleLikeDislikePreviewClose()
         }}
       >
         <Box
@@ -333,14 +282,9 @@ export const CSVDownloadBox = () => {
               onClick={(e) => handleSettingsOpen(e)}
             />
             <SpeedDialAction
-              icon={<ThumbUpIcon />}
-              tooltipTitle="Preview Liked Images"
-              onClick={(e) => handleLikePreviewOpen(e)}
-            />
-            <SpeedDialAction
-              icon={<ThumbDownIcon />}
-              tooltipTitle="Preview Dislike Images"
-              onClick={(e) => handleDislikePreviewOpen(e)}
+              icon={<ThumbsUpDownIcon />}
+              tooltipTitle="Preview Liked and Disliked Images"
+              onClick={(e) => handleLikeDislikePreviewOpen(e)}
             />
 
           </SpeedDial>
@@ -378,9 +322,9 @@ export const CSVDownloadBox = () => {
           </Popover>
 
           <Popover
-            open={LikePreviewPopupOpen}
-            anchorEl={anchorElLikePreview}
-            onClose={handleLikePreviewClose}
+            open={LikeDislikePreviewPopupOpen}
+            anchorEl={anchorElLikeDislikePreview}
+            onClose={handleLikeDislikePreviewClose}
             anchorOrigin={{
               vertical: 'center',
               horizontal: 'left',
@@ -391,55 +335,39 @@ export const CSVDownloadBox = () => {
             }}
             marginThreshold={20}
           >
-            {likeImages.length === 0 ? (
+            {(likeImages.length === 0  && dislikeImages.length === 0 )? (
               <Typography>No images to preview</Typography>
             ) : (
               <>
-                <Grid container direction="row" style={{ width: '90dvw', minHeight: '60dvw' }}>
-                  {likeImages.map((image, index) => (
-                    <Grid item xs={2} style={{ maxHeight: '8dw' }} key={index}>
-                      <ImageBox image={image.img_link} onDelete={() => handleDeleteLikedImage(image)} />
+                <Grid container direction="row" style={{ width: '90dvw' }}>
+                  <Grid item xs={5.9999} style={{ padding: '8px' , minHeight: '60dvw'}}>
+                  <Typography align="center" variant="h5" style={{ fontWeight: 'bold' }}>Liked Images</Typography>
+                    <Grid container direction="row" style={{ width: '100%' }}>
+                      {likeImages.map((image, index) => (
+                        <Grid item xs={3} style={{ maxHeight: '8dw' }} key={index}>
+                          <ImageBox image={image.img_link} onDelete={() => handleDeleteLikedImage(image)} />
+                        </Grid>
+                      ))}
                     </Grid>
-                  ))}
-                </Grid>
-              </>
-            )}
-          </Popover>
+                  </Grid>
+                  <Grid item xs={0.0002} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                    <Divider orientation="vertical" flexItem style={{ height: '100%', borderRightWidth: '3px', borderRightStyle: 'solid', borderRightColor: '#000' }} />
+                  </Grid>
 
-          <Popover
-            open={DislikePreviewPopupOpen}
-            anchorEl={anchorElDislikePreview}
-            onClose={handleDislikePreviewClose}
-            anchorOrigin={{
-              vertical: 'center',
-              horizontal: 'left',
-            }}
-            transformOrigin={{
-              vertical: 'center',
-              horizontal: 'right',
-            }}
-            marginThreshold={20}
-            PaperProps={{
-              sx: {
-                minWidth: '200px',
-                minHeight: '50px',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-              },
-            }}
-          >
-            {dislikeImages.length === 0 ? (
-              <Typography>No images to preview</Typography>
-            ) : (
-              <>
-                <Grid container direction="row" style={{ width: '90dvw', minHeight: '60dvw' }}>
-                  {dislikeImages.map((image, index) => (
-                    <Grid item xs={2} style={{ height: 'auto', maxHeight: '1dw' }} key={index}>
-                      <ImageBox image={image.img_link} onDelete={() => handleDeleteDislikedImage(image)} />
+                  <Grid item xs={5.9999} style={{ padding: '8px' , minHeight: '60dvw'}}>
+                  <Typography align="center" variant="h5" style={{ fontWeight: 'bold' }}>Disliked Images</Typography>
+
+
+                    <Grid container direction="row" style={{ width: '100%' }}>
+                      {dislikeImages.map((image, index) => (
+                        <Grid item xs={3} style={{ maxHeight: '8dw' }} key={index}>
+                          <ImageBox image={image.img_link} onDelete={() => handleDeleteDislikedImage(image)} />
+                        </Grid>
+                      ))}
                     </Grid>
-                  ))}
+                  </Grid>
                 </Grid>
+
               </>
             )}
           </Popover>
