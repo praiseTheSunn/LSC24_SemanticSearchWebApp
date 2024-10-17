@@ -5,11 +5,13 @@ from schemas import options_schemas
 class RequestSearchByImageQuery(BaseModel):
     image_base64: str
     model: options_schemas.ModelOptions
+    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
 
 class RequestSearchByTextQuery(BaseModel):
     text_query: str
     model: options_schemas.ModelOptions
     mode: options_schemas.ModeOptions
+    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
     object_global_encoding: Optional[Dict[str, int]] = {}
     object_local_encoding: Optional[str] = ""
     color_global_encoding: Optional[Dict[str, int]] = {}
@@ -28,6 +30,7 @@ class RequestSearchByTextQuery(BaseModel):
 class RequestExploreSimilarImages(BaseModel):
     image_urls: list[str]
     model: options_schemas.ModelOptions
+    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
 
     class Config:
         json_schema_extra = {
@@ -44,6 +47,7 @@ class RequestExploreSimilarImages(BaseModel):
 class RequestExploreNeighborImages(BaseModel):
     image_url: str
     span: int
+    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
 
     class Config:
         json_schema_extra = {
@@ -56,14 +60,14 @@ class RequestExploreNeighborImages(BaseModel):
 class RequestFeedbackRelevant(BaseModel):
     text_query: str
     image_urls: list[str]
-    model: options_schemas.ModelOptions
     limit: int
 
 class RequestFeedbackIrrelevant(BaseModel):
     image_urls: list[str]
-    model: options_schemas.ModelOptions
     limit: int
 
 class RequestFeedback(BaseModel):
     like: RequestFeedbackRelevant
     dislike: RequestFeedbackIrrelevant
+    model: options_schemas.ModelOptions
+    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1

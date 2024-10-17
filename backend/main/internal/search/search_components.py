@@ -7,12 +7,12 @@ from internal.search.parser import all_parsers, time_helpers
 from internal.search.scorer import combine_score
 
 
-dataset_name = dataset_config['dataset_name']
-metadata_index_name = dataset_name
-encoding_index_name = dataset_name + "_encoding"
+# dataset_name = dataset_config['dataset_name']
+# metadata_index_name = dataset_name
+# encoding_index_name = dataset_name + "_encoding"
 
 
-def search_semantic(model: str, text_embeddings: list[str]):
+def search_semantic(dataset: str, model: str, text_embeddings: list[str]):
 
     clause_urls = []
     clause_scores = []
@@ -21,6 +21,7 @@ def search_semantic(model: str, text_embeddings: list[str]):
         data = {
             "model": model,
             "embedding": text_embedding,
+            "dataset": dataset,
         }
         response = requests.post("http://localhost:8004/search_milvus", json=data, headers={
             "Content-Type": "application/json"
@@ -87,7 +88,7 @@ def search_semantic(model: str, text_embeddings: list[str]):
         }
 
 
-def search_objects(object_local_encoding, color_local_encoding, pose_local_encoding, subset: list[str]) -> list[dict]: 
+def search_objects(dataset: str, object_local_encoding, color_local_encoding, pose_local_encoding, subset: list[str] = []) -> list[dict]: 
     body = {
         "query": {
             "bool": {
@@ -117,12 +118,17 @@ def search_objects(object_local_encoding, color_local_encoding, pose_local_encod
             },
         }
     }  
+
     if subset != []:
+        subset = list(set(subset) & set(image_names))
         body["query"]["bool"]["must"] = {
             "terms": {
                 "_id": subset,
             }
         }
+
+    # encoding_index_name = dataset + "_encoding"
+    encoding_index_name = "aic24_encoding"
     response = setup.es_client.search(
         index=encoding_index_name,
         size=1000,
@@ -137,32 +143,46 @@ def search_objects(object_local_encoding, color_local_encoding, pose_local_encod
         "scores": scores,
     }
 
-def search_keyword(text_query: str, subset: list[str]) -> list[dict]:    
-    parsed_ocr = all_parsers.parse_ocr(text_query)
+
+def search_keyword(dataset: str, text_query: str, subset: list[str] = []) -> list[dict]:  
+    print(f"Searching for keyword: {text_query}")
     body = {
         "query": {
             "bool": {
-                "should": [
-                    {
-                        "match": {
-                            "caption": {
-                                "query": text_query,
-                                "fuzziness": "AUTO",
-                            }                              
-                        }
-                    },
-                    {
-                        "match": {
-                            "context_en_keywords": {
-                                "query": text_query,
-                                "fuzziness": "AUTO",
-                            }                              
-                        }
-                    }
-                ]
+                "should": []
             }
         }        
     }
+    if dataset == "aic24_lesson" or dataset == "aic24_cooking":
+        body["query"]["bool"]["should"].append({
+            "match": {
+                "context_vi": {
+                    "query": text_query,
+                    "fuzziness": "AUTO",
+                }                              
+            }
+        })
+    else:
+        body["query"]["bool"]["should"].extend([
+            {
+                "match": {
+                    "caption": {
+                        "query": text_query,
+                        "fuzziness": "AUTO",
+                    }                              
+                }
+            }, 
+            {
+                "match": {
+                    "context_en_keywords": {
+                        "query": text_query,
+                        "fuzziness": "AUTO",
+                    }                              
+                }
+            }
+        ])
+      
+    parsed_ocr = all_parsers.parse_ocr(text_query)
     if parsed_ocr:
         print(f"parsed_ocr: {parsed_ocr}")
         body["query"]["bool"]["should"].append({
@@ -173,12 +193,17 @@ def search_keyword(text_query: str, subset: list[str]) -> list[dict]:
                 }                              
             }
         })
+
     if subset != []:
+        subset = list(set(subset) & set(image_names))
         body["query"]["bool"]["must"] = {
             "terms": {
                 "_id": subset,
             }
         }
+    print("body: ", body)
+
+    metadata_index_name = dataset
     response = setup.es_client.search(
         index=metadata_index_name,
         size=1000,
@@ -193,264 +218,264 @@ def search_keyword(text_query: str, subset: list[str]) -> list[dict]:
         "scores": scores,
     }
 
-def search_match_object_tags(text_query: str) -> list[dict]: 
-    parsed_object_tags = all_parsers.parse_object_tags(text_query)
-    if parsed_object_tags is None:
-        return None
-    response = setup.es_client.search(
-        index=metadata_index_name,
-        size=5000,
-        query={
-            "match": {
-                "object_tags": {
-                    "query": parsed_object_tags,
-                    "fuzziness": "AUTO",
-                }   
-            }
-        },
-    )
-    response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
-    scores = [hit["_score"] for hit in response]
-    return {
-        "urls": urls,
-        "scores": scores,
-    }
+# def search_match_object_tags(text_query: str) -> list[dict]: 
+#     parsed_object_tags = all_parsers.parse_object_tags(text_query)
+#     if parsed_object_tags is None:
+#         return None
+#     response = setup.es_client.search(
+#         index=metadata_index_name,
+#         size=5000,
+#         query={
+#             "match": {
+#                 "object_tags": {
+#                     "query": parsed_object_tags,
+#                     "fuzziness": "AUTO",
+#                 }   
+#             }
+#         },
+#     )
+#     response = response["hits"]["hits"]
+#     urls = [hit["_id"] for hit in response]
+#     scores = [hit["_score"] for hit in response]
+#     return {
+#         "urls": urls,
+#         "scores": scores,
+#     }
 
-def search_match_location(text_query: str) -> list[dict]:
-    parsed_location = all_parsers.parse_location(text_query)
-    if parsed_location is None:
-        return None
-    response = setup.es_client.search(
-        index=metadata_index_name,
-        size=5000,
-        query={
-            "match": {
-                "location": {
-                    "query": parsed_location,
-                    "fuzziness": "AUTO",
-                }   
-            }
-        },
-    )
-    response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
-    scores = [hit["_score"] for hit in response]
-    return {
-        "urls": urls,
-        "scores": scores,
-    }
+# def search_match_location(text_query: str) -> list[dict]:
+#     parsed_location = all_parsers.parse_location(text_query)
+#     if parsed_location is None:
+#         return None
+#     response = setup.es_client.search(
+#         index=metadata_index_name,
+#         size=5000,
+#         query={
+#             "match": {
+#                 "location": {
+#                     "query": parsed_location,
+#                     "fuzziness": "AUTO",
+#                 }   
+#             }
+#         },
+#     )
+#     response = response["hits"]["hits"]
+#     urls = [hit["_id"] for hit in response]
+#     scores = [hit["_score"] for hit in response]
+#     return {
+#         "urls": urls,
+#         "scores": scores,
+#     }
 
-def search_match_caption(text_query: str) -> list[dict]:
-    response = setup.es_client.search(
-        index=metadata_index_name,
-        size=5000,
-        query={
-            "match": {
-                "caption": {
-                    "query": text_query,
-                    "fuzziness": "AUTO",
-                }   
-            }
-        },
-    )
-    response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
-    scores = [hit["_score"] for hit in response]
-    return {
-        "urls": urls,
-        "scores": scores,
-    }
+# def search_match_caption(text_query: str) -> list[dict]:
+#     response = setup.es_client.search(
+#         index=metadata_index_name,
+#         size=5000,
+#         query={
+#             "match": {
+#                 "caption": {
+#                     "query": text_query,
+#                     "fuzziness": "AUTO",
+#                 }   
+#             }
+#         },
+#     )
+#     response = response["hits"]["hits"]
+#     urls = [hit["_id"] for hit in response]
+#     scores = [hit["_score"] for hit in response]
+#     return {
+#         "urls": urls,
+#         "scores": scores,
+#     }
 
-def search_datetime(text_query: str) -> list[dict]:
-    date1, time1, date2, time2 = all_parsers.parse_date_time(text_query)        
-    if date1 == -1 and time1 == -1:
-        return []
-    date1, time1, date2, time2 = time_helpers.fill_date_time(date1, time1, date2, time2)
-    response = setup.es_client.search(
-        index=metadata_index_name,
-        size=10000,
-        query={
-            "bool": {
-                "must": [
-                    {
-                        "range": {
-                            "local_date": {
-                                "gte": date1,
-                                "lte": date2,
-                            }
-                        }
-                    },
-                    {
-                        "range": {
-                            "local_time": {
-                                "gte": time1,
-                                "lte": time2,
-                            }
-                        }
-                    }
-                ]
-            }
-        }
-    )
-    response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
-    scores = [hit["_score"] for hit in response]
-    return {
-        "urls": urls,
-        "scores": scores,
-    }
+# def search_datetime(text_query: str) -> list[dict]:
+#     date1, time1, date2, time2 = all_parsers.parse_date_time(text_query)        
+#     if date1 == -1 and time1 == -1:
+#         return []
+#     date1, time1, date2, time2 = time_helpers.fill_date_time(date1, time1, date2, time2)
+#     response = setup.es_client.search(
+#         index=metadata_index_name,
+#         size=10000,
+#         query={
+#             "bool": {
+#                 "must": [
+#                     {
+#                         "range": {
+#                             "local_date": {
+#                                 "gte": date1,
+#                                 "lte": date2,
+#                             }
+#                         }
+#                     },
+#                     {
+#                         "range": {
+#                             "local_time": {
+#                                 "gte": time1,
+#                                 "lte": time2,
+#                             }
+#                         }
+#                     }
+#                 ]
+#             }
+#         }
+#     )
+#     response = response["hits"]["hits"]
+#     urls = [hit["_id"] for hit in response]
+#     scores = [hit["_score"] for hit in response]
+#     return {
+#         "urls": urls,
+#         "scores": scores,
+#     }
 
-def search_multimatch(text_query: str):
-    response = setup.es_client.search(
-        index=metadata_index_name,
-        size=10000,
-        query={
-            "multi_match": {
-                "query" : text_query,
-                "fields": ["object_tags", "location", "caption", "ocr"],
-                "fuzziness": "AUTO"
-            }
-        }
-    )
-    response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
-    scores = [hit["_score"] for hit in response]
-    return {
-        "urls": urls,
-        "scores": scores,
-    }
+# def search_multimatch(text_query: str):
+#     response = setup.es_client.search(
+#         index=metadata_index_name,
+#         size=10000,
+#         query={
+#             "multi_match": {
+#                 "query" : text_query,
+#                 "fields": ["object_tags", "location", "caption", "ocr"],
+#                 "fuzziness": "AUTO"
+#             }
+#         }
+#     )
+#     response = response["hits"]["hits"]
+#     urls = [hit["_id"] for hit in response]
+#     scores = [hit["_score"] for hit in response]
+#     return {
+#         "urls": urls,
+#         "scores": scores,
+#     }
 
-def search_multimatch_datetime(text_query: str):
-    # parse datetime
-    # boosts are the weight of datetime in the whole ElasticSearch query (set to 0.1 if date or time is blank)
-    date1, time1, date2, time2 = all_parsers.parse_date_time(text_query)
-    date1, time1, date2, time2, date_boost, time_boost = time_helpers.fill_date_time(date1, time1, date2, time2)
+# def search_multimatch_datetime(text_query: str):
+#     # parse datetime
+#     # boosts are the weight of datetime in the whole ElasticSearch query (set to 0.1 if date or time is blank)
+#     date1, time1, date2, time2 = all_parsers.parse_date_time(text_query)
+#     date1, time1, date2, time2, date_boost, time_boost = time_helpers.fill_date_time(date1, time1, date2, time2)
 
-    response = setup.es_client.search(
-        index=metadata_index_name,
-        size=10000,
-        query={
-            "bool": {
-                "should": [
-                    {
-                        "range": {
-                            "local_date": {                                
-                                "gte": date1,
-                                "lte": date2,
-                                "boost": date_boost,
-                            },
-                        }
-                    },
-                    {
-                        "range": {
-                            "local_time": {                                
-                                "gte": time1,
-                                "lte": time2,
-                                "boost": time_boost,
-                            },
-                        }
-                    },
-                    {
-                        "multi_match": {
-                            "query" : text_query,
-                            "fields": ["object_tags", "location", "caption", "ocr"],
-                            "fuzziness": "AUTO"
-                        }
-                    }
-                ]
-            }
-        }
-    )
-    response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
-    scores = [hit["_score"] for hit in response]
-    return {
-        "urls": urls,
-        "scores": scores,
-    }
+#     response = setup.es_client.search(
+#         index=metadata_index_name,
+#         size=10000,
+#         query={
+#             "bool": {
+#                 "should": [
+#                     {
+#                         "range": {
+#                             "local_date": {                                
+#                                 "gte": date1,
+#                                 "lte": date2,
+#                                 "boost": date_boost,
+#                             },
+#                         }
+#                     },
+#                     {
+#                         "range": {
+#                             "local_time": {                                
+#                                 "gte": time1,
+#                                 "lte": time2,
+#                                 "boost": time_boost,
+#                             },
+#                         }
+#                     },
+#                     {
+#                         "multi_match": {
+#                             "query" : text_query,
+#                             "fields": ["object_tags", "location", "caption", "ocr"],
+#                             "fuzziness": "AUTO"
+#                         }
+#                     }
+#                 ]
+#             }
+#         }
+#     )
+#     response = response["hits"]["hits"]
+#     urls = [hit["_id"] for hit in response]
+#     scores = [hit["_score"] for hit in response]
+#     return {
+#         "urls": urls,
+#         "scores": scores,
+#     }
 
-def search_3match_datetime(text_query: str):
+# def search_3match_datetime(text_query: str):
 
-    # parse datetime
-    # boosts are the weight of datetime in the whole ElasticSearch query (set to 0.1 if date or time is blank)
-    date1, time1, date2, time2 = all_parsers.parse_date_time(text_query)
-    date1, time1, date2, time2, date_boost, time_boost = time_helpers.fill_date_time(date1, time1, date2, time2)
+#     # parse datetime
+#     # boosts are the weight of datetime in the whole ElasticSearch query (set to 0.1 if date or time is blank)
+#     date1, time1, date2, time2 = all_parsers.parse_date_time(text_query)
+#     date1, time1, date2, time2, date_boost, time_boost = time_helpers.fill_date_time(date1, time1, date2, time2)
 
-    # parse other metadata
-    parsed_object_tags = all_parsers.parse_object_tags(text_query)
-    parsed_location = all_parsers.parse_location(text_query)
-    parsed_ocr = all_parsers.parse_ocr(text_query)
-    print(f"parsed_object_tags: {parsed_object_tags}")
-    print(f"parsed_location: {parsed_location}")
-    print(f"parsed_ocr: {parsed_ocr}")
+#     # parse other metadata
+#     parsed_object_tags = all_parsers.parse_object_tags(text_query)
+#     parsed_location = all_parsers.parse_location(text_query)
+#     parsed_ocr = all_parsers.parse_ocr(text_query)
+#     print(f"parsed_object_tags: {parsed_object_tags}")
+#     print(f"parsed_location: {parsed_location}")
+#     print(f"parsed_ocr: {parsed_ocr}")
 
-    response = setup.es_client.search(
-        index=metadata_index_name,
-        size=10000,
-        query={
-            "bool": {
-                "should": [
-                    {
-                        "range": {
-                            "local_date": {                                
-                                "gte": date1,
-                                "lte": date2,
-                                "boost": date_boost,
-                            }
-                        }
-                    },
-                    {
-                        "range": {
-                            "local_time": {                                
-                                "gte": time1,
-                                "lte": time2,
-                                "boost": time_boost,
-                            }
-                        }
-                    },
-                    {
-                        "match": {
-                            "object_tags": {
-                                "query": parsed_object_tags,
-                                "fuzziness": "AUTO",
-                            }                              
-                        }
-                    },
-                    {
-                        "match": {
-                            "location": {
-                                "query": parsed_location,
-                                "fuzziness": "AUTO",
-                            }                              
-                        }
-                    },
-                    {
-                        "match": {
-                            "caption": {
-                                "query": text_query,
-                                "fuzziness": "AUTO",
-                            }                              
-                        }
-                    },
-                    {
-                        "match": {
-                            "ocr": {
-                                "query": parsed_ocr,
-                                "fuzziness": "AUTO",
-                            }                              
-                        }
-                    },
-                ]
-            }
-        }
-    )
-    response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
-    scores = [hit["_score"] for hit in response]
-    return {
-        "urls": urls,
-        "scores": scores,
-    }
+#     response = setup.es_client.search(
+#         index=metadata_index_name,
+#         size=10000,
+#         query={
+#             "bool": {
+#                 "should": [
+#                     {
+#                         "range": {
+#                             "local_date": {                                
+#                                 "gte": date1,
+#                                 "lte": date2,
+#                                 "boost": date_boost,
+#                             }
+#                         }
+#                     },
+#                     {
+#                         "range": {
+#                             "local_time": {                                
+#                                 "gte": time1,
+#                                 "lte": time2,
+#                                 "boost": time_boost,
+#                             }
+#                         }
+#                     },
+#                     {
+#                         "match": {
+#                             "object_tags": {
+#                                 "query": parsed_object_tags,
+#                                 "fuzziness": "AUTO",
+#                             }                              
+#                         }
+#                     },
+#                     {
+#                         "match": {
+#                             "location": {
+#                                 "query": parsed_location,
+#                                 "fuzziness": "AUTO",
+#                             }                              
+#                         }
+#                     },
+#                     {
+#                         "match": {
+#                             "caption": {
+#                                 "query": text_query,
+#                                 "fuzziness": "AUTO",
+#                             }                              
+#                         }
+#                     },
+#                     {
+#                         "match": {
+#                             "ocr": {
+#                                 "query": parsed_ocr,
+#                                 "fuzziness": "AUTO",
+#                             }                              
+#                         }
+#                     },
+#                 ]
+#             }
+#         }
+#     )
+#     response = response["hits"]["hits"]
+#     urls = [hit["_id"] for hit in response]
+#     scores = [hit["_score"] for hit in response]
+#     return {
+#         "urls": urls,
+#         "scores": scores,
+#     }
 
 
