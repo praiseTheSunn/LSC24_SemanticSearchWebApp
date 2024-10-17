@@ -159,7 +159,6 @@ export const CSVDownloadBox = () => {
     dataset: 'aic24',
   };
 
-  const [feedback, setFeedback] = useState<FeedbackQueryParams>(initialFeedback);
   const [triggerFeedbackQuery, { data, error, isError, isFetching }] = useLazyGetFeedbackImagesQuery();
 
   const handleSubmitFeedback = (event: any) => {
@@ -180,9 +179,7 @@ export const CSVDownloadBox = () => {
       };
       feedbackData.model = queryPayload.model;
       feedbackData.dataset = queryPayload.dataset;
-
-      setFeedback(feedbackData);
-
+      
       // Trigger the feedback query
       triggerFeedbackQuery(feedbackData);
 
