@@ -24,7 +24,7 @@ export const LSC_addCSVImages = (
   console.log('evaluationId here:', evaluationId);
   console.log('sessionId here:', sessionId);
 
-  const time = Number(src_data.frame_id) * 1000 / 25
+  const time = Number(src_data.timestamp) * 1000
   const video = src_data.video_id
 
   if (evaluationId && sessionId && video) {
