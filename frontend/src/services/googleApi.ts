@@ -13,10 +13,10 @@ type TranslationResponse = {
 }
 
 const decodeHtmlEntities = (str: string): string => {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(str, "text/html");
-  return doc.documentElement.textContent || "";
-};
+  const parser = new DOMParser()
+  const doc = parser.parseFromString(str, 'text/html')
+  return doc.documentElement.textContent || ''
+}
 
 export const GoogleApi = createApi({
   reducerPath: 'GoogleApi',
@@ -34,13 +34,15 @@ export const GoogleApi = createApi({
           }
         },
         transformResponse: (response: any) => {
-            if (response.data) {
-            const translation = response.data.translations[0];
-            translation.translatedText = decodeHtmlEntities(translation.translatedText);
-            return translation;
-            }
-            response.translatedText = decodeHtmlEntities(response.translatedText);
-            return response;
+          if (response.data) {
+            const translation = response.data.translations[0]
+            translation.translatedText = decodeHtmlEntities(
+              translation.translatedText,
+            )
+            return translation
+          }
+          response.translatedText = decodeHtmlEntities(response.translatedText)
+          return response
         },
         providesTags: (result) => [{ type: 'Google', id: 'TRANSLATED_TEXT' }],
       }),

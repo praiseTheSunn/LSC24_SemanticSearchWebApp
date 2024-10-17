@@ -19,10 +19,17 @@ const initialState: AppState = {
 
   data: [],
   cacheData: [],
-  queryPayload: { model: 'clip', mode: 'vec', text_query: '', dataset: 'aic24' },
+  queryPayload: {
+    model: 'clip',
+    mode: 'vec',
+    text_query: '',
+    dataset: 'aic24',
+  },
   queryHistory: [],
 
   csvImages: [],
+  likedImages: [],
+  dislikedImages: [],
   isCsvPreviewPopupOpen: false,
 
   isEvaluationBoxOpen: false,
@@ -93,5 +100,14 @@ export const sliceApp = createSlice({
     setImagePreview(state, action) {
       state.imagePreviewData = action.payload
     },
+
+    setLikedImages: (state, action) => {
+      state.likedImages = action.payload
+    },
+
+    setDislikedImages: (state, action) => {
+      state.dislikedImages = action.payload
+    },
+
   },
 })
