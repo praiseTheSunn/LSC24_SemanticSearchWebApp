@@ -76,3 +76,21 @@ export type EvalLoginParams = {
   username: string
   password: string
 }
+
+export type FeedbackQueryParams = {
+  like: {
+    text_query: string,
+    image_urls: [
+      string
+    ],
+    limit: 0,
+  },
+  dislike: {
+    image_urls: [
+      string
+    ],
+    limit: 0,
+  }
+  model: string,
+  dataset: string
+}
