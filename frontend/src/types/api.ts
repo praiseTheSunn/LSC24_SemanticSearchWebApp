@@ -77,6 +77,38 @@ export type EvalLoginParams = {
   password: string
 }
 
+export type LoginResponse = {
+  id: string
+  role: string
+  sessionId: string
+  username: string
+}
+
+export type EvalIDResponse = {
+  id: string
+  name: string
+  type: string
+  status: string
+}
+
+export type EvalTextParams = {
+  session: string
+}
+
+export type QAParams = {
+  session: string
+  evaluation_id: string
+  text: string
+}
+
+export type KISParams = {
+  session: string
+  evaluation_id: string
+  mediaItemName: string
+  start: number
+  end: number
+}
+
 export type FeedbackQueryParams = {
   like: {
     text_query: string,
@@ -94,3 +126,4 @@ export type FeedbackQueryParams = {
   model: string,
   dataset: string
 }
+

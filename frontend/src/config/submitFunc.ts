@@ -3,9 +3,12 @@
 
 import type { Dispatch } from '@reduxjs/toolkit'
 import { type Id, toast } from 'react-toastify'
-import { appActions } from '../AppState'
-import type { AppState } from '../types/app'
+import type { AppState, EvaluationState } from '../types/app'
+import { useSelector } from 'react-redux'
 import type { ImageRecord } from '../types/image'
+import { appActions, useAppDispatch, useAppSelector } from '../AppState'
+import { useKISAnsweringMutation } from '../AppState'
+import { useEffect } from 'react'
 
 export const LSC_addCSVImages = (
   src_data: ImageRecord,
@@ -13,21 +16,46 @@ export const LSC_addCSVImages = (
   imageDatas: ImageRecord[],
   dispatch: Dispatch,
   prevImages: ImageRecord[],
+  evaluationId: string | null,
+  sessionId: string | null,
+  triggerKIS: ReturnType<typeof useKISAnsweringMutation>[0]
 ) => {
-  toast.update(toastId, {
-    render: `Added: ${src_data.img_link}`,
-    type: 'success',
-    isLoading: false,
-    closeOnClick: true,
-    autoClose: 500,
-    delay: 500,
-  })
+  
+  console.log('evaluationId here:', evaluationId);
+  console.log('sessionId here:', sessionId);
 
-  const updatedCSVImages = [...prevImages, src_data]
-  // console.log('updatedCSVImages', updatedCSVImages);
+  const time = Number(src_data.frame_id) * 1000 / 25
+  const video = src_data.video_id
 
-  dispatch(appActions.setCSVImages(updatedCSVImages))
+  if (evaluationId && sessionId && video) {
+    triggerKIS({
+      session: sessionId,
+      evaluation_id: evaluationId,
+      mediaItemName: video,
+      start: time,
+      end: time,
+    })
+
+    toast.update(toastId, {
+      render: `Submitted: ${video} at ${time}`,
+      type: 'success',
+      isLoading: false,
+      closeOnClick: true,
+      autoClose: 500,
+      delay: 500,
+    })
+  }else{
+    console.log('evaluationId or sessionId or video is null');
+  }
 }
+
+// export type KISParams = {
+//   session: string
+//   evaluation_id: string
+//   mediaItemName: string
+//   start: number
+//   end: number
+// }
 
 //   evalService
 //     .submitFile(evalId, sesId, filename)
