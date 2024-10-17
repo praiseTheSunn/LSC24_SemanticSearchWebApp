@@ -1,12 +1,16 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { ImageQuery } from '.'
-import { transformResponse_AIC2024 } from '../config/transformResponse'
+import { transformResponse_AIC2024, transformResponse_Feedback_AIC } from '../config/transformResponse'
 import type {
   ApiResponse,
+  ExploreNeighborParams,
+  ExploreSimilarParams,
   ImageQueryParams,
   TextQueryParams,
+  FeedbackQueryParams,
 } from '../types/api'
 import type { ImageRecord } from '../types/image'
+import { get } from 'lodash'
 
 export const ImageApi = createApi({
   reducerPath: 'ImageApi',
@@ -35,11 +39,12 @@ export const ImageApi = createApi({
               ]
             : [{ type: 'Image', id: 'LIST' }],
       }),
-      getSimilars: builder.query<ImageRecord[], string[] | undefined | null>({
-        query: (urls) => ({
+      getSimilars: builder.query<ImageRecord[], ExploreSimilarParams>({
+        query: (params) => ({
           url: '/explore/explore_similar_images',
           method: 'POST',
-          body: { image_urls: urls, model: 'clip' },
+          // body: { image_urls: urls, model: 'clip', dataset: 'aic24' },
+          body: params,
         }),
         transformResponse: (response: ApiResponse) =>
           transformResponse_AIC2024(response),
@@ -55,11 +60,12 @@ export const ImageApi = createApi({
             : [{ type: 'Image', id: 'SIMILAR_IMAGES' }],
       }),
 
-      getNeighbors: builder.query<ImageRecord[], string>({
-        query: (img_url) => ({
+      getNeighbors: builder.query<ImageRecord[], ExploreNeighborParams>({
+        query: (params) => ({
           url: '/explore/explore_neighbor_images',
           method: 'POST',
-          body: { image_url: img_url, span: 30 },
+          // body: { image_url: img_url, span: 30, dataset: 'aic24' },
+          body: params,
         }),
         transformResponse: (response: ApiResponse) =>
           transformResponse_AIC2024(response),
@@ -84,6 +90,18 @@ export const ImageApi = createApi({
         transformResponse: (response: ApiResponse) =>
           transformResponse_AIC2024(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
+      }),
+
+      getFeedbackImages: builder.query<ImageRecord[], FeedbackQueryParams | undefined | null>({
+        query: (params) => {
+          return {
+            url: '/feedback',
+            method: 'POST',
+            body: params,
+          }
+        },
+        transformResponse: (response: ApiResponse) =>
+          transformResponse_Feedback_AIC(response),
       }),
     }
   },

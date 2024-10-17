@@ -7,7 +7,14 @@ export const transformResponse_AIC2024 = (response: ApiResponse) => {
   const result = data.map((img: ImageRecord) => {
     img.date = img.video_id ? img.video_id : img.date
     img.time = img.frame_id ? img.frame_id : img.time
+    img.img_link = img.img_link.replace('178.128.117.254', '127.0.0.1:8080')
     return img
   })
   return result
+}
+
+export const transformResponse_Feedback_AIC = (response: ApiResponse) => {
+  // console.log('Response:', response);
+  const data = response.response || response.data
+  return data
 }

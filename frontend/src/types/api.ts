@@ -43,11 +43,25 @@ export type TextQueryParams = {
   object_local_encoding?: string
   color_global_encoding?: { [key: string]: number }
   color_local_encoding?: string
+  dataset?: string
+}
+
+export type ExploreSimilarParams = {
+  image_urls: string[] | undefined
+  model: string
+  dataset?: string
+}
+
+export type ExploreNeighborParams = {
+  image_url: string
+  span: number
+  dataset?: string
 }
 
 export type ImageQueryParams = {
   image_base64: string | ArrayBuffer
   model: string
+  dataset?: string
 }
 
 export type ObjPosParams = {
@@ -61,4 +75,22 @@ export type ObjPosParams = {
 export type EvalLoginParams = {
   username: string
   password: string
+}
+
+export type FeedbackQueryParams = {
+  like: {
+    text_query: string,
+    image_urls: [
+      string
+    ],
+    limit: 0,
+  },
+  dislike: {
+    image_urls: [
+      string
+    ],
+    limit: 0,
+  }
+  model: string,
+  dataset: string
 }

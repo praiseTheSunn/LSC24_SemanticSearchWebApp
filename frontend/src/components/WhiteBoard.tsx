@@ -3,6 +3,7 @@ import type React from 'react'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { useAppSelector } from '../AppState'
+import { hex_to_number } from '../data/ColorToCode'
 import type { DrawnItem, Icon, Rect } from './Popup/ObjectPositionPopup'
 
 interface WhiteboardProps {
@@ -29,11 +30,11 @@ const calculateOverlappedCells = (
   for (let row = topRow; row <= bottomRow; row++) {
     for (let col = leftCol; col <= rightCol; col++) {
       if (drawnItem.icon.name !== 'none') {
-        const encode = `${row}${String.fromCharCode(97 + col)}${drawnItem.icon.name.replace(' ', '_')}`
+        const encode = `${String.fromCharCode(65 + row)}${String.fromCharCode(97 + col)}${drawnItem.icon.name.replace(' ', '_')}`
         encodeObjectStrings.push(encode)
       }
       if (drawnItem.icon.color && drawnItem.icon.color !== 'none') {
-        const encode = `${row}${String.fromCharCode(97 + col)}${drawnItem.icon.color.split('#')[1]}`
+        const encode = `${String.fromCharCode(65 + row)}${String.fromCharCode(97 + col)}${hex_to_number[drawnItem.icon.color.split('#')[1] as keyof typeof hex_to_number]}`
         encodeColorStrings.push(encode)
       }
     }
@@ -56,20 +57,10 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
   const [rect, setRect] = useState<Rect | null>(null)
   const [drawnItems, setDrawnItems] = useState<DrawnItem[]>([])
   const whiteboardRef = useRef<HTMLDivElement>(null)
-  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
 
   const Config = useAppSelector((state) => state.app.config)
 
   //BAD PERFORMANCE HERE
-  useEffect(() => {
-    const updateCursorPosition = (e: MouseEvent) => {
-      if (selectedIcon) setCursorPosition({ x: e.clientX, y: e.clientY })
-    }
-    window.addEventListener('mousemove', updateCursorPosition)
-    return () => {
-      window.removeEventListener('mousemove', updateCursorPosition)
-    }
-  }, [selectedIcon])
 
   useEffect(() => {
     if (onClear) {
@@ -292,50 +283,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
                   {selectedIcon.name}
                 </Box>
               ))}
-          </Box>
-        )}
-        {selectedIcon && (
-          <Box
-            sx={{
-              left: cursorPosition.x + 2,
-              top: cursorPosition.y + 2,
-              position: 'fixed',
-              zIndex: 50,
-              pointerEvents: 'none',
-            }}
-          >
-            <Tooltip title={selectedIcon.name}>
-              {selectedIcon.source !== 'none' ? (
-                <Box
-                  component="img"
-                  src={selectedIcon.source}
-                  alt={selectedIcon.name}
-                  sx={{
-                    width: '32px',
-                    height: '32px',
-                    opacity: 0.8,
-                    backgroundColor: selectedIcon.color
-                      ? selectedIcon.color
-                      : 'transparent',
-                  }}
-                />
-              ) : (
-                <Box
-                  sx={{
-                    width: '100%',
-                    height: '100%',
-                    backgroundColor: selectedIcon.color
-                      ? selectedIcon.color
-                      : 'transparent',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {selectedIcon.name}
-                </Box>
-              )}
-            </Tooltip>
           </Box>
         )}
       </Box>
