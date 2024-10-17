@@ -77,7 +77,6 @@ export type EvalLoginParams = {
   password: string
 }
 
-
 export type LoginResponse = {
   id: string
   role: string
@@ -108,5 +107,23 @@ export type KISParams = {
   mediaItemName: string
   start: number
   end: number
+}
+
+export type FeedbackQueryParams = {
+  like: {
+    text_query: string,
+    image_urls: [
+      string
+    ],
+    limit: 0,
+  },
+  dislike: {
+    image_urls: [
+      string
+    ],
+    limit: 0,
+  }
+  model: string,
+  dataset: string
 }
 

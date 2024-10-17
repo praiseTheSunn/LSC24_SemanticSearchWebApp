@@ -77,6 +77,9 @@ export const defaultConfig: ConfigType = {
 
   WhiteboardCanvasWidth: 402,
   WhiteboardCanvasHeight: 270,
+
+  LikeNumber: 30,
+  DislikeNumber: 100,
 }
 
 // Load user config if it exists in localStorage, otherwise use default

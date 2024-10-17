@@ -155,6 +155,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       if (event.key === 'Enter') {
         // setDisplayedImages(false);
         event.preventDefault() // Prevent default behavior
+        dispatch(appActions.setLikedImages([]))
+        dispatch(appActions.setDislikedImages([]))
+
         const input = event.target.value.trim()
         const timestamp = new Date().toLocaleTimeString()
         let updatedQuery = input
@@ -249,8 +252,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             setMessagePopup(true)
             return
           }
+          
           const filter = { category: 'query', value, status: 1 }
           setQuery(value)
+          ////////////
+
+          
           trigger({
             text_query: value,
             mode: queryPayload.mode,
@@ -419,11 +426,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Mode"
-            displayItems={[
-              'Vector',
-              'Vector + Keyword',
-              'Keyword',
-            ]}
+            displayItems={['Vector', 'Vector + Keyword', 'Keyword']}
             valueItems={['vec', 'vec_kw', 'kw']}
             setData={setMode}
           />
@@ -431,11 +434,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={[
-              'All',
-              'Lesson',
-              'Cooking',
-            ]}
+            displayItems={['All', 'Lesson', 'Cooking']}
             valueItems={['aic24', 'aic24_lesson', 'aic24_cooking']}
             setData={setDataset}
           />

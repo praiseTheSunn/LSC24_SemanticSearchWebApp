@@ -6,9 +6,13 @@ import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { LSC_addCSVImages } from '../config/submitFunc'
+import { AddLikeAction } from '../config/likeResponse'
+import { AddDislikeAction } from '../config/dislikeResponse'
 import type { ImageRecord } from '../types/image'
 import { useSelector } from 'react-redux'
 import { useKISAnsweringMutation } from '../AppState'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 
 interface AnImageProps {
   data: ImageRecord | null | undefined
@@ -61,6 +65,8 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const imageDatas = useAppSelector((state) => state.app.data)
   const csvData = useAppSelector((state) => state.app.csvImages)
+  const likeImages = useAppSelector((state) => state.app.likedImages)
+  const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
 
   const evaluationId = useAppSelector((state) => state.evaluation.evaluationId)
   const sessionId = useAppSelector((state) => state.evaluation.sessionId)
@@ -88,6 +94,32 @@ const AnImage: React.FC<AnImageProps> = ({
   
     // REPLACE FOR EACH COMPETITION HERE
     LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
+  }
+
+  const like = (src_data: ImageRecord) => {
+    const toastId = toast.loading(`Like: ${src_data.img_link}`, {
+      position: 'bottom-right',
+      closeOnClick: true,
+      autoClose: 2000,
+    })
+
+    // REPLACE FOR EACH COMPETITION HERE
+    if (!likeImages.includes(src_data)) {
+      AddLikeAction(src_data, toastId, dispatch, likeImages)
+    }
+  }
+
+  const dislike = (src_data: ImageRecord) => {
+    const toastId = toast.loading(`Dislike: ${src_data.img_link}`, {
+      position: 'bottom-right',
+      closeOnClick: true,
+      autoClose: 2000,
+    })
+
+    // REPLACE FOR EACH COMPETITION HERE
+    if (!dislikeImages.includes(src_data)) {
+      AddDislikeAction(src_data, toastId, dispatch, dislikeImages)
+    }
   }
 
   return (
@@ -165,6 +197,39 @@ const AnImage: React.FC<AnImageProps> = ({
           backgroundColor: 'white',
         }}
       />
+      <Box
+        sx={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          opacity: 0.8,
+          zIndex: 50,
+          padding: '0.5rem',
+          display: 'none',
+          flexDirection: 'column',
+          gap: '0.25rem',
+        }}
+        className="img-action-eye"
+      >
+        <ThumbUpIcon
+          sx={{ color: 'blue', cursor: 'pointer' }}
+          titleAccess="Like"
+          onClick={(e) => {
+            e.preventDefault();
+            // Add your like action here
+            like(data)
+          }}
+        />
+        <ThumbDownIcon
+          sx={{ width: '1.75rem', color: 'red', cursor: 'pointer' }}
+          titleAccess="Dislike"
+          onClick={(e) => {
+            e.preventDefault();
+            // Add your dislike action here
+            dislike(data)
+          }}
+        />
+      </Box>
       <Box
         sx={{
           position: 'absolute',
