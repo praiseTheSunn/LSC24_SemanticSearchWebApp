@@ -33,6 +33,7 @@ export type ObjPosResponse = {
   timestamp?: string
   video_id?: string
   frame_id?: string
+  context_id_coarse?: string
 }
 
 export type TextQueryParams = {

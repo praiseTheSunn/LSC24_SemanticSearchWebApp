@@ -169,7 +169,7 @@ const EvaluationBox = () => {
   useEffect(() => {
     if (resultEval.data) {
       console.log("evaluation here")
-      setEvaluationId(resultEval.data[1])
+      setEvaluationId(resultEval.data[0])
     }
   }, [resultEval.data])
 
@@ -197,7 +197,7 @@ const EvaluationBox = () => {
 
   const SubmitText = () => {
     if(resultEval.data && result.data){
-      triggerQA({ evaluation_id: resultEval.data[1], session: result.data, text: text })
+      triggerQA({ evaluation_id: resultEval.data[0], session: result.data, text: text })
 
       toast.success(`Submitted with awser ${text}`, {
         position: 'bottom-right',
