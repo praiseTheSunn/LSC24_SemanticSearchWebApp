@@ -75,16 +75,16 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       },
       [queryPayload, dispatch],
     )
-    const setDataset = useCallback(
+    const setModel = useCallback(
       (value: string) => {
-        const newPayload = { ...queryPayload, mode: value }
+        const newPayload = { ...queryPayload, model: value }
         dispatch(appActions.setQueryPayload(newPayload))
       },
       [queryPayload, dispatch],
     )
-    const setModel = useCallback(
+    const setDataset = useCallback(
       (value: string) => {
-        const newPayload = { ...queryPayload, model: value }
+        const newPayload = { ...queryPayload, dataset: value }
         dispatch(appActions.setQueryPayload(newPayload))
       },
       [queryPayload, dispatch],

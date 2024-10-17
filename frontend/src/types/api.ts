@@ -39,7 +39,6 @@ export type TextQueryParams = {
   text_query: string
   mode: string
   model: string
-  dataset: string
   object_global_encoding?: { [key: string]: number }
   object_local_encoding?: string
   color_global_encoding?: { [key: string]: number }

@@ -38,7 +38,6 @@ export type AppState = {
   csvImages: ImageRecord[]
   likedImages: ImageRecord[]
   dislikedImages: ImageRecord[]
-  textQuery: string
   isCsvPreviewPopupOpen: boolean
   isEvaluationBoxOpen: boolean
 

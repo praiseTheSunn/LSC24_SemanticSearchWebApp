@@ -25,7 +25,6 @@ const initialState: AppState = {
   csvImages: [],
   likedImages: [],
   dislikedImages: [],
-  textQuery: '',
   isCsvPreviewPopupOpen: false,
 
   isEvaluationBoxOpen: false,
