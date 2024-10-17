@@ -2,11 +2,13 @@ import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRou
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import { Box } from '@mui/material'
 import { isNil } from 'lodash'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { LSC_addCSVImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
+import { useSelector } from 'react-redux'
+import { useKISAnsweringMutation } from '../AppState'
 
 interface AnImageProps {
   data: ImageRecord | null | undefined
@@ -60,16 +62,32 @@ const AnImage: React.FC<AnImageProps> = ({
   const imageDatas = useAppSelector((state) => state.app.data)
   const csvData = useAppSelector((state) => state.app.csvImages)
 
+  const evaluationId = useAppSelector((state) => state.evaluation.evaluationId)
+  const sessionId = useAppSelector((state) => state.evaluation.sessionId)
+
+  const [triggerKIS, resultKIS] = useKISAnsweringMutation()
+
+  // useEffect(() => {
+  //   if (resultKIS.isError) {
+  //     toast.error("Error submitting", {
+  //       position: 'bottom-right',
+  //       autoClose: 5000,
+  //       closeOnClick: true,
+  //     })
+  //   }
+  // }, [resultKIS.is])
+
   const submit = (src_data: ImageRecord) => {
     console.log('src', src_data.img_link)
+
     const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
       position: 'bottom-right',
       closeOnClick: true,
       autoClose: 2000,
     })
-
+  
     // REPLACE FOR EACH COMPETITION HERE
-    LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData)
+    LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
   }
 
   return (

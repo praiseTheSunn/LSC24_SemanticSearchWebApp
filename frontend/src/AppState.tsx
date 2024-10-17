@@ -12,6 +12,7 @@ import { GoogleApi } from './services/googleApi'
 import { ImageApi } from './services/imageApi'
 import { ObjectPosApi } from './services/objectApi'
 import { evaluationSlice } from './slice/evalutionSlice'
+import { EvalApi } from './services/evalApi'
 import { sliceApp } from './slice/sliceApp'
 
 const makeStore = () => {
@@ -22,12 +23,14 @@ const makeStore = () => {
       [ObjectPosApi.reducerPath]: ObjectPosApi.reducer,
       [ImageApi.reducerPath]: ImageApi.reducer,
       [GoogleApi.reducerPath]: GoogleApi.reducer,
+      [EvalApi.reducerPath]: EvalApi.reducer,
     }),
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat([
         ObjectPosApi.middleware,
         ImageApi.middleware,
         GoogleApi.middleware,
+        EvalApi.middleware,
       ]),
   })
 }
@@ -60,3 +63,5 @@ export const {
 } = ImageApi
 
 export const { useLazyGetTranslatedTextQuery } = GoogleApi
+
+export const { useLazyGetEvalIDQuery, useLazyGetSessionIDQuery, useQuestionAnsweringMutation, useKISAnsweringMutation } = EvalApi
