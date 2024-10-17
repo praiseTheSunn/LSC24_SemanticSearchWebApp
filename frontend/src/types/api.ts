@@ -109,22 +109,3 @@ export type KISParams = {
   start: number
   end: number
 }
-
-export type FeedbackQueryParams = {
-  like: {
-    text_query: string,
-    image_urls: [
-      string
-    ],
-    limit: 0,
-  },
-  dislike: {
-    image_urls: [
-      string
-    ],
-    limit: 0,
-  }
-  model: string,
-  dataset: string
-}
-
