@@ -227,6 +227,37 @@ const ConfigEditor: React.FC = () => {
           />
         </AccordionDetails>
       </Accordion>
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">Feedback Settings</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography gutterBottom> Like</Typography>
+          <Slider
+            value={config.LikeNumber}
+            onChange={(e, newValue) =>
+              handleSliderChange('LikeNumber', newValue as number)
+            }
+            step={2}
+            min={30}
+            max={500}
+            valueLabelDisplay="auto"
+          />
+
+          <Typography gutterBottom> Dislike</Typography>
+          <Slider
+            value={config.DislikeNumber}
+            onChange={(e, newValue) =>
+              handleSliderChange('DislikeNumber', newValue as number)
+            }
+            step={2}
+            min={30}
+            max={500}
+            valueLabelDisplay="auto"
+          />
+        </AccordionDetails>
+      </Accordion>
     </Box>
   )
 }

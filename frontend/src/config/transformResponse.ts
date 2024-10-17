@@ -12,3 +12,9 @@ export const transformResponse_AIC2024 = (response: ApiResponse) => {
   })
   return result
 }
+
+export const transformResponse_Feedback_AIC = (response: ApiResponse) => {
+  // console.log('Response:', response);
+  const data = response.response || response.data
+  return data
+}
