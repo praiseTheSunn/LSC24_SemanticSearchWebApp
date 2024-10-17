@@ -76,3 +76,5 @@ startFrontend.bat
 
 # configs (secret)
 /backend/configs/*
+
+http_ca.crt

@@ -41,7 +41,7 @@ async def search_milvus(data: SearchRequest):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    response = setup.milvus_client.search(collection_name=milvus_collection, data=text_embedding, limit=2000)
+    response = setup.milvus_client.search(collection_name=milvus_collection, data=text_embedding, limit=1000)
 
     return JSONResponse(content={"response": response}, headers=header)
 

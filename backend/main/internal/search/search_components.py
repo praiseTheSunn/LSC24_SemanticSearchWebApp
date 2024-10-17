@@ -32,6 +32,8 @@ def search_semantic(model: str, text_embeddings: list[str]):
     # Single query
     if len(text_embeddings) == 1:  
         print(f"Search semantic found {len(clause_urls[0])} results")
+        for i in range(20):
+            print(i, clause_urls[0][i], clause_scores[0][i])
         return {
             "urls": clause_urls[0],
             "scores": clause_scores[0],
@@ -81,7 +83,6 @@ def search_semantic(model: str, text_embeddings: list[str]):
             "urls": raw_results_df['url'].tolist(),
             "scores": raw_results_df["combined_score"].tolist(),
         }
-
 
 def search_objects(object_local_encoding, color_local_encoding, subset: list[str]) -> list[dict]: 
     body = {
@@ -170,7 +171,100 @@ def search_keyword(text_query: str, subset: list[str]) -> list[dict]:
         }
     response = setup.es_client.search(
         index=index_name,
-        size=2000,
+        size=1000,
+        body=body
+    )
+    response = response["hits"]["hits"]
+    urls = [hit["_id"] for hit in response]
+    scores = [hit["_score"] for hit in response]
+    print(f"Search keyword found {len(urls)} results")
+    return {
+        "urls": urls,
+        "scores": scores,
+    }
+
+def search_keyword_lsc(text_query: str, subset: list[str]) -> list[dict]:    
+    parsed_ocr = all_parsers.parse_ocr(text_query)
+    date1, time1, date2, time2 = all_parsers.parse_date_time(text_query)
+    date1, time1, date2, time2, date_boost, time_boost = time_helpers.fill_date_time(date1, time1, date2, time2)
+
+    body = {
+        "query": {
+            "bool": {
+                "should": [
+                    {
+                        "range": {
+                            "local_date": {                                
+                                "gte": date1,
+                                "lte": date2,
+                                "boost": date_boost,
+                            },
+                        }
+                    },
+                    {
+                        "range": {
+                            "local_time": {                                
+                                "gte": time1,
+                                "lte": time2,
+                                "boost": time_boost,
+                            },
+                        }
+                    },
+                    {
+                        "match": {
+                            "caption": {
+                                "query": text_query,
+                                "fuzziness": "AUTO",
+                            }                              
+                        }
+                    },
+                    {
+                        "match": {
+                            "location": {
+                                "query": text_query,
+                                "fuzziness": "AUTO",
+                            }                              
+                        }
+                    },
+                    {
+                        "match": {
+                            "object_tags": {
+                                "query": text_query,
+                                "fuzziness": "AUTO",
+                            }                              
+                        }
+                    },
+                    {
+                        "match": {
+                            "ocr": {
+                                "query": parsed_ocr,
+                                "fuzziness": "AUTO",
+                            }                              
+                        }
+                    }
+                ]
+            }
+        }
+    }
+    if parsed_ocr:
+        print(f"parsed_ocr: {parsed_ocr}")
+        body["query"]["bool"]["should"].append({
+            "match": {
+                "ocr": {
+                    "query": parsed_ocr,
+                    "fuzziness": "AUTO",
+                }                              
+            }
+        })
+    if subset != []:
+        body["query"]["bool"]["must"] = {
+            "terms": {
+                "_id": subset,
+            }
+        }
+    response = setup.es_client.search(
+        index=index_name,
+        size=1000,
         body=body
     )
     response = response["hits"]["hits"]
@@ -188,7 +282,7 @@ def search_match_object_tags(text_query: str) -> list[dict]:
         return None
     response = setup.es_client.search(
         index=index_name,
-        size=5000,
+        size=1000,
         query={
             "match": {
                 "object_tags": {

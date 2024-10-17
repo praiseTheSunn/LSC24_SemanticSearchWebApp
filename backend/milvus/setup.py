@@ -6,7 +6,7 @@ def load_config(config_path: str):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/aic24_config.yaml')   # Default to aic24_config.yaml
+dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/lsc24_config.yaml')   # Default to aic24_config.yaml
 dataset_config = load_config(dataset_config_file)
 dataset_name = dataset_config['dataset_name']
 

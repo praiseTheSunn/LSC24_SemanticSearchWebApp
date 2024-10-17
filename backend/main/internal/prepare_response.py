@@ -17,7 +17,12 @@ def prepare_response(image_names, scores = None):
         scores = [0] * len(image_names)
 
     for i, image_name in enumerate(image_names):
-        image_path = f"http://{server_ip}/AIC_IMAGE/{image_name}"
+
+        if dataset_name == 'lsc24':
+            image_path = f"http://{server_ip}/LSC_IMAGE/{image_name}"
+        else:
+            image_path = f"http://{server_ip}/AIC_IMAGE/{image_name}"
+            
         try:
             record = rows.loc[image_name].to_dict()
             for key, value in record.items():
@@ -41,4 +46,6 @@ def prepare_response(image_names, scores = None):
             break      
     
     print("Number of records:", len(records))
+    # for i in range(10):
+    #     print(records[i]['img_link'])
     return records

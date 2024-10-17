@@ -60,6 +60,7 @@ def find_date(date_text: str) -> int:
     year = find_year(date_text)
     month = find_month(date_text)
     day = find_day(date_text)
+    print("y, m, d: ", year, month, day)
     if year == -1:                                                          # if cannot find year, return -1
         return -1, -1
     if month != -1 and day != -1:                                           # if find year plus both month and day, return the date
@@ -68,6 +69,7 @@ def find_date(date_text: str) -> int:
         return date_to_int(year, month, 1), date_to_int(year, month, 31)
     # if find year but cannot find month, try to find season
     date_by_season = find_date_by_season(year, date_text)
+    print("Date by season: ", date_by_season)
     if date_by_season != (-1, -1):                                          # if find year plus season, return the season period
         return date_by_season
     # if find year only, find by season but failed -> return the whole year

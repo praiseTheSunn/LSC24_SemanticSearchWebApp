@@ -5,7 +5,7 @@ def load_config(config_path: str):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/aic24_config.yaml')   # Default to aic24_config.yaml
+dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/lsc24_config.yaml')   # Default to aic24_config.yaml
 dataset_config = load_config(dataset_config_file)
 system_config_file = os.getenv('SYSTEM_CONFIG', '../configs/system_config.yaml')   # Default to system_config.yaml
 system_config = load_config(system_config_file)
@@ -17,7 +17,7 @@ urllib3.disable_warnings()
 
 from elasticsearch import Elasticsearch
 password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
-es_client = Elasticsearch(f"https://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
+es_client = Elasticsearch(f"http://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
 es_client.info()
 
 

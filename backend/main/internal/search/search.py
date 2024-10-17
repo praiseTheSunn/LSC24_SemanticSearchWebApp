@@ -20,7 +20,7 @@ def search_with_image_query(data: RequestSearchByImageQuery):
         if model == "stfm":                                             # image embedding must be at format [[]], but 'stfm' model returns [] so I have to wrap it
             image_embedding = [image_embedding]
         
-        results_semantic = search_semantic(model, image_embedding)  
+        results_semantic = search_semantic(model, [image_embedding])  
         return prepare_response(results_semantic["urls"], results_semantic["scores"]), status.HTTP_200_OK            
     else:
         return response.text, response.status_code
@@ -58,7 +58,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
                 text_embedding = response.json()["text_embedding"]
                 text_embeddings.append(text_embedding)
     
-    # Mode: semantic
+    # Mode: semantic + objects (AIC)
     if mode == "smt":
         results_semantic = search_semantic(model, text_embeddings) if text_query else None
         urls_semantic = results_semantic["urls"] if results_semantic else []
@@ -66,7 +66,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
     
-    # Mode: semantic, objects
+    # Mode: semantic + objects + keywords (AIC)
     if mode == "smt-mm-dtin":
         results_semantic = search_semantic(model, text_embeddings) if text_query else None 
         urls_semantic = results_semantic["urls"] if results_semantic else []
@@ -75,7 +75,17 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         results_objects = search_objects(object_local_encoding, color_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_keywords, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
-        
+    
+    # Mode: semantic + keywords (LSC)
+    if mode == "smt-3m-dtin":
+        results_semantic = search_semantic(model, text_embeddings) if text_query else None
+        urls_semantic = results_semantic["urls"] if results_semantic else []        
+        results_keywords = search_keyword_lsc(text_query, subset=urls_semantic) if text_query else None
+        urls_keywords = results_keywords["urls"] if results_keywords else []
+        combined = combine_score.get_combined_scores([results_semantic, results_keywords], 'inner')
+        return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+
+
         # # Mode: semantic x datetime
         # if mode == "smt-dtout":
         #     results_semantic = search_semantic(model, text_embedding)   
