@@ -38,7 +38,7 @@ export type AppState = {
   csvImages: ImageRecord[]
   isCsvPreviewPopupOpen: boolean
   isEvaluationBoxOpen: boolean
-
+  
   config: ConfigType
 }
 
@@ -50,6 +50,7 @@ export type TimelineState = {
 }
 
 export type EvaluationState = {
+  sessionId: null | string
   evaluationId: null | string
   username: string
   password: string

@@ -94,26 +94,37 @@
 // export default EvaluationBox
 
 import { Box, Button, Paper, TextField } from '@mui/material'
-import { isNil } from 'lodash'
+import { isNil, set } from 'lodash'
 import React, { useEffect, useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
 import { appActions, evaluationActions, useAppDispatch } from '../AppState'
 import type { EvaluationState } from '../types/app'
+import { useLazyGetSessionIDQuery, useLazyGetEvalIDQuery, useQuestionAnsweringMutation, useKISAnsweringMutation } from '../AppState'
+import { toast } from 'react-toastify'
 
 const EvaluationBox = () => {
   const [text, setText] = useState('')
   const [loginState, setLoginState] = useState('Login')
 
+  const [trigger, result] = useLazyGetSessionIDQuery()
+  const [triggerEval, resultEval] = useLazyGetEvalIDQuery()
+  const [triggerQA, resultQA] = useQuestionAnsweringMutation()
+  // const [triggerKIS, resultKIS] = useKISAnsweringMutation()
   const dispatch = useAppDispatch()
-  const evaluationId = useSelector(
-    (state: EvaluationState) => state.evaluationId,
-  )
-  const username = useSelector((state: EvaluationState) => state.username)
-  const password = useSelector((state: EvaluationState) => state.password)
+
+  const username = useSelector((state: any) => state.evaluation.username)
+  const password = useSelector((state: any) => state.evaluation.password)
 
   const setEvaluationId = useCallback(
     (evaluationId: string) => {
       dispatch(evaluationActions.setEvaluationId(evaluationId))
+    },
+    [dispatch],
+  )
+
+  const setSessionId = useCallback(
+    (sessionId: string) => {
+      dispatch(evaluationActions.setSessionId(sessionId))
     },
     [dispatch],
   )
@@ -147,6 +158,56 @@ const EvaluationBox = () => {
     }
   }, [setPassword, setUsername])
 
+  useEffect(() => {
+    if (result.data) {
+      console.log("session here")
+      triggerEval({ session: result.data })
+      setSessionId(result.data)
+    }
+  }, [result.data])
+
+  useEffect(() => {
+    if (resultEval.data) {
+      console.log("evaluation here")
+      setEvaluationId(resultEval.data[1])
+    }
+  }, [resultEval.data])
+
+  useEffect(() => {
+    if (resultQA.data) {
+      console.log(resultQA.data.submission)
+    }
+  }, [resultQA.data])
+
+  // useEffect(() => {
+  //   if (resultKIS.data) {
+  //     console.log(resultKIS.data.submission)
+  //   }
+  // }, [resultKIS.isFetching])
+
+  const GetSessionID = () => {
+    if (loginState === 'Login') {
+      console.log("This is", username, password)
+      trigger({ username: username, password: password })
+      setLoginState('Logout')
+    } else {
+      setLoginState('Login')
+    }
+  }
+
+  const SubmitText = () => {
+    if(resultEval.data && result.data){
+      triggerQA({ evaluation_id: resultEval.data[1], session: result.data, text: text })
+
+      toast.success(`Submitted with awser ${text}`, {
+        position: 'bottom-right',
+        autoClose: 5000,
+        closeOnClick: true,
+      })
+      // triggerKIS({ evaluation_id: resultEval.data, session: result.data, mediaItemName: "L03_V006", start: 891500, end: 891500 })
+    }
+  }
+
   return (
     <Paper
       elevation={4}
@@ -161,7 +222,7 @@ const EvaluationBox = () => {
         backgroundColor: 'white',
         borderRadius: 2,
       }}
-      // style={{ position: 'absolute', top: '90px', right: '0px' }}
+    // style={{ position: 'absolute', top: '90px', right: '0px' }}
     >
       <TextField
         label="Username"
@@ -185,17 +246,18 @@ const EvaluationBox = () => {
         color="primary"
         sx={{ gridColumn: 'span 1' }}
         size="small"
+        onClick={GetSessionID}
       >
         {loginState}
       </Button>
-      <TextField
+      {/* <TextField
         label="Evaluation ID"
         variant="outlined"
         value={evaluationId ?? ''}
         onChange={(e) => setEvaluationId(e.target.value)}
         sx={{ gridColumn: 'span 3' }}
         size="small"
-      />
+      /> */}
       <TextField
         label="Text"
         variant="outlined"
@@ -209,6 +271,7 @@ const EvaluationBox = () => {
         color="primary"
         sx={{ gridColumn: 'span 1' }}
         size="small"
+        onClick={SubmitText}
       >
         Submit Text
       </Button>
