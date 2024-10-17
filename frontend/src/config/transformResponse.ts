@@ -3,10 +3,17 @@ import type { ImageRecord } from '../types/image'
 
 export const transformResponse_AIC2024 = (response: ApiResponse) => {
   // console.log('Response:', response);
+  const convertToMMSS = (seconds: string): string => {
+    const iSeconds = Number(seconds);
+    const minutes = Math.floor(iSeconds / 60);
+    const remainingSeconds = iSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
+  };
+
   const data = response.response || response.data
   const result = data.map((img: ImageRecord) => {
-    img.date = img.video_id ? img.video_id : img.date
-    img.time = img.frame_id ? img.frame_id : img.time
+    img.date = img.context_id_coarse ? img.context_id_coarse : img.video_id ? img.video_id : img.date
+    img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time
     img.img_link = img.img_link.replace('178.128.117.254', '127.0.0.1:8080')
     return img
   })
