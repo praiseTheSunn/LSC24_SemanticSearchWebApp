@@ -2,13 +2,15 @@ import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRou
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import { Box } from '@mui/material'
 import { isNil } from 'lodash'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { LSC_addCSVImages } from '../config/submitFunc'
 import { AddLikeAction } from '../config/likeResponse'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import type { ImageRecord } from '../types/image'
+import { useSelector } from 'react-redux'
+import { useKISAnsweringMutation } from '../AppState'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 
@@ -66,15 +68,32 @@ const AnImage: React.FC<AnImageProps> = ({
   const likeImages = useAppSelector((state) => state.app.likedImages)
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
 
+  const evaluationId = useAppSelector((state) => state.evaluation.evaluationId)
+  const sessionId = useAppSelector((state) => state.evaluation.sessionId)
+
+  const [triggerKIS, resultKIS] = useKISAnsweringMutation()
+
+  // useEffect(() => {
+  //   if (resultKIS.isError) {
+  //     toast.error("Error submitting", {
+  //       position: 'bottom-right',
+  //       autoClose: 5000,
+  //       closeOnClick: true,
+  //     })
+  //   }
+  // }, [resultKIS.is])
+
   const submit = (src_data: ImageRecord) => {
+    console.log('src', src_data.img_link)
+
     const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
       position: 'bottom-right',
       closeOnClick: true,
       autoClose: 2000,
     })
-
+  
     // REPLACE FOR EACH COMPETITION HERE
-    LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData)
+    LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
   }
 
   const like = (src_data: ImageRecord) => {
