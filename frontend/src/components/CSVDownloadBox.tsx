@@ -180,7 +180,6 @@ export const CSVDownloadBox = () => {
       };
       feedbackData.model = queryPayload.model;
       feedbackData.dataset = queryPayload.dataset;
-      console.log('Feedback data:', feedbackData);
 
       setFeedback(feedbackData);
 
@@ -220,7 +219,6 @@ export const CSVDownloadBox = () => {
     const handleKeyDown = (e: any) => {
       if (e.shiftKey && e.key === 'Enter') {
         e.preventDefault(); // Ngăn chặn các hành động mặc định khác của "Enter"
-        console.log('Shift + Enter pressed');
         handleSubmitFeedback(e); // Gọi hàm khi nhấn Shift + Enter
       }
     };

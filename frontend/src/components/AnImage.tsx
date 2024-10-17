@@ -91,7 +91,6 @@ const AnImage: React.FC<AnImageProps> = ({
   }
 
   const dislike = (src_data: ImageRecord) => {
-    console.log('src', src_data.img_link)
     const toastId = toast.loading(`Dislike: ${src_data.img_link}`, {
       position: 'bottom-right',
       closeOnClick: true,
