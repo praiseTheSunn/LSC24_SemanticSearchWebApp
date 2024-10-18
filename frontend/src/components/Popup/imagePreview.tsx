@@ -7,7 +7,7 @@ const ImagePreviewPopup = () => {
   )
   return (
     <Box
-      className="video-popup"
+      className="Image-preview"
       sx={{
         zIndex: '99999',
         position: 'fixed',
