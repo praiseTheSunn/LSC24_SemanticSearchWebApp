@@ -122,7 +122,6 @@ export const CSVDownloadBox = () => {
     } 
       const feedbackData: any = {};
       feedbackData.like = {
-        text_query: queryPayload.text_query,
         image_urls: likeImages.map((image) => image.img_link),
         prior_scores: likeImages.map((image) => image.score),
         limit: likeLimit,
