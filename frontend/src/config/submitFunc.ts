@@ -7,7 +7,7 @@ import type { AppState, EvaluationState } from '../types/app'
 import { useSelector } from 'react-redux'
 import type { ImageRecord } from '../types/image'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
-import { useKISAnsweringMutation } from '../AppState'
+import type { useKISAnsweringMutation } from '../AppState'
 import { useEffect } from 'react'
 
 export const LSC_addCSVImages = (
@@ -16,10 +16,12 @@ export const LSC_addCSVImages = (
   imageDatas: ImageRecord[],
   dispatch: Dispatch,
   prevImages: ImageRecord[],
-  evaluationId: string | null,
-  sessionId: string | null,
+  evaluationId2: string | null,
+  sessionId2: string | null,
   triggerKIS: ReturnType<typeof useKISAnsweringMutation>[0]
 ) => {
+  const evaluationId = localStorage.getItem('evaluationId')
+  const sessionId = localStorage.getItem('sessionId')
   
   console.log('evaluationId here:', evaluationId);
   console.log('sessionId here:', sessionId);

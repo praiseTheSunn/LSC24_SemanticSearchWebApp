@@ -15,19 +15,19 @@ export const evaluationSlice = createSlice({
   reducerPath: 'evaluation',
   reducers: {
     setSessionId: (state, action) => {
-      console.log(action.payload)
+      console.log("Set session id: ", action.payload)
       state.sessionId = action.payload
     },
     setPassword: (state, action) => {
-      console.log(action.payload)
+      console.log("Set password: ", action.payload)
       state.password = action.payload
     },
     setUsername: (state, action) => {
-      console.log(action.payload)
+      console.log("Set username: ", action.payload)
       state.username = action.payload
     },
     setEvaluationId: (state, action) => {
-      console.log("hi", action.payload)
+      console.log("Set evaluation id: ", action.payload)
       state.evaluationId = action.payload
     },
   },
