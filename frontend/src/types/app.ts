@@ -26,6 +26,7 @@ export type AppState = {
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
   imagePreviewData: ImageRecord | null | undefined
+  SubmitData: ImageRecord | null | undefined
   videoDataForPopup: {
     source: string | undefined
     timestamp: string | undefined

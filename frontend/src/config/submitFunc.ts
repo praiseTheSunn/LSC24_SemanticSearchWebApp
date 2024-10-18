@@ -27,6 +27,9 @@ export const LSC_addCSVImages = (
   const time = Number(src_data.timestamp) * 1000
   const video = src_data.video_id
 
+  console.log('video:', video);
+  console.log('time:', time);
+
   if (evaluationId && sessionId && video) {
     triggerKIS({
       session: sessionId,

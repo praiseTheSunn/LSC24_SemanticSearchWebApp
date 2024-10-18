@@ -8,10 +8,11 @@ const initialState: AppState = {
   neighborPopUpData: null,
   similarPopUpData: null,
   imagePreviewData: null,
+  SubmitData: null,
   isObjPosPopUpOpen: false,
   isMessagePopUpOpen: false,
   isHistoryPopUpOpen: false,
-
+  
   isVietnameseEnabled: false,
 
   // videoDataForPopup: {source: "https://www.youtube.com/watch?v=spUNpyF58BY", timestamp: "0:9:38"},
@@ -99,6 +100,10 @@ export const sliceApp = createSlice({
 
     setImagePreview(state, action) {
       state.imagePreviewData = action.payload
+    },
+
+    setSubmitData(state, action) {
+      state.SubmitData = action.payload
     },
 
     setLikedImages: (state, action) => {
