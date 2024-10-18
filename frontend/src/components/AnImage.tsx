@@ -37,7 +37,7 @@ const AnImage: React.FC<AnImageProps> = ({
   const date = data?.date ? data.date : null
   const time = data?.time ? data.time : null
   const timestamp = data?.timestamp *1000  ? data.timestamp*1000 : null
-  const formattedTime: string = `${date ? date : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
+  const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null
@@ -76,9 +76,6 @@ const AnImage: React.FC<AnImageProps> = ({
   const csvData = useAppSelector((state) => state.app.csvImages)
   const likeImages = useAppSelector((state) => state.app.likedImages)
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
-
-  const evaluationId = useAppSelector((state) => state.evaluation.evaluationId)
-  const sessionId = useAppSelector((state) => state.evaluation.sessionId)
 
   const [triggerKIS, resultKIS] = useKISAnsweringMutation()
   const submit = (src_data: ImageRecord) => {

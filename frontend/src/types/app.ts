@@ -51,14 +51,6 @@ export type TimelineState = {
   // locationBasedData: any
   // activityBasedData: any
 }
-
-export type EvaluationState = {
-  sessionId: null | string
-  evaluationId: null | string
-  username: string
-  password: string
-}
-
 // Define the Config type
 export type ConfigType = {
   gridRowGap: string
