@@ -5,7 +5,7 @@ import { isNil } from 'lodash'
 import React, { useEffect } from 'react'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
-import { LSC_addCSVImages } from '../config/submitFunc'
+import { AIC_addImages } from '../config/submitFunc'
 import { AddLikeAction } from '../config/likeResponse'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import type { ImageRecord } from '../types/image'
@@ -73,50 +73,18 @@ const AnImage: React.FC<AnImageProps> = ({
   const sessionId = useAppSelector((state) => state.evaluation.sessionId)
 
   const [triggerKIS, resultKIS] = useKISAnsweringMutation()
-  useEffect(() => {
-      console.log('KIS result:', resultKIS); // In ra response khi có dữ liệu
-      if (resultKIS && resultKIS.data) {
-        console.log('KIS result:', resultKIS.data); // In ra response khi có dữ liệu
-        if (resultKIS.data.status === true && resultKIS.data.submission == "CORRECT") {
-          toast.success('Submission CORRECT', {
-            position: 'bottom-right',
-            autoClose: 2000,
-          })
-        }
-        else if (resultKIS.data.status === true && resultKIS.data.submission == "WRONG") {
-          toast.error(`Submission WRONG ${resultKIS.data.description}`, {
-            position: 'bottom-right',
-            autoClose: 2000,
-          })
-        }
-        else {
-          toast.error(`Submission FAILED ${resultKIS.data.description}`, {
-            position: 'bottom-right',
-            autoClose: 2000,
-          })
-        }
-    }
-    if (resultKIS && resultKIS.isError) {
-      // console.error('Error from KIS:', resultKIS.error); // In ra lỗi nếu có
-      toast.error(`Submission FAILED - ERROR ${resultKIS.error.data.description}`, {
-        position: 'bottom-right',
-        autoClose: 2000,
-      })
-    }
-  }, [resultKIS]);  
-
-
   const submit = (src_data: ImageRecord) => {
     console.log('src', src_data.img_link)
 
-    const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
-      position: 'bottom-right',
-      closeOnClick: true,
-      autoClose: 2000,
-    })
+    // const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
+    //   position: 'bottom-right',
+    //   closeOnClick: true,
+    //   autoClose: 2000,
+    // })
   
     // REPLACE FOR EACH COMPETITION HERE
-    LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
+    // LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
+    AIC_addImages(src_data, triggerKIS)
   }
 
   const like = (src_data: ImageRecord) => {

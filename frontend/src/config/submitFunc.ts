@@ -10,16 +10,10 @@ import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import type { useKISAnsweringMutation } from '../AppState'
 import { useEffect } from 'react'
 
-export const LSC_addCSVImages = (
+export const  AIC_addImages = async (
   src_data: ImageRecord,
-  toastId: Id,
-  imageDatas: ImageRecord[],
-  dispatch: Dispatch,
-  prevImages: ImageRecord[],
-  evaluationId2: string | null,
-  sessionId2: string | null,
   triggerKIS: ReturnType<typeof useKISAnsweringMutation>[0]
-) => {
+)  => {
   const evaluationId = localStorage.getItem('evaluationId')
   const sessionId = localStorage.getItem('sessionId')
   
@@ -29,8 +23,12 @@ export const LSC_addCSVImages = (
   const time = Number(src_data.timestamp) * 1000
   const video = src_data.video_id
 
-  if (evaluationId && sessionId && video) {
-    triggerKIS({
+  if (!evaluationId || !sessionId || !video) {
+    console.log("Missing evaluationId, sessionId or video")
+    return
+  }
+
+    const resultKIS = await triggerKIS({
       session: sessionId,
       evaluation_id: evaluationId,
       mediaItemName: video,
@@ -38,18 +36,40 @@ export const LSC_addCSVImages = (
       end: time,
     })
 
-    toast.update(toastId, {
-      render: `Submitted: ${video} at ${time}`,
-      type: 'success',
-      isLoading: false,
-      closeOnClick: true,
-      autoClose: 500,
-      delay: 500,
-    })
-  }else{
-    console.log('evaluationId or sessionId or video is null');
+    console.log('KIS result:', resultKIS); // In ra response khi có dữ liệu
+
+    if (resultKIS.error) {
+      // console.error('Error from KIS:', resultKIS.error); // In ra lỗi nếu có
+      console.log("HIHI")
+      toast.error(`Submission FAILED - ERROR ${resultKIS.error.data.description}`, {
+        position: 'bottom-right',
+        autoClose: 2000,
+      })
+    }
+
+    if (resultKIS.data) {
+      console.log('KIS result:', resultKIS.data); // In ra response khi có dữ liệu
+      if (resultKIS.data.status === true && resultKIS.data.submission === "CORRECT") {
+        toast.success('Submission CORRECT', {
+          position: 'bottom-right',
+          autoClose: 2000,
+        })
+      }
+      else if (resultKIS.data.status === true && resultKIS.data.submission === "WRONG") {
+        toast.error(`Submission WRONG ${resultKIS.data.description}`, {
+          position: 'bottom-right',
+          autoClose: 2000,
+        })
+      }
+      else {
+        toast.error(`Submission FAILED ${resultKIS.data.description}`, {
+          position: 'bottom-right',
+          autoClose: 2000,
+        })
+      }
   }
 }
+    
 
 // export type KISParams = {
 //   session: string
