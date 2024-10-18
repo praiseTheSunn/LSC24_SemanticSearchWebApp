@@ -1,10 +1,16 @@
+import { QuestionAnswer } from '@mui/icons-material'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { EvalQuery } from '.'
-import type { LoginResponse, EvalLoginParams, EvalIDResponse, EvalTextParams, QAParams, KISParams } from '../types/api'
-import { QuestionAnswer } from '@mui/icons-material'
-import type { SubmitResponse } from '../types/submit'
 import { transformResponse_Feedback_AIC } from '../config/transformResponse'
-
+import type {
+  EvalIDResponse,
+  EvalLoginParams,
+  EvalTextParams,
+  KISParams,
+  LoginResponse,
+  QAParams,
+} from '../types/api'
+import type { SubmitResponse } from '../types/submit'
 
 export const EvalApi = createApi({
   reducerPath: 'EvalApi',
@@ -20,7 +26,7 @@ export const EvalApi = createApi({
             body: params,
           }
         },
-        transformResponse: (response: LoginResponse) => response.sessionId
+        transformResponse: (response: LoginResponse) => response.sessionId,
       }),
 
       getEvalID: builder.query<string[], EvalTextParams>({
@@ -32,7 +38,7 @@ export const EvalApi = createApi({
         },
         transformResponse: (response: EvalIDResponse[]) => {
           return response.map((item) => item.id)
-        }
+        },
       }),
 
       QuestionAnswering: builder.mutation<SubmitResponse, QAParams>({
@@ -53,7 +59,7 @@ export const EvalApi = createApi({
               ],
             },
           }
-        }, 
+        },
       }),
 
       KISAnswering: builder.mutation<SubmitResponse, KISParams>({
@@ -69,14 +75,14 @@ export const EvalApi = createApi({
                     {
                       mediaItemName: params.mediaItemName,
                       start: params.start,
-                      end: params.end,  
+                      end: params.end,
                     },
                   ],
                 },
               ],
             },
           }
-        }
+        },
       }),
     }
   },

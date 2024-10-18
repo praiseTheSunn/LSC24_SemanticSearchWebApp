@@ -8,10 +8,10 @@ import {
   useStore,
 } from 'react-redux'
 import { Provider } from 'react-redux'
+import { EvalApi } from './services/evalApi'
 import { GoogleApi } from './services/googleApi'
 import { ImageApi } from './services/imageApi'
 import { ObjectPosApi } from './services/objectApi'
-import { EvalApi } from './services/evalApi'
 import { sliceApp } from './slice/sliceApp'
 
 const makeStore = () => {
@@ -55,11 +55,16 @@ export const { useLazyGetObjectsByPositionQuery } = ObjectPosApi
 export const {
   useLazyGetImagesQuery,
   useGetSimilarsQuery,
-  useLazyGetNeighborsQuery, 
+  useLazyGetNeighborsQuery,
   useLazySearchByImageQuery,
-  useLazyGetFeedbackImagesQuery
+  useLazyGetFeedbackImagesQuery,
 } = ImageApi
 
 export const { useLazyGetTranslatedTextQuery } = GoogleApi
 
-export const { useLazyGetEvalIDQuery, useLazyGetSessionIDQuery, useQuestionAnsweringMutation, useKISAnsweringMutation } = EvalApi
+export const {
+  useLazyGetEvalIDQuery,
+  useLazyGetSessionIDQuery,
+  useQuestionAnsweringMutation,
+  useKISAnsweringMutation,
+} = EvalApi

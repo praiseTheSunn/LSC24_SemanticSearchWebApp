@@ -12,7 +12,7 @@ const initialState: AppState = {
   isObjPosPopUpOpen: false,
   isMessagePopUpOpen: false,
   isHistoryPopUpOpen: false,
-  
+
   isVietnameseEnabled: false,
 
   // videoDataForPopup: {source: "https://www.youtube.com/watch?v=spUNpyF58BY", timestamp: "0:9:38"},
@@ -113,6 +113,5 @@ export const sliceApp = createSlice({
     setDislikedImages: (state, action) => {
       state.dislikedImages = action.payload
     },
-
   },
 })

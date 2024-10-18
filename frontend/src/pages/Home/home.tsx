@@ -302,7 +302,7 @@ const Home = () => {
         <SinglePopup onClose={() => toggleSimilarPopup(null)} />
       )}
       {imagePreviewData && <ImagePreviewPopup />}
-      {submitData && <SubmitDataPopup onClose={() => toggleSubmitData(null)}/>}
+      {submitData && <SubmitDataPopup onClose={() => toggleSubmitData(null)} />}
       <SearchBox
         displayedFilters={displayedFilters}
         setDisplayedFilters={setDisplayedFilters}
