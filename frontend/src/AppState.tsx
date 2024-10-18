@@ -65,6 +65,6 @@ export const { useLazyGetTranslatedTextQuery } = GoogleApi
 export const {
   useLazyGetEvalIDQuery,
   useLazyGetSessionIDQuery,
-  useQuestionAnsweringMutation,
-  useKISAnsweringMutation,
+  useSubmitQuestionAnsweringMutation,
+  useSubmitKISAnsweringMutation,
 } = EvalApi

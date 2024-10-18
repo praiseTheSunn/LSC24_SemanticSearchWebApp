@@ -41,7 +41,7 @@ export const EvalApi = createApi({
         },
       }),
 
-      QuestionAnswering: builder.mutation<SubmitResponse, QAParams>({
+      submitQuestionAnswering: builder.mutation<SubmitResponse, QAParams>({
         query: (params) => {
           return {
             url: `api/v2/submit/${params.evaluation_id}`,
@@ -62,7 +62,7 @@ export const EvalApi = createApi({
         },
       }),
 
-      KISAnswering: builder.mutation<SubmitResponse, KISParams>({
+      submitKISAnswering: builder.mutation<SubmitResponse, KISParams>({
         query: (params) => {
           return {
             url: `api/v2/submit/${params.evaluation_id}`,

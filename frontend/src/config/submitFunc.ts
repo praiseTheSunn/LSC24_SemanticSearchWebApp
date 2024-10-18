@@ -6,14 +6,14 @@ import { useEffect } from 'react'
 import { useSelector } from 'react-redux'
 import { type Id, toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
-import type { useKISAnsweringMutation } from '../AppState'
+import type { useSubmitKISAnsweringMutation } from '../AppState'
 import type { AppState, EvaluationState } from '../types/app'
 import type { ImageRecord } from '../types/image'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
 export const AIC_addImages = async (
   src_data: ImageRecord,
-  triggerKIS: ReturnType<typeof useKISAnsweringMutation>[0],
+  triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
 ) => {
   const evaluationId = localStorage.getItem('evaluationId')
   const sessionId = localStorage.getItem('sessionId')
