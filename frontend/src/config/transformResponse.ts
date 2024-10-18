@@ -1,5 +1,6 @@
 import type { ApiResponse } from '../types/api'
 import type { ImageRecord } from '../types/image'
+// import BASE_API_URL from '../types/constants'
 
 export const transformResponse_AIC2024 = (response: ApiResponse) => {
   // console.log('Response:', response);
@@ -21,6 +22,7 @@ export const transformResponse_AIC2024 = (response: ApiResponse) => {
     // img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time
     img.img_link = img.img_link.replace('178.128.117.254', '127.0.0.1:8080')
+
     return img
   })
   return result
