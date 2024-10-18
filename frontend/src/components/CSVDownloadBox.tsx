@@ -165,6 +165,7 @@ export const CSVDownloadBox = () => {
       toast.error('No images to submit feedback', {
         position: 'bottom-left',
       })
+      return;
     } else {
       const feedbackData: any = {}
       feedbackData.like = {
@@ -192,14 +193,12 @@ export const CSVDownloadBox = () => {
 
   useEffect(() => {
     if (data) {
+      const likedImages = data.like[0]
       const likeSimilarImages =
-        data.like[0].map((image: any) => image.img_link) || []
+        likedImages.map((image: any) => image.img_link) || []
       const dislikeSimilarImages =
         data.dislike[0].map((image: any) => image.img_link) || []
 
-      const likedImages = queryData.filter((image: any) =>
-        likeSimilarImages.includes(image.img_link),
-      )
       const otherImages = queryData.filter(
         (image: any) => !likeSimilarImages.includes(image.img_link),
       )
