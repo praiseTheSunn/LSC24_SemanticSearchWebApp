@@ -26,6 +26,7 @@ export type AppState = {
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
   imagePreviewData: ImageRecord | null | undefined
+  SubmitData: ImageRecord | null | undefined
   videoDataForPopup: {
     source: string | undefined
     timestamp: string | undefined
@@ -50,13 +51,6 @@ export type TimelineState = {
   // locationBasedData: any
   // activityBasedData: any
 }
-
-export type EvaluationState = {
-  evaluationId: null | string
-  username: string
-  password: string
-}
-
 // Define the Config type
 export type ConfigType = {
   gridRowGap: string

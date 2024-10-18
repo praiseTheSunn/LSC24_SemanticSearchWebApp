@@ -33,13 +33,14 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
         const newQueryPayload = { ...queryPayload, query: value }
         dispatch(appActions.setQueryPayload(newQueryPayload))
       },
-      [dispatch],
+      [dispatch, queryPayload],
     )
 
     const handleClearAll = () => {
       setDisplayedFilters([])
       setSearchTerms([])
       setQuery('')
+      console.log(queryPayload.dataset)
     }
 
     const showPopup = useAppSelector((state) => state.app.isMessagePopUpOpen)

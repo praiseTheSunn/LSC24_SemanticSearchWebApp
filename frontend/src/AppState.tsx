@@ -8,26 +8,27 @@ import {
   useStore,
 } from 'react-redux'
 import { Provider } from 'react-redux'
+import { EvalApi } from './services/evalApi'
 import { GoogleApi } from './services/googleApi'
 import { ImageApi } from './services/imageApi'
 import { ObjectPosApi } from './services/objectApi'
-import { evaluationSlice } from './slice/evalutionSlice'
 import { sliceApp } from './slice/sliceApp'
 
 const makeStore = () => {
   return configureStore({
     reducer: combineReducers({
       app: sliceApp.reducer,
-      [evaluationSlice.reducerPath]: evaluationSlice.reducer,
       [ObjectPosApi.reducerPath]: ObjectPosApi.reducer,
       [ImageApi.reducerPath]: ImageApi.reducer,
       [GoogleApi.reducerPath]: GoogleApi.reducer,
+      [EvalApi.reducerPath]: EvalApi.reducer,
     }),
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat([
         ObjectPosApi.middleware,
         ImageApi.middleware,
         GoogleApi.middleware,
+        EvalApi.middleware,
       ]),
   })
 }
@@ -49,15 +50,21 @@ export const useAppDispatch: () => AppDispatch = useDispatch
 export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 export const useAppStore: () => AppStore = useStore
 export const appActions = sliceApp.actions
-export const evaluationActions = evaluationSlice.actions
 export const { useLazyGetObjectsByPositionQuery } = ObjectPosApi
 
 export const {
   useLazyGetImagesQuery,
   useGetSimilarsQuery,
-  useLazyGetNeighborsQuery, 
+  useLazyGetNeighborsQuery,
   useLazySearchByImageQuery,
-  useLazyGetFeedbackImagesQuery
+  useLazyGetFeedbackImagesQuery,
 } = ImageApi
 
 export const { useLazyGetTranslatedTextQuery } = GoogleApi
+
+export const {
+  useLazyGetEvalIDQuery,
+  useLazyGetSessionIDQuery,
+  useSubmitQuestionAnsweringMutation,
+  useSubmitKISAnsweringMutation,
+} = EvalApi

@@ -33,6 +33,7 @@ export type ObjPosResponse = {
   timestamp?: string
   video_id?: string
   frame_id?: string
+  context_id_coarse?: string
 }
 
 export type TextQueryParams = {
@@ -77,20 +78,34 @@ export type EvalLoginParams = {
   password: string
 }
 
-export type FeedbackQueryParams = {
-  like: {
-    text_query: string,
-    image_urls: [
-      string
-    ],
-    limit: 0,
-  },
-  dislike: {
-    image_urls: [
-      string
-    ],
-    limit: 0,
-  }
-  model: string,
-  dataset: string
+export type LoginResponse = {
+  id: string
+  role: string
+  sessionId: string
+  username: string
+}
+
+export type EvalIDResponse = {
+  id: string
+  name: string
+  type: string
+  status: string
+}
+
+export type EvalTextParams = {
+  session: string
+}
+
+export type QAParams = {
+  session: string
+  evaluation_id: string
+  text: string
+}
+
+export type KISParams = {
+  session: string
+  evaluation_id: string
+  mediaItemName: string
+  start: number
+  end: number
 }

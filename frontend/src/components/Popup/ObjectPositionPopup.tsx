@@ -175,9 +175,9 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     }
 
     const searchQuery = {
-      obj_global_encoding,
+      object_global_encoding: obj_global_encoding,
       color_global_encoding: finalColorGlobalEncoding,
-      obj_local_encoding: finalObjLocalEncoding.trim(),
+      object_local_encoding: finalObjLocalEncoding.trim(),
       color_local_encoding: finalColorLocalEncoding.trim(),
       pose_local_encoding: pose_local_encoding.trim(),
       text_query: queryPayload.text_query,

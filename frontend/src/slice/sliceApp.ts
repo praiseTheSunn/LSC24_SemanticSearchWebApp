@@ -8,6 +8,7 @@ const initialState: AppState = {
   neighborPopUpData: null,
   similarPopUpData: null,
   imagePreviewData: null,
+  SubmitData: null,
   isObjPosPopUpOpen: false,
   isMessagePopUpOpen: false,
   isHistoryPopUpOpen: false,
@@ -101,6 +102,10 @@ export const sliceApp = createSlice({
       state.imagePreviewData = action.payload
     },
 
+    setSubmitData(state, action) {
+      state.SubmitData = action.payload
+    },
+
     setLikedImages: (state, action) => {
       state.likedImages = action.payload
     },
@@ -108,6 +113,5 @@ export const sliceApp = createSlice({
     setDislikedImages: (state, action) => {
       state.dislikedImages = action.payload
     },
-
   },
 })
