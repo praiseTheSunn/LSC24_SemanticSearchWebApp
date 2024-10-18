@@ -3,43 +3,54 @@ import { Box, Button, TextField, Typography, ClickAwayListener } from '@mui/mate
 import { appActions, useAppDispatch, useAppSelector } from '../../AppState';
 import { toast } from 'react-toastify';
 import { ImageRecord } from '../../types/image';
-import { useQuestionAnsweringMutation } from '../../AppState';
+import { useSubmitQuestionAnsweringMutation } from '../../AppState';
 
 // Định nghĩa props cho component nếu cần
 interface SubmitDataPopupProps {
-  onClose: () => void
+    onClose: () => void
 }
 
 const SubmitDataPopup: React.FC<SubmitDataPopupProps> = () => {
     const [answer, setAnswer] = useState<string>('');
-    const evaluationId = useAppSelector((state) => state.evaluation.evaluationId);
-    const sessionId = useAppSelector((state) => state.evaluation.sessionId);
+
+    const evaluationId = localStorage.getItem('evaluationId')
+    const sessionId = localStorage.getItem('sessionId')
     const viewImage = useAppSelector((state) => state.app.SubmitData);
 
-    const [triggerQA, resultQA] = useQuestionAnsweringMutation();
+    const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation();
+
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter') {
+            handleSubmit();
+        }
+    };
+
 
     const handleSubmit = () => {
         console.log("Submitted:", answer);
         console.log('src', viewImage?.img_link);
 
-    const text = `${answer}-${viewImage?.video_id}-${Number(viewImage?.timestamp) * 1000}`
+        const text = `${answer}-${viewImage?.video_id}-${Number(viewImage?.timestamp) * 1000}`
 
-    console.log('Text', text)
-
-        if (evaluationId && sessionId && answer !== '') {
-            triggerQA({ evaluation_id: evaluationId, session: sessionId, text: text });
-
-            toast.success(`Submitted with answer ${text}`, {
+        if (!evaluationId || !sessionId || answer === '') {
+            toast.error('No EvaluationID or SessionID or Answer is null', {
                 position: 'bottom-right',
                 autoClose: 5000,
                 closeOnClick: true,
-            });
+            })
+            return
         }
+
+        triggerQA({ evaluation_id: evaluationId, session: sessionId, text: text });
+
+        toast.success(`Submitted with answer ${text}`, {
+            position: 'bottom-right',
+            autoClose: 5000,
+            closeOnClick: true,
+        });
     };
 
-  const dispatch = useAppDispatch()
-
-    const dispatch = useAppDispatch();
+    const dispatch = useAppDispatch()
 
     const closeSubmitPopup = useCallback(() => {
         dispatch(appActions.setSubmitData(null));
@@ -105,68 +116,66 @@ const SubmitDataPopup: React.FC<SubmitDataPopupProps> = () => {
                 </ClickAwayListener>
             </Box>
         </Box>
-      </Box>
-    </Box>
-  )
+    )
 }
 
 // Các style cho popup và nội dung
 const popupStyles = {
-  display: 'flex',
-  justifyContent: 'center',
-  alignItems: 'center',
-  position: 'fixed',
-  top: 0,
-  left: 0,
-  width: '100%',
-  height: '100%',
-  backgroundColor: 'rgba(0, 0, 0, 0.5)',
-  zIndex: 10000,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: '100%',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    zIndex: 10000,
 }
 
 const contentStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  backgroundColor: 'white',
-  padding: '20px',
-  borderRadius: '8px',
-  boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-  width: '400px',
-  maxWidth: '90%',
+    display: 'flex',
+    flexDirection: 'column',
+    backgroundColor: 'white',
+    padding: '20px',
+    borderRadius: '8px',
+    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    width: '400px',
+    maxWidth: '90%',
 }
 
 const headerStyles = {
-  textAlign: 'center',
-  fontWeight: 'bold',
+    textAlign: 'center',
+    fontWeight: 'bold',
 }
 
 const imageContainerStyles = {
-  textAlign: 'center',
-  marginBottom: '10px',
+    textAlign: 'center',
+    marginBottom: '10px',
 }
 
 const imageStyles = {
-  width: '100%',
-  height: 'auto',
-  borderRadius: '8px',
+    width: '100%',
+    height: 'auto',
+    borderRadius: '8px',
 }
 
 const footerStyles = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  marginTop: '20px',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: '20px',
 }
 
 const inputStyles = {
-  marginRight: '10px',
+    marginRight: '10px',
 }
 
 const buttonStyles = {
-  padding: '10px',
-  fontSize: '16px',
-  backgroundColor: '#007bff',
-  color: 'white',
+    padding: '10px',
+    fontSize: '16px',
+    backgroundColor: '#007bff',
+    color: 'white',
 }
 
 export default SubmitDataPopup;
