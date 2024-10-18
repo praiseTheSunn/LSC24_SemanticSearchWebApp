@@ -93,6 +93,37 @@ const EvaluationBox = () => {
   //     console.log(resultKIS.data.submission)
   //   }
   // }, [resultKIS.isFetching])
+  useEffect(() => {
+    console.log('QA result:', resultQA); // In ra response khi có dữ liệu
+    if (resultQA && resultQA.data) {
+      console.log('QA result:', resultQA.data); // In ra response khi có dữ liệu
+      if (resultQA.data.status === true && resultQA.data.submission == "CORRECT") {
+        toast.success('Submission CORRECT', {
+          position: 'bottom-right',
+          autoClose: 2000,
+        })
+      }
+      else if (resultQA.data.status === true && resultQA.data.submission == "WRONG") {
+        toast.error('Submission WRONG', {
+          position: 'bottom-right',
+          autoClose: 2000,
+        })
+      }
+      else {
+        toast.error(`Submission FAILED ${resultQA.data.description}`, {
+          position: 'bottom-right',
+          autoClose: 2000,
+        })
+      }
+    }
+    if (resultQA && resultQA.isError) {
+      // console.error('Error from KIS:', resultKIS.error); // In ra lỗi nếu có
+      toast.error(`Submission FAILED - ERROR ${resultQA.error.data.description}`, {
+        position: 'bottom-right',
+        autoClose: 2000,
+      })
+    }
+  }, [resultQA]);
 
   const GetSessionID = async () => {
     if (loginState === 'Login') {
@@ -128,17 +159,32 @@ const EvaluationBox = () => {
   }
 
   const SubmitText = () => {
-    if(resultEval.data && result.data){
-      triggerQA({ evaluation_id: resultEval.data[0], session: result.data, text: text })
+    if (resultEval.data && result.data) {
+      // Kiểm tra text có dạng "answer-Lxx_Vxxx-ms" không với answer khác chuỗi rỗng, x có dạng số, ms có dạng số
+      const regex = /^[^\s]+-L\d{2}_V\d{3}-\d+$/
 
-      toast.success(`Submitted with awser ${text}`, {
-        position: 'bottom-right',
-        autoClose: 5000,
-        closeOnClick: true,
-      })
-      // triggerKIS({ evaluation_id: resultEval.data, session: result.data, mediaItemName: "L03_V006", start: 891500, end: 891500 })
+      if (!regex.test(text)) {
+        toast.error('Text is not in the correct format, must be answer-Lxx_Vxxx-ms', {
+          position: 'bottom-right',
+          autoClose: 2000,
+          closeOnClick: true,
+        })
+      }
+      else {
+        // triggerQA({ evaluation_id: resultEval.data[0], session: result.data, text: text })
+        triggerQA({ evaluation_id: resultEval.data[2], session: result.data, text: text })
+
+        toast.success(`Submitted with awser ${text}`, {
+          position: 'bottom-right',
+          autoClose: 2000,
+          closeOnClick: true,
+        })
+        // triggerKIS({ evaluation_id: resultEval.data, session: result.data, mediaItemName: "L03_V006", start: 891500, end: 891500 })  
+      }
     }
   }
+
+
 
   return (
     <Paper
