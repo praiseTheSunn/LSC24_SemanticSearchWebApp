@@ -118,7 +118,8 @@ export const CSVDownloadBox = () => {
       toast.error('No images to submit feedback', {
         position: 'bottom-left',
       });
-    } else {
+      return;
+    } 
       const feedbackData: any = {};
       feedbackData.like = {
         text_query: queryPayload.text_query,
@@ -139,15 +140,15 @@ export const CSVDownloadBox = () => {
       toast.success('Feedback submitted and images cleared', {
         position: 'bottom-left',
       });
-    }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (data) {
-      const likeSimilarImages = data.like[0].map((image: any) => image.img_link) || [];
+      const likedImages = data.like[0]
+      const likeSimilarImages = likedImages.map((image: any) => image.img_link) || [];
       const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link) || [];
 
-      const likedImages = queryData.filter((image: any) => likeSimilarImages.includes(image.img_link));
       const otherImages = queryData.filter((image: any) =>
         !likeSimilarImages.includes(image.img_link)
       );

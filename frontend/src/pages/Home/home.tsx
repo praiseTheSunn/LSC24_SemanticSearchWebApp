@@ -31,6 +31,7 @@ import LoadingPopup from '../../components/Popup/loadingPopup'
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
+import SubmitDataPopup from '../../components/Popup/submitDataPopup'
 import { LSC_addCSVImages } from '../../config/submitFunc'
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
 import { AppState } from '../../types/app'
@@ -79,6 +80,10 @@ const Home = () => {
     (state) => state.app.imagePreviewData,
   )
 
+  const submitData: ImageRecord | null | undefined = useAppSelector(
+    (state) => state.app.SubmitData,
+  )
+
   const loadingPopUpMessage: string = useAppSelector(
     (state) => state.app.loadingPopUpMessage,
   )
@@ -116,6 +121,13 @@ const Home = () => {
   const toggleImagePreview = React.useCallback(
     (data: ImageRecord | null | undefined) => {
       dispatch(appActions.setImagePreview(data))
+    },
+    [dispatch],
+  )
+
+  const toggleSubmitData = React.useCallback(
+    (data: ImageRecord | null | undefined) => {
+      dispatch(appActions.setSubmitData(data))
     },
     [dispatch],
   )
@@ -192,6 +204,7 @@ const Home = () => {
         dispatch(appActions.setSimilarPopupData(null))
         dispatch(appActions.setNeighborPopupData(null))
         dispatch(appActions.setVideoDataForPopup(null))
+        dispatch(appActions.setSubmitData(null))
       }
     }
 
@@ -289,6 +302,7 @@ const Home = () => {
         <SinglePopup onClose={() => toggleSimilarPopup(null)} />
       )}
       {imagePreviewData && <ImagePreviewPopup />}
+      {submitData && <SubmitDataPopup onClose={() => toggleSubmitData(null)} />}
       <SearchBox
         displayedFilters={displayedFilters}
         setDisplayedFilters={setDisplayedFilters}
