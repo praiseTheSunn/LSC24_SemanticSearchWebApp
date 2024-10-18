@@ -20,14 +20,14 @@ export const poseEncoding = ({
     const cellY = Math.ceil(y / (systemConfig.WhiteboardCanvasHeight / 20)) - 1
     const cellX = Math.ceil(x / (systemConfig.WhiteboardCanvasWidth / 20)) - 1
 
-    console.log('Key:', key, 'Y:', cellY, 'X:', cellX)
+    // console.log('Key:', key, 'Y:', cellY, 'X:', cellX)
     const encode = `${String.fromCharCode(65 + cellY)}${String.fromCharCode(97 + cellX)}${bodyPartToIndex[key]}`
 
     pose_parts.push(encode)
 
     // Iterate over surrounding cells (-1, 0, 1)
-    for (let i = -1; i <= 1; i++) {
-      for (let j = -1; j <= 1; j++) {
+    for (let i = -3; i <= 3; i++) {
+      for (let j = -3; j <= 3; j++) {
         if (i === 0 && j === 0) continue // Skip the current cell
 
         const surroundingCellRow = cellY + i
@@ -59,8 +59,8 @@ export const poseEncoding = ({
 
         // If the keypoint is near the center of the surrounding cell, add it to the grid
         if (
-          distanceY < 0.8 * cellSizeHeight &&
-          distanceX < 0.8 * cellSizeWidth
+          distanceY < 3 * 0.8 * cellSizeHeight &&
+          distanceX < 3 * 0.8 * cellSizeWidth
         ) {
           // console.log("SURROUND: ", surroundingCellRow, surroundingCellCol, key);
           const encode = `${String.fromCharCode(65 + surroundingCellRow)}${String.fromCharCode(97 + surroundingCellCol)}${bodyPartToIndex[key]}`
