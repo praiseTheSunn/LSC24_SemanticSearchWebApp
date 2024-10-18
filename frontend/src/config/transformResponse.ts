@@ -13,7 +13,7 @@ export const transformResponse_AIC2024 = (response: ApiResponse) => {
   const data = response.response || response.data
   const result = data.map((img: ImageRecord) => {
     img.date = img.context_id_coarse ? img.context_id_coarse : img.video_id ? img.video_id : img.date
-    img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time
+    img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     img.img_link = img.img_link.replace('178.128.117.254', '127.0.0.1:8080')
     return img
   })

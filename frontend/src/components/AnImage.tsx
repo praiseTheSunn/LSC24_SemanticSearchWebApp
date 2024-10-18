@@ -13,6 +13,7 @@ import { useSelector } from 'react-redux'
 import { useKISAnsweringMutation } from '../AppState'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import { useState } from 'react';
 
 interface AnImageProps {
   data: ImageRecord | null | undefined
@@ -60,6 +61,13 @@ const AnImage: React.FC<AnImageProps> = ({
   const toggleImagePreview = React.useCallback(
     (data: any) => {
       dispatch(appActions.setImagePreview(data))
+    },
+    [dispatch],
+  )
+
+  const toggleSubmitData = React.useCallback(
+    (data: any) => {
+      dispatch(appActions.setSubmitData(data))
     },
     [dispatch],
   )
@@ -113,6 +121,24 @@ const AnImage: React.FC<AnImageProps> = ({
     }
   }
 
+  // const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
+
+  const handleClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      if (e.ctrlKey) {
+        submit(data);
+      }
+      if (e.altKey) {
+        toggleSubmitData(data);
+      }
+  };
+
+  const handleDoubleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    toggleSimilarPopup(data);
+    toggleNeighborPopup(null);
+  }
+
   return (
     <Box
       key={index}
@@ -139,17 +165,8 @@ const AnImage: React.FC<AnImageProps> = ({
       data-tooltip-id="tooltip_img"
       data-tooltip-content={json_data}
       data-tooltip-variant="dark"
-      onDoubleClick={(e) => {
-        e.preventDefault()
-        toggleSimilarPopup(data)
-        toggleNeighborPopup(null)
-      }}
-      onClick={(e) => {
-        e.preventDefault()
-        if (e.ctrlKey) {
-          submit(data)
-        }
-      }}
+      onDoubleClick={handleDoubleClick}
+      onClick={handleClick}
       onMouseEnter={(e) => {
         e.preventDefault()
         if (e.shiftKey) {

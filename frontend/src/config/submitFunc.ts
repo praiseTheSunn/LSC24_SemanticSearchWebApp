@@ -23,6 +23,7 @@ export const  AIC_addImages = async (
   const time = Number(src_data.timestamp) * 1000
   const video = src_data.video_id
 
+
   if (!evaluationId || !sessionId || !video) {
     console.log("Missing evaluationId, sessionId or video")
     return
