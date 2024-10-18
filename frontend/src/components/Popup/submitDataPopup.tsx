@@ -5,7 +5,7 @@ import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import { toast } from 'react-toastify';
 import { ImageRecord } from '../../types/image';
 import { useQuestionAnsweringMutation } from '../../AppState';
-
+import {displayResponseToast} from '../../utils/evaluation/displayResponseToast'
 
 
 // Định nghĩa props cho component nếu cần
@@ -15,15 +15,17 @@ interface SubmitDataPopupProps {
 
 const SubmitDataPopup: React.FC<SubmitDataPopupProps> = () => {
     const [answer, setAnswer] = useState<string>('');
-    const evaluationId = useAppSelector((state) => state.evaluation.evaluationId)
-    const sessionId = useAppSelector((state) => state.evaluation.sessionId)
+    const evaluationId = localStorage.getItem('evaluationId')   
+    const sessionId = localStorage.getItem('sessionId')
     const viewImage = useAppSelector(
         (state) => state.app.SubmitData
     );
 
+
+
     const [triggerQA, resultQA] = useQuestionAnsweringMutation()
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         console.log("Submitted:", answer);
         console.log('src', viewImage?.img_link)
 
@@ -32,13 +34,8 @@ const SubmitDataPopup: React.FC<SubmitDataPopupProps> = () => {
         console.log("Text", text);
 
         if (evaluationId && sessionId) {
-            triggerQA({ evaluation_id: evaluationId, session: sessionId, text: text })
-
-            toast.success(`Submitted with awser ${text}`, {
-                position: 'bottom-right',
-                autoClose: 5000,
-                closeOnClick: true,
-            })
+            const resultQA = await triggerQA({ evaluation_id: evaluationId, session: sessionId, text: text })
+            displayResponseToast(resultQA)
         }
     };
 
