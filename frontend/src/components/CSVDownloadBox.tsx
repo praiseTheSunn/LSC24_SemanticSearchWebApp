@@ -119,7 +119,7 @@ export const CSVDownloadBox = () => {
         position: 'bottom-left',
       });
       return;
-    } else {
+    } 
       const feedbackData: any = {};
       feedbackData.like = {
         text_query: queryPayload.text_query,
@@ -141,9 +141,9 @@ export const CSVDownloadBox = () => {
       toast.success('Feedback submitted and images cleared', {
         position: 'bottom-left',
       });
-    }
   };
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (data) {
       const likedImages = data.like

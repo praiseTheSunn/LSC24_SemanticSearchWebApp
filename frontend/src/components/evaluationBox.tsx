@@ -5,9 +5,9 @@ import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch } from '../AppState'
 import {
-  useSubmitKISAnsweringMutation,
   useLazyGetEvalIDQuery,
   useLazyGetSessionIDQuery,
+  useSubmitKISAnsweringMutation,
   useSubmitQuestionAnsweringMutation,
 } from '../AppState'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
@@ -91,7 +91,7 @@ const EvaluationBox = () => {
       }
 
       // DE SAI O DAY
-      setEvaluationId(reponseEval.data[2])
+      setEvaluationId(reponseEval.data[0])
 
       setLoginState('Logout')
     } else {
