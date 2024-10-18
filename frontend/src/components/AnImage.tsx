@@ -1,19 +1,19 @@
 import PlayCircleFilledRoundedIcon from '@mui/icons-material/PlayCircleFilledRounded'
+import ThumbDownIcon from '@mui/icons-material/ThumbDown'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp'
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined'
 import { Box } from '@mui/material'
 import { isNil } from 'lodash'
 import React, { useEffect } from 'react'
+import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
-import { AIC_addImages } from '../config/submitFunc'
-import { AddLikeAction } from '../config/likeResponse'
-import { AddDislikeAction } from '../config/dislikeResponse'
-import type { ImageRecord } from '../types/image'
-import { useSelector } from 'react-redux'
 import { useKISAnsweringMutation } from '../AppState'
-import ThumbUpIcon from '@mui/icons-material/ThumbUp';
-import ThumbDownIcon from '@mui/icons-material/ThumbDown';
-import { useState } from 'react';
+import { AddDislikeAction } from '../config/dislikeResponse'
+import { AddLikeAction } from '../config/likeResponse'
+import { AIC_addImages } from '../config/submitFunc'
+import type { ImageRecord } from '../types/image'
 
 interface AnImageProps {
   data: ImageRecord | null | undefined
@@ -36,7 +36,7 @@ const AnImage: React.FC<AnImageProps> = ({
   const videoSrc = data?.video_url ? data.video_url : undefined
   const date = data?.date ? data.date : null
   const time = data?.time ? data.time : null
-  const timestamp = data?.timestamp *1000  ? data.timestamp*1000 : null
+  const timestamp = data?.timestamp * 1000 ? data.timestamp * 1000 : null
   const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
@@ -86,7 +86,7 @@ const AnImage: React.FC<AnImageProps> = ({
     //   closeOnClick: true,
     //   autoClose: 2000,
     // })
-  
+
     // REPLACE FOR EACH COMPETITION HERE
     // LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
     AIC_addImages(src_data, triggerKIS)
@@ -121,19 +121,19 @@ const AnImage: React.FC<AnImageProps> = ({
   // const [clickTimeout, setClickTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const handleClick = (e: React.MouseEvent) => {
-      e.preventDefault();
-      if (e.ctrlKey) {
-        submit(data);
-      }
-      if (e.altKey) {
-        toggleSubmitData(data);
-      }
-  };
+    e.preventDefault()
+    if (e.ctrlKey) {
+      submit(data)
+    }
+    if (e.altKey) {
+      toggleSubmitData(data)
+    }
+  }
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    toggleSimilarPopup(data);
-    toggleNeighborPopup(null);
+    e.preventDefault()
+    toggleSimilarPopup(data)
+    toggleNeighborPopup(null)
   }
 
   return (
@@ -220,7 +220,7 @@ const AnImage: React.FC<AnImageProps> = ({
           sx={{ color: 'blue', cursor: 'pointer' }}
           titleAccess="Like"
           onClick={(e) => {
-            e.preventDefault();
+            e.preventDefault()
             // Add your like action here
             like(data)
           }}
@@ -229,7 +229,7 @@ const AnImage: React.FC<AnImageProps> = ({
           sx={{ width: '1.75rem', color: 'red', cursor: 'pointer' }}
           titleAccess="Dislike"
           onClick={(e) => {
-            e.preventDefault();
+            e.preventDefault()
             // Add your dislike action here
             dislike(data)
           }}

@@ -4,15 +4,19 @@ import type { ImageRecord } from '../types/image'
 export const transformResponse_AIC2024 = (response: ApiResponse) => {
   // console.log('Response:', response);
   const convertToMMSS = (seconds: string): string => {
-    const iSeconds = Number(seconds);
-    const minutes = Math.floor(iSeconds / 60);
-    const remainingSeconds = iSeconds % 60;
-    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`;
-  };
+    const iSeconds = Number(seconds)
+    const minutes = Math.floor(iSeconds / 60)
+    const remainingSeconds = iSeconds % 60
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`
+  }
 
   const data = response.response || response.data
   const result = data.map((img: ImageRecord) => {
-    img.date = img.context_id_coarse ? img.context_id_coarse : img.video_id ? img.video_id : img.date
+    img.date = img.context_id_coarse
+      ? img.context_id_coarse
+      : img.video_id
+        ? img.video_id
+        : img.date
     // img.date = img.video_id ? img.video_id : img.date
     // img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time

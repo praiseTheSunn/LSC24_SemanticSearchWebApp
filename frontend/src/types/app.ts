@@ -41,7 +41,7 @@ export type AppState = {
   dislikedImages: ImageRecord[]
   isCsvPreviewPopupOpen: boolean
   isEvaluationBoxOpen: boolean
-  
+
   config: ConfigType
 }
 

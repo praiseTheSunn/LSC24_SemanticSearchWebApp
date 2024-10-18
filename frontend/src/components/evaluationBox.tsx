@@ -2,10 +2,15 @@ import { Box, Button, Paper, TextField } from '@mui/material'
 import { isNil, result, set } from 'lodash'
 import React, { useEffect, useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
-import { appActions, useAppDispatch } from '../AppState'
-import { useLazyGetSessionIDQuery, useLazyGetEvalIDQuery, useQuestionAnsweringMutation, useKISAnsweringMutation } from '../AppState'
 import { toast } from 'react-toastify'
-import {displayResponseToast} from '../utils/evaluation/displayResponseToast'
+import { appActions, useAppDispatch } from '../AppState'
+import {
+  useKISAnsweringMutation,
+  useLazyGetEvalIDQuery,
+  useLazyGetSessionIDQuery,
+  useQuestionAnsweringMutation,
+} from '../AppState'
+import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
 const EvaluationBox = () => {
   const [text, setText] = useState('')
@@ -19,38 +24,28 @@ const EvaluationBox = () => {
   const evaluationId = localStorage.getItem('evaluationId') ?? ''
   const sessionId = localStorage.getItem('sessionId') ?? ''
 
-  const [loginState, setLoginState] = useState( isNil(sessionId) ? 'Login' : 'Logout')
+  const [loginState, setLoginState] = useState(
+    isNil(sessionId) ? 'Login' : 'Logout',
+  )
 
   // const [triggerKIS, resultKIS] = useKISAnsweringMutation()
   const dispatch = useAppDispatch()
 
-  const setEvaluationId = useCallback(
-    (evaluationId: string) => {
-      localStorage.setItem('evaluationId', evaluationId)
-    },
-    [],
-  )
+  const setEvaluationId = useCallback((evaluationId: string) => {
+    localStorage.setItem('evaluationId', evaluationId)
+  }, [])
 
-  const setSessionId = useCallback(
-    (sessionId: string) => {
-      localStorage.setItem('sessionId', sessionId)
-    },
-    [],
-  )
+  const setSessionId = useCallback((sessionId: string) => {
+    localStorage.setItem('sessionId', sessionId)
+  }, [])
 
-  const setUsername = useCallback(
-    (username: string) => {
-      localStorage.setItem('username', username)
-    },
-    [],
-  )
+  const setUsername = useCallback((username: string) => {
+    localStorage.setItem('username', username)
+  }, [])
 
-  const setPassword = useCallback(
-    (password: string) => {
-      localStorage.setItem('password', password)
-    },
-    [],
-  )
+  const setPassword = useCallback((password: string) => {
+    localStorage.setItem('password', password)
+  }, [])
 
   useEffect(() => {
     const session = localStorage.getItem('session')
@@ -69,8 +64,11 @@ const EvaluationBox = () => {
 
   const GetSessionID = async () => {
     if (loginState === 'Login') {
-      console.log("This is", username, password)
-      const response = await triggerSessionID({ username: username, password: password })
+      console.log('This is', username, password)
+      const response = await triggerSessionID({
+        username: username,
+        password: password,
+      })
       if (!response.data) {
         toast.error('Invalid username or password', {
           position: 'bottom-right',
@@ -94,7 +92,7 @@ const EvaluationBox = () => {
 
       // DE SAI O DAY
       setEvaluationId(reponseEval.data[2])
-      
+
       setLoginState('Logout')
     } else {
       setLoginState('Login')
@@ -110,20 +108,25 @@ const EvaluationBox = () => {
     const regex = /^[^\s]+-L\d{2}_V\d{3}-\d+$/
 
     if (!regex.test(text)) {
-      toast.error('Text is not in the correct format, must be answer-Lxx_Vxxx-ms', {
-        position: 'bottom-right',
-        autoClose: 2000,
-        closeOnClick: true,
-      })
+      toast.error(
+        'Text is not in the correct format, must be answer-Lxx_Vxxx-ms',
+        {
+          position: 'bottom-right',
+          autoClose: 2000,
+          closeOnClick: true,
+        },
+      )
       return
     }
 
-      // triggerQA({ evaluation_id: evaluationId[0], session: result.data, text: text })
-    const resultQA = await triggerQA({ evaluation_id: evaluationId, session: sessionId, text: text })
+    // triggerQA({ evaluation_id: evaluationId[0], session: result.data, text: text })
+    const resultQA = await triggerQA({
+      evaluation_id: evaluationId,
+      session: sessionId,
+      text: text,
+    })
     displayResponseToast(resultQA)
   }
-
-
 
   return (
     <Paper
@@ -139,7 +142,7 @@ const EvaluationBox = () => {
         backgroundColor: 'white',
         borderRadius: 2,
       }}
-    // style={{ position: 'absolute', top: '90px', right: '0px' }}
+      // style={{ position: 'absolute', top: '90px', right: '0px' }}
     >
       <TextField
         label="Username"

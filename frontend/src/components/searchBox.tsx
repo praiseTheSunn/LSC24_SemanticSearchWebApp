@@ -252,12 +252,11 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             setMessagePopup(true)
             return
           }
-          
+
           const filter = { category: 'query', value, status: 1 }
           setQuery(value)
           ////////////
 
-          
           trigger({
             text_query: value,
             mode: queryPayload.mode,
