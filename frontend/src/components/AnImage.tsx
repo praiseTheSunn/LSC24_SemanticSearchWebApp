@@ -35,7 +35,8 @@ const AnImage: React.FC<AnImageProps> = ({
   const videoSrc = data?.video_url ? data.video_url : undefined
   const date = data?.date ? data.date : null
   const time = data?.time ? data.time : null
-  const formattedTime: string = `${date ? date : ''}  ${time ? time : ''}`
+  const timestamp = data?.timestamp *1000  ? data.timestamp*1000 : null
+  const formattedTime: string = `${date ? date : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null
@@ -72,16 +73,38 @@ const AnImage: React.FC<AnImageProps> = ({
   const sessionId = useAppSelector((state) => state.evaluation.sessionId)
 
   const [triggerKIS, resultKIS] = useKISAnsweringMutation()
+  useEffect(() => {
+      console.log('KIS result:', resultKIS); // In ra response khi có dữ liệu
+      if (resultKIS && resultKIS.data) {
+        console.log('KIS result:', resultKIS.data); // In ra response khi có dữ liệu
+        if (resultKIS.data.status === true && resultKIS.data.submission == "CORRECT") {
+          toast.success('Submission CORRECT', {
+            position: 'bottom-right',
+            autoClose: 2000,
+          })
+        }
+        else if (resultKIS.data.status === true && resultKIS.data.submission == "WRONG") {
+          toast.error(`Submission WRONG ${resultKIS.data.description}`, {
+            position: 'bottom-right',
+            autoClose: 2000,
+          })
+        }
+        else {
+          toast.error(`Submission FAILED ${resultKIS.data.description}`, {
+            position: 'bottom-right',
+            autoClose: 2000,
+          })
+        }
+    }
+    if (resultKIS && resultKIS.isError) {
+      // console.error('Error from KIS:', resultKIS.error); // In ra lỗi nếu có
+      toast.error(`Submission FAILED - ERROR ${resultKIS.error.data.description}`, {
+        position: 'bottom-right',
+        autoClose: 2000,
+      })
+    }
+  }, [resultKIS]);  
 
-  // useEffect(() => {
-  //   if (resultKIS.isError) {
-  //     toast.error("Error submitting", {
-  //       position: 'bottom-right',
-  //       autoClose: 5000,
-  //       closeOnClick: true,
-  //     })
-  //   }
-  // }, [resultKIS.is])
 
   const submit = (src_data: ImageRecord) => {
     console.log('src', src_data.img_link)

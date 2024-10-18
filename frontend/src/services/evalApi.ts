@@ -2,6 +2,9 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { EvalQuery } from '.'
 import type { LoginResponse, EvalLoginParams, EvalIDResponse, EvalTextParams, QAParams, KISParams } from '../types/api'
 import { QuestionAnswer } from '@mui/icons-material'
+import type { SubmitResponse } from '../types/submit'
+import { transformResponse_Feedback_AIC } from '../config/transformResponse'
+
 
 export const EvalApi = createApi({
   reducerPath: 'EvalApi',
@@ -32,7 +35,7 @@ export const EvalApi = createApi({
         }
       }),
 
-      QuestionAnswering: builder.mutation<void, QAParams>({
+      QuestionAnswering: builder.mutation<SubmitResponse, QAParams>({
         query: (params) => {
           return {
             url: `api/v2/submit/${params.evaluation_id}`,
@@ -50,10 +53,10 @@ export const EvalApi = createApi({
               ],
             },
           }
-        }
+        }, 
       }),
 
-      KISAnswering: builder.mutation<void, KISParams>({
+      KISAnswering: builder.mutation<SubmitResponse, KISParams>({
         query: (params) => {
           return {
             url: `api/v2/submit/${params.evaluation_id}`,
