@@ -9,7 +9,7 @@ import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
-import { useKISAnsweringMutation } from '../AppState'
+import { useSubmitKISAnsweringMutation } from '../AppState'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import { AddLikeAction } from '../config/likeResponse'
 import { AIC_addImages } from '../config/submitFunc'
@@ -77,7 +77,7 @@ const AnImage: React.FC<AnImageProps> = ({
   const likeImages = useAppSelector((state) => state.app.likedImages)
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
 
-  const [triggerKIS, resultKIS] = useKISAnsweringMutation()
+  const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
   const submit = (src_data: ImageRecord) => {
     console.log('src', src_data.img_link)
 

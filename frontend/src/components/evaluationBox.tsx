@@ -5,10 +5,10 @@ import { useSelector } from 'react-redux'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch } from '../AppState'
 import {
-  useKISAnsweringMutation,
+  useSubmitKISAnsweringMutation,
   useLazyGetEvalIDQuery,
   useLazyGetSessionIDQuery,
-  useQuestionAnsweringMutation,
+  useSubmitQuestionAnsweringMutation,
 } from '../AppState'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
@@ -17,7 +17,7 @@ const EvaluationBox = () => {
 
   const [triggerSessionID, resultSessionID] = useLazyGetSessionIDQuery()
   const [triggerEval, resultEval] = useLazyGetEvalIDQuery()
-  const [triggerQA, resultQA] = useQuestionAnsweringMutation()
+  const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
 
   const username = localStorage.getItem('username') ?? ''
   const password = localStorage.getItem('password') ?? ''
@@ -28,7 +28,7 @@ const EvaluationBox = () => {
     isNil(sessionId) ? 'Login' : 'Logout',
   )
 
-  // const [triggerKIS, resultKIS] = useKISAnsweringMutation()
+  // const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
   const dispatch = useAppDispatch()
 
   const setEvaluationId = useCallback((evaluationId: string) => {
