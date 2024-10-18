@@ -6,6 +6,7 @@ import { appActions, evaluationActions, useAppDispatch } from '../AppState'
 import type { EvaluationState } from '../types/app'
 import { useLazyGetSessionIDQuery, useLazyGetEvalIDQuery, useQuestionAnsweringMutation, useKISAnsweringMutation } from '../AppState'
 import { toast } from 'react-toastify'
+import {displayResponseToast} from '../utils/evaluation/displayResponseToast'
 
 const EvaluationBox = () => {
   const [text, setText] = useState('')
@@ -67,33 +68,6 @@ const EvaluationBox = () => {
     }
   }, [setPassword, setUsername])
 
-  // useEffect(() => {
-  //   if (resultSessionID.data) {
-  //     console.log("session here")
-  //     triggerEval({ session: resultSessionID.data })
-  //     setSessionId(resultSessionID.data)
-  //   }
-  // }, [resultSessionID.data])
-
-  // useEffect(() => {
-  //   if (evaluationId) {
-  //     console.log("evaluation here")
-  //     setEvaluationId(evaluationId[0])
-  //   }
-  // }, [evaluationId])
-
-  // useEffect(() => {
-  //   if (resultQA.data) {
-  //     console.log(resultQA.data.submission)
-  //   }
-  // }, [resultQA.data])
-
-  // useEffect(() => {
-  //   if (resultKIS.data) {
-  //     console.log(resultKIS.data.submission)
-  //   }
-  // }, [resultKIS.isFetching])
-
   const GetSessionID = async () => {
     if (loginState === 'Login') {
       console.log("This is", username, password)
@@ -120,7 +94,7 @@ const EvaluationBox = () => {
       }
 
       // DE SAI O DAY
-      setEvaluationId(reponseEval.data[0])
+      setEvaluationId(reponseEval.data[2])
       
       setLoginState('Logout')
     } else {
@@ -147,39 +121,7 @@ const EvaluationBox = () => {
 
       // triggerQA({ evaluation_id: evaluationId[0], session: result.data, text: text })
     const resultQA = await triggerQA({ evaluation_id: evaluationId, session: sessionId, text: text })
-    console.log(resultQA)
-
-    if (resultQA.error) {
-      // console.error('Error from KIS:', resultKIS.error); // In ra lỗi nếu có
-      toast.error(`Submission FAILED - ERROR ${resultQA.error.data.description}`, {
-        position: 'bottom-right',
-        autoClose: 2000,
-      })
-      return
-    }
-
-    if (resultQA.data) {
-      console.log('QA result:', resultQA.data); // In ra response khi có dữ liệu
-      if (resultQA.data.status === true && resultQA.data.submission === "CORRECT") {
-        toast.success('Submission CORRECT', {
-          position: 'bottom-right',
-          autoClose: 2000,
-        })
-      }
-      else if (resultQA.data.status === true && resultQA.data.submission === "WRONG") {
-        toast.error('Submission WRONG', {
-          position: 'bottom-right',
-          autoClose: 2000,
-        })
-      }
-      else {
-        toast.error(`Submission FAILED ${resultQA.data.description}`, {
-          position: 'bottom-right',
-          autoClose: 2000,
-        })
-      }
-      // triggerKIS({ evaluation_id: evaluationId, session: result.data, mediaItemName: "L03_V006", start: 891500, end: 891500 })  
-    }
+    displayResponseToast(resultQA)
   }
 
 
