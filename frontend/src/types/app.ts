@@ -66,7 +66,7 @@ export type ConfigType = {
 
   NeighborPopupCellHeight: number
   NeighborPopupColumnCount: number
-  NeighborPopupSpan: number 
+  NeighborPopupSpan: number
 
   WhiteboardGridRowCount: number
   WhiteboardGridColumnCount: number
