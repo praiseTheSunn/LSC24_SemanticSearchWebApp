@@ -7,8 +7,12 @@ const BaseFieldToDisplay = {
 
 export const AIC2024_fieldToDisplay = {
   video_id: 'Video ID',
-  frame_id: 'Frame ID',
+  timestamp: 'Timestamp',
   ...BaseFieldToDisplay,
-  img_link: 'Filename',
+  img_link: 'FrameID',
   object_global_encoding: 'Object',
+  context_en_keywords: 'Context',
 }
+
+
+export const FieldToDisplay = AIC2024_fieldToDisplay
