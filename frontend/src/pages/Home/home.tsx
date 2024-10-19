@@ -59,8 +59,7 @@ const Home = () => {
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const [selectedModeIndex, setSelectedModeIndex] = useState(0)
   const [isCtrlPressed, setIsCtrlPressed] = useState(false)
-  const [windowHeigt, setWindowHeight] = useState(window.innerHeight)
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
+  const windowWidth = window.innerWidth
   const handleTabClick = (index: number) => {
     setSelectedTabIndex(index)
   }
@@ -86,21 +85,11 @@ const Home = () => {
     (state) => state.app.loadingPopUpMessage,
   )
   const imageDatas: ImageRecord[] = useAppSelector((state) => state.app.data)
-  const cacheData: ImageRecord[] = useAppSelector(
-    (state) => state.app.cacheData,
-  )
   const videoPopupSource: string | undefined = useAppSelector(
     (state) => state.app.videoDataForPopup?.source,
   )
 
   const dispatch = useAppDispatch()
-
-  const setImageData = React.useCallback(
-    (data: ImageRecord[]) => {
-      dispatch(appActions.setAppImageData(data))
-    },
-    [dispatch],
-  )
 
   const toggleNeighborPopup = React.useCallback(
     (data: ImageRecord | null | undefined) => {
@@ -116,13 +105,6 @@ const Home = () => {
     [dispatch],
   )
 
-  const toggleImagePreview = React.useCallback(
-    (data: ImageRecord | null | undefined) => {
-      dispatch(appActions.setImagePreview(data))
-    },
-    [dispatch],
-  )
-
   const toggleSubmitData = React.useCallback(
     (data: ImageRecord | null | undefined) => {
       dispatch(appActions.setSubmitData(data))
@@ -130,9 +112,7 @@ const Home = () => {
     [dispatch],
   )
 
-  // Handle input changes for each key
   const handleFilterChange = (key: string, value: string) => {
-    console.log('key', key, value)
     setSearchTerms((prevTerms) => {
       const updatedTerms: { category: string; value: string }[] = [...prevTerms]
       updatedTerms.push({ category: key, value })
@@ -140,10 +120,17 @@ const Home = () => {
     })
   }
 
+  const [imageAfterFilter, setImageAfterFilter] = useState<ImageRecord[]>([])
   useEffect(() => {
-    // console.log('searchTerms', searchTerms);
-    if (searchTerms.length > 0 && cacheData.length > 0) {
-      let fuseResults: ImageRecord[] = cacheData
+    if ((imageDatas !== null) && (imageDatas !== undefined) && ((imageDatas as ImageRecord[]).length > 0)){
+      setImageAfterFilter(imageDatas)
+    }
+  }, [imageDatas])
+
+  useEffect(() => {
+    console.log('searchTerms changed', searchTerms)
+    if (searchTerms.length > 0) {
+      let fuseResults: ImageRecord[] = imageDatas
       // console.log('fuseResults', fuseResults.length, fuseResults);
 
       for (let i = 0; i < searchTerms.length; i++) {
@@ -164,15 +151,14 @@ const Home = () => {
         toast.error('No fuzzy results found')
       }
 
-      setImageData(fuseResults)
-      // console.log('filteredResults', fuseResults.length)
+      setImageAfterFilter(fuseResults)
     } else if (searchTerms.length === 0) {
-      setImageData(cacheData)
+      setImageAfterFilter(imageDatas)
     }
-  }, [searchTerms, cacheData])
+  }, [searchTerms])
 
-  const appState = useAppSelector((state) => state.app)
-  const csvData = useAppSelector((state) => state.app.csvImages)
+  // const appState = useAppSelector((state) => state.app)
+  // const csvData = useAppSelector((state) => state.app.csvImages)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -220,45 +206,44 @@ const Home = () => {
     }
   }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
 
-  useEffect(() => {
-    if (submitText !== '') {
-      // evalService
-      //   .submitText(evaluationId, localStorage.getItem('session'), submitText)
-      //   .then((response: ApiResponse) => {
-      //     toast.success(`Text submitted: ${response.data.submission}`)
-      //     setSubmitText('')
-      //     console.log('response', response)
-      //     if (response?.data && response?.data?.submission === 'CORRECT') {
-      //       evalService
-      //         .submitText(
-      //           evaluationId,
-      //           localStorage.getItem('sessionCentral'),
-      //           submitText,
-      //         )
-      //         .then((response: ApiResponse) => {
-      //           toast.success(`Text submitted: ${response.data.submission}`)
-      //           setSubmitText('')
-      //           console.log('response', response)
-      //         })
-      //         .catch((error: ApiError) => {
-      //           toast.error(`Error submit TEXT: ${error.message}`)
-      //           console.log('error', error)
-      //         })
-      //     }
-      //   })
-      //   .catch((error: ApiError) => {
-      //     toast.error(`Error submit TEXT: ${error.message}`)
-      //     console.log('error', error)
-      //   })
-    }
-  }, [submitText])
+  // useEffect(() => {
+  //   if (submitText !== '') {
+  //     // evalService
+  //     //   .submitText(evaluationId, localStorage.getItem('session'), submitText)
+  //     //   .then((response: ApiResponse) => {
+  //     //     toast.success(`Text submitted: ${response.data.submission}`)
+  //     //     setSubmitText('')
+  //     //     console.log('response', response)
+  //     //     if (response?.data && response?.data?.submission === 'CORRECT') {
+  //     //       evalService
+  //     //         .submitText(
+  //     //           evaluationId,
+  //     //           localStorage.getItem('sessionCentral'),
+  //     //           submitText,
+  //     //         )
+  //     //         .then((response: ApiResponse) => {
+  //     //           toast.success(`Text submitted: ${response.data.submission}`)
+  //     //           setSubmitText('')
+  //     //           console.log('response', response)
+  //     //         })
+  //     //         .catch((error: ApiError) => {
+  //     //           toast.error(`Error submit TEXT: ${error.message}`)
+  //     //           console.log('error', error)
+  //     //         })
+  //     //     }
+  //     //   })
+  //     //   .catch((error: ApiError) => {
+  //     //     toast.error(`Error submit TEXT: ${error.message}`)
+  //     //     console.log('error', error)
+  //     //   })
+  //   }
+  // }, [submitText])
 
-  useEffect(() => {
-    if (submitFilename !== '') {
-      // submit(submitFilename)
-      setSubmitFilename('')
-    }
-  }, [submitFilename])
+  // useEffect(() => {
+  //   if (submitFilename !== '') {
+  //     // submit(submitFilename)
+  //   }
+  // }, [submitFilename])
 
   // console.log('result');
 
@@ -280,13 +265,9 @@ const Home = () => {
           maxWidth: '500px',
         }}
         positionStrategy="fixed"
-        // anchorSelect='.tooltip-display'
         place="bottom"
-        // clickable={true}
-        // position={{x: 0, y: 0}}
         position={{ x: windowWidth, y: 0 }}
         render={(content) => {
-          // console.log('content', content.content);
           const tooltipData = content.content
             ? JSON.parse(content.content)
             : null
@@ -400,7 +381,7 @@ const Home = () => {
                   height: '100%',
                 }}
               >
-                <ImageGrid style={{ width: '100dvw' }} data={imageDatas} />
+                <ImageGrid style={{ width: '100dvw' }} data={imageAfterFilter} />
               </Box>
             )}
             {selectedModeIndex !== 0 && (
