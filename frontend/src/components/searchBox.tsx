@@ -5,10 +5,9 @@ import {
   forwardRef,
   useCallback,
   useEffect,
-  useRef,
   useState,
 } from 'react'
-import { MessagePopup, ObjectPositionPopup } from '.'
+import { MessagePopup } from '.'
 import {
   appActions,
   useAppDispatch,
@@ -16,17 +15,16 @@ import {
   useLazyGetImagesQuery,
   useLazyGetTranslatedTextQuery,
 } from '../AppState'
-import { ObjectPosIcon } from '../assets'
 import { HistoryIcon } from '../assets'
 import type { ImageRecord } from '../types/image'
-import type { QueryPayload, SearchTermType } from '../types/search'
+import type { SearchTermType } from '../types/search'
 import { LanguageSwitch } from './Button/LanguageSwitch'
 import { CSVDownloadBox } from './CSVDownloadBox'
 import ImageInputBox from './ImageInputBox'
 import HistoryPopup from './Popup/HistoryPopup'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
-import ToggableComponent from './toggleEvaluationBox'
+import { FilterCategories } from '../data/FilterCategory'
 
 type SearchBoxProps = {
   displayedFilters: any
@@ -153,8 +151,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     )?.query
     const handleEnter = (event: any) => {
       if (event.key === 'Enter') {
-        // setDisplayedImages(false);
-        event.preventDefault() // Prevent default behavior
+        event.preventDefault() 
         dispatch(appActions.setLikedImages([]))
         dispatch(appActions.setDislikedImages([]))
 
@@ -162,70 +159,22 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         const timestamp = new Date().toLocaleTimeString()
         let updatedQuery = input
 
-        if (input.startsWith('-lo ')) {
-          const value = input.substring(4)
-          const filter = { category: 'location', value, status: 1 }
-          setDisplayedFilters((previousState: any) => [
-            ...previousState,
-            filter,
-          ])
-          handleFilterChange('location', value)
-          updatedQuery = `${lastHistory} | location: ${input.substring(4)}`
-        } else if (input.startsWith('-t ')) {
-          const value = input.substring(3)
-          const filter = { category: 'time', value, status: 1 }
-          setDisplayedFilters((previousState: any) => [
-            ...previousState,
-            filter,
-          ])
-          handleFilterChange('time', value)
-          updatedQuery = `${lastHistory} | time: ${input.substring(3)}`
-        } else if (input.startsWith('-d ')) {
-          const value = input.substring(3)
-          const filter = { category: 'date', value, status: 1 }
-          setDisplayedFilters((previousState: any) => [
-            ...previousState,
-            filter,
-          ])
-          handleFilterChange('date', value)
-          updatedQuery = `${lastHistory} | date: ${input.substring(3)}`
-        } else if (input.startsWith('-ocr ')) {
-          const value = input.substring(5)
-          const filter = { category: 'ocr', value, status: 1 }
-          setDisplayedFilters((previousState: any) => [
-            ...previousState,
-            filter,
-          ])
-          handleFilterChange('ocr', value)
-          updatedQuery = `${lastHistory} | ocr: ${input.substring(5)}`
-        } else if (input.startsWith('-obj ')) {
-          const value = input.substring(5)
-          const filter = { category: 'object_tags', value, status: 1 }
-          setDisplayedFilters((previousState: any) => [
-            ...previousState,
-            filter,
-          ])
-          handleFilterChange('object_tags', value)
-          updatedQuery = `${lastHistory} | object_tags: ${input.substring(5)}`
-        } else if (input.startsWith('-act ')) {
-          const value = input.substring(5)
-          const filter = { category: 'activity', value, status: 1 }
-          setDisplayedFilters((previousState: any) => [
-            ...previousState,
-            filter,
-          ])
-          handleFilterChange('activity', value)
-          updatedQuery = `${lastHistory} | activity: ${input.substring(5)}`
-        } else if (input.startsWith('-dow ')) {
-          const value = input.substring(5)
-          const filter = { category: 'day_of_week', value, status: 1 }
-          setDisplayedFilters((previousState: any) => [
-            ...previousState,
-            filter,
-          ])
-          handleFilterChange('day_of_week', value)
-          updatedQuery = `${lastHistory} | day_of_week: ${input.substring(5)}`
-        } else if (input.startsWith('-text ')) {
+        for (const key in FilterCategories) {
+          if (input.startsWith(key)) {
+            console.log('key:', key)
+            const { category, startIndex } = FilterCategories[key as keyof typeof FilterCategories]
+            const value = input.substring(startIndex)
+            const filter = { category, value, status: 1 }
+            setDisplayedFilters((previousState: any) => [
+              ...previousState,
+              filter,
+            ])
+            handleFilterChange(category, value)
+            updatedQuery = `${lastHistory} | ${category}: ${value}`
+          }
+        }
+
+        if (input.startsWith('-text ')) {
           const value = input.substring(6)
           const filter = { category: 'SUBMIT TEXT', value, status: 1 }
           setDisplayedFilters((previousState: any) => [
@@ -243,7 +192,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             filter,
           ])
           setSubmitFilename(filename)
-        } else {
+        } else if (!input.startsWith('-')) {
           const value = input
           if (isVietnameseEnabled) {
             // Translate to english
@@ -255,7 +204,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
 
           const filter = { category: 'query', value, status: 1 }
           setQuery(value)
-          ////////////
 
           trigger({
             text_query: value,
