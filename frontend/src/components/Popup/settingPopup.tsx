@@ -195,16 +195,16 @@ const ConfigEditor: React.FC = () => {
             valueLabelDisplay="auto"
           />
 
-          <Typography gutterBottom>Neighbor Popup Span</Typography> 
+          <Typography gutterBottom>Neighbor Popup Span</Typography>
           <Slider
-              value={config.NeighborPopupSpan}  
-              onChange={(e, newValue) =>
-                handleSliderChange('NeighborPopupSpan', newValue as number)
-              }
-              step={2}  
-              min={10}    
-              max={60}   
-              valueLabelDisplay="auto"
+            value={config.NeighborPopupSpan}
+            onChange={(e, newValue) =>
+              handleSliderChange('NeighborPopupSpan', newValue as number)
+            }
+            step={2}
+            min={10}
+            max={60}
+            valueLabelDisplay="auto"
           />
         </AccordionDetails>
       </Accordion>

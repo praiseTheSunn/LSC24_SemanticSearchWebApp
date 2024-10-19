@@ -1,36 +1,34 @@
+import DeleteIcon from '@mui/icons-material/Delete'
 import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded'
 import FileDownloadIcon from '@mui/icons-material/FileDownload'
 import LoginIcon from '@mui/icons-material/Login'
 import PreviewIcon from '@mui/icons-material/Preview'
 import SettingsIcon from '@mui/icons-material/Settings'
-import { useEffect } from 'react'
+import ThumbsUpDownIcon from '@mui/icons-material/ThumbsUpDown'
 import {
   Backdrop,
   Box,
   ClickAwayListener,
+  Divider,
+  Grid,
+  IconButton,
   Popover,
   Snackbar,
   SpeedDial,
   SpeedDialAction,
   SpeedDialIcon,
   Typography,
-  IconButton,
-  Grid,
-  Divider
 } from '@mui/material'
 import { get, set } from 'lodash'
+import { useEffect } from 'react'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
+import { useLazyGetFeedbackImagesQuery } from '../AppState'
 import ImageGrid from '../containers/similarity/image-grid'
 import { CSVPreviewPopup } from './Popup/CSVPreviewPopup'
 import ConfigEditor from './Popup/settingPopup'
 import EvaluationBox from './evaluationBox'
-import DeleteIcon from '@mui/icons-material/Delete';
-import {
-  useLazyGetFeedbackImagesQuery
-} from '../AppState'
-import ThumbsUpDownIcon from '@mui/icons-material/ThumbsUpDown';
 
 export const CSVDownloadBox = () => {
   const csvImages = useAppSelector((state) => state.app.csvImages)
@@ -42,7 +40,8 @@ export const CSVDownloadBox = () => {
   const dispatch = useAppDispatch()
 
   const [anchorElCSV, setAnchorElCSV] = useState<HTMLElement | null>(null)
-  const [anchorElLikeDislikePreview, setAnchorElLikeDislikePreview] = useState<HTMLElement | null>(null)
+  const [anchorElLikeDislikePreview, setAnchorElLikeDislikePreview] =
+    useState<HTMLElement | null>(null)
   const [anchorElEvaluation, setAnchorElEvaluation] =
     useState<HTMLElement | null>(null)
   const [anchorElSettings, setAnchorElSettings] = useState<HTMLElement | null>(
@@ -100,7 +99,9 @@ export const CSVDownloadBox = () => {
   const handleSettingsOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorElSettings(event.currentTarget)
   }
-  const handleLikeDislikePreviewOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleLikeDislikePreviewOpen = (
+    event: React.MouseEvent<HTMLElement>,
+  ) => {
     setAnchorElLikeDislikePreview(event.currentTarget)
   }
   const handleLikeDislikePreviewClose = () => {
@@ -111,78 +112,89 @@ export const CSVDownloadBox = () => {
     setAnchorElSettings(null)
   }
 
-  const [triggerFeedbackQuery, { data, error, isError, isFetching }] = useLazyGetFeedbackImagesQuery();
+  const [triggerFeedbackQuery, { data, error, isError, isFetching }] =
+    useLazyGetFeedbackImagesQuery()
 
   const handleSubmitFeedback = (event: any) => {
     if (likeImages.length === 0 && dislikeImages.length === 0) {
       toast.error('No images to submit feedback', {
         position: 'bottom-left',
-      });
-      return;
-    } 
-      const feedbackData: any = {};
-      feedbackData.like = {
-        text_query: queryPayload.text_query,
-        image_urls: likeImages.map((image) => image.img_link),
-        limit: likeLimit,
-      };
-      feedbackData.dislike = {
-        image_urls: dislikeImages.map((image) => image.img_link),
-        limit: dislikeLimit,
-      };
-      feedbackData.model = queryPayload.model;
-      feedbackData.dataset = queryPayload.dataset;
+      })
+      return
+    }
+    const feedbackData: any = {}
+    feedbackData.like = {
+      text_query: queryPayload.text_query,
+      image_urls: likeImages.map((image) => image.img_link),
+      limit: likeLimit,
+    }
+    feedbackData.dislike = {
+      image_urls: dislikeImages.map((image) => image.img_link),
+      limit: dislikeLimit,
+    }
+    feedbackData.model = queryPayload.model
+    feedbackData.dataset = queryPayload.dataset
 
-      triggerFeedbackQuery(feedbackData);
+    triggerFeedbackQuery(feedbackData)
 
-      dispatch(appActions.setLikedImages([]));
-      dispatch(appActions.setDislikedImages([]));
-      toast.success('Feedback submitted and images cleared', {
-        position: 'bottom-left',
-      });
-  };
+    dispatch(appActions.setLikedImages([]))
+    dispatch(appActions.setDislikedImages([]))
+    toast.success('Feedback submitted and images cleared', {
+      position: 'bottom-left',
+    })
+  }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (data) {
       const likedImages = data.like[0]
-      const likeSimilarImages = likedImages.map((image: any) => image.img_link) || [];
-      const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link) || [];
+      const likeSimilarImages =
+        likedImages.map((image: any) => image.img_link) || []
+      const dislikeSimilarImages =
+        data.dislike[0].map((image: any) => image.img_link) || []
 
-      const otherImages = queryData.filter((image: any) =>
-        !likeSimilarImages.includes(image.img_link)
-      );
+      const otherImages = queryData.filter(
+        (image: any) => !likeSimilarImages.includes(image.img_link),
+      )
 
-      const tempFeedbackImage = [...likedImages, ...otherImages];
-      const afterFeedbackImage = tempFeedbackImage.filter((image: any) => !dislikeSimilarImages.includes(image.img_link));
+      const tempFeedbackImage = [...likedImages, ...otherImages]
+      const afterFeedbackImage = tempFeedbackImage.filter(
+        (image: any) => !dislikeSimilarImages.includes(image.img_link),
+      )
 
-      dispatch(appActions.setAppImageData(afterFeedbackImage));
+      dispatch(appActions.setAppImageData(afterFeedbackImage))
     }
 
     if (isError) {
-      console.error('Error fetching feedback result:', error);
+      console.error('Error fetching feedback result:', error)
     }
-  }, [data, error, isError]);
+  }, [data, error, isError])
 
   useEffect(() => {
     const handleKeyDown = (e: any) => {
       if (e.shiftKey && e.key === 'Enter') {
-        e.preventDefault(); // Ngăn chặn các hành động mặc định khác của "Enter"
-        handleSubmitFeedback(e); // Gọi hàm khi nhấn Shift + Enter
+        e.preventDefault() // Ngăn chặn các hành động mặc định khác của "Enter"
+        handleSubmitFeedback(e) // Gọi hàm khi nhấn Shift + Enter
       }
-    };
+    }
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [handleSubmitFeedback]);
-
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [handleSubmitFeedback])
 
   const ImageBox = ({ image, onDelete }) => {
     return (
-      <div style={{ position: 'relative', width: '95%', height: 'auto', margin: '10px' }}>
+      <div
+        style={{
+          position: 'relative',
+          width: '95%',
+          height: 'auto',
+          margin: '10px',
+        }}
+      >
         <img
           src={image}
           alt="Disliked"
@@ -195,25 +207,33 @@ export const CSVDownloadBox = () => {
         />
         <IconButton
           size="small"
-          style={{ position: 'absolute', top: '0', right: '0', color: 'red', border: '1px solid red' }}
+          style={{
+            position: 'absolute',
+            top: '0',
+            right: '0',
+            color: 'red',
+            border: '1px solid red',
+          }}
           onClick={onDelete}
         >
           {/* <HighlightOffIcon /> */}
           <DeleteIcon />
         </IconButton>
       </div>
-    );
-  };
+    )
+  }
 
   const handleDeleteDislikedImage = (imageToRemove: any) => {
-    const updatedImages = dislikeImages.filter((image) => image !== imageToRemove);
-    dispatch(appActions.setDislikedImages(updatedImages));
-  };
+    const updatedImages = dislikeImages.filter(
+      (image) => image !== imageToRemove,
+    )
+    dispatch(appActions.setDislikedImages(updatedImages))
+  }
 
   const handleDeleteLikedImage = (imageToRemove: any) => {
-    const updatedImages = likeImages.filter((image) => image !== imageToRemove);
-    dispatch(appActions.setLikedImages(updatedImages));
-  };
+    const updatedImages = likeImages.filter((image) => image !== imageToRemove)
+    dispatch(appActions.setLikedImages(updatedImages))
+  }
 
   return (
     <React.Fragment>
@@ -287,7 +307,6 @@ export const CSVDownloadBox = () => {
               tooltipTitle="Preview Liked and Disliked Images"
               onClick={(e) => handleLikeDislikePreviewOpen(e)}
             />
-
           </SpeedDial>
           <Popover
             open={CSVPreviewPopupOpen}
@@ -336,39 +355,92 @@ export const CSVDownloadBox = () => {
             }}
             marginThreshold={20}
           >
-            {(likeImages.length === 0  && dislikeImages.length === 0 )? (
+            {likeImages.length === 0 && dislikeImages.length === 0 ? (
               <Typography>No images to preview</Typography>
             ) : (
               <>
                 <Grid container direction="row" style={{ width: '90dvw' }}>
-                  <Grid item xs={5.9999} style={{ padding: '8px' , minHeight: '60dvw'}}>
-                  <Typography align="center" variant="h5" style={{ fontWeight: 'bold' }}>Liked Images</Typography>
+                  <Grid
+                    item
+                    xs={5.9999}
+                    style={{ padding: '8px', minHeight: '60dvw' }}
+                  >
+                    <Typography
+                      align="center"
+                      variant="h5"
+                      style={{ fontWeight: 'bold' }}
+                    >
+                      Liked Images
+                    </Typography>
                     <Grid container direction="row" style={{ width: '100%' }}>
                       {likeImages.map((image, index) => (
-                        <Grid item xs={3} style={{ maxHeight: '8dw' }} key={index}>
-                          <ImageBox image={image.img_link} onDelete={() => handleDeleteLikedImage(image)} />
+                        <Grid
+                          item
+                          xs={3}
+                          style={{ maxHeight: '8dw' }}
+                          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                          key={index}
+                        >
+                          <ImageBox
+                            image={image.img_link}
+                            onDelete={() => handleDeleteLikedImage(image)}
+                          />
                         </Grid>
                       ))}
                     </Grid>
                   </Grid>
-                  <Grid item xs={0.0002} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                    <Divider orientation="vertical" flexItem style={{ height: '100%', borderRightWidth: '3px', borderRightStyle: 'solid', borderRightColor: '#000' }} />
+                  <Grid
+                    item
+                    xs={0.0002}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Divider
+                      orientation="vertical"
+                      flexItem
+                      style={{
+                        height: '100%',
+                        borderRightWidth: '3px',
+                        borderRightStyle: 'solid',
+                        borderRightColor: '#000',
+                      }}
+                    />
                   </Grid>
 
-                  <Grid item xs={5.9999} style={{ padding: '8px' , minHeight: '60dvw'}}>
-                  <Typography align="center" variant="h5" style={{ fontWeight: 'bold' }}>Disliked Images</Typography>
-
+                  <Grid
+                    item
+                    xs={5.9999}
+                    style={{ padding: '8px', minHeight: '60dvw' }}
+                  >
+                    <Typography
+                      align="center"
+                      variant="h5"
+                      style={{ fontWeight: 'bold' }}
+                    >
+                      Disliked Images
+                    </Typography>
 
                     <Grid container direction="row" style={{ width: '100%' }}>
                       {dislikeImages.map((image, index) => (
-                        <Grid item xs={3} style={{ maxHeight: '8dw' }} key={index}>
-                          <ImageBox image={image.img_link} onDelete={() => handleDeleteDislikedImage(image)} />
+                        <Grid
+                          item
+                          xs={3}
+                          style={{ maxHeight: '8dw' }}
+                          // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                          key={index}
+                        >
+                          <ImageBox
+                            image={image.img_link}
+                            onDelete={() => handleDeleteDislikedImage(image)}
+                          />
                         </Grid>
                       ))}
                     </Grid>
                   </Grid>
                 </Grid>
-
               </>
             )}
           </Popover>

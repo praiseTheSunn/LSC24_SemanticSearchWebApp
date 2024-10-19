@@ -95,7 +95,11 @@ const EvaluationBox = () => {
 
       setLoginState('Logout')
 
-      toast.success('Login successfully', { position: 'bottom-right', autoClose: 2000, closeOnClick: true })
+      toast.success('Login successfully', {
+        position: 'bottom-right',
+        autoClose: 2000,
+        closeOnClick: true,
+      })
     } else {
       setLoginState('Login')
     }
