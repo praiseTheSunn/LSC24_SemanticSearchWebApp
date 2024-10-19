@@ -263,6 +263,8 @@ const Home = () => {
           top: '0',
           right: '0',
           maxWidth: '500px',
+          maxHeight: '150px',
+          overflow: 'auto',
         }}
         positionStrategy="fixed"
         place="bottom"
