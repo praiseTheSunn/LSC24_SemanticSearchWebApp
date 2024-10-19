@@ -119,37 +119,39 @@ export const CSVDownloadBox = () => {
     if (likeImages.length === 0 && dislikeImages.length === 0) {
       toast.error('No images to submit feedback', {
         position: 'bottom-left',
-      });
-      return;
-    } 
-      const feedbackData: any = {};
-      feedbackData.like = {
-        image_urls: likeImages.map((image) => image.img_link),
-        prior_scores: likeImages.map((image) => image.score),
-        limit: likeLimit,
-      };
-      feedbackData.dislike = {
-        image_urls: dislikeImages.map((image) => image.img_link),
-        limit: dislikeLimit,
-      };
-      feedbackData.model = queryPayload.model;
-      feedbackData.dataset = queryPayload.dataset;
+      })
+      return
+    }
+    const feedbackData: any = {}
+    feedbackData.like = {
+      image_urls: likeImages.map((image) => image.img_link),
+      prior_scores: likeImages.map((image) => image.score),
+      limit: likeLimit,
+    }
+    feedbackData.dislike = {
+      image_urls: dislikeImages.map((image) => image.img_link),
+      limit: dislikeLimit,
+    }
+    feedbackData.model = queryPayload.model
+    feedbackData.dataset = queryPayload.dataset
 
-      triggerFeedbackQuery(feedbackData);
+    triggerFeedbackQuery(feedbackData)
 
-      dispatch(appActions.setLikedImages([]));
-      dispatch(appActions.setDislikedImages([]));
-      toast.success('Feedback submitted and images cleared', {
-        position: 'bottom-left',
-      });
-  };
+    dispatch(appActions.setLikedImages([]))
+    dispatch(appActions.setDislikedImages([]))
+    toast.success('Feedback submitted and images cleared', {
+      position: 'bottom-left',
+    })
+  }
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (data) {
       const likedImages = data.like
-      const likeSimilarImages = likedImages.map((image: any) => image.img_link) || [];
-      const dislikeSimilarImages = data.dislike.map((image: any) => image.img_link) || [];
+      const likeSimilarImages =
+        likedImages.map((image: any) => image.img_link) || []
+      const dislikeSimilarImages =
+        data.dislike.map((image: any) => image.img_link) || []
 
       const otherImages = queryData.filter(
         (image: any) => !likeSimilarImages.includes(image.img_link),
