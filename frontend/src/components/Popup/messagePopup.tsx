@@ -29,7 +29,7 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
     const queryPayload = useAppSelector((state) => state.app.queryPayload)
     const setQuery = useCallback(
       (value: string) => {
-        const newQueryPayload = { ...queryPayload, query: value }
+        const newQueryPayload = { ...queryPayload, text_query: value }
         dispatch(appActions.setQueryPayload(newQueryPayload))
       },
       [dispatch, queryPayload],
