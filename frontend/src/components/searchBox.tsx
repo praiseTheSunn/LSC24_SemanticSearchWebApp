@@ -106,12 +106,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       },
       [dispatch],
     )
-    const setCacheResult = useCallback(
-      (value: ImageRecord[]) => {
-        dispatch(appActions.setCacheData(value))
-      },
-      [dispatch],
-    )
+
     const toggleHistoryPopup = useCallback(
       (value: boolean) => {
         dispatch(appActions.toggleHistoryPopUp(value))
@@ -238,7 +233,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       if (data && !isFetching) {
         setLoadingPopup('')
         setResult(data)
-        setCacheResult(data)
       }
     }, [isFetching, isError, error, data])
 

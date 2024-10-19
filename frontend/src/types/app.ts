@@ -32,7 +32,6 @@ export type AppState = {
     timestamp: string | undefined
   }
   data: ImageRecord[]
-  cacheData: ImageRecord[]
   queryHistory: { time: string; query: string }[]
   queryPayload: QueryPayload
 
