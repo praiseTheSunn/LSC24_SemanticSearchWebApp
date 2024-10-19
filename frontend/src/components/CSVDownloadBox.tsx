@@ -122,8 +122,8 @@ export const CSVDownloadBox = () => {
     } 
       const feedbackData: any = {};
       feedbackData.like = {
-        text_query: queryPayload.text_query,
         image_urls: likeImages.map((image) => image.img_link),
+        prior_scores: likeImages.map((image) => image.score),
         limit: likeLimit,
       };
       feedbackData.dislike = {
@@ -145,9 +145,9 @@ export const CSVDownloadBox = () => {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (data) {
-      const likedImages = data.like[0]
+      const likedImages = data.like
       const likeSimilarImages = likedImages.map((image: any) => image.img_link) || [];
-      const dislikeSimilarImages = data.dislike[0].map((image: any) => image.img_link) || [];
+      const dislikeSimilarImages = data.dislike.map((image: any) => image.img_link) || [];
 
       const otherImages = queryData.filter((image: any) =>
         !likeSimilarImages.includes(image.img_link)
