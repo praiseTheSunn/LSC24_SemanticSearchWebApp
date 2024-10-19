@@ -35,23 +35,23 @@ const HistoryPopup = ({
     () =>
       new CellMeasurerCache({
         fixedWidth: true,
-        defaultHeight: 30,
+        defaultHeight: 100,
       }),
     [],
   )
 
   const listRef = useRef<List | null>(null)
 
-  const recomputeRowHeights = useCallback(() => {
+  const recomputeRowHeights = () => {
     cache.clearAll()
     if (listRef.current) {
       listRef.current.recomputeRowHeights()
     }
-  }, [])
+  }
 
   useEffect(() => {
     recomputeRowHeights()
-  }, [history, recomputeRowHeights])
+  }, [history])
 
   useEffect(() => {
     if (listRef.current) {
