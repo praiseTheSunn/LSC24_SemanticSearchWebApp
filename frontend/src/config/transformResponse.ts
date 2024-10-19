@@ -63,6 +63,6 @@ export const transformResponse_Feedback_AIC = (response: ApiResponse) => {
     like: likes,
     dislike: dislikes,
   }
-  
+
   return result
 }
