@@ -72,7 +72,7 @@ const EvaluationBox = () => {
       if (!response.data) {
         toast.error('Invalid username or password', {
           position: 'bottom-right',
-          autoClose: 5000,
+          autoClose: 3000,
           closeOnClick: true,
         })
         return
@@ -84,7 +84,7 @@ const EvaluationBox = () => {
       if (!reponseEval.data) {
         toast.error('Invalid session id', {
           position: 'bottom-right',
-          autoClose: 5000,
+          autoClose: 3000,
           closeOnClick: true,
         })
         return
@@ -94,6 +94,12 @@ const EvaluationBox = () => {
       setEvaluationId(reponseEval.data[0])
 
       setLoginState('Logout')
+
+      toast.success('Login successfully', {
+        position: 'bottom-right',
+        autoClose: 2000,
+        closeOnClick: true,
+      })
     } else {
       setLoginState('Login')
     }
