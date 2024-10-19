@@ -112,7 +112,6 @@ const HistoryPopup = ({
     if (data && !isFetching) {
       dispatch(appActions.setLoadingPopUp(''))
       dispatch(appActions.setAppImageData(data))
-      dispatch(appActions.setCacheData(data))
     }
   }, [isFetching, error, data])
 

@@ -110,12 +110,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     },
     [dispatch],
   )
-  const setCacheResult = useCallback(
-    (data: ObjPosResponse[]) => {
-      dispatch(appActions.setCacheData(data))
-    },
-    [dispatch],
-  )
 
   const handleIconClick = (icon: Icon) => {
     setSelectedIcon(icon)
@@ -202,7 +196,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     if (data && !isFetching) {
       setLoadingPopUp('')
       setResult(data)
-      setCacheResult(data)
     }
   }, [isFetching, isError, error, data])
 

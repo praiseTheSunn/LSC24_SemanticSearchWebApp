@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { set } from 'lodash'
 import { defaultConfig, loadConfigFromLocalStorage } from '../components'
 import type { AppState } from '../types/app'
 
@@ -15,11 +14,9 @@ const initialState: AppState = {
 
   isVietnameseEnabled: false,
 
-  // videoDataForPopup: {source: "https://www.youtube.com/watch?v=spUNpyF58BY", timestamp: "0:9:38"},
   videoDataForPopup: { source: undefined, timestamp: undefined },
 
   data: [],
-  cacheData: [],
   queryPayload: {
     model: 'clip',
     mode: 'vec',
@@ -56,9 +53,6 @@ export const sliceApp = createSlice({
     },
     setQueryPayload: (state, action) => {
       state.queryPayload = action.payload
-    },
-    setCacheData: (state, action) => {
-      state.cacheData = action.payload
     },
     setObjPosPopUp: (state, action) => {
       state.isObjPosPopUpOpen = action.payload
