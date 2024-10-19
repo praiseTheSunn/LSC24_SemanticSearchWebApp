@@ -194,6 +194,18 @@ const ConfigEditor: React.FC = () => {
             max={500}
             valueLabelDisplay="auto"
           />
+
+          <Typography gutterBottom>Neighbor Popup Span</Typography>
+          <Slider
+            value={config.NeighborPopupSpan}
+            onChange={(e, newValue) =>
+              handleSliderChange('NeighborPopupSpan', newValue as number)
+            }
+            step={2}
+            min={10}
+            max={60}
+            valueLabelDisplay="auto"
+          />
         </AccordionDetails>
       </Accordion>
 

@@ -35,7 +35,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
       try {
         const exploreParams = {
           image_url: imageId,
-          span: 20,
+          span: Config.NeighborPopupSpan,
           dataset: queryPayload.dataset,
         }
         const response = await triggerGetNeighbors(exploreParams).unwrap()
