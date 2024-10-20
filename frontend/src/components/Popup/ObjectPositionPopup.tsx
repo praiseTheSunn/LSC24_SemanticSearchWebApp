@@ -110,12 +110,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     },
     [dispatch],
   )
-  const setCacheResult = useCallback(
-    (data: ObjPosResponse[]) => {
-      dispatch(appActions.setCacheData(data))
-    },
-    [dispatch],
-  )
 
   const handleIconClick = (icon: Icon) => {
     setSelectedIcon(icon)
@@ -175,9 +169,9 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     }
 
     const searchQuery = {
-      obj_global_encoding,
+      object_global_encoding: obj_global_encoding,
       color_global_encoding: finalColorGlobalEncoding,
-      obj_local_encoding: finalObjLocalEncoding.trim(),
+      object_local_encoding: finalObjLocalEncoding.trim(),
       color_local_encoding: finalColorLocalEncoding.trim(),
       pose_local_encoding: pose_local_encoding.trim(),
       text_query: queryPayload.text_query,
@@ -202,7 +196,6 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     if (data && !isFetching) {
       setLoadingPopUp('')
       setResult(data)
-      setCacheResult(data)
     }
   }, [isFetching, isError, error, data])
 

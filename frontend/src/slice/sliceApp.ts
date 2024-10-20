@@ -1,5 +1,4 @@
 import { createSlice } from '@reduxjs/toolkit'
-import { set } from 'lodash'
 import { defaultConfig, loadConfigFromLocalStorage } from '../components'
 import type { AppState } from '../types/app'
 
@@ -8,17 +7,16 @@ const initialState: AppState = {
   neighborPopUpData: null,
   similarPopUpData: null,
   imagePreviewData: null,
+  SubmitData: null,
   isObjPosPopUpOpen: false,
   isMessagePopUpOpen: false,
   isHistoryPopUpOpen: false,
 
   isVietnameseEnabled: false,
 
-  // videoDataForPopup: {source: "https://www.youtube.com/watch?v=spUNpyF58BY", timestamp: "0:9:38"},
   videoDataForPopup: { source: undefined, timestamp: undefined },
 
   data: [],
-  cacheData: [],
   queryPayload: {
     model: 'clip',
     mode: 'vec',
@@ -55,9 +53,6 @@ export const sliceApp = createSlice({
     },
     setQueryPayload: (state, action) => {
       state.queryPayload = action.payload
-    },
-    setCacheData: (state, action) => {
-      state.cacheData = action.payload
     },
     setObjPosPopUp: (state, action) => {
       state.isObjPosPopUpOpen = action.payload
@@ -101,6 +96,10 @@ export const sliceApp = createSlice({
       state.imagePreviewData = action.payload
     },
 
+    setSubmitData(state, action) {
+      state.SubmitData = action.payload
+    },
+
     setLikedImages: (state, action) => {
       state.likedImages = action.payload
     },
@@ -108,6 +107,5 @@ export const sliceApp = createSlice({
     setDislikedImages: (state, action) => {
       state.dislikedImages = action.payload
     },
-
   },
 })

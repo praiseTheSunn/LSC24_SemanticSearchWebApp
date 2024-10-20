@@ -1,136 +1,51 @@
-// import React, { useEffect, useState, useContext } from 'react'
-// import { toast } from 'react-toastify'
-// // import evalService from '../services/evalService'
-// import { appActions, evaluationActions, useAppDispatch } from '../AppState'
-// import { useCallback } from 'react'
-// import { useSelector } from 'react-redux'
-// import { isNil } from 'lodash'
-// import type { EvaluationState } from '../types/app'
-
-// const EvaluationBox = () => {
-
-//   const [text, setText] = useState('')
-
-//   const [loginState, setLoginState] = useState('Login')
-
-//   const dispatch = useAppDispatch()
-//   const isEvaluationIdNull = useSelector((state: EvaluationState) => state.evaluationId, isNil)
-
-//   const evaluationId = useSelector((state: EvaluationState) => state.evaluationId)
-//   const username = useSelector((state: EvaluationState) => state.username)
-//   const password = useSelector((state: EvaluationState) => state.password)
-
-//   const setEvaluationId = useCallback((evaluationId : string) => {
-//     dispatch(evaluationActions.setEvaluationId(evaluationId))
-//   }, [dispatch])
-//   const setUsername = useCallback((username: string) => {
-//     dispatch(evaluationActions.setUsername(username))
-//   }, [dispatch])
-//   const setPassword = useCallback((password: string) => {
-//     dispatch(evaluationActions.setPassword(password))
-//   }, [dispatch])
-
-//   useEffect(() => {
-//     const session = localStorage.getItem('session')
-//     const username = localStorage.getItem('username')
-//     const password = localStorage.getItem('password')
-//     if (session && username && password) {
-//       setLoginState('Logout')
-//     }
-//     if (username) {
-//       setUsername(username)
-//     }
-//     if (password) {
-//       setPassword(password)
-//     }
-//   }, [setPassword, setUsername])
-
-//   return (
-//     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', width: 'auto', height: 'auto', backgroundColor: 'white', padding: '8px', borderRadius: '8px' }}>
-//       <input
-//         type="text"
-//         placeholder="Username"
-//         style={{ gridColumn: 'span 1', borderRadius: '8px', paddingLeft: '8px', backgroundColor: '#CBD5E1' }}
-//         value={username}
-//         onChange={(e) => setUsername(e.target.value)}
-//       />
-//       <input
-//         type="password"
-//         placeholder="Password"
-//         style={{ gridColumn: 'span 1', borderRadius: '8px', paddingLeft: '8px', backgroundColor: '#CBD5E1' }}
-//         value={password}
-//         onChange={(e) => setPassword(e.target.value)}
-//       />
-//       <button
-//         type="button"
-//         style={{ gridColumn: 'span 1', borderRadius: '8px', paddingLeft: '8px', backgroundColor: '#64748B', color: '#FFFFFF' }}
-//       >
-//         {loginState}
-//       </button>
-//       <input
-//         type="text"
-//         placeholder="Evaluation ID"
-//         style={{ gridColumn: 'span 3', borderRadius: '8px', paddingLeft: '8px', zIndex: 100, backgroundColor: '#CBD5E1' }}
-//         value={evaluationId ?? ''}
-//         onChange={(e) => setEvaluationId(e.target.value)}
-//       />
-//       <input
-//         type="text"
-//         placeholder="Text"
-//         style={{ gridColumn: 'span 2', borderRadius: '8px', paddingLeft: '8px', backgroundColor: '#CBD5E1' }}
-//         value={text}
-//         onChange={(e) => setText(e.target.value)}
-//       />
-//       <button
-//         type="button"
-//         style={{ gridColumn: 'span 1', borderRadius: '8px', paddingLeft: '8px', backgroundColor: '#64748B', color: '#FFFFFF' }}
-//       >
-//         Submit text
-//       </button>
-//     </div>
-//   )
-// }
-
-// export default EvaluationBox
-
 import { Box, Button, Paper, TextField } from '@mui/material'
-import { isNil } from 'lodash'
+import { isNil, result, set } from 'lodash'
 import React, { useEffect, useState, useCallback } from 'react'
 import { useSelector } from 'react-redux'
-import { appActions, evaluationActions, useAppDispatch } from '../AppState'
-import type { EvaluationState } from '../types/app'
+import { toast } from 'react-toastify'
+import { appActions, useAppDispatch } from '../AppState'
+import {
+  useLazyGetEvalIDQuery,
+  useLazyGetSessionIDQuery,
+  useSubmitKISAnsweringMutation,
+  useSubmitQuestionAnsweringMutation,
+} from '../AppState'
+import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
 const EvaluationBox = () => {
   const [text, setText] = useState('')
-  const [loginState, setLoginState] = useState('Login')
 
+  const [triggerSessionID, resultSessionID] = useLazyGetSessionIDQuery()
+  const [triggerEval, resultEval] = useLazyGetEvalIDQuery()
+  const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
+
+  const username = localStorage.getItem('username') ?? ''
+  const password = localStorage.getItem('password') ?? ''
+  const evaluationId = localStorage.getItem('evaluationId') ?? ''
+  const sessionId = localStorage.getItem('sessionId') ?? ''
+
+  const [loginState, setLoginState] = useState(
+    isNil(sessionId) ? 'Login' : 'Logout',
+  )
+
+  // const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
   const dispatch = useAppDispatch()
-  const evaluationId = useSelector(
-    (state: EvaluationState) => state.evaluationId,
-  )
-  const username = useSelector((state: EvaluationState) => state.username)
-  const password = useSelector((state: EvaluationState) => state.password)
 
-  const setEvaluationId = useCallback(
-    (evaluationId: string) => {
-      dispatch(evaluationActions.setEvaluationId(evaluationId))
-    },
-    [dispatch],
-  )
+  const setEvaluationId = useCallback((evaluationId: string) => {
+    localStorage.setItem('evaluationId', evaluationId)
+  }, [])
 
-  const setUsername = useCallback(
-    (username: string) => {
-      dispatch(evaluationActions.setUsername(username))
-    },
-    [dispatch],
-  )
+  const setSessionId = useCallback((sessionId: string) => {
+    localStorage.setItem('sessionId', sessionId)
+  }, [])
 
-  const setPassword = useCallback(
-    (password: string) => {
-      dispatch(evaluationActions.setPassword(password))
-    },
-    [dispatch],
-  )
+  const setUsername = useCallback((username: string) => {
+    localStorage.setItem('username', username)
+  }, [])
+
+  const setPassword = useCallback((password: string) => {
+    localStorage.setItem('password', password)
+  }, [])
 
   useEffect(() => {
     const session = localStorage.getItem('session')
@@ -146,6 +61,78 @@ const EvaluationBox = () => {
       setPassword(password)
     }
   }, [setPassword, setUsername])
+
+  const GetSessionID = async () => {
+    if (loginState === 'Login') {
+      console.log('This is', username, password)
+      const response = await triggerSessionID({
+        username: username,
+        password: password,
+      })
+      if (!response.data) {
+        toast.error('Invalid username or password', {
+          position: 'bottom-right',
+          autoClose: 3000,
+          closeOnClick: true,
+        })
+        return
+      }
+
+      setSessionId(response.data)
+
+      const reponseEval = await triggerEval({ session: response.data })
+      if (!reponseEval.data) {
+        toast.error('Invalid session id', {
+          position: 'bottom-right',
+          autoClose: 3000,
+          closeOnClick: true,
+        })
+        return
+      }
+
+      // DE SAI O DAY
+      setEvaluationId(reponseEval.data[0])
+
+      setLoginState('Logout')
+
+      toast.success('Login successfully', {
+        position: 'bottom-right',
+        autoClose: 2000,
+        closeOnClick: true,
+      })
+    } else {
+      setLoginState('Login')
+    }
+  }
+
+  const SubmitText = async () => {
+    if (!evaluationId || !sessionId) {
+      return
+    }
+
+    // Kiểm tra text có dạng "answer-Lxx_Vxxx-ms" không với answer khác chuỗi rỗng, x có dạng số, ms có dạng số
+    const regex = /^[^\s]+-L\d{2}_V\d{3}-\d+$/
+
+    if (!regex.test(text)) {
+      toast.error(
+        'Text is not in the correct format, must be answer-Lxx_Vxxx-ms',
+        {
+          position: 'bottom-right',
+          autoClose: 2000,
+          closeOnClick: true,
+        },
+      )
+      return
+    }
+
+    // triggerQA({ evaluation_id: evaluationId[0], session: result.data, text: text })
+    const resultQA = await triggerQA({
+      evaluation_id: evaluationId,
+      session: sessionId,
+      text: text,
+    })
+    displayResponseToast(resultQA)
+  }
 
   return (
     <Paper
@@ -166,7 +153,7 @@ const EvaluationBox = () => {
       <TextField
         label="Username"
         variant="outlined"
-        value={username}
+        defaultValue={username}
         onChange={(e) => setUsername(e.target.value)}
         sx={{ gridColumn: 'span 1' }}
         size="small"
@@ -175,7 +162,7 @@ const EvaluationBox = () => {
         label="Password"
         type="password"
         variant="outlined"
-        value={password}
+        defaultValue={password}
         onChange={(e) => setPassword(e.target.value)}
         sx={{ gridColumn: 'span 1' }}
         size="small"
@@ -185,16 +172,31 @@ const EvaluationBox = () => {
         color="primary"
         sx={{ gridColumn: 'span 1' }}
         size="small"
+        onClick={GetSessionID}
       >
         {loginState}
       </Button>
       <TextField
         label="Evaluation ID"
         variant="outlined"
-        value={evaluationId ?? ''}
-        onChange={(e) => setEvaluationId(e.target.value)}
+        value={evaluationId ?? 'NONE'}
+        // onChange={(e) => setEvaluationId(e.target.value)}
         sx={{ gridColumn: 'span 3' }}
         size="small"
+        InputProps={{
+          readOnly: true,
+        }}
+      />
+      <TextField
+        label="Session ID"
+        variant="outlined"
+        value={sessionId ?? 'NONE'}
+        // onChange={(e) => setEvaluationId(e.target.value)}
+        sx={{ gridColumn: 'span 3' }}
+        size="small"
+        InputProps={{
+          readOnly: true,
+        }}
       />
       <TextField
         label="Text"
@@ -209,6 +211,7 @@ const EvaluationBox = () => {
         color="primary"
         sx={{ gridColumn: 'span 1' }}
         size="small"
+        onClick={SubmitText}
       >
         Submit Text
       </Button>

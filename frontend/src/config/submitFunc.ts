@@ -2,53 +2,40 @@
 //   const toastId = toast.loading(`Submitting: ${filename}`, { closeOnClick: true });
 
 import type { Dispatch } from '@reduxjs/toolkit'
+import { useEffect } from 'react'
+import { useSelector } from 'react-redux'
 import { type Id, toast } from 'react-toastify'
-import { appActions } from '../AppState'
-import type { AppState } from '../types/app'
+import { appActions, useAppDispatch, useAppSelector } from '../AppState'
+import type { useSubmitKISAnsweringMutation } from '../AppState'
+import type { AppState, EvaluationState } from '../types/app'
 import type { ImageRecord } from '../types/image'
+import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
-export const LSC_addCSVImages = (
+export const AIC_addImages = async (
   src_data: ImageRecord,
-  toastId: Id,
-  imageDatas: ImageRecord[],
-  dispatch: Dispatch,
-  prevImages: ImageRecord[],
+  triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
 ) => {
-  toast.update(toastId, {
-    render: `Added: ${src_data.img_link}`,
-    type: 'success',
-    isLoading: false,
-    closeOnClick: true,
-    autoClose: 500,
-    delay: 500,
+  const evaluationId = localStorage.getItem('evaluationId')
+  const sessionId = localStorage.getItem('sessionId')
+
+  console.log('evaluationId here:', evaluationId)
+  console.log('sessionId here:', sessionId)
+
+  const time = Number(src_data.timestamp) * 1000
+  const video = src_data.video_id
+
+  if (!evaluationId || !sessionId || !video) {
+    console.log('Missing evaluationId, sessionId or video')
+    return
+  }
+
+  const resultKIS = await triggerKIS({
+    session: sessionId,
+    evaluation_id: evaluationId,
+    mediaItemName: video,
+    start: time,
+    end: time,
   })
 
-  const updatedCSVImages = [...prevImages, src_data]
-  // console.log('updatedCSVImages', updatedCSVImages);
-
-  dispatch(appActions.setCSVImages(updatedCSVImages))
+  displayResponseToast(resultKIS)
 }
-
-//   evalService
-//     .submitFile(evalId, sesId, filename)
-//     .then((response: ApiResponse) => {
-//       console.log('response', response);
-//       toast.update(toastId, { render: `Submit: ${filename} ${response.data.submission ? response.data.submission : ''}` });
-//       if (response?.data?.submission && response?.data?.submission === 'CORRECT') {
-//         evalService
-//           .submitFile(evalId, localStorage.getItem('sessionCentral'), filename)
-//           .then((response: ApiResponse) => {
-//             console.log('response', response);
-//             toast.update(toastId, { render: `Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}` });
-//           })
-//           .catch((error: ApiError) => {
-//             console.log('error', error);
-//             toast.update(toastId, { render: `ERROR FOR CENTRAL: ${filename}: ${error}` });
-//           });
-//       }
-//     })
-//     .catch((error: ApiError) => {
-//       console.log('error', error);
-//       toast.update(toastId, { render: `ERROR: ${filename}: ${error}` });
-//     });
-// };

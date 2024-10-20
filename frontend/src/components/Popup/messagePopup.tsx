@@ -1,12 +1,10 @@
 import {
   Box,
   Button,
-  ClickAwayListener,
   List,
   ListItem,
   Paper,
   Popover,
-  Popper,
   Typography,
 } from '@mui/material'
 import { forwardRef, useCallback, useRef } from 'react'
@@ -16,6 +14,7 @@ import { ObjectPosIcon } from '../../assets'
 import type { FilterTagType, SearchTermType } from '../../types/search'
 import FilterTag from '../Filter/filterTag'
 import ObjectPositionPopup from './ObjectPositionPopup'
+import { FilterCategories } from '../../data/FilterCategory'
 
 interface MessagePopupProps {
   displayedFilters: FilterTagType[]
@@ -30,16 +29,17 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
     const queryPayload = useAppSelector((state) => state.app.queryPayload)
     const setQuery = useCallback(
       (value: string) => {
-        const newQueryPayload = { ...queryPayload, query: value }
+        const newQueryPayload = { ...queryPayload, text_query: value }
         dispatch(appActions.setQueryPayload(newQueryPayload))
       },
-      [dispatch],
+      [dispatch, queryPayload],
     )
 
     const handleClearAll = () => {
       setDisplayedFilters([])
       setSearchTerms([])
       setQuery('')
+      console.log(queryPayload.dataset)
     }
 
     const showPopup = useAppSelector((state) => state.app.isMessagePopUpOpen)
@@ -215,24 +215,13 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
             }}
           >
             <Typography variant="body2" component="div">
-              -lo ... : location
-              <br />
-              -t ... : time
-              <br />
-              -d ... : date
-              <br />
-              -dow ... : Day of week
-              <br />
-              -act ... : activity
-              <br />
-              -ocr ... : OCR text
-              <br />
-              -obj ... : Object Detection
-              <br />
-              -text ... : Submit text
-              <br />
-              -file ... : Submit file name
-            </Typography>
+            {Object.values(FilterCategories).map((cat) => (
+              <span key={cat.category}>
+                {cat.display}
+                <br />
+              </span>
+            ))}
+          </Typography>
           </Paper>
         </Box>
       </Paper>

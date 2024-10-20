@@ -71,6 +71,7 @@ export const defaultConfig: ConfigType = {
 
   NeighborPopupCellHeight: 90,
   NeighborPopupColumnCount: 9,
+  NeighborPopupSpan: 30,
 
   WhiteboardGridRowCount: 20,
   WhiteboardGridColumnCount: 20,

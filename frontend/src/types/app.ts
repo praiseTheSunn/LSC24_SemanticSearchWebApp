@@ -26,12 +26,12 @@ export type AppState = {
   neighborPopUpData: ImageRecord | null | undefined
   similarPopUpData: ImageRecord | null | undefined
   imagePreviewData: ImageRecord | null | undefined
+  SubmitData: ImageRecord | null | undefined
   videoDataForPopup: {
     source: string | undefined
     timestamp: string | undefined
   }
   data: ImageRecord[]
-  cacheData: ImageRecord[]
   queryHistory: { time: string; query: string }[]
   queryPayload: QueryPayload
 
@@ -50,13 +50,6 @@ export type TimelineState = {
   // locationBasedData: any
   // activityBasedData: any
 }
-
-export type EvaluationState = {
-  evaluationId: null | string
-  username: string
-  password: string
-}
-
 // Define the Config type
 export type ConfigType = {
   gridRowGap: string
@@ -72,6 +65,7 @@ export type ConfigType = {
 
   NeighborPopupCellHeight: number
   NeighborPopupColumnCount: number
+  NeighborPopupSpan: number
 
   WhiteboardGridRowCount: number
   WhiteboardGridColumnCount: number
