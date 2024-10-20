@@ -128,7 +128,7 @@ const Home = () => {
   }, [imageDatas])
 
   useEffect(() => {
-    console.log('searchTerms changed', searchTerms)
+    // console.log('searchTerms changed', searchTerms)
     if (searchTerms.length > 0) {
       let fuseResults: ImageRecord[] = imageDatas
       // console.log('fuseResults', fuseResults.length, fuseResults);
@@ -263,6 +263,8 @@ const Home = () => {
           top: '0',
           right: '0',
           maxWidth: '500px',
+          maxHeight: '150px',
+          overflow: 'auto',
         }}
         positionStrategy="fixed"
         place="bottom"
