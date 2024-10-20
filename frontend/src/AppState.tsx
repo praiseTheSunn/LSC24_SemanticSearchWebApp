@@ -24,7 +24,10 @@ const makeStore = () => {
       [EvalApi.reducerPath]: EvalApi.reducer,
     }),
     middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat([
+      getDefaultMiddleware({
+        immutableCheck: false,
+        serializableCheck: false,
+      }).concat([
         ObjectPosApi.middleware,
         ImageApi.middleware,
         GoogleApi.middleware,
