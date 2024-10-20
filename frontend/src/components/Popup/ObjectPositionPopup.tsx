@@ -511,6 +511,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                 onClick={() => {
                   setSelectedPose(null)
                   setOpenPoseSpeedDial(false)
+                  setLayer(1)
                 }}
               />
             </SpeedDial>
