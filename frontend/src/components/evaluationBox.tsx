@@ -179,13 +179,10 @@ const EvaluationBox = () => {
       <TextField
         label="Evaluation ID"
         variant="outlined"
-        value={evaluationId ?? 'NONE'}
-        // onChange={(e) => setEvaluationId(e.target.value)}
+        defaultValue={evaluationId ?? 'NONE'}
+        onChange={(e) => setEvaluationId(e.target.value)}
         sx={{ gridColumn: 'span 3' }}
         size="small"
-        InputProps={{
-          readOnly: true,
-        }}
       />
       <TextField
         label="Session ID"
