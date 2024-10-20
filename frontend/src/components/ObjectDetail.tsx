@@ -16,7 +16,7 @@ const ObjectDetail: React.FC<ObjectDetailProps> = ({ viewImage }) => {
         const typedFieldKey = fieldKey as keyof typeof FieldToDisplay
         if (typedFieldKey in viewImage) {
           return (
-            <Box key={fieldKey} sx={{ maxWidth: 400, flexWrap: 'wrap' }}>
+            <Box key={fieldKey} sx={{ maxWidth: 450, flexWrap: 'wrap' }}>
               <Typography variant="caption">
                 <span style={{ fontWeight: 'bold' }}>
                   {FieldToDisplay[typedFieldKey]}:

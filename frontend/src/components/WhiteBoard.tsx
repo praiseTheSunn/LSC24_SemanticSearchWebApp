@@ -92,7 +92,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
 
   const handleMouseDown = useCallback(
     (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-      console.log('selectedIcon:', selectedIcon)
       if (selectedIcon && whiteboardRef.current) {
         const rect = whiteboardRef.current.getBoundingClientRect()
         const x = e.clientX - rect.left
@@ -116,7 +115,6 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
         const y_percent = (e.clientY - rect.top) / whiteboardHeight
         const startX = startPos.x / whiteboardWidth
         const startY = startPos.y / whiteboardHeight
-        console.log('startX:', startX)
 
         setRect({
           x: Math.min(x, startPos.x),
