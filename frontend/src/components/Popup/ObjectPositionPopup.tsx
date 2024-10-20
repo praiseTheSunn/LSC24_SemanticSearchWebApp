@@ -73,7 +73,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     [number, number]
   > | null>(null)
   const [selectedObjects, setSelectedObjects] = useState<DrawnItem[]>([])
-  const [layer, setLayer] = useState(0)
+  const [layer, setLayer] = useState(1)
   const [isClear, setIsClear] = useState(false)
   // const [trigger, result] = useLazyGetObjectsByPositionQuery()
   const [trigger, result] = useLazyGetImagesQuery()
