@@ -128,7 +128,7 @@ const Home = () => {
   }, [imageDatas])
 
   useEffect(() => {
-    console.log('searchTerms changed', searchTerms)
+    // console.log('searchTerms changed', searchTerms)
     if (searchTerms.length > 0) {
       let fuseResults: ImageRecord[] = imageDatas
       // console.log('fuseResults', fuseResults.length, fuseResults);

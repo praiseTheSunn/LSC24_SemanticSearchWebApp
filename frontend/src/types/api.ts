@@ -30,7 +30,7 @@ export type ObjPosResponse = {
   day_of_week: string
   location_displayed: string
   video_url?: string
-  timestamp?: string
+  timestamp?: number
   video_id?: string
   frame_id?: string
   context_id_coarse?: string
