@@ -51,3 +51,4 @@ async def get_feedback(data: RequestFeedback):
 #     }
 #     response = await feedback.get_irrelevant_images(data)
 #     return JSONResponse(content={"response": response}, headers=header)
+  

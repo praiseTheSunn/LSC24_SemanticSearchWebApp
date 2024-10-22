@@ -58,8 +58,9 @@ class RequestExploreNeighborImages(BaseModel):
         }
 
 class RequestFeedbackRelevant(BaseModel):
-    text_query: str
+    # text_query: str
     image_urls: list[str]
+    prior_scores: list[float]
     limit: int
 
 class RequestFeedbackIrrelevant(BaseModel):
