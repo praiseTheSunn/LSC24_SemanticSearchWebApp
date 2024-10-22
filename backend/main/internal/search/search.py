@@ -65,7 +65,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     if mode == "vec":
         results_semantic = search_semantic_temporal(dataset, model, text_embeddings) if text_query else None
         urls_semantic = results_semantic["urls"] if results_semantic else []
-        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_semantic) if (object_local_encoding or color_local_encoding) else None   
+        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_semantic) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
     
@@ -75,7 +75,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         urls_semantic = results_semantic["urls"] if results_semantic else []
         results_keywords = search_keywords_temporal(dataset, text_query, subset=urls_semantic) if text_query else None
         urls_keywords = results_keywords["urls"] if results_keywords else []
-        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding) else None   
+        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_keywords, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
 
@@ -83,7 +83,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     if mode == "kw":
         results_keywords = search_keywords_temporal(dataset, text_query) if text_query else None
         urls_keywords = results_keywords["urls"] if results_keywords else []
-        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding) else None   
+        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_keywords, results_objects], 'inner')
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
 
