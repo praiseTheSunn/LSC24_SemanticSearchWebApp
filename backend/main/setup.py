@@ -17,7 +17,7 @@ urllib3.disable_warnings()
 
 from elasticsearch import Elasticsearch
 password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
-es_client = Elasticsearch(f"https://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
+es_client = Elasticsearch(f"http://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
 es_client.info()
 
 
@@ -44,5 +44,6 @@ print("Waiting to count total number of metadata records...")
 metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
 # metadata_rows = pd.DataFrame(columns=['image_link', 'caption'])
 metadata_rows.set_index('image_link', inplace=True)
+metadata_rows_context_id_coarse = metadata_rows['context_id_coarse']
 image_names = sorted(metadata_rows.index.tolist())
 print(f"Length of metadata_rows: {len(metadata_rows)}")

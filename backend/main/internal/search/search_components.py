@@ -17,29 +17,88 @@ def temporal_aggregate(clause_urls: list[list[str]], clause_scores: list[list[fl
     for i in range(len(clause_scores)):
         clause_scores[i] = combine_score.get_standardized_scores(clause_scores[i])
 
+    # # convert into DataFrame
+    # raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id_coarse', 'clause_id'])
+    # for i, urls in enumerate(clause_urls):
+    #     for j, url in enumerate(urls):
+    #         raw_results_df.loc[len(raw_results_df)] = [url, clause_scores[i][j], setup.metadata_rows.loc[url, 'context_id_coarse'], i]
+
     # convert into DataFrame
-    raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id', 'clause_id'])
+    rows = []
     for i, urls in enumerate(clause_urls):
+        context_ids_coarse = setup.metadata_rows_context_id_coarse.loc[urls].tolist()
         for j, url in enumerate(urls):
-            raw_results_df.loc[len(raw_results_df)] = [url, clause_scores[i][j], setup.metadata_rows.loc[url, 'context_id'], i]
+            rows.append([url, clause_scores[i][j], context_ids_coarse[j], i])
+            # print(context_ids_coarse[j])
+    raw_results_df = pd.DataFrame(rows, columns=['url', 'score', 'context_id_coarse', 'clause_id'])
 
-    # drop context_id = None
-    raw_results_df = raw_results_df.dropna(subset=['context_id'])
 
-    # group by context_id (a for loop), then in which group, calculate the combined score
-    for context_id, group in raw_results_df.groupby('context_id'):
-        max_score_0 = group[group['clause_id'] == 0]['score'].max() if not group[group['clause_id'] == 0].empty else 10
-        max_score_1 = group[group['clause_id'] == 1]['score'].max() if not group[group['clause_id'] == 1].empty else 10
-        combined_score = combine_score.get_combine_score([max_score_0, max_score_1])
+    # drop context_id_coarse = None
+    raw_results_df = raw_results_df.dropna(subset=['context_id_coarse'])
+
+    # # group by context_id_coarse (a for loop), then in which group, calculate the combined score
+    # for context_id_coarse, group in raw_results_df.groupby('context_id_coarse'):
+    #     max_score_0 = group[group['clause_id'] == 0]['score'].max() if not group[group['clause_id'] == 0].empty else 10
+    #     max_score_1 = group[group['clause_id'] == 1]['score'].max() if not group[group['clause_id'] == 1].empty else 10
+    #     combined_score = combine_score.get_combine_score([max_score_0, max_score_1])
+    #     raw_results_df.loc[group.index, 'combined_score'] = combined_score
+    #     raw_results_df.loc[group.index, 'max_score_0'] = max_score_0
+    #     raw_results_df.loc[group.index, 'max_score_1'] = max_score_1
+    #     # for clause_id = 0, only keep 2 highest scores, the same to clause_id = 1
+    #     for clause_id, clause_group in group.groupby('clause_id'):
+    #         if clause_id == 0:
+    #             raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
+    #         else:
+    #             raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
+
+
+    # Initialize new columns for combined_score, max_score_0, max_score_1, and keep
+    raw_results_df['combined_score'] = 0.0
+    raw_results_df['max_score_0'] = 0.0
+    raw_results_df['max_score_1'] = 0.0
+    raw_results_df['keep'] = False
+
+    # Precompute max scores for clause_id == 0 and clause_id == 1 in a single step
+    clause_0_scores = raw_results_df[raw_results_df['clause_id'] == 0].groupby('context_id_coarse')['score'].max().fillna(10)
+    clause_1_scores = raw_results_df[raw_results_df['clause_id'] == 1].groupby('context_id_coarse')['score'].max().fillna(10)
+    scores_df = pd.DataFrame({'clause_0_scores': clause_0_scores, 'clause_1_scores': clause_1_scores})
+    scores_df['combined_scores'] = scores_df.apply(
+        lambda row: combine_score.get_combine_score([row['clause_0_scores'], row['clause_1_scores']]), axis=1
+    )
+    
+
+    # Sort descending and keep only 50 in combined_scores
+    combined_scores = scores_df['combined_scores'].nlargest(100)
+    context_ids_coarse_with_max_scores = combined_scores.index.tolist()
+
+    # Now, iterate over each context_id_coarse group
+    for context_id_coarse, group in raw_results_df.groupby('context_id_coarse'):
+        
+        if context_id_coarse not in context_ids_coarse_with_max_scores:
+            continue
+
+        # # Get max scores for both clause_id 0 and 1 (precomputed)
+        # max_score_0 = clause_0_scores.get(context_id_coarse, 10)
+        # max_score_1 = clause_1_scores.get(context_id_coarse, 10)
+        
+        # Calculate the combined score
+        # combined_score = combine_score.get_combine_score([max_score_0, max_score_1])
+        combined_score = combined_scores.loc[context_id_coarse]
+        
+        # Update the group in the DataFrame
         raw_results_df.loc[group.index, 'combined_score'] = combined_score
-        raw_results_df.loc[group.index, 'max_score_0'] = max_score_0
-        raw_results_df.loc[group.index, 'max_score_1'] = max_score_1
-        # for clause_id = 0, only keep 2 highest scores, the same to clause_id = 1
-        for clause_id, clause_group in group.groupby('clause_id'):
-            if clause_id == 0:
-                raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
-            else:
-                raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
+        # raw_results_df.loc[group.index, 'max_score_0'] = max_score_0
+        # raw_results_df.loc[group.index, 'max_score_1'] = max_score_1
+        
+        # Mark top 2 scores in each clause_id group as 'keep'
+        top_2_clause_0 = group[group['clause_id'] == 0].nlargest(2, 'score')
+        top_2_clause_1 = group[group['clause_id'] == 1].nlargest(2, 'score')
+        
+        raw_results_df.loc[top_2_clause_0.index, 'keep'] = True
+        raw_results_df.loc[top_2_clause_1.index, 'keep'] = True
+
+        # drop rows where combined_score = NaN
+        raw_results_df = raw_results_df.dropna(subset=['combined_score'])
 
     
     # sort by combined score, then by url -> remove duplicates by 'url' -> filter those with 'keep' = True

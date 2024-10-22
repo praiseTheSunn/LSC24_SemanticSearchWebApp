@@ -229,4 +229,4 @@ dependencies:
       - webdataset==0.2.100
       - webencodings==0.5.1
       - wrapt==1.16.0
-prefix: /root/miniconda3/envs/ebd
+prefix: /home/pc/miniconda3/envs/ebd

@@ -15,8 +15,9 @@ async def get_feedback(data: RequestFeedback):
         'Access-Control-Allow-Origin': '*'
     }
     data_like = {
-        "text_query": data.like.text_query,
+        # "text_query": data.like.text_query,
         "image_urls": data.like.image_urls,
+        "prior_scores": data.like.prior_scores,
         "limit": data.like.limit,
         "model": data.model,
         "dataset": data.dataset
