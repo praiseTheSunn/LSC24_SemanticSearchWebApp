@@ -38,41 +38,41 @@ def save_result_log(category: str, type_value: dict[str, str]):
     json.dump(output, open(f"{timestamp}.json", "w"))
 
 
-{
-  "timestamp": 0,
-  "events": [
-    {
-      "timestamp": 0,
-      "category": "TEXT",
-      "type": "string",
-      "value": "string"
-    }
-  ]
-}
+# {
+#   "timestamp": 0,
+#   "events": [
+#     {
+#       "timestamp": 0,
+#       "category": "TEXT",
+#       "type": "string",
+#       "value": "string"
+#     }
+#   ]
+# }
 
 
-{
-  "timestamp": 0,
-  "sortType": "string",
-  "resultSetAvailability": "string",
-  "results": [
-    {
-      "answer": {
-        "text": "string",
-        "mediaItemName": "string",
-        "mediaItemCollectionName": "string",
-        "start": 0,
-        "end": 0
-      },
-      "rank": 0
-    }
-  ],
-  "events": [
-    {
-      "timestamp": 0,
-      "category": "TEXT",
-      "type": "string",
-      "value": "string"
-    }
-  ]
-}
+# {
+#   "timestamp": 0,
+#   "sortType": "string",
+#   "resultSetAvailability": "string",
+#   "results": [
+#     {
+#       "answer": {
+#         "text": "string",
+#         "mediaItemName": "string",
+#         "mediaItemCollectionName": "string",
+#         "start": 0,
+#         "end": 0
+#       },
+#       "rank": 0
+#     }
+#   ],
+#   "events": [
+#     {
+#       "timestamp": 0,
+#       "category": "TEXT",
+#       "type": "string",
+#       "value": "string"
+#     }
+#   ]
+# }

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.responses import JSONResponse
-from internal.explore import explore, helper
+from internal import helper
+from internal.explore import explore
 from schemas.request_schemas import RequestExploreSimilarImages, RequestExploreNeighborImages
 from schemas.response_schemas import ResponseURLs, ResponseEmbeddings
 
@@ -15,7 +16,7 @@ async def explore_similar_images(data: RequestExploreSimilarImages):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    response = explore.explore_similar_images(data)
+    response = await explore.explore_similar_images(data)
     return JSONResponse(content={"response": response}, headers=header)
 
 @router.post("/explore_neighbor_images", response_model=ResponseURLs)

@@ -25,7 +25,8 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
 
     # Remove empty results
     match_results_nonnull_index = []
-    for i, result in enumerate(match_results):
+    
+    for i, result in enumerate(match_results):   
         if result and len(result["urls"]) != 0:
             match_results_nonnull_index.append(i)
 

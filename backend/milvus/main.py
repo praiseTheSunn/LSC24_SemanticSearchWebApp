@@ -3,19 +3,19 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from typing import List
+from enum import Enum
+from typing import List, Optional
 import numpy as np
 
 
 import setup
 from setup import dataset_config
 
+
 app = FastAPI(
     docs_url = "/docs", 
     redoc_url = "/redoc",
 )
-
-# Setup CORS policy for FastAPI
 app.add_middleware(
     CORSMiddleware,
     allow_origins = ["*"],
@@ -24,25 +24,35 @@ app.add_middleware(
     allow_headers = ["*"],
 )
 
-# Define Pydantic model for the request body
+
+class DatasetOptions(str, Enum):
+    option1 = "aic24"
+    option2 = "aic24_lesson"
+    option3 = "aic24_cooking"
+    option4 = "lsc24"
 class SearchRequest(BaseModel):
     model: str
     embedding: List[List[float]]
+    limit: Optional[int] = 1000
+    dataset: Optional[DatasetOptions] = DatasetOptions.option1
 class GetRequest(BaseModel):
     collection_name: str
     ids: List[str]
+    dataset: Optional[DatasetOptions] = DatasetOptions.option1
+
 
 # Include the routes
 @app.post("/search_milvus")
 async def search_milvus(data: SearchRequest):
-    milvus_collection = dataset_config['dataset_name'] + "_" + data.model
-    # milvus_collection = dataset_config['dataset_name'] + "_" + "clip_b32"
+    dataset = data.dataset
+    collection_name = dataset + "_" + data.model
     text_embedding = data.embedding
+    limit = data.limit
+    print("Milvus limit: ", limit)
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    response = setup.milvus_client.search(collection_name=milvus_collection, data=text_embedding, limit=1000)
-
+    response = setup.milvus_client.search(collection_name=collection_name, data=text_embedding, limit=limit)
     return JSONResponse(content={"response": response}, headers=header)
 
 
