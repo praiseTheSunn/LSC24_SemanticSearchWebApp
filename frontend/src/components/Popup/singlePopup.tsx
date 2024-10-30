@@ -10,6 +10,51 @@ import {
   useGetSimilarsQuery,
 } from '../../AppState'
 import closeIcon from '../../assets/close.png'
+import { ObjPosResponse } from '../../types/api'
+import { Event, Result } from '../../types/log'
+
+const saveLog = (img_link: string, data: ObjPosResponse[]) => {
+  const timestamp = Date.now();
+  const output: {
+    timestamp: number;
+    sortType: string;
+    resultSetAvailability: string;
+    events: Event[];
+    results: Result[];
+  } = {
+    timestamp: timestamp,
+    sortType: "rankingModel",
+    resultSetAvailability: "Top1000",
+    events: [
+      {
+        timestamp: timestamp,
+        category: "IMAGE",
+        type: "globalFeatures",
+        value: img_link.split("/").pop()?.split(".")[0] || ""
+      }
+    ],
+    results: []
+  };
+  for (let i = 0; i < data.length; i++) {
+    output.results.push({
+        "answer": {
+            "mediaItemName": data[i].img_link.split("/").pop()?.split(".")[0] || ""
+        },
+        "rank": i + 1
+    })
+  }
+  // Save to JSON file
+  const filePath = `${timestamp}.json`;
+  const blob = new Blob([JSON.stringify(output, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filePath;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
 const SinglePopup = ({
   onClose,
@@ -48,6 +93,7 @@ const SinglePopup = ({
     }
     if (data && !isFetching) {
       setLoadingPopup('')
+      saveLog(viewImage?.img_link, data);
       // setsinglePopupData(data);
       // setResult(data);
     }

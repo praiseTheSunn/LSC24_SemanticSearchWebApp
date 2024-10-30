@@ -21,7 +21,7 @@ export const transformResponse_AIC2024 = (response: ApiResponse) => {
     // img.date = img.video_id ? img.video_id : img.date
     // img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time
-    img.img_link = img.img_link.replace('178.128.117.254', '127.0.0.1:8080')
+    // img.img_link = img.img_link.replace('35.185.176.85', '127.0.0.1:8080')
 
     return img
   })
@@ -44,7 +44,7 @@ export const transformResponse_Feedback_AIC = (response: ApiResponse) => {
         ? img.video_id
         : img.date
     img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time
-    img.img_link = img.img_link.replace('178.128.117.254', '127.0.0.1:8080')
+    // img.img_link = img.img_link.replace('35.185.176.85', '127.0.0.1:8080')
     return img
   })
 
@@ -55,7 +55,7 @@ export const transformResponse_Feedback_AIC = (response: ApiResponse) => {
         ? img.video_id
         : img.date
     img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time
-    img.img_link = img.img_link.replace('178.128.117.254', '127.0.0.1:8080')
+    // img.img_link = img.img_link.replace('35.185.176.85', '127.0.0.1:8080')
     return img
   })
 

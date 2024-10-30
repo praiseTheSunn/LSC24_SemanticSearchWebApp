@@ -201,6 +201,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           setQuery(value)
 
           trigger({
+            user_id: 'quan',
             text_query: value,
             mode: queryPayload.mode,
             model: queryPayload.model,
@@ -375,8 +376,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={['All', 'Lesson', 'Cooking']}
-            valueItems={['aic24', 'aic24_lesson', 'aic24_cooking']}
+            displayItems={['All', 'Lesson', 'Cooking', 'All-LSC']}
+            valueItems={['aic24', 'aic24_lesson', 'aic24_cooking', 'lsc24']}
             setData={setDataset}
           />
         </Box>

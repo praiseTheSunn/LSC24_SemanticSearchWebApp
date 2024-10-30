@@ -12,6 +12,43 @@ import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import { useSubmitQuestionAnsweringMutation } from '../../AppState'
 import { ImageRecord } from '../../types/image'
 import { displayResponseToast } from '../../utils/evaluation/displayResponseToast'
+import { Event, Result } from '../../types/log'
+
+const saveLog = (text: string) => {
+  const timestamp = Date.now();
+  const output: {
+    timestamp: number;
+    sortType: string;
+    resultSetAvailability: string;
+    events: Event[];
+    results: Result[];
+  } = {
+    timestamp: timestamp,
+    sortType: "rankingModel",
+    resultSetAvailability: "Top1000",
+    results: [],
+    events: [
+      {
+        timestamp: timestamp,
+        category: "BROWSING",
+        type: "Submission",
+        value: `text: ${text}`
+      }
+    ],
+  };
+
+  // Save to JSON file
+  const filePath = `${timestamp}.json`;
+  const blob = new Blob([JSON.stringify(output, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filePath;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
 // Định nghĩa props cho component nếu cần
 interface SubmitDataPopupProps {
@@ -37,7 +74,7 @@ const SubmitDataPopup: React.FC<SubmitDataPopupProps> = () => {
     console.log('Submitted:', answer)
     console.log('src', viewImage?.img_link)
 
-    const text = `${answer}-${viewImage?.video_id}-${Number(viewImage?.timestamp) * 1000}`
+    // const text = `${answer}-${viewImage?.video_id}-${Number(viewImage?.timestamp) * 1000}`
 
     if (!evaluationId || !sessionId || answer === '') {
       toast.error('No EvaluationID or SessionID or Answer is null', {
@@ -48,12 +85,13 @@ const SubmitDataPopup: React.FC<SubmitDataPopupProps> = () => {
       return
     }
 
-    const resultQA = await triggerQA({
-      evaluation_id: evaluationId,
-      session: sessionId,
-      text: text,
-    })
-    displayResponseToast(resultQA)
+    // const resultQA = await triggerQA({
+    //   evaluation_id: evaluationId,
+    //   session: sessionId,
+    //   text: text,
+    // })
+    saveLog(answer);
+    // displayResponseToast(resultQA)
   }
 
   const dispatch = useAppDispatch()

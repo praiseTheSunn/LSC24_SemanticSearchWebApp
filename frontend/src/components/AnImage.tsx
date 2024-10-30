@@ -12,6 +12,8 @@ import { AddDislikeAction } from '../config/dislikeResponse'
 import { AddLikeAction } from '../config/likeResponse'
 import { AIC_addImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
+import { ObjPosResponse } from '../types/api'
+import { Event, Result } from '../types/log'
 
 interface AnImageProps {
   data: ImageRecord | null | undefined
@@ -19,6 +21,42 @@ interface AnImageProps {
   isDisplayTooltip?: boolean
   isZoomOnHover?: boolean
 }
+
+const saveLog = (img_link: string) => {
+  const timestamp = Date.now();
+  const output: {
+    timestamp: number;
+    sortType: string;
+    resultSetAvailability: string;
+    events: Event[];
+    results: Result[];
+  } = {
+    timestamp: timestamp,
+    sortType: "rankingModel",
+    resultSetAvailability: "Top1000",
+    results: [],
+    events: [
+      {
+        timestamp: timestamp,
+        category: "BROWSING",
+        type: "Submission",
+        value: img_link.split("/").pop()?.split(".")[0] || ""
+      }
+    ],
+  };
+
+  // Save to JSON file
+  const filePath = `${timestamp}.json`;
+  const blob = new Blob([JSON.stringify(output, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filePath;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+};
 
 const AnImage: React.FC<AnImageProps> = ({
   data,
@@ -35,7 +73,8 @@ const AnImage: React.FC<AnImageProps> = ({
   const date = data?.date ? data.date : null
   const time = data?.time ? data.time : null
   const timestamp = data?.timestamp * 1000 ? data.timestamp * 1000 : null
-  const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
+  // const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
+  const formattedTime: string = `${date}_${time}`
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null
@@ -87,7 +126,9 @@ const AnImage: React.FC<AnImageProps> = ({
 
     // REPLACE FOR EACH COMPETITION HERE
     // LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
-    AIC_addImages(src_data, triggerKIS)
+    // AIC_addImages(src_data, triggerKIS)
+
+    saveLog(src_data.img_link);
   }
 
   const like = (src_data: ImageRecord) => {

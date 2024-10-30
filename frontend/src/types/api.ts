@@ -37,6 +37,7 @@ export type ObjPosResponse = {
 }
 
 export type TextQueryParams = {
+  user_id: string
   text_query: string
   mode: string
   model: string
