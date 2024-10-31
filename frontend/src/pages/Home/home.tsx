@@ -38,6 +38,15 @@ import type { SearchTermType } from '../../types/search'
 import { ObjPosResponse } from '../../types/api'
 import { Event, Result } from '../../types/log'
 
+const categoryMapping = {
+  "ocr": "OCR",
+  "caption": "caption",
+  "location": "location",
+  "object_tags": "localizedObject",
+  "date": "date",
+  "timestamp": "time"
+}
+
 const saveLog = (events: Event[], data: ObjPosResponse[]) => {
   const timestamp = Date.now();
   const output: {
@@ -58,7 +67,7 @@ const saveLog = (events: Event[], data: ObjPosResponse[]) => {
       {
         timestamp: timestamp,
         category: "TEXT",
-        type: events[i].category,
+        type: categoryMapping[events[i].category] || events[i].category,
         value: events[i].value,
       }
     )
