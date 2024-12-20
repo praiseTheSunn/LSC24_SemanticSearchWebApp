@@ -5,7 +5,7 @@ def load_config(config_path: str):
     with open(config_path, 'r') as f:
         return yaml.safe_load(f)
 
-dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/lsc24_config.yaml')   # Default to aic24_config.yaml
+dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/aic24_config.yaml')   # Default to aic24_config.yaml
 dataset_config = load_config(dataset_config_file)
 system_config_file = os.getenv('SYSTEM_CONFIG', '../configs/system_config.yaml')   # Default to system_config.yaml
 system_config = load_config(system_config_file)
@@ -36,17 +36,21 @@ from internal.search.parser import all_parsers
 # EXPLORE: list of image urls
 import pandas as pd
 print("Waiting to count total number of metadata records...")
+print(f"Metadata file path: {dataset_config['metadata_file_path']}")
 
 # metadata_caption = pd.read_csv(dataset_config['metadata_caption_file_path'])
 # image_urls = sorted(metadata_caption['id'].tolist())
 # print(f"Length of image_urls: {len(image_urls)}")
+
 
 metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
 # metadata_rows = pd.DataFrame(columns=['image_link', 'caption'])
 # metadata_rows = metadata_rows[['video_id', 'frame_id', 'video_url', 'timestamp', 'ocr', 'caption',
 #        'caption_keywords', 'context_en_keywords', 'context_id',
 #        'context_id_coarse', 'image_link']]
+metadata_rows = metadata_rows[['video_id', 'frame_id', 'video_url', 'timestamp', 'context_id_coarse', 'image_link']]
 metadata_rows.set_index('image_link', inplace=True)
-metadata_rows_context_id_coarse = metadata_rows['date']
+
+# metadata_rows_context_id_coarse = metadata_rows['date']
 image_names = sorted(metadata_rows.index.tolist())
 print(f"Length of metadata_rows: {len(metadata_rows)}")

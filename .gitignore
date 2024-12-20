@@ -60,6 +60,9 @@ startFrontend.bat
 /backend/objpos/metadata.db
 /backend/objpos/joined_data.db
 
+# logs
+/backend/logs/*
+
 # data
 /backend/data
 /backend/garbage

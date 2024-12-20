@@ -5,6 +5,7 @@ from schemas.request_schemas import RequestSearchByTextQuery, RequestSearchByIma
 import internal.search.scorer.combine_score as combine_score
 from internal.search.search_components import *
 from internal.prepare_response import prepare_response
+from internal.logger import save_log
 
 
 def search_with_image_query(data: RequestSearchByImageQuery):
@@ -30,6 +31,7 @@ def search_with_image_query(data: RequestSearchByImageQuery):
 def search_with_text_query(data: RequestSearchByTextQuery):
 
     # Necessary data
+    user_id = data.user_id
     model = data.model
     mode = data.mode
     text_query = data.text_query
@@ -67,16 +69,41 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         urls_semantic = results_semantic["urls"] if results_semantic else []
         results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_semantic) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
+        # log
+        semantic_log_info = {
+            "jointEmbedding": text_query
+        }
+        save_log(user_id, "TEXT", [semantic_log_info], combined["urls"])
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
     
     # Mode: semantic, keywords, objects
     if mode == "vec_kw":
         results_semantic = search_semantic_temporal(dataset, model, text_embeddings) if text_query else None 
         urls_semantic = results_semantic["urls"] if results_semantic else []
-        results_keywords = search_keywords_temporal(dataset, text_query, subset=urls_semantic) if text_query else None
+        results_keywords, field_items = search_keywords_temporal(dataset, text_query, subset=urls_semantic) if text_query else None
         urls_keywords = results_keywords["urls"] if results_keywords else []
         results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
-        combined = combine_score.get_combined_scores([results_semantic, results_keywords, results_objects], 'outer')
+        combined = combine_score.get_combined_scores([results_semantic, results_keywords, results_objects], 'inner')
+
+        # log
+        semantic_log_info = {
+            "jointEmbedding": text_query
+        }
+        keywords_log_info = {}
+        if "ocr" in field_items:
+            keywords_log_info["OCR"] = field_items["ocr"]
+        if "caption" in field_items:
+            keywords_log_info["caption"] = field_items["caption"]
+        if "object_tags" in field_items:
+            keywords_log_info["localizedObject"] = all_parsers.parse_object_tags(field_items["object_tags"])
+        if "location" in field_items:
+            keywords_log_info["location"] = field_items["location"]
+        if "date" in field_items:
+            keywords_log_info["date"] = field_items["date"]
+        if "time" in field_items:
+            keywords_log_info["time"] = field_items["time"]
+
+        save_log(user_id, "TEXT", [semantic_log_info, keywords_log_info], combined["urls"])
         return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
 
     # Mode: keywords, objects

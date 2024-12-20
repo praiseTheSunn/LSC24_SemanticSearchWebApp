@@ -30,6 +30,7 @@ class DatasetOptions(str, Enum):
     option2 = "aic24_lesson"
     option3 = "aic24_cooking"
     option4 = "lsc24"
+    option5 = "vbs25"
 class SearchRequest(BaseModel):
     model: str
     embedding: List[List[float]]
@@ -49,10 +50,19 @@ async def search_milvus(data: SearchRequest):
     text_embedding = data.embedding
     limit = data.limit
     print("Milvus limit: ", limit)
+    print("Collection_name: ", collection_name)
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    response = setup.milvus_client.search(collection_name=collection_name, data=text_embedding, limit=limit)
+    response = setup.milvus_client.search(
+        collection_name=collection_name, 
+        data=text_embedding, 
+        limit=limit,
+        filter="""url in [
+            "L05/L05_V017/0662.webp",
+            "L05/L05_V025/0014.webp"
+        ]"""
+    )
     return JSONResponse(content={"response": response}, headers=header)
 
 

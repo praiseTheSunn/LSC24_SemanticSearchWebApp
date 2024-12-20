@@ -188,10 +188,14 @@ class SearchModuleLSC24(SearchModule):
         urls = [hit["_id"] for hit in response]
         scores = [hit["_score"] for hit in response]
         print(f"Search keyword found {len(urls)} results")
+
+        # add date time to field_items for logging
+        field_items["date"] = f"{date1}-{date2}"
+        field_items["time"] = f"{time1}-{time2}"
         return {
             "urls": urls,
             "scores": scores,
-        }
+        }, field_items
 
 
 class SearchModuleManager:
@@ -649,7 +653,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
         clauses = text_query.split("|")[:2]
         for clause in clauses:
             print(f"Searching for keyword: {clause}")
-            clause_results = SearchModuleManager().get_search_module(dataset).search_keywords(dataset_variant, text_query, fields, subset)
+            clause_results, field_items = SearchModuleManager().get_search_module(dataset).search_keywords(dataset_variant, text_query, fields, subset)
             clause_urls.append(clause_results["urls"])
             clause_scores.append(clause_results["scores"])
         raw_results_df = temporal_aggregate(clause_urls, clause_scores)
@@ -657,17 +661,17 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
         return {
             "urls": raw_results_df['url'].tolist(),
             "scores": raw_results_df["combined_score"].tolist(),
-        }
+        }, field_items
     
     else:
         print("Single query detected.\n")
         print(f"Searching for keyword: {text_query}\n")
         
-        clause_results = SearchModuleManager().get_search_module(dataset).search_keywords(dataset_variant, text_query, fields, subset)
+        clause_results, field_items = SearchModuleManager().get_search_module(dataset).search_keywords(dataset_variant, text_query, fields, subset)
         return {
             "urls": clause_results["urls"],
             "scores": clause_results["scores"],
-        }
+        }, field_items
 
 
 

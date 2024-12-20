@@ -8,6 +8,7 @@ class RequestSearchByImageQuery(BaseModel):
     dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
 
 class RequestSearchByTextQuery(BaseModel):
+    user_id: str
     text_query: str
     model: options_schemas.ModelOptions
     mode: options_schemas.ModeOptions

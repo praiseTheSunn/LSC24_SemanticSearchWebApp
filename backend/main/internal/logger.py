@@ -2,40 +2,51 @@ import time
 import json
 
 
-def save_query_log(category: str, type_value: dict[str, str]):
+def save_log(user_id: str, category: str, log_infos: list[dict[str, str]], results: list[str]):
     timestamp = time.time()
     timestamp = int(timestamp * 1000)
     output =  {
         "timestamp": timestamp,
-        "events": []
+        "sortType": "rankingModel",
+        "resultSetAvailability": "Top1000",
+        "events": [],
+        "results": []
     }
-    for key, value in type_value.items():
-        output["events"].append({
-            "timestamp": timestamp,
-            "category": "TEXT",
-            "type": key,
-            "value": value
+    for log_info in log_infos:
+        for key, value in log_info.items():
+            output["events"].append({
+                "timestamp": timestamp,
+                "category": category,
+                "type": key,
+                "value": value
+            })
+    for i, result in enumerate(results):
+        output["results"].append({
+            "answer": {
+                "mediaItemName": result.split("/")[-1].split(".")[0],
+            },
+            "rank": i + 1
         })
     # save to json file
-    json.dump(output, open(f"{timestamp}.json", "w"))
+    json.dump(output, open(f"/home/pc/LSC24_SemanticSearchWebApp/backend/logs/{user_id}_{timestamp}.json", "w"))
     
 
-def save_result_log(category: str, type_value: dict[str, str]):
-    timestamp = time.time()
-    timestamp = int(timestamp * 1000)
-    output =  {
-        "timestamp": timestamp,
-        "events": []
-    }
-    for key, value in type_value.items():
-        output["events"].append({
-            "timestamp": timestamp,
-            "category": "TEXT",
-            "type": key,
-            "value": value
-        })
-    # save to json file
-    json.dump(output, open(f"{timestamp}.json", "w"))
+# def save_result_log(category: str, type_value: dict[str, str]):
+#     timestamp = time.time()
+#     timestamp = int(timestamp * 1000)
+#     output =  {
+#         "timestamp": timestamp,
+#         "events": []
+#     }
+#     for key, value in type_value.items():
+#         output["events"].append({
+#             "timestamp": timestamp,
+#             "category": "TEXT",
+#             "type": key,
+#             "value": value
+#         })
+#     # save to json file
+#     json.dump(output, open(f"{timestamp}.json", "w"))
 
 
 # {

@@ -155,8 +155,8 @@ def fill_date_time(date1, time1, date2, time2):
 
     # date_boost and time_boost are config for weight of datetime in the whole ElasticSearch query
     # the larger boost is the more important datetime is
-    date_boost = 100
-    time_boost = 100
+    date_boost = 1000
+    time_boost = 1000
     if date1 == -1:
         date1 = 20190101
         date2 = 20200630
