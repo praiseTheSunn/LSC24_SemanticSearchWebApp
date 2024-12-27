@@ -1,4 +1,4 @@
-name: snapseek_backend_main
+name: main
 channels:
   - conda-forge
   - defaults
@@ -138,4 +138,4 @@ dependencies:
       - nltk==3.8.1
       - regex==2024.5.15
       - textblob==0.18.0.post0
-prefix: /home/pc/miniconda3/envs/snapseek_backend_main
+prefix: /home/pc/miniconda3/envs/main
