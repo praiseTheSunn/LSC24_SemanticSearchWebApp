@@ -60,6 +60,9 @@ export const loadConfigFromLocalStorage = (): ConfigType | null => {
 export const defaultConfig: ConfigType = {
   gridRowGap: '2px',
 
+  NeighborTabCellMinWidth: 130,
+  NeighborTabRowHeight: 150,
+
   ImageGridColumnCount: 7,
   ImageGridCellHeight: 120,
 

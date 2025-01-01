@@ -54,6 +54,9 @@ export type TimelineState = {
 export type ConfigType = {
   gridRowGap: string
 
+  NeighborTabCellMinWidth: number
+  NeighborTabRowHeight: number
+
   ImageGridColumnCount: number
   ImageGridCellHeight: number
 

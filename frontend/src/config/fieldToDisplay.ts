@@ -14,5 +14,4 @@ export const AIC2024_fieldToDisplay = {
   context_en_keywords: 'Context',
 }
 
-
 export const FieldToDisplay = AIC2024_fieldToDisplay
