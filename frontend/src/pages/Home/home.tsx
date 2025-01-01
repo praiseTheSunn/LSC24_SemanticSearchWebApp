@@ -12,6 +12,8 @@ import {
   TimelineIconActive,
   TrapoziedBgGray2,
   TrapoziedBgGray3,
+  TrapoziedBgGray4,
+  TrapoziedBgGray5,
   TrapoziedBgGrayLeft,
 } from '../../assets'
 import { ObjectDetail, SearchBox } from '../../components'
@@ -32,15 +34,17 @@ import LoadingPopup from '../../components/Popup/loadingPopup'
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
 import SubmitDataPopup from '../../components/Popup/submitDataPopup'
+import NeighborClusterTab from '../../containers/neighborCluster/NeighborClusterTab'
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
 import type { ImageRecord } from '../../types/image'
 import type { SearchTermType } from '../../types/search'
 
 const LevelList = [
-  { level: 'Similarity', bg: TrapoziedBgGrayLeft },
-  { level: 'Timeline', bg: TrapoziedBgGray2 },
-  { level: 'Location', bg: TrapoziedBgGray3 },
-  { level: 'VQA', bg: TrapoziedBgGray3 },
+  { level: 'Neighbor', bg: TrapoziedBgGray3 },
+  { level: 'Similarity', bg: TrapoziedBgGray2 },
+  { level: 'Timeline', bg: TrapoziedBgGrayLeft },
+  { level: 'Location', bg: TrapoziedBgGray4 },
+  { level: 'VQA', bg: TrapoziedBgGray5 },
 ]
 
 const Mode = [
@@ -122,7 +126,11 @@ const Home = () => {
 
   const [imageAfterFilter, setImageAfterFilter] = useState<ImageRecord[]>([])
   useEffect(() => {
-    if ((imageDatas !== null) && (imageDatas !== undefined) && ((imageDatas as ImageRecord[]).length > 0)){
+    if (
+      imageDatas !== null &&
+      imageDatas !== undefined &&
+      (imageDatas as ImageRecord[]).length > 0
+    ) {
       setImageAfterFilter(imageDatas)
     }
   }, [imageDatas])
@@ -336,7 +344,8 @@ const Home = () => {
           width: 'calc(100dvw - 10px)',
         }}
       >
-        {selectedTabIndex === 0 && (
+        {selectedTabIndex === 0 && <NeighborClusterTab />}
+        {selectedTabIndex === 1 && (
           <Box
             sx={{
               display: 'flex',
@@ -383,7 +392,10 @@ const Home = () => {
                   height: '100%',
                 }}
               >
-                <ImageGrid style={{ width: '100dvw' }} data={imageAfterFilter} />
+                <ImageGrid
+                  style={{ width: '100dvw' }}
+                  data={imageAfterFilter}
+                />
               </Box>
             )}
             {selectedModeIndex !== 0 && (
@@ -403,14 +415,14 @@ const Home = () => {
           </Box>
         )}
 
-        {selectedTabIndex === 1 && <TimelineTab />}
-        {selectedTabIndex === 2 && (
+        {selectedTabIndex === 2 && <TimelineTab />}
+        {selectedTabIndex === 3 && (
           // <ImageCluster data={timelineData} />
           <MapTab
           // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
           />
         )}
-        {selectedTabIndex === 3 && <MetadataTab />}
+        {selectedTabIndex === 4 && <MetadataTab />}
       </Box>
     </div>
   )
