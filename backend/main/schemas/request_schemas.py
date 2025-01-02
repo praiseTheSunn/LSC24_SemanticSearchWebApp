@@ -11,6 +11,7 @@ class RequestSearchByTextQuery(BaseModel):
     text_query: str
     model: options_schemas.ModelOptions
     mode: options_schemas.ModeOptions
+    window_size: int = 3
     dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
     object_global_encoding: Optional[Dict[str, int]] = {}
     object_local_encoding: Optional[str] = ""
@@ -21,9 +22,10 @@ class RequestSearchByTextQuery(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                    "text_query": "Lots of colourful mugs for sale in Bangkok. Yellow, red, green, blue, orange cups.",
-                    "model": "stfm",
-                    "mode": "smt-3m-dtin"
+                    "text_query": "a wedding",
+                    "model": "clips",
+                    "mode": "vec",
+                    "window_size": 3,
             }
         }
 
