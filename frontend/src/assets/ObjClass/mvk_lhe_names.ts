@@ -1,0 +1,41 @@
+export const MVKClassNames = [
+    'Bolbometopon Muricatum',
+    'Chaetodontidae',
+    'Cheilinus Undulatus',
+    'Cromileptes Altivelis',
+    'Crown of Thorns',
+    'Fish',
+    'Giant Clam',
+    'Haemulidae',
+    'Lobster',
+    'Lutjanidae',
+    'Muraenidae',
+    'Ray',
+    'Scaridae',
+    'Shark',
+    'Serranidae',
+    'Sea Cucumber',
+    'Turtle',
+    'Urchin',
+];
+
+export const LHEClassNames = [
+    'Bipolar',
+    'Clipper',
+    'Grasper',
+    'Hook',
+    'Irrigator',
+    'Scissors',
+    'Specimen Bag',
+  ];
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
