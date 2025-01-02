@@ -13,6 +13,8 @@ except MilvusException as e:
 from pymilvus import MilvusClient, DataType
 CLUSTER_ENDPOINT = "http://localhost:19530"
 TOKEN = "root:Milvus"
+COLLECTION_NAME = "vbs25_bgem3"
+DIM = 1024
 
 # 1. Set up a Milvus client
 client = MilvusClient(uri=CLUSTER_ENDPOINT, token=TOKEN)
@@ -24,8 +26,9 @@ schema = MilvusClient.create_schema(auto_id=False, enable_dynamic_field=True)
 # schema.add_field(field_name="location_categories", datatype=DataType.VARCHAR, max_length=100)
 # schema.add_field(field_name="date", datatype=DataType.VARCHAR, max_length=8)
 # schema.add_field(field_name="time", datatype=DataType.VARCHAR, max_length=8)
-schema.add_field(field_name="url", datatype=DataType.VARCHAR, max_length=100, is_primary=True)
-schema.add_field(field_name="embedding", datatype=DataType.FLOAT_VECTOR, dim=768)
+schema.add_field(field_name="video_id", datatype=DataType.INT64, is_primary=True)
+schema.add_field(field_name="video_name", datatype=DataType.VARCHAR, max_length=50)
+schema.add_field(field_name="embedding", datatype=DataType.FLOAT_VECTOR, dim=DIM)
 
 # 3. Prepare the index parameters, add an index on the vector field.
 index_params = MilvusClient.prepare_index_params()
@@ -39,10 +42,10 @@ index_params.add_index(
 )
 
 # 4. Create collection
-client.create_collection(collection_name="aic24_lesson_blip2", schema=schema, index_params=index_params)
+client.create_collection(collection_name=COLLECTION_NAME, schema=schema, index_params=index_params)
 
 # 5. Describe the collection
-res = client.describe_index(collection_name="aic24_lesson_blip2", index_name="embedding_index")
+res = client.describe_index(collection_name=COLLECTION_NAME, index_name="embedding_index")
 print(res)
 
 collections = utility.list_collections()
