@@ -61,8 +61,13 @@ startFrontend.bat
 /backend/objpos/joined_data.db
 
 # data
-/backend/data
-/backend/garbage
+/backend/data/metadata/*
+/backend/data/embeddings/*
+*.csv
+*.npy
+
+# elasticsearch
+/backend/elasticsearch-8.17.0/*
 
 # embedding_compute
 /backend/embedding_compute/model/
@@ -75,4 +80,3 @@ startFrontend.bat
 /backend/main/elastic_search/http_ca.crt
 
 # configs (secret)
-/backend/configs/*
