@@ -380,6 +380,15 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             setData={setDataset}
           />
         </Box>
+        <Box sx={{ marginLeft: '12px', marginTop: '5px' }}>
+          <Button 
+            variant="contained" 
+            color="primary"
+            onClick={() => {}}
+            > 
+            Dictionary
+            </Button>
+        </Box>
         <Box
           display="flex"
           flexDirection="row"
