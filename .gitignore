@@ -65,6 +65,7 @@ startFrontend.bat
 /backend/data/embeddings/*
 *.csv
 *.npy
+*.db
 
 # elasticsearch
 /backend/elasticsearch-8.17.0/*

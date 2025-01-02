@@ -39,7 +39,7 @@ async def fetch_embeddings(data: RequestExploreSimilarImages):
     }
     
     try:
-        raw_results = requests.post("http://localhost:8004/get_embeddings", json=data, headers=headers).json()
+        raw_results = requests.post("http://localhost:8003/get_embeddings", json=data, headers=headers).json()
         response = raw_results['response']
         return response['embeddings'] 
     except:
@@ -57,7 +57,7 @@ def explore_similar_embeddings(model: str, image_embedding: list[list[float]], l
     headers = {
         "Content-Type": "application/json"
     }    
-    response = requests.post("http://localhost:8004/search_milvus", json=data, headers=headers)
+    response = requests.post("http://localhost:8003/search_milvus", json=data, headers=headers)
     raw_results = response.json()
     print(f"Number of similar results: {len(raw_results['response'][0])}")
 

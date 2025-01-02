@@ -13,8 +13,8 @@ except MilvusException as e:
 from pymilvus import MilvusClient, DataType
 CLUSTER_ENDPOINT = "http://localhost:19530"
 TOKEN = "root:Milvus"
-COLLECTION_NAME = "vbs25_bgem3"
-DIM = 1024
+COLLECTION_NAME = "vbs25_clips"
+DIM = 768
 
 # 1. Set up a Milvus client
 client = MilvusClient(uri=CLUSTER_ENDPOINT, token=TOKEN)
@@ -26,8 +26,8 @@ schema = MilvusClient.create_schema(auto_id=False, enable_dynamic_field=True)
 # schema.add_field(field_name="location_categories", datatype=DataType.VARCHAR, max_length=100)
 # schema.add_field(field_name="date", datatype=DataType.VARCHAR, max_length=8)
 # schema.add_field(field_name="time", datatype=DataType.VARCHAR, max_length=8)
-schema.add_field(field_name="video_id", datatype=DataType.INT64, is_primary=True)
-schema.add_field(field_name="video_name", datatype=DataType.VARCHAR, max_length=50)
+schema.add_field(field_name="keyframe_id", datatype=DataType.INT64, is_primary=True)
+schema.add_field(field_name="keyframe_name", datatype=DataType.VARCHAR, max_length=50)
 schema.add_field(field_name="embedding", datatype=DataType.FLOAT_VECTOR, dim=DIM)
 
 # 3. Prepare the index parameters, add an index on the vector field.
