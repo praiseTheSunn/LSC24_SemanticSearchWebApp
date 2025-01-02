@@ -7,8 +7,6 @@ import torch.nn.functional as F
 from torch import hub
 import open_clip
 from transformers import AutoModel, CLIPImageProcessor
-from setup import system_config
-
 
 # Base class with a virtual method
 class ModelBase(ABC):

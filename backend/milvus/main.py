@@ -26,9 +26,10 @@ app.add_middleware(
 
 
 class DatasetOptions(str, Enum):
-    option1 = "aic24"
-    option2 = "aic24_lesson"
-    option3 = "aic24_cooking"
+    option1 = "vbs25"
+    option2 = "aic24"
+    option3 = "aic24_lesson"
+    option4 = "aic24_cooking"
 class SearchRequest(BaseModel):
     model: str
     embedding: List[List[float]]

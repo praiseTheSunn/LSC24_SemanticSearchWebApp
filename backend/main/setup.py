@@ -32,11 +32,6 @@ from internal.search.parser import constants
 from internal.search.parser import time_helpers
 from internal.search.parser import all_parsers
 
-
-# EXPLORE: list of image urls
-import pandas as pd
-print("Waiting to count total number of metadata records...")
-
 # metadata_caption = pd.read_csv(dataset_config['metadata_caption_file_path'])
 # image_urls = sorted(metadata_caption['id'].tolist())
 # print(f"Length of image_urls: {len(image_urls)}")
@@ -52,6 +47,4 @@ print("Waiting to count total number of metadata records...")
 # Database
 import sys
 sys.path.append('..')
-from db.search import V3C_CONNECTION
-
 image_names = None
