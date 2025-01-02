@@ -41,10 +41,17 @@ print("Waiting to count total number of metadata records...")
 # image_urls = sorted(metadata_caption['id'].tolist())
 # print(f"Length of image_urls: {len(image_urls)}")
 
-metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
+# metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
 # metadata_rows = pd.DataFrame(columns=['image_link', 'caption'])
-metadata_rows = metadata_rows[['video_id', 'frame_id', 'video_url', 'timestamp', 'image_link']]
-metadata_rows.set_index('image_link', inplace=True)
+# metadata_rows = metadata_rows[['video_id', 'frame_id', 'video_url', 'timestamp', 'image_link']]
+# metadata_rows.set_index('image_link', inplace=True)
 # metadata_rows_context_id_coarse = metadata_rows['context_id_coarse']
-image_names = sorted(metadata_rows.index.tolist())
-print(f"Length of metadata_rows: {len(metadata_rows)}")
+# image_names = sorted(metadata_rows.index.tolist())
+# print(f"Length of metadata_rows: {len(metadata_rows)}")
+
+# Database
+import sys
+sys.path.append('..')
+from db.search import V3C_CONNECTION
+
+image_names = None

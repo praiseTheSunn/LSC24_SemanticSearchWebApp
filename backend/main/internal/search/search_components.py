@@ -6,31 +6,29 @@ import requests
 from internal.search.parser import all_parsers, time_helpers
 from internal.search.scorer import combine_score
 
-
 # dataset_name = dataset_config['dataset_name']
 # metadata_index_name = dataset_name
 # encoding_index_name = dataset_name + "_encoding"
 
 
-def temporal_aggregate(clause_urls: list[list[str]], clause_scores: list[list[float]]):
+def temporal_aggregate(clause_record_ids: list[list[str]], clause_scores: list[list[float]]):
     # normalize scores
     for i in range(len(clause_scores)):
         clause_scores[i] = combine_score.get_standardized_scores(clause_scores[i])
 
     # # convert into DataFrame
     # raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id_coarse', 'clause_id'])
-    # for i, urls in enumerate(clause_urls):
+    # for i, urls in enumerate(clause_record_ids):
     #     for j, url in enumerate(urls):
     #         raw_results_df.loc[len(raw_results_df)] = [url, clause_scores[i][j], setup.metadata_rows.loc[url, 'context_id_coarse'], i]
 
     # convert into DataFrame
     rows = []
-    for i, urls in enumerate(clause_urls):
-        context_ids_coarse = setup.metadata_rows_context_id_coarse.loc[urls].tolist()
-        for j, url in enumerate(urls):
-            rows.append([url, clause_scores[i][j], context_ids_coarse[j], i])
-            # print(context_ids_coarse[j])
-    raw_results_df = pd.DataFrame(rows, columns=['url', 'score', 'context_id_coarse', 'clause_id'])
+    for i, record_ids in enumerate(clause_record_ids):
+        context_ids_coarse = setup.metadata_rows_context_id_coarse.loc[record_ids].tolist()
+        for j, record_id in enumerate(record_ids):
+            rows.append([record_id, clause_scores[i][j], context_ids_coarse[j], i])
+    raw_results_df = pd.DataFrame(rows, columns=['record_id', 'score', 'context_id_coarse', 'clause_id'])
 
 
     # drop context_id_coarse = None
@@ -101,16 +99,16 @@ def temporal_aggregate(clause_urls: list[list[str]], clause_scores: list[list[fl
         raw_results_df = raw_results_df.dropna(subset=['combined_score'])
 
     
-    # sort by combined score, then by url -> remove duplicates by 'url' -> filter those with 'keep' = True
-    raw_results_df.sort_values(by=['combined_score', 'url'], ascending=[False, True], inplace=True)
-    raw_results_df.drop_duplicates(subset='url', keep='first', inplace=True)
+    # sort by combined score, then by record_id -> remove duplicates by 'record_id' -> filter those with 'keep' = True
+    raw_results_df.sort_values(by=['combined_score', 'record_id'], ascending=[False, True], inplace=True)
+    raw_results_df.drop_duplicates(subset='record_id', keep='first', inplace=True)
     raw_results_df = raw_results_df[raw_results_df['keep'] == True]
 
     return raw_results_df
 
 
 def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str]):
-    clause_urls = []
+    clause_record_ids = []
     clause_scores = []
     
     for text_embedding in text_embeddings:
@@ -119,64 +117,29 @@ def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str
             "embedding": text_embedding,
             "dataset": dataset,
         }
-        response = requests.post("http://localhost:8004/search_milvus", json=data, headers={
+        response = requests.post("http://localhost:8003/search_milvus", json=data, headers={
             "Content-Type": "application/json"
         })
         raw_results = response.json()
-        urls = [entity['id'] for entity in raw_results['response'][0]]
+        record_ids = [entity['id'] for entity in raw_results['response'][0]]
         scores = [entity['distance'] for entity in raw_results['response'][0]]
-        clause_urls.append(urls)
+        clause_record_ids.append(record_ids)
         clause_scores.append(scores)
 
     # Single query
     if len(text_embeddings) == 1:  
-        print(f"Search semantic found {len(clause_urls[0])} results")
+        print(f"Search semantic found {len(clause_record_ids[0])} results")
         return {
-            "urls": clause_urls[0],
+            "record_ids": clause_record_ids[0],
             "scores": clause_scores[0],
         }
     # Temporal query
     else:
-        # # normalize scores
-        # for i in range(len(clause_scores)):
-        #     clause_scores[i] = combine_score.get_standardized_scores(clause_scores[i])
-
-        # # convert into DataFrame
-        # raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id', 'clause_id'])
-        # for i, urls in enumerate(clause_urls):
-        #     for j, url in enumerate(urls):
-        #         raw_results_df.loc[len(raw_results_df)] = [url, clause_scores[i][j], setup.metadata_rows.loc[url, 'context_id'], i]
-
-        # # drop context_id = None
-        # raw_results_df = raw_results_df.dropna(subset=['context_id'])
-
-        # # group by context_id (a for loop), then in which group, calculate the combined score
-        # for context_id, group in raw_results_df.groupby('context_id'):
-        #     max_score_0 = group[group['clause_id'] == 0]['score'].max() if not group[group['clause_id'] == 0].empty else 10
-        #     max_score_1 = group[group['clause_id'] == 1]['score'].max() if not group[group['clause_id'] == 1].empty else 10
-        #     combined_score = combine_score.get_combine_score([max_score_0, max_score_1])
-        #     raw_results_df.loc[group.index, 'combined_score'] = combined_score
-        #     raw_results_df.loc[group.index, 'max_score_0'] = max_score_0
-        #     raw_results_df.loc[group.index, 'max_score_1'] = max_score_1
-        #     # for clause_id = 0, only keep 2 highest scores, the same to clause_id = 1
-        #     for clause_id, clause_group in group.groupby('clause_id'):
-        #         if clause_id == 0:
-        #             raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
-        #         else:
-        #             raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
-
-        
-        # # sort by combined score, then by url
-        # # remove duplicates by 'url'
-        # # filter those with 'keep' = True
-        # raw_results_df.sort_values(by=['combined_score', 'url'], ascending=[False, True], inplace=True)
-        # raw_results_df.drop_duplicates(subset='url', keep='first', inplace=True)
-        # raw_results_df = raw_results_df[raw_results_df['keep'] == True]
-        raw_results_df = temporal_aggregate(clause_urls, clause_scores)
+        raw_results_df = temporal_aggregate(clause_record_ids, clause_scores)
         print(f"Search semantic found {len(raw_results_df)} results\n")
 
         return {
-            "urls": raw_results_df['url'].tolist(),
+            "record_ids": raw_results_df['record_id'].tolist(),
             "scores": raw_results_df["combined_score"].tolist(),
         }
 
@@ -228,11 +191,11 @@ def search_objects(dataset: str, object_local_encoding, color_local_encoding, po
         body=body
     )
     response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
+    record_ids = [hit["_id"] for hit in response]
     scores = [hit["_score"] for hit in response]
-    print(f"Search objects found {len(urls)} results")
+    print(f"Search objects found {len(record_ids)} results")
     return {
-        "urls": urls,
+        "record_ids": record_ids,
         "scores": scores,
     }
 
@@ -301,18 +264,18 @@ def search_keywords(dataset: str, clause: str, subset: list[str] = []) -> list[d
         body=body
     )
     response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
+    record_ids = [hit["_id"] for hit in response]
     scores = [hit["_score"] for hit in response]
 
-    print(f"Search keyword found {len(urls)} results")
+    print(f"Search keyword found {len(record_ids)} results")
     return {
-        "urls": urls,
+        "record_ids": record_ids,
         "scores": scores,
     }
 
 
 def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = []) -> list[dict]:
-    clause_urls = []
+    clause_record_ids = []
     clause_scores = []
 
     if "|" in text_query:
@@ -321,12 +284,12 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
         for clause in clauses:
             print(f"Searching for keyword: {clause}")
             clause_results = search_keywords(dataset, clause, subset)
-            clause_urls.append(clause_results["urls"])
+            clause_record_ids.append(clause_results["record_ids"])
             clause_scores.append(clause_results["scores"])
-        raw_results_df = temporal_aggregate(clause_urls, clause_scores)
+        raw_results_df = temporal_aggregate(clause_record_ids, clause_scores)
         print(f"Search keyword found {len(raw_results_df)} results")
         return {
-            "urls": raw_results_df['url'].tolist(),
+            "record_ids": raw_results_df['record_id'].tolist(),
             "scores": raw_results_df["combined_score"].tolist(),
         }
     
@@ -335,7 +298,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
         print(f"Searching for keyword: {text_query}\n")
         clause_results = search_keywords(dataset, text_query)
         return {
-            "urls": clause_results["urls"],
+            "record_ids": clause_results["record_ids"],
             "scores": clause_results["scores"],
         }
 
