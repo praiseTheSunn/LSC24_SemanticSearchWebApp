@@ -42,6 +42,7 @@ export type AppState = {
   isEvaluationBoxOpen: boolean
 
   config: ConfigType
+  isDictionaryPopupOpen: boolean
 }
 
 export type TimelineState = {
