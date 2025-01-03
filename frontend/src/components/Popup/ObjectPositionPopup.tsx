@@ -112,8 +112,11 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   )
 
   const handleIconClick = (icon: Icon) => {
-    setSelectedIcon(icon)
-    // console.log('Selected icon:', icon)
+    if (selectedIcon) {
+      setSelectedIcon({ ...selectedIcon, source: icon.source, name: icon.name })
+      return
+    }
+    setSelectedIcon({ color: 'none', name: icon.name, source: icon.source })
   }
 
   const handleColorClick = (color: string) => {
@@ -124,7 +127,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     setSelectedIcon({ source: 'none', name: 'none', color })
   }
 
-  const handleDraw = (item: DrawnItem) => {
+  const handleFinishDraw = (item: DrawnItem | null) => {
     setSelectedIcon(null) // Clear selection after drawing
   }
 
@@ -294,9 +297,10 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
             }}
           >
             <BrushWhiteboard
-              onDraw={handleDraw}
+              onDraw={handleFinishDraw}
               selectedIcon={selectedIcon}
               onClear={isClear}
+              setSelectedIcon={setSelectedIcon}
               setIsClear={setIsClear}
               dataGrid={dataGrid}
               setDataGrid={setDataGrid}
@@ -316,9 +320,10 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
           >
             <Whiteboard
               setSelecObjects={setSelectedObjects}
-              onDraw={handleDraw}
+              onDraw={handleFinishDraw}
               selectedIcon={selectedIcon}
               onClear={isClear}
+              setSelectedIcon={setSelectedIcon}
               setIsClear={setIsClear}
             />
           </Box>
