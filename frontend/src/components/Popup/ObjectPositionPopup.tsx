@@ -5,8 +5,12 @@ import {
   Autocomplete,
   Box,
   Button,
+  Checkbox,
+  FormControlLabel,
+  FormGroup,
   Grid,
   IconButton,
+  Paper,
   Slider,
   SpeedDial,
   SpeedDialAction,
@@ -85,7 +89,10 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
   const [openPoseSpeedDial, setOpenPoseSpeedDial] = useState(false)
   const [openBrushSpeedDial, setOpenBrushSpeedDial] = useState(true)
 
-  const [brushSize, setBrushSize] = useState<number>(3) // Default brush size is 3x3
+  const [isAutoComplete, setIsAutoComplete] = useState(true)
+  const [isAutoFill, setIsAutoFill] = useState(true)
+
+  const [brushSize, setBrushSize] = useState<number>(1) // Default brush size is 3x3
 
   const systemConfig = useAppSelector((state) => state.app.config)
   const initDataGrid = Array(systemConfig.WhiteboardGridRowCount)
@@ -451,6 +458,8 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
               dataGrid={dataGrid}
               setDataGrid={setDataGrid}
               brushSize={brushSize}
+              isAutoComplete={isAutoComplete}
+              isAutoFill={isAutoFill}
             />
           </Box>
           <Box
@@ -589,6 +598,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                   flexDirection: 'column',
                   alignItems: 'center',
                   marginLeft: '80px',
+                  marginTop: '60px',
                   gap: '5px',
                   paddingX: '15px',
                   backgroundColor: 'white',
@@ -596,6 +606,9 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                   boxShadow: '2px 4px 4px rgba(0, 0, 0, 0.5)',
                 }}
               >
+                <FormGroup>
+                  <FormControlLabel control={<Checkbox size="small" checked={isAutoFill && isAutoComplete} onChange={() => {setIsAutoFill(!isAutoFill); setIsAutoComplete(!isAutoComplete)}} />} label="Auto Brush" />
+                </FormGroup>
                 <Typography
                   gutterBottom
                   sx={{
