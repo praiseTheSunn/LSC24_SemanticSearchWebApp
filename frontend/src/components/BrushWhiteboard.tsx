@@ -15,6 +15,8 @@ interface WhiteboardProps {
   setDataGrid: Dispatch<SetStateAction<GridDict[][]>>
   brushSize: number
   setSelectedIcon: Dispatch<SetStateAction<Icon | null>>
+  isAutoFill: boolean
+  isAutoComplete: boolean
 }
 
 const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
@@ -26,13 +28,13 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
     dataGrid,
     setDataGrid,
     brushSize,
-    setSelectedIcon
+    setSelectedIcon,
+    isAutoFill,
+    isAutoComplete
   }) => {
     const Config = useAppSelector((state) => state.app.config)
     const [isDrawing, setIsDrawing] = useState<boolean>(false)
     const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
-    const [isAutoComplete, setIsAutoComplete] = useState(true)
-    const [isAutoFill, setIsAutoFill] = useState(true)
     const [contour, setContour] = useState<{x: number, y:number, checked: boolean}[] >([])
 
     useEffect(() => {
@@ -70,7 +72,8 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
           const randomIndex = Math.floor(Math.random() * uncheckedContour.length)
           const randomOnBorderPoint = uncheckedContour[randomIndex];
           let crossBorderCount = 0
-          for(let k = randomOnBorderPoint.y; k < Config.WhiteboardGridColumnCount - 1; k++){
+          for(let k = Math.max(randomOnBorderPoint.y, 1); k < Config.WhiteboardGridColumnCount - 1; k++){
+            console.log(randomOnBorderPoint, k)
             if (
               (newDataGrid[randomOnBorderPoint.x][k].color !== newDataGrid[randomOnBorderPoint.x][k - 1].color 
                 || 
@@ -139,6 +142,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
         }
         setDataGrid(newDataGrid)
       }
+      console.log('done drawing')
       setIsDrawing(false)
       onDraw(null)
     }
