@@ -76,6 +76,36 @@ const ConfigEditor: React.FC = () => {
 
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">Neighbor Tab Settings</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography gutterBottom>Neighbor Tab Cell Min Width</Typography>
+          <Slider
+            value={config.NeighborTabCellMinWidth}
+            onChange={(e, newValue) =>
+              handleSliderChange('NeighborTabCellMinWidth', newValue as number)
+            }
+            step={10}
+            min={100}
+            max={500}
+            valueLabelDisplay="auto"
+          />
+          <Typography gutterBottom>Neighbor Tab Row Height</Typography>
+          <Slider
+            value={config.NeighborTabRowHeight}
+            onChange={(e, newValue) =>
+              handleSliderChange('NeighborTabRowHeight', newValue as number)
+            }
+            step={10}
+            min={30}
+            max={500}
+            valueLabelDisplay="auto"
+          />
+        </AccordionDetails>
+      </Accordion>
+
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">View More Popup Settings</Typography>
         </AccordionSummary>
         <AccordionDetails>

@@ -34,6 +34,7 @@ export type ObjPosResponse = {
   video_id?: string
   frame_id?: string
   context_id_coarse?: string
+  neighbors?: ImageRecord[]
 }
 
 export type TextQueryParams = {

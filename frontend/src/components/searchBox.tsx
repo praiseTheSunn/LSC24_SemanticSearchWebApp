@@ -16,6 +16,7 @@ import {
   useLazyGetTranslatedTextQuery,
 } from '../AppState'
 import { HistoryIcon } from '../assets'
+import { FilterCategories } from '../data/FilterCategory'
 import type { ImageRecord } from '../types/image'
 import type { SearchTermType } from '../types/search'
 import { LanguageSwitch } from './Button/LanguageSwitch'
@@ -156,6 +157,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     const handleEnter = (event: any) => {
       if (event.key === 'Enter') {
         event.preventDefault()
+        event.preventDefault()
         dispatch(appActions.setLikedImages([]))
         dispatch(appActions.setDislikedImages([]))
 
@@ -166,7 +168,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         for (const key in FilterCategories) {
           if (input.startsWith(key)) {
             console.log('key:', key)
-            const { category, startIndex } = FilterCategories[key as keyof typeof FilterCategories]
+            const { category, startIndex } =
+              FilterCategories[key as keyof typeof FilterCategories]
             const value = input.substring(startIndex)
             const filter = { category, value, status: 1 }
             setDisplayedFilters((previousState: any) => [
