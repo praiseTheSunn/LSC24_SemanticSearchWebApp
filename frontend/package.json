@@ -48,6 +48,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "start": "rsbuild dev",
     "dev": "start-dev.bat",
     "build": "rsbuild build",
     "preview": "rsbuild preview",

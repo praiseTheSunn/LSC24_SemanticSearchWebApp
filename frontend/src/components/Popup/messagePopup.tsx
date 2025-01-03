@@ -11,10 +11,10 @@ import { forwardRef, useCallback, useRef } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import { ObjectPosIcon } from '../../assets'
+import { FilterCategories } from '../../data/FilterCategory'
 import type { FilterTagType, SearchTermType } from '../../types/search'
 import FilterTag from '../Filter/filterTag'
 import ObjectPositionPopup from './ObjectPositionPopup'
-import { FilterCategories } from '../../data/FilterCategory'
 
 interface MessagePopupProps {
   displayedFilters: FilterTagType[]
@@ -215,13 +215,13 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
             }}
           >
             <Typography variant="body2" component="div">
-            {Object.values(FilterCategories).map((cat) => (
-              <span key={cat.category}>
-                {cat.display}
-                <br />
-              </span>
-            ))}
-          </Typography>
+              {Object.values(FilterCategories).map((cat) => (
+                <span key={cat.category}>
+                  {cat.display}
+                  <br />
+                </span>
+              ))}
+            </Typography>
           </Paper>
         </Box>
       </Paper>
