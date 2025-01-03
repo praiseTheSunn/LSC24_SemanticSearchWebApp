@@ -25,6 +25,7 @@ import HistoryPopup from './Popup/HistoryPopup'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
 import { FilterCategories } from '../data/FilterCategory'
+import DictionaryPopup from './Popup/DictionaryPopup'
 
 type SearchBoxProps = {
   displayedFilters: any
@@ -52,6 +53,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     const [isFocus, setIsFocus] = useState(false)
 
     const showHistory = useAppSelector((state) => state.app.isHistoryPopUpOpen)
+    const showDictionary = useAppSelector((state) => state.app.isDictionaryPopupOpen)
     const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
     const [trigger, result] = useLazyGetImagesQuery()
@@ -118,6 +120,13 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       (state) => state.app.isVietnameseEnabled,
     )
 
+    const toggleDictionaryPopup = useCallback(
+      (value: boolean) => {
+        dispatch(appActions.setDictionaryPopup(value))
+      },
+      [dispatch],
+    )
+
     const handleTextareaChange = (event: any) => {
       setTextareaValue(event.target.value)
       // Automatically adjust height based on content if it exceeds the current height
@@ -146,7 +155,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     )?.query
     const handleEnter = (event: any) => {
       if (event.key === 'Enter') {
-        event.preventDefault() 
+        event.preventDefault()
         dispatch(appActions.setLikedImages([]))
         dispatch(appActions.setDislikedImages([]))
 
@@ -380,15 +389,35 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             setData={setDataset}
           />
         </Box>
-        <Box sx={{ marginLeft: '12px', marginTop: '5px' }}>
+        {/* <Box sx={{ marginLeft: '12px', marginTop: '7px' }}>
           <Button 
             variant="contained" 
             color="primary"
-            onClick={() => {}}
+            onClick={() => toggleDictionaryPopup(true)}
             > 
             Dictionary
             </Button>
-        </Box>
+        </Box> */}
+
+        <ClickAwayListener onClickAway={() => toggleDictionaryPopup(false)}>
+          <Box position="relative">
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => {toggleDictionaryPopup(true)
+                console.log('showDictionary:', showDictionary)
+              }}
+              sx={{ marginLeft: '12px', marginTop: '7px' }}
+            >
+              Dictionary
+            </Button>
+
+            {showDictionary && (
+              <DictionaryPopup/>
+            )}
+          </Box>
+        </ClickAwayListener>
+
         <Box
           display="flex"
           flexDirection="row"

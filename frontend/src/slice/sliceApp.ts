@@ -33,6 +33,8 @@ const initialState: AppState = {
   isEvaluationBoxOpen: false,
 
   config: loadConfigFromLocalStorage() || defaultConfig,
+
+  isDictionaryPopupOpen: false,
 }
 
 export const sliceApp = createSlice({
@@ -107,5 +109,9 @@ export const sliceApp = createSlice({
     setDislikedImages: (state, action) => {
       state.dislikedImages = action.payload
     },
+
+    setDictionaryPopup: (state, action) => {
+      state.isDictionaryPopupOpen = action.payload
+    }
   },
 })
