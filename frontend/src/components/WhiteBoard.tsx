@@ -12,6 +12,7 @@ interface WhiteboardProps {
   onClear: boolean
   setIsClear: Dispatch<SetStateAction<boolean>>
   setSelecObjects: Dispatch<SetStateAction<DrawnItem[]>>
+  setSelectedIcon: Dispatch<SetStateAction<Icon | null>>
 }
 
 const calculateOverlappedCells = (
@@ -49,6 +50,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
   onClear,
   setIsClear,
   setSelecObjects,
+  setSelectedIcon
 }) => {
   const [drawing, setDrawing] = useState(false)
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(
