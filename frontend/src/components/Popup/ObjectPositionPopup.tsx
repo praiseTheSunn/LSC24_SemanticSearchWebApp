@@ -23,6 +23,7 @@ import {
 } from '../../AppState'
 import { ObjectV8ClassNames } from '../../assets/ObjClass/yolov8_class_names'
 import { ObjectV10ClassNames } from '../../assets/ObjClass/yolov10_class_names'
+import { MVKClassNames, LHEClassNames } from '../../assets/ObjClass/mvk_lhe_names'
 import pico8Colors from '../../assets/ObjColors/pico8'
 import { HumanPoses } from '../../data/HumanPoses'
 import { InitPoseCoor } from '../../data/InitPoseCoor'
@@ -34,6 +35,8 @@ import { objColorPosEncoding } from '../../utils/encoding/objColorPosEncoding'
 import { poseEncoding } from '../../utils/encoding/poseEncoding'
 import BrushWhiteboard from '../BrushWhiteboard'
 import PoseCanvas from '../PoseCanvas'
+import { MVKImages } from '../../data/MVKImages'
+import { LHEImages } from '../../data/LHEImages'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -115,6 +118,17 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     setSelectedIcon(icon)
     // console.log('Selected icon:', icon)
   }
+  const [hoveredOption, setHoveredOption] = useState<string | null>(null);
+
+  const handleMVKOptionImage = (option: string) => {
+    const imageObj = MVKImages.find((img) => img.name === option);
+    return imageObj ? imageObj.source : '';
+  };
+
+  const handleLHEOptionImage = (option: string) => {
+    const imageObj = LHEImages.find((img) => img.name === option);
+    return imageObj ? imageObj.source : '';
+  };
 
   const handleColorClick = (color: string) => {
     if (selectedIcon) {
@@ -265,6 +279,138 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
               fullWidth={true}
               margin="dense"
               label="Objects"
+            />
+          )}
+        />
+        <Autocomplete
+          autoComplete={true}
+          autoHighlight={true}
+          clearOnBlur={true}
+          options={MVKClassNames}
+          renderOption={(props, option) => (
+            <li
+              {...props}
+              onMouseEnter={() => setHoveredOption(option)}
+              onMouseLeave={() => setHoveredOption(null)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                position: 'relative',
+                padding: 8,
+              }}
+            >
+              {hoveredOption === option && (
+                <Box
+                  sx={{
+                    position: 'fixed',
+                    width: 200,
+                    height: 200,
+                    marginLeft: 10,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    border: '1px solid #ccc',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    backgroundColor: '#f9f9f9',
+                    right: '-200px',
+                    top: 0,
+                  }}
+                >
+                  <img
+                    src={handleMVKOptionImage(option)}
+                    alt={option}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                </Box>
+              )}
+              <span>{option}</span>
+            </li>
+          )}
+          slotProps={{
+            popper: { style: { zIndex: 10005 } },
+            paper: { elevation: 6 },
+          }}
+          sx={{ width: '100%' }}
+          onChange={(e: any, newValue: string | null) => {
+            const name = newValue ? newValue : ''
+            const source = 'none'
+            console.log('Selected object:', name)
+            setSelectedIcon({ source, name })
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size="small"
+              fullWidth={true}
+              margin="dense"
+              label="MVK"
+            />
+          )}
+        />
+        <Autocomplete
+          autoComplete={true}
+          autoHighlight={true}
+          clearOnBlur={true}
+          options={LHEClassNames}
+          renderOption={(props, option) => (
+            <li
+              {...props}
+              onMouseEnter={() => setHoveredOption(option)}
+              onMouseLeave={() => setHoveredOption(null)}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                position: 'relative',
+                padding: 8,
+              }}
+            >
+              {hoveredOption === option && (
+                <Box
+                  sx={{
+                    position: 'fixed',
+                    width: 200,
+                    height: 200,
+                    marginLeft: 10,
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    border: '1px solid #ccc',
+                    borderRadius: 4,
+                    overflow: 'hidden',
+                    backgroundColor: '#f9f9f9',
+                    right: '-200px',
+                    top: 0,
+                  }}
+                >
+                  <img
+                    src={handleLHEOptionImage(option)}
+                    alt={option}
+                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                  />
+                </Box>
+              )}
+              <span>{option}</span>
+            </li>
+          )}
+          slotProps={{
+            popper: { style: { zIndex: 10005 } },
+            paper: { elevation: 6 },
+          }}
+          sx={{ width: '100%' }}
+          onChange={(e: any, newValue: string | null) => {
+            const name = newValue ? newValue : ''
+            const source = 'none'
+            console.log('Selected object:', name)
+            setSelectedIcon({ source, name })
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              size="small"
+              fullWidth={true}
+              margin="dense"
+              label="LHE"
             />
           )}
         />
