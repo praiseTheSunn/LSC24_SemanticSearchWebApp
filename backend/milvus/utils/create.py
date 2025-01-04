@@ -13,7 +13,7 @@ except MilvusException as e:
 from pymilvus import MilvusClient, DataType
 CLUSTER_ENDPOINT = "http://localhost:19530"
 TOKEN = "root:Milvus"
-COLLECTION_NAME = "vbs25_clips"
+COLLECTION_NAME = "vbs25_lhe_clips"
 DIM = 768
 
 # 1. Set up a Milvus client

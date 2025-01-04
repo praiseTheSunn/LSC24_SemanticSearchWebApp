@@ -68,7 +68,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         record_ids_semantic = results_semantic["record_ids"] if results_semantic else []
         results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=record_ids_semantic) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
-        return prepare_response(combined["record_ids"], combined["scores"], window_size=window_size), status.HTTP_200_OK
+        return prepare_response(dataset, combined["record_ids"], combined["scores"], window_size=window_size), status.HTTP_200_OK
     
     # Mode: semantic, keywords, objects
     if mode == "vec_kw":
@@ -78,7 +78,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         record_ids_keywords = results_keywords["record_ids"] if results_keywords else []
         results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=record_ids_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_keywords, results_objects], 'inner')
-        return prepare_response(combined["record_ids"], combined["scores"], window_size=window_size), status.HTTP_200_OK
+        return prepare_response(dataset, combined["record_ids"], combined["scores"], window_size=window_size), status.HTTP_200_OK
 
     # Mode: keywords, objects
     if mode == "kw":
@@ -86,7 +86,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         record_ids_keywords = results_keywords["record_ids"] if results_keywords else []
         results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=record_ids_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_keywords, results_objects], 'inner')
-        return prepare_response(combined["record_ids"], combined["scores"], window_size=window_size), status.HTTP_200_OK
+        return prepare_response(dataset, combined["record_ids"], combined["scores"], window_size=window_size), status.HTTP_200_OK
     
     else:
         return response.text, response.status_code

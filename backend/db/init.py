@@ -48,11 +48,11 @@ def get_table_schema(db_name: str, table_name: str) -> str:
 
 
 if __name__ == "__main__":    
-    args = argparse.ArgumentParser()
-    args.add_argument("-t", "--table_name", type=str, required=True, help="Name of the table to init")
-    args = args.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", "--table_name", type=str, required=True, help="Name of the table to init")
+    args = parser.parse_args()
     
-    db_name = "V3C.db"
+    db_name = "LHE.db"
     table_name = args.table_name
     schema = ""
 

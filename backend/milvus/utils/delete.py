@@ -14,7 +14,7 @@ TOKEN = "root:Milvus"
 
 # 1. Set up a Milvus client
 client = MilvusClient(uri=CLUSTER_ENDPOINT, token=TOKEN)
-client.drop_collection(collection_name='vbs25_clips')
+client.drop_collection(collection_name='vbs25_v3c_clips')
 
 
 collections = utility.list_collections()

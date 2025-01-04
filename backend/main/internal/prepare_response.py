@@ -51,32 +51,42 @@ def prepare_response_deprecated(image_names, scores = None):
     return records
 
 
-def mapping_metadata(records, scores=None):
+def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_server=True):
     records_df = pd.DataFrame(records)
-    records_df['img_link'] = records_df['name'].apply(lambda x: f"http://{server_ip}/vbs25_image/{x}")
+
+    records_df['video_id'] = records_df['name'].apply(lambda x: x.split('/')[1])
+    records_df['frame'] = records_df['name'].apply(lambda x: x.split('/')[-1])
+
+    if local_image_server:
+        records_df['img_link'] = records_df.apply(lambda row: f"http://127.0.0.1:8000/{dataset[-3:].upper()}/{row['video_id']}/{row['timestamp']}.webp", axis=1)
+    else:
+        records_df['img_link'] = records_df.apply(lambda row: f"http://{server_ip}/vbs25_image/{row['video_id']}/{row['timestamp']}.webp", axis=1)
+
     if scores:
-        records_df['video_id'] = records_df['name'].apply(lambda x: x.split('/')[1])
-        # records_df['frame_id'] = records_df['name'].apply(lambda x: x.split('/')[2])
         records_df['score'] = scores
         records_df = records_df[['id', 'img_link', 'timestamp', 'video_id', 'score']]
     else:
         records_df = records_df[['id', 'img_link', 'timestamp']]
+
     records = records_df.to_dict(orient='records')
     return records
 
-def prepare_response(record_ids, scores=None, window_size=3):
+
+def prepare_response(dataset, record_ids, scores=None, window_size=3):
     records = []
 
     if scores == None:
-        scores = [0] * len(record_ids)
+        scores = [0] * len(record_ids)  
 
-    records = search_metadata_by_ids(db_name="v3c", table_name="keyframes", id_list=record_ids)
-    records = mapping_metadata(records, scores=scores)
+    db_name = dataset
+
+    records = search_metadata_by_ids(db_name=db_name, table_name="keyframes", id_list=record_ids)
+    records = mapping_metadata(records, dataset=dataset, scores=scores)
     
     neighbor_ids = [list(range(int(record['id']) - window_size, int(record['id']) + window_size + 1)) for record in records]
     neighbor_ids_flat = list(itertools.chain.from_iterable(neighbor_ids))
-    neighbor_records = search_metadata_by_ids(db_name="v3c", table_name="keyframes", id_list=neighbor_ids_flat)
-    neighbor_records = mapping_metadata(neighbor_records)
+    neighbor_records = search_metadata_by_ids(db_name=db_name, table_name="keyframes", id_list=neighbor_ids_flat)
+    neighbor_records = mapping_metadata(neighbor_records, dataset=dataset)
     len_neighbors = 2 * window_size + 1
 
     for i, record in enumerate(records):
