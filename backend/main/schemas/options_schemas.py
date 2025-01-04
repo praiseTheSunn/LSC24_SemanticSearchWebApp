@@ -10,7 +10,9 @@ class ModeOptions(str, Enum):
     option3 = "kw"
 
 class DatasetOptions(str, Enum):
-    option1 = "vbs25"
-    option2 = "aic24"
-    option3 = "aic24_lesson"
-    option4 = "aic24_cooking"
+    option1 = "vbs25_v3c"
+    option2 = "vbs25_mvk"
+    option3 = "vbs25_lhe"
+    option4 = "aic24"
+    option5 = "aic24_lesson"
+    option6 = "aic24_cooking"

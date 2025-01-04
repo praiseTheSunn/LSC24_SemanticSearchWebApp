@@ -2,9 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from enum import Enum
-from typing import List, Optional
+from schemas import SearchRequest, GetRequest
 import numpy as np
 
 
@@ -25,22 +23,6 @@ app.add_middleware(
 )
 
 
-class DatasetOptions(str, Enum):
-    option1 = "vbs25"
-    option2 = "aic24"
-    option3 = "aic24_lesson"
-    option4 = "aic24_cooking"
-class SearchRequest(BaseModel):
-    model: str
-    embedding: List[List[float]]
-    limit: Optional[int] = 1000
-    dataset: Optional[DatasetOptions] = DatasetOptions.option1
-class GetRequest(BaseModel):
-    collection_name: str
-    ids: List[str]
-    dataset: Optional[DatasetOptions] = DatasetOptions.option1
-
-
 # Include the routes
 @app.post("/search_milvus")
 async def search_milvus(data: SearchRequest):
@@ -56,7 +38,6 @@ async def search_milvus(data: SearchRequest):
     return JSONResponse(content={"response": response}, headers=header)
 
 
-
 @app.post("/get_embeddings")
 async def get_embeddings(data: GetRequest):
     collection_name = data.collection_name
@@ -69,13 +50,11 @@ async def get_embeddings(data: GetRequest):
         collection_name = collection_name,
         ids = ids
     )
-    print("Collection_name: ", collection_name)
     response = {
-        'urls': [raw_results[i]['url'] for i in range(len(raw_results))],
+        'record_ids': [raw_results[i]['id'] for i in range(len(raw_results))],
         'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
     }
 
     # debug
-    print("Urls: ", response['urls'])
-
+    print("Record IDs: ", response['record_ids'])
     return JSONResponse(content={"response": response}, headers=header)

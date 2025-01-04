@@ -25,19 +25,29 @@ def insert_metadata(db_name: str, table_name: str, metadata: Dict[str, Any]):
 
 def insert_videos():
     # Read keyframe to time mapping
-    df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/V3C_keyframe_to_time_mapping.csv", index_col=0)
+    # df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/V3C_keyframe_to_time_mapping.csv", index_col=0)
+    # df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/MVK_keyframe_to_time_mapping.csv")
+    # df2 = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/MVK2_keyframe_to_time_mapping.csv")
+    # df = pd.concat([df, df2])
+    df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/LHE_keyframe_to_time_mapping.csv")
 
     # Prepare metadata
-    db_name = "V3C.db"
+    # db_name = "V3C.db"
+    # db_name = "MVK.db"
+    db_name = "LHE.db"
     table_name = "videos"
     video_names = df["video_id"].unique()
-    all_metadata = [{"name": f"V3C/{int(name):05d}", "dataset": "V3C"} for name in video_names]
+    # all_metadata = [{"name": f"V3C/{int(name):05d}", "dataset": "V3C"} for name in video_names]
+    # all_metadata = [{"name": f"MVK/{name}", "dataset": "MVK"} for name in video_names]
+    all_metadata = [{"name": f"LHE/{name}", "dataset": "LHE"} for name in video_names]
 
     # Prepare id_mapping
-    ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/videos.csv"
+    # ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/v3c/videos.csv"
+    # ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/videos.csv"
+    ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/videos.csv"
     if not os.path.exists(ID_MAPPING):
-        df = pd.DataFrame(columns=["video_name", "video_id"])
-        df.to_csv(ID_MAPPING, index=False)
+        id_mapping = pd.DataFrame(columns=["video_name", "video_id"])
+        id_mapping.to_csv(ID_MAPPING, index=False)
         print(f"Created {ID_MAPPING}")
     id_mapping = pd.read_csv(ID_MAPPING)
     id_mapping.set_index("video_name", inplace=True)
@@ -58,15 +68,22 @@ def insert_videos():
 
 
 def insert_contexts():
-    # Read keyframe to time mapping
-    df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/V3C_keyframe_to_time_mapping.csv", index_col=0)
+    # df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/V3C_keyframe_to_time_mapping.csv", index_col=0)
+    # df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/MVK_keyframe_to_time_mapping.csv")
+    # df2 = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/MVK2_keyframe_to_time_mapping.csv")
+    # df = pd.concat([df, df2])
+    df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/LHE_keyframe_to_time_mapping.csv")
 
     # Prepare video_name to video_id mapping
-    VIDEO_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/videos.csv"
+    # VIDEO_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/v3c/videos.csv"
+    # VIDEO_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/videos.csv"
+    VIDEO_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/videos.csv"
     video_id_mapping = pd.read_csv(VIDEO_ID_MAPPING, index_col=0)
 
     # Prepare metadata
-    db_name = "V3C.db"
+    # db_name = "V3C.db"
+    # db_name = "MVK.db"
+    db_name = "LHE.db"
     table_name = "contexts"
 
     # Group the DataFrame by video_id
@@ -75,15 +92,21 @@ def insert_contexts():
     for video_name, group in grouped:
         num_contexts = math.ceil(len(group) / 16)
         for context_order in range(1, num_contexts + 1):
-            context_name = f"V3C/{int(video_name):05d}/{context_order:05d}"
-            video_id = video_id_mapping.loc[f"V3C/{int(video_name):05d}"]["video_id"]
+            # context_name = f"V3C/{int(video_name):05d}/{context_order:05d}"
+            # context_name = f"MVK/{video_name}/{context_order:05d}"
+            context_name = f"LHE/{video_name}/{context_order:05d}"
+            # video_id = video_id_mapping.loc[f"V3C/{int(video_name):05d}"]["video_id"]
+            # video_id = video_id_mapping.loc[f"MVK/{video_name}"]["video_id"]
+            video_id = video_id_mapping.loc[f"LHE/{video_name}"]["video_id"]
             all_metadata.append({"name": context_name, "video_id": video_id})    
 
     # Prepare id_mapping
-    ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/contexts.csv"
+    # ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/v3c/contexts.csv"
+    # ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/contexts.csv"
+    ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/contexts.csv"
     if not os.path.exists(ID_MAPPING):
-        df = pd.DataFrame(columns=["context_name", "context_id"])
-        df.to_csv(ID_MAPPING, index=False)
+        id_mapping = pd.DataFrame(columns=["context_name", "context_id"])
+        id_mapping.to_csv(ID_MAPPING, index=False)
         print(f"Created {ID_MAPPING}")
     id_mapping = pd.read_csv(ID_MAPPING)
     id_mapping.set_index("context_name", inplace=True)
@@ -108,29 +131,58 @@ def insert_contexts():
 
 def insert_keyframes():
     # Read keyframe to time mapping
-    df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/V3C_keyframe_to_time_mapping.csv", index_col=0)
+    # df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/V3C_keyframe_to_time_mapping.csv", index_col=0)
+    # df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/MVK_keyframe_to_time_mapping.csv")
+    # df2 = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/MVK2_keyframe_to_time_mapping.csv")
+    # df = pd.concat([df, df2])
+    df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/LHE_keyframe_to_time_mapping_transformed.csv")
+    df.reset_index(drop=True, inplace=True)
 
     # Prepare video_name to video_id mapping and context_name to context_id mapping
-    CONTEXT_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/contexts.csv"
+    # CONTEXT_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/v3c/contexts.csv"
+    # CONTEXT_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/contexts.csv"
+    CONTEXT_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/contexts.csv"
     context_id_mapping = pd.read_csv(CONTEXT_ID_MAPPING, index_col=0)
-    VIDEO_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/videos.csv"
+    # VIDEO_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/v3c/videos.csv"
+    # VIDEO_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/videos.csv"
+    VIDEO_ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/videos.csv"
     video_id_mapping = pd.read_csv(VIDEO_ID_MAPPING, index_col=0)
 
     # Prepare metadata
-    db_name = "V3C.db"
+    # db_name = "V3C.db"
+    # db_name = "MVK.db"
+    db_name = "LHE.db"
     table_name = "keyframes"
 
     # Group the DataFrame by video_id
     def process_metadata(df, context_id_mapping, video_id_mapping):
         """Processes metadata from the DataFrame into a list of dictionaries efficiently."""
         # Calculate derived columns
+        # df['context_order'] = 1 + (df['frame'] - 1) // 16
+        # df['video_name'] = df['video_id'].apply(lambda x: f"V3C/{int(x):05d}")
+        # df['context_name'] = df.apply(lambda row: f"{row['video_name']}/{row['context_order']:05d}", axis=1)
+        # df['keyframe_name'] = df.apply(lambda row: f"{row['context_name']}/{row['frame']:05d}", axis=1)
+        # df['timestamp'] = ((df['start_time'] + df['end_time']) / 2 * 1000).astype(int)
+        # df['context_id_mapped'] = df['context_name'].map(context_id_mapping['context_id']).astype(int)
+        # df['video_id_mapped'] = df['video_name'].map(video_id_mapping['video_id']).astype(int)
+
+        # df['context_order'] = 1 + (df['keyframe_id'] - 1) // 16
+        # df['video_name'] = df['video_id'].apply(lambda x: f"MVK/{x}")
+        # df['context_name'] = df.apply(lambda row: f"{row['video_name']}/{row['context_order']:05d}", axis=1)
+        # df['keyframe_name'] = df.apply(lambda row: f"{row['context_name']}/{row['keyframe_id']:05d}", axis=1)
+        # df['timestamp'] = (df['timeframe'] * 1000).astype(int)
+        # df['context_id_mapped'] = df['context_name'].map(context_id_mapping['context_id']).astype(int)
+        # df['video_id_mapped'] = df['video_name'].map(video_id_mapping['video_id']).astype(int)
+
         df['context_order'] = 1 + (df['frame'] - 1) // 16
-        df['video_name'] = df['video_id'].apply(lambda x: f"V3C/{int(x):05d}")
+        df['video_name'] = df['video_id'].apply(lambda x: f"LHE/{x}")
         df['context_name'] = df.apply(lambda row: f"{row['video_name']}/{row['context_order']:05d}", axis=1)
         df['keyframe_name'] = df.apply(lambda row: f"{row['context_name']}/{row['frame']:05d}", axis=1)
-        df['timestamp'] = ((df['start_time'] + df['end_time']) / 2 * 1000).astype(int)
+        df['timestamp'] = (df['timeframe'] * 1000).astype(int)
+        # df['path'] = ...
         df['context_id_mapped'] = df['context_name'].map(context_id_mapping['context_id']).astype(int)
         df['video_id_mapped'] = df['video_name'].map(video_id_mapping['video_id']).astype(int)
+
 
         # Select only required columns for final metadata
         all_metadata_df = df[['keyframe_name', 'timestamp', 'context_id_mapped', 'video_id_mapped']].rename(
@@ -148,10 +200,12 @@ def insert_keyframes():
     all_metadata = process_metadata(df, context_id_mapping, video_id_mapping)
 
     # Prepare id_mapping
-    ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/keyframes.csv"
+    # ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/v3c/keyframes.csv"
+    # ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/keyframes.csv"
+    ID_MAPPING = "/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/keyframes.csv"
     if not os.path.exists(ID_MAPPING):
-        df = pd.DataFrame(columns=["keyframe_name", "keyframe_id"])
-        df.to_csv(ID_MAPPING, index=False)
+        id_mapping = pd.DataFrame(columns=["keyframe_name", "keyframe_id"])
+        id_mapping.to_csv(ID_MAPPING, index=False)
         print(f"Created {ID_MAPPING}")
     id_mapping = pd.read_csv(ID_MAPPING)
     id_mapping.set_index("keyframe_name", inplace=True)
@@ -160,8 +214,6 @@ def insert_keyframes():
     id_mapping_updates = []
     N = len(all_metadata)
     for i, metadata in enumerate(all_metadata):
-        if i < 720000:
-            continue
         keyframe_id = insert_metadata(db_name, table_name, metadata)
         id_mapping_updates.append({"keyframe_name": metadata["name"], "keyframe_id": keyframe_id})
         print(f"Inserted metadata: {metadata}, {keyframe_id} to both DB and id_mapping")

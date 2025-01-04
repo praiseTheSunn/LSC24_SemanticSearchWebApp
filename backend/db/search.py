@@ -1,5 +1,7 @@
 import sqlite3
 from typing import Any, Dict, List
+import sys
+sys.path.append("..")
 from db.setup import db_path
 
 
@@ -63,7 +65,7 @@ def search_metadata_by_ids(db_name: str, table_name: str, id_list: List[int]) ->
 if __name__ == "__main__":
     table_name = "keyframes"
     filters = {
-        "id": 720000,
+        "id": 1680100,
     }
 
     results = search_metadata("v3c", table_name, filters)

@@ -15,10 +15,10 @@ system_config = load_config(system_config_file)
 import urllib3
 urllib3.disable_warnings()
 
-from elasticsearch import Elasticsearch
-password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
-es_client = Elasticsearch(f"https://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
-es_client.info()
+# from elasticsearch import Elasticsearch
+# password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
+# es_client = Elasticsearch(f"https://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
+# es_client.info()
 
 
 # SPACY
