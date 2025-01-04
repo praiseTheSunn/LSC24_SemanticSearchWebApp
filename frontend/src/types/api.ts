@@ -46,6 +46,7 @@ export type TextQueryParams = {
   color_global_encoding?: { [key: string]: number }
   color_local_encoding?: string
   dataset?: string
+  window_size?: number
 }
 
 export type ExploreSimilarParams = {

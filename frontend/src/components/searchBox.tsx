@@ -102,7 +102,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       },
       [dispatch],
     )
-
     const setResult = useCallback(
       (value: ImageRecord[]) => {
         dispatch(appActions.setAppImageData(value))
@@ -217,6 +216,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             mode: queryPayload.mode,
             model: queryPayload.model,
             dataset: queryPayload.dataset,
+            window_size: 3,
           })
           setDisplayedFilters((previousState: any) => [
             ...previousState,
@@ -229,6 +229,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         )
         setTextareaValue('')
         setMessagePopup(true)
+        console.log('payload:', queryPayload)
       }
     }
 
@@ -274,6 +275,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           mode: queryPayload.mode,
           model: queryPayload.model,
           dataset: queryPayload.dataset,
+          window_size: 3,
         })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 
@@ -371,8 +373,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Model"
-            displayItems={['CLIP', 'BLIP2', 'BEiT-3', 'STFM']}
-            valueItems={['clip', 'blip2', 'beit3', 'stfm']}
+            displayItems={['CLIPS', 'BLIP2', 'BEiT-3', 'STFM']}
+            valueItems={['clips', 'blip2', 'beit3', 'stfm']}
             setData={setModel}
           />
         </Box>
@@ -387,8 +389,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={['All', 'Lesson', 'Cooking']}
-            valueItems={['aic24', 'aic24_lesson', 'aic24_cooking']}
+            displayItems={['V3C', 'MVK', 'LHE']}
+            valueItems={['vbs25_v3c', 'vbs25_mvk', 'vbs25_lhe']}
             setData={setDataset}
           />
         </Box>
