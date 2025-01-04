@@ -88,6 +88,7 @@ const HistoryPopup = ({
       mode: queryPayload.mode,
       model: queryPayload.model,
       dataset: queryPayload.dataset,
+      window_size: 3,
     }).then(() => {
       setSearchTerms(
         filters.map((filter) => ({

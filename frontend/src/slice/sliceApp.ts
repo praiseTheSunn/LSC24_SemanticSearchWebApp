@@ -18,10 +18,11 @@ const initialState: AppState = {
 
   data: [],
   queryPayload: {
-    model: 'clip',
+    model: 'clips',
     mode: 'vec',
     text_query: '',
-    dataset: 'aic24',
+    dataset: 'vbs25_lhe',
+    window_size: 3,
   },
   queryHistory: [],
 

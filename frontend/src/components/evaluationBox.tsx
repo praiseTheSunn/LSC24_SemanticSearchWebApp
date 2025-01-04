@@ -28,7 +28,7 @@ const EvaluationBox = () => {
     isNil(sessionId) ? 'Login' : 'Logout',
   )
 
-  // const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
+  const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
   const dispatch = useAppDispatch()
 
   const setEvaluationId = useCallback((evaluationId: string) => {
@@ -69,6 +69,7 @@ const EvaluationBox = () => {
         username: username,
         password: password,
       })
+      console.log('Response', response.data)
       if (!response.data) {
         toast.error('Invalid username or password', {
           position: 'bottom-right',
@@ -91,7 +92,9 @@ const EvaluationBox = () => {
       }
 
       // DE SAI O DAY
-      setEvaluationId(reponseEval.data[0])
+      setEvaluationId(reponseEval.data[2])
+
+      console.log('Evaluation ID', reponseEval.data[2])
 
       setLoginState('Logout')
 
@@ -110,20 +113,20 @@ const EvaluationBox = () => {
       return
     }
 
-    // Kiểm tra text có dạng "answer-Lxx_Vxxx-ms" không với answer khác chuỗi rỗng, x có dạng số, ms có dạng số
-    const regex = /^[^\s]+-L\d{2}_V\d{3}-\d+$/
+    // // Kiểm tra text có dạng "answer-Lxx_Vxxx-ms" không với answer khác chuỗi rỗng, x có dạng số, ms có dạng số
+    // const regex = /^[^\s]+-L\d{2}_V\d{3}-\d+$/
 
-    if (!regex.test(text)) {
-      toast.error(
-        'Text is not in the correct format, must be answer-Lxx_Vxxx-ms',
-        {
-          position: 'bottom-right',
-          autoClose: 2000,
-          closeOnClick: true,
-        },
-      )
-      return
-    }
+    // if (!regex.test(text)) {
+    //   toast.error(
+    //     'Text is not in the correct format, must be answer-Lxx_Vxxx-ms',
+    //     {
+    //       position: 'bottom-right',
+    //       autoClose: 2000,
+    //       closeOnClick: true,
+    //     },
+    //   )
+    //   return
+    // }
 
     // triggerQA({ evaluation_id: evaluationId[0], session: result.data, text: text })
     const resultQA = await triggerQA({
@@ -132,6 +135,17 @@ const EvaluationBox = () => {
       text: text,
     })
     displayResponseToast(resultQA)
+  }
+
+  const submitKIS = async () => {
+    const resultKIS = await triggerKIS({
+      session: sessionId,
+      evaluation_id: evaluationId,
+      mediaItemName: "00001",
+      start: 1,
+      end: 2,
+    })
+    displayResponseToast(resultKIS)
   }
 
   return (
