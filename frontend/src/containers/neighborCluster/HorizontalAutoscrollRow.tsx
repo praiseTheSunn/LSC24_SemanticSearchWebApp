@@ -21,15 +21,15 @@ export const NeighborRow: React.FC<{
 
   const originalImageRef = useRef<HTMLDivElement | null>(null)
 
-  useEffect(() => {
-    if (originalImageRef.current) {
-      originalImageRef.current.scrollIntoView({
-        behavior: 'smooth',
-        block: 'nearest',
-        inline: 'center',
-      })
-    }
-  }, [])
+  // useEffect(() => {
+  //   if (originalImageRef.current) {
+  //     originalImageRef.current.scrollIntoView({
+  //       behavior: 'smooth',
+  //       block: 'nearest',
+  //       inline: 'center',
+  //     })
+  //   }
+  // }, [])
 
   return (
     <Box sx={style} display="flex" flexDirection="column" alignItems="center">

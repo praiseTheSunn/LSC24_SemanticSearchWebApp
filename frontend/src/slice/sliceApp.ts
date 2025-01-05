@@ -21,7 +21,7 @@ const initialState: AppState = {
     model: 'clips',
     mode: 'vec',
     text_query: '',
-    dataset: 'vbs25_lhe',
+    dataset: 'vbs25_v3c',
     window_size: 3,
   },
   queryHistory: [],
