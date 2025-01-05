@@ -29,6 +29,7 @@ import ImageGrid from '../containers/similarity/image-grid'
 import { CSVPreviewPopup } from './Popup/CSVPreviewPopup'
 import ConfigEditor from './Popup/settingPopup'
 import EvaluationBox from './evaluationBox'
+import type { FeedbackQueryParams } from '../types/api'
 
 export const CSVDownloadBox = () => {
   const csvImages = useAppSelector((state) => state.app.csvImages)
@@ -122,18 +123,20 @@ export const CSVDownloadBox = () => {
       })
       return
     }
-    const feedbackData: any = {}
-    feedbackData.like = {
-      image_urls: likeImages.map((image) => image.img_link),
-      prior_scores: likeImages.map((image) => image.score),
-      limit: likeLimit,
-    }
-    feedbackData.dislike = {
-      image_urls: dislikeImages.map((image) => image.img_link),
-      limit: dislikeLimit,
-    }
-    feedbackData.model = queryPayload.model
-    feedbackData.dataset = queryPayload.dataset
+
+    const feedbackData: FeedbackQueryParams = {
+      like: {
+        image_urls: likeImages.map(({ img_link }) => img_link),
+        prior_scores: likeImages.map(({ score }) => score),
+        limit: likeLimit,
+      },
+      dislike: {
+        image_urls: dislikeImages.map(({ img_link }) => img_link),
+        limit: dislikeLimit,
+      },
+      model: queryPayload.model,
+      dataset: queryPayload.dataset,
+    };    
 
     triggerFeedbackQuery(feedbackData)
 

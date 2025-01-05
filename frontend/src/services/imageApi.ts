@@ -11,6 +11,7 @@ import type {
   ExploreSimilarParams,
   ImageQueryParams,
   TextQueryParams,
+  FeedbackQueryParams
 } from '../types/api'
 import type { ImageRecord } from '../types/image'
 
@@ -94,7 +95,7 @@ export const ImageApi = createApi({
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 
-      getFeedbackImages: builder.query<ImageRecord[], any>({
+      getFeedbackImages: builder.query<ImageRecord[], FeedbackQueryParams>({
         query: (params) => {
           return {
             url: '/feedback',
