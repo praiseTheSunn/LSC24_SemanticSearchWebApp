@@ -144,7 +144,6 @@ export const CSVDownloadBox = () => {
     })
   }
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     if (data) {
       const likedImages = data.like
@@ -185,7 +184,10 @@ export const CSVDownloadBox = () => {
     }
   }, [handleSubmitFeedback])
 
-  const ImageBox = ({ image, onDelete }) => {
+  const ImageBox = ({
+    image,
+    onDelete,
+  }: { image: string; onDelete: () => void }) => {
     return (
       <div
         style={{

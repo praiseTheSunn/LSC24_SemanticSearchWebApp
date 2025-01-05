@@ -25,12 +25,17 @@ import {
   useAppSelector,
   useLazyGetImagesQuery,
 } from '../../AppState'
+import {
+  LHEClassNames,
+  MVKClassNames,
+} from '../../assets/ObjClass/mvk_lhe_names'
 import { ObjectV8ClassNames } from '../../assets/ObjClass/yolov8_class_names'
 import { ObjectV10ClassNames } from '../../assets/ObjClass/yolov10_class_names'
-import { MVKClassNames, LHEClassNames } from '../../assets/ObjClass/mvk_lhe_names'
 import pico8Colors from '../../assets/ObjColors/pico8'
 import { HumanPoses } from '../../data/HumanPoses'
 import { InitPoseCoor } from '../../data/InitPoseCoor'
+import { LHEImages } from '../../data/LHEImages'
+import { MVKImages } from '../../data/MVKImages'
 import { DragIconList } from '../../data/icon'
 import type { ObjPosResponse } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
@@ -39,8 +44,6 @@ import { objColorPosEncoding } from '../../utils/encoding/objColorPosEncoding'
 import { poseEncoding } from '../../utils/encoding/poseEncoding'
 import BrushWhiteboard from '../BrushWhiteboard'
 import PoseCanvas from '../PoseCanvas'
-import { MVKImages } from '../../data/MVKImages'
-import { LHEImages } from '../../data/LHEImages'
 
 const ObjectClassNames = Array.from(
   new Set(ObjectV8ClassNames.concat(ObjectV10ClassNames)),
@@ -128,17 +131,17 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
     }
     setSelectedIcon({ color: 'none', name: icon.name, source: icon.source })
   }
-  const [hoveredOption, setHoveredOption] = useState<string | null>(null);
+  const [hoveredOption, setHoveredOption] = useState<string | null>(null)
 
   const handleMVKOptionImage = (option: string) => {
-    const imageObj = MVKImages.find((img) => img.name === option);
-    return imageObj ? imageObj.source : '';
-  };
+    const imageObj = MVKImages.find((img) => img.name === option)
+    return imageObj ? imageObj.source : ''
+  }
 
   const handleLHEOptionImage = (option: string) => {
-    const imageObj = LHEImages.find((img) => img.name === option);
-    return imageObj ? imageObj.source : '';
-  };
+    const imageObj = LHEImages.find((img) => img.name === option)
+    return imageObj ? imageObj.source : ''
+  }
 
   const handleColorClick = (color: string) => {
     if (selectedIcon) {
@@ -330,7 +333,11 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                   <img
                     src={handleMVKOptionImage(option)}
                     alt={option}
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                    }}
                   />
                 </Box>
               )}
@@ -396,7 +403,11 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                   <img
                     src={handleLHEOptionImage(option)}
                     alt={option}
-                    style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                    }}
                   />
                 </Box>
               )}
@@ -607,7 +618,19 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
                 }}
               >
                 <FormGroup>
-                  <FormControlLabel control={<Checkbox size="small" checked={isAutoFill && isAutoComplete} onChange={() => {setIsAutoFill(!isAutoFill); setIsAutoComplete(!isAutoComplete)}} />} label="Auto Brush" />
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={isAutoFill && isAutoComplete}
+                        onChange={() => {
+                          setIsAutoFill(!isAutoFill)
+                          setIsAutoComplete(!isAutoComplete)
+                        }}
+                      />
+                    }
+                    label="Auto Brush"
+                  />
                 </FormGroup>
                 <Typography
                   gutterBottom

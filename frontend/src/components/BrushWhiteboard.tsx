@@ -2,9 +2,9 @@ import { Box, Grid, Tooltip, Typography } from '@mui/material'
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
 import { useAppSelector } from '../AppState'
+import { calculateLineCoordinates } from '../utils/bresenhamLine'
 import { getOppositeColor } from '../utils/getOppositeColor'
 import type { DrawnItem, GridDict, Icon } from './Popup/ObjectPositionPopup'
-import { calculateLineCoordinates } from '../utils/bresenhamLine'
 
 interface WhiteboardProps {
   selectedIcon: Icon | null
@@ -30,12 +30,14 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
     brushSize,
     setSelectedIcon,
     isAutoFill,
-    isAutoComplete
+    isAutoComplete,
   }) => {
     const Config = useAppSelector((state) => state.app.config)
     const [isDrawing, setIsDrawing] = useState<boolean>(false)
     const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 })
-    const [contour, setContour] = useState<{x: number, y:number, checked: boolean}[] >([])
+    const [contour, setContour] = useState<
+      { x: number; y: number; checked: boolean }[]
+    >([])
 
     useEffect(() => {
       const updateCursorPosition = (e: MouseEvent) => {
@@ -46,49 +48,71 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
         window.removeEventListener('mousemove', updateCursorPosition)
       }
     }, [selectedIcon])
-    const handleMouseUp = async (row: number, col: number)  => {
-      
-      if (isAutoComplete){
-        if (!contour || contour.length === 0) return;
-        const autoFillCoors = calculateLineCoordinates(contour[0]?.x, contour[0]?.y , row, col) 
+    const handleMouseUp = async (row: number, col: number) => {
+      if (isAutoComplete) {
+        if (!contour || contour.length === 0) return
+        const autoFillCoors = calculateLineCoordinates(
+          contour[0]?.x,
+          contour[0]?.y,
+          row,
+          col,
+        )
         const newDataGrid = [...dataGrid]
-        for (const coor of autoFillCoors){
+        for (const coor of autoFillCoors) {
           newDataGrid[coor.x0][coor.y0] = {
             color: selectedIcon?.color || '',
             objectName:
-            !selectedIcon || selectedIcon?.name === 'none' ? '' : selectedIcon.name,
+              !selectedIcon || selectedIcon?.name === 'none'
+                ? ''
+                : selectedIcon.name,
           }
         }
         setDataGrid(newDataGrid)
       }
-      if (isAutoFill){
-        let foundStartPoint = false;
+      if (isAutoFill) {
+        let foundStartPoint = false
         const newDataGrid = [...dataGrid]
-        let selectedPair = [];
-        while(1){
+        let selectedPair = []
+        // biome-ignore lint/correctness/noConstantCondition: <explanation>
+        while (1) {
           selectedPair = []
-          const uncheckedContour =  contour.filter((element) => element.checked === false)
-          if (uncheckedContour.length <= 0) break;
-          const randomIndex = Math.floor(Math.random() * uncheckedContour.length)
-          const randomOnBorderPoint = uncheckedContour[randomIndex];
+          const uncheckedContour = contour.filter(
+            (element) => element.checked === false,
+          )
+          if (uncheckedContour.length <= 0) break
+          const randomIndex = Math.floor(
+            Math.random() * uncheckedContour.length,
+          )
+          const randomOnBorderPoint = uncheckedContour[randomIndex]
           let crossBorderCount = 0
-          for(let k = Math.max(randomOnBorderPoint.y, 1); k < Config.WhiteboardGridColumnCount - 1; k++){
+          for (
+            let k = Math.max(randomOnBorderPoint.y, 1);
+            k < Config.WhiteboardGridColumnCount - 1;
+            k++
+          ) {
             console.log(randomOnBorderPoint, k)
             if (
-              (newDataGrid[randomOnBorderPoint.x][k].color !== newDataGrid[randomOnBorderPoint.x][k - 1].color 
-                || 
-                newDataGrid[randomOnBorderPoint.x][k].objectName !== newDataGrid[randomOnBorderPoint.x][k - 1].objectName)
-                &&
-              (newDataGrid[randomOnBorderPoint.x][k].color === (selectedIcon?.color || '') 
-              && 
-              newDataGrid[randomOnBorderPoint.x][k].objectName === (!selectedIcon || selectedIcon?.name === 'none' ? '' : selectedIcon.name))
-            ){
-              crossBorderCount = crossBorderCount + 1;
-              selectedPair.push({x: randomOnBorderPoint.x, y: k, checked: true})
+              (newDataGrid[randomOnBorderPoint.x][k].color !==
+                newDataGrid[randomOnBorderPoint.x][k - 1].color ||
+                newDataGrid[randomOnBorderPoint.x][k].objectName !==
+                  newDataGrid[randomOnBorderPoint.x][k - 1].objectName) &&
+              newDataGrid[randomOnBorderPoint.x][k].color ===
+                (selectedIcon?.color || '') &&
+              newDataGrid[randomOnBorderPoint.x][k].objectName ===
+                (!selectedIcon || selectedIcon?.name === 'none'
+                  ? ''
+                  : selectedIcon.name)
+            ) {
+              crossBorderCount = crossBorderCount + 1
+              selectedPair.push({
+                x: randomOnBorderPoint.x,
+                y: k,
+                checked: true,
+              })
             }
           }
           contour[contour.indexOf(randomOnBorderPoint)].checked = true
-          if (crossBorderCount === 2){
+          if (crossBorderCount === 2) {
             foundStartPoint = true
             break
           }
@@ -96,49 +120,65 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
 
         if (foundStartPoint === false) return
         const centroidCoor = {
-          x: Math.floor((selectedPair[0].x + selectedPair[1].x) / 2), 
-          y:  Math.floor((selectedPair[0].y + selectedPair[1].y) / 2), 
+          x: Math.floor((selectedPair[0].x + selectedPair[1].x) / 2),
+          y: Math.floor((selectedPair[0].y + selectedPair[1].y) / 2),
         }
 
         const stack = []
         stack.push(centroidCoor)
-        while(1){
-          if (stack.length <= 0) break;
-          const curCoor: {x: number, y:number} | undefined = stack.pop();
-          if (!curCoor) continue;
-          if (newDataGrid[curCoor.x][curCoor.y].color === (selectedIcon?.color || '') 
-            && newDataGrid[curCoor.x][curCoor.y].objectName === (!selectedIcon || selectedIcon?.name === 'none' ? '' : selectedIcon.name)
-          ) 
+        // biome-ignore lint/correctness/noConstantCondition: <explanation>
+        while (1) {
+          if (stack.length <= 0) break
+          const curCoor: { x: number; y: number } | undefined = stack.pop()
+          if (!curCoor) continue
+          if (
+            newDataGrid[curCoor.x][curCoor.y].color ===
+              (selectedIcon?.color || '') &&
+            newDataGrid[curCoor.x][curCoor.y].objectName ===
+              (!selectedIcon || selectedIcon?.name === 'none'
+                ? ''
+                : selectedIcon.name)
+          )
             continue
           newDataGrid[curCoor.x][curCoor.y] = {
             color: selectedIcon?.color || '',
-            objectName: 
-            !selectedIcon || selectedIcon?.name === 'none' ? '' : selectedIcon.name,
+            objectName:
+              !selectedIcon || selectedIcon?.name === 'none'
+                ? ''
+                : selectedIcon.name,
           }
-            for (let i = -1; i <= 1; i++) {
-              if (i === 0) continue;
-              const newX: number = curCoor.x + i;
-              if (
-                newX >= 0 && newX < Config.WhiteboardGridRowCount &&
-                (newDataGrid[newX][curCoor.y].color !== (selectedIcon?.color || '')
-                  || newDataGrid[newX][curCoor.y].objectName !== (!selectedIcon || selectedIcon?.name === 'none' ? '' : selectedIcon.name)
-                )
-              ) {
-                stack.push({ x: newX, y: curCoor.y });
-              }
+          for (let i = -1; i <= 1; i++) {
+            if (i === 0) continue
+            const newX: number = curCoor.x + i
+            if (
+              newX >= 0 &&
+              newX < Config.WhiteboardGridRowCount &&
+              (newDataGrid[newX][curCoor.y].color !==
+                (selectedIcon?.color || '') ||
+                newDataGrid[newX][curCoor.y].objectName !==
+                  (!selectedIcon || selectedIcon?.name === 'none'
+                    ? ''
+                    : selectedIcon.name))
+            ) {
+              stack.push({ x: newX, y: curCoor.y })
             }
-            for (let j = -1; j <= 1; j++) {
-              if (j === 0) continue;
-              const newY: number = curCoor.y + j;
-              if (
-                newY >= 0 && newY < Config.WhiteboardGridColumnCount &&
-                (newDataGrid[curCoor.x][newY].color !== (selectedIcon?.color || '')
-                  || newDataGrid[curCoor.x][newY].objectName !== (!selectedIcon || selectedIcon?.name === 'none' ? '' : selectedIcon.name)
-                )
-              ) {
-                stack.push({ x: curCoor.x, y: newY });
-              }
+          }
+          for (let j = -1; j <= 1; j++) {
+            if (j === 0) continue
+            const newY: number = curCoor.y + j
+            if (
+              newY >= 0 &&
+              newY < Config.WhiteboardGridColumnCount &&
+              (newDataGrid[curCoor.x][newY].color !==
+                (selectedIcon?.color || '') ||
+                newDataGrid[curCoor.x][newY].objectName !==
+                  (!selectedIcon || selectedIcon?.name === 'none'
+                    ? ''
+                    : selectedIcon.name))
+            ) {
+              stack.push({ x: curCoor.x, y: newY })
             }
+          }
         }
         setDataGrid(newDataGrid)
       }
@@ -157,7 +197,10 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
     const handleCellClick = useCallback(
       (row: number, col: number) => {
         if (selectedIcon === null) return
-        setContour((prevContour) => [...prevContour, {x: row, y: col, checked: false}])
+        setContour((prevContour) => [
+          ...prevContour,
+          { x: row, y: col, checked: false },
+        ])
         const newDataGrid = [...dataGrid]
         const halfBrush = Math.floor(brushSize / 2)
 
@@ -174,7 +217,9 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
               newDataGrid[newRow][newCol] = {
                 color: selectedIcon?.color || '',
                 objectName:
-                !selectedIcon || selectedIcon?.name === 'none' ? '' : selectedIcon.name,
+                  !selectedIcon || selectedIcon?.name === 'none'
+                    ? ''
+                    : selectedIcon.name,
               }
             }
           }
@@ -195,7 +240,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
         event.preventDefault()
         setIsDrawing(true)
         handleCellClick(row, col)
-        setContour([{x: row, y: col, checked: false}])
+        setContour([{ x: row, y: col, checked: false }])
       },
       [handleCellClick],
     )

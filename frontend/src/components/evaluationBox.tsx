@@ -141,7 +141,7 @@ const EvaluationBox = () => {
     const resultKIS = await triggerKIS({
       session: sessionId,
       evaluation_id: evaluationId,
-      mediaItemName: "00001",
+      mediaItemName: '00001',
       start: 1,
       end: 2,
     })

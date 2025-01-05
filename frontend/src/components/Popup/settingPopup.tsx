@@ -28,15 +28,16 @@ const ConfigEditor: React.FC = () => {
     dispatch(appActions.setConfig(updatedConfig))
     saveConfigToLocalStorage(updatedConfig)
     if (key === 'queryWindowSize') {
-      dispatch(appActions.setQueryPayload({ ...queryPayload, window_size: value }))
+      dispatch(
+        appActions.setQueryPayload({ ...queryPayload, window_size: value }),
+      )
     }
     console.log('Config updated:', updatedConfig)
   }
 
   return (
     <Box style={{ padding: '10px', margin: '10px' }}>
-
-<Accordion>
+      <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">Query Settings</Typography>
         </AccordionSummary>

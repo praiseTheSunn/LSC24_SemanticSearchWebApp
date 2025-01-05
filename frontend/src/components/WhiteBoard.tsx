@@ -50,7 +50,7 @@ const Whiteboard: React.FC<WhiteboardProps> = ({
   onClear,
   setIsClear,
   setSelecObjects,
-  setSelectedIcon
+  setSelectedIcon,
 }) => {
   const [drawing, setDrawing] = useState(false)
   const [startPos, setStartPos] = useState<{ x: number; y: number } | null>(
