@@ -25,7 +25,6 @@ import ImageInputBox from './ImageInputBox'
 import HistoryPopup from './Popup/HistoryPopup'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
-import { FilterCategories } from '../data/FilterCategory'
 import DictionaryPopup from './Popup/DictionaryPopup'
 
 type SearchBoxProps = {
@@ -56,6 +55,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     const showHistory = useAppSelector((state) => state.app.isHistoryPopUpOpen)
     const showDictionary = useAppSelector((state) => state.app.isDictionaryPopupOpen)
     const queryPayload = useAppSelector((state) => state.app.queryPayload)
+    const Config = useAppSelector((state) => state.app.config)
 
     const [trigger, result] = useLazyGetImagesQuery()
     const [TriggerTranslate, TranslatedResult] = useLazyGetTranslatedTextQuery()
@@ -211,12 +211,20 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           const filter = { category: 'query', value, status: 1 }
           setQuery(value)
 
+          console.log('queryPayload enter:', queryPayload, value, {
+            text_query: value,
+            mode: queryPayload.mode,
+            model: queryPayload.model,
+            dataset: queryPayload.dataset,
+            window_size: Config.queryWindowSize,
+          })
+
           trigger({
             text_query: value,
             mode: queryPayload.mode,
             model: queryPayload.model,
             dataset: queryPayload.dataset,
-            window_size: 3,
+            window_size: Config.queryWindowSize,
           })
           setDisplayedFilters((previousState: any) => [
             ...previousState,
@@ -229,7 +237,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         )
         setTextareaValue('')
         setMessagePopup(true)
-        console.log('payload:', queryPayload)
+
       }
     }
 
@@ -275,7 +283,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           mode: queryPayload.mode,
           model: queryPayload.model,
           dataset: queryPayload.dataset,
-          window_size: 3,
+          window_size: Config.queryWindowSize,
         })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 
