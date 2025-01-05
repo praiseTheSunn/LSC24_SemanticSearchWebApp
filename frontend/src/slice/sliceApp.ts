@@ -113,6 +113,6 @@ export const sliceApp = createSlice({
 
     setDictionaryPopup: (state, action) => {
       state.isDictionaryPopupOpen = action.payload
-    }
+    },
   },
 })

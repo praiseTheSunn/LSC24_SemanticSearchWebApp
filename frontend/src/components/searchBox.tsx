@@ -22,10 +22,10 @@ import type { SearchTermType } from '../types/search'
 import { LanguageSwitch } from './Button/LanguageSwitch'
 import { CSVDownloadBox } from './CSVDownloadBox'
 import ImageInputBox from './ImageInputBox'
+import DictionaryPopup from './Popup/DictionaryPopup'
 import HistoryPopup from './Popup/HistoryPopup'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
-import DictionaryPopup from './Popup/DictionaryPopup'
 
 type SearchBoxProps = {
   displayedFilters: any
@@ -53,7 +53,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     const [isFocus, setIsFocus] = useState(false)
 
     const showHistory = useAppSelector((state) => state.app.isHistoryPopUpOpen)
-    const showDictionary = useAppSelector((state) => state.app.isDictionaryPopupOpen)
+    const showDictionary = useAppSelector(
+      (state) => state.app.isDictionaryPopupOpen,
+    )
     const queryPayload = useAppSelector((state) => state.app.queryPayload)
     const Config = useAppSelector((state) => state.app.config)
 
@@ -237,7 +239,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         )
         setTextareaValue('')
         setMessagePopup(true)
-
       }
     }
 
@@ -417,7 +418,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             <Button
               variant="contained"
               color="primary"
-              onClick={() => {toggleDictionaryPopup(true)
+              onClick={() => {
+                toggleDictionaryPopup(true)
                 console.log('showDictionary:', showDictionary)
               }}
               sx={{ marginLeft: '12px', marginTop: '7px' }}
@@ -425,9 +427,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
               Dictionary
             </Button>
 
-            {showDictionary && (
-              <DictionaryPopup/>
-            )}
+            {showDictionary && <DictionaryPopup />}
           </Box>
         </ClickAwayListener>
 
