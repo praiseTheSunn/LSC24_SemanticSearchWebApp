@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { get } from 'lodash'
 import { ImageQuery } from '.'
 import {
-  transformResponse_AIC2024,
+  transformResponse_VBS2025,
   transformResponse_Feedback_AIC,
 } from '../config/transformResponse'
 import type {
@@ -30,7 +30,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
+          transformResponse_VBS2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -50,7 +50,7 @@ export const ImageApi = createApi({
           body: params,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
+          transformResponse_VBS2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -71,7 +71,7 @@ export const ImageApi = createApi({
           body: params,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
+          transformResponse_VBS2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -91,7 +91,7 @@ export const ImageApi = createApi({
           body: imageQuery,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
+          transformResponse_VBS2025(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 

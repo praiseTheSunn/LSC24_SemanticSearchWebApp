@@ -32,9 +32,12 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const src = data?.img_link ? data.img_link : undefined
   const videoSrc = data?.video_url ? data.video_url : undefined
-  const date = data?.date ? data.date : null
-  const time = data?.time ? data.time : null
-  const timestamp = data?.timestamp ? data.timestamp * 1000 : null
+  // const date = data?.date ? data.date : null
+  // const time = data?.time ? data.time : null
+  // const timestamp = data?.timestamp ? data.timestamp * 1000 : null
+  const date = null
+  const timestamp = data?.video_id ? data.video_id : null
+  const time = data?.timestamp ? data.timestamp : null
   const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
