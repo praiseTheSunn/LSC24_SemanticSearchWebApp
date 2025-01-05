@@ -31,6 +31,7 @@ const HistoryPopup = ({
   setDisplayedFilters: Dispatch<SetStateAction<SearchTermType[]>>
 }) => {
   const history = useAppSelector((state) => state.app.queryHistory)
+  const Config = useAppSelector((state) => state.app.config)
   const cache = useMemo(
     () =>
       new CellMeasurerCache({
@@ -88,7 +89,7 @@ const HistoryPopup = ({
       mode: queryPayload.mode,
       model: queryPayload.model,
       dataset: queryPayload.dataset,
-      window_size: 3,
+      window_size: Config.queryWindowSize,
     }).then(() => {
       setSearchTerms(
         filters.map((filter) => ({

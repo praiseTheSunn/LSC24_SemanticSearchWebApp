@@ -2,13 +2,12 @@ import { Box } from '@mui/material'
 import { useEffect, useRef } from 'react'
 import { AnImage } from '../../components'
 import type { ImageRecord } from '../../types/image'
-
 export const NeighborRow: React.FC<{
   imageData: ImageRecord
   style: React.CSSProperties
   config: any
 }> = ({ imageData, style, config }) => {
-  const neighbors = imageData?.neighbors ?? []
+  const neighbors = imageData?.neighbors ?? [];
   const displayedImages = [
     { ...imageData, isOriginal: true },
     ...neighbors,
@@ -16,20 +15,20 @@ export const NeighborRow: React.FC<{
     return (
       Number.parseInt(a.frame_id as string) -
       Number.parseInt(b.frame_id as string)
-    )
-  })
+    );
+  });
 
-  const originalImageRef = useRef<HTMLDivElement | null>(null)
+  const originalImageRef = useRef<HTMLDivElement | null>(null);
 
-  // useEffect(() => {
-  //   if (originalImageRef.current) {
-  //     originalImageRef.current.scrollIntoView({
-  //       behavior: 'smooth',
-  //       block: 'nearest',
-  //       inline: 'center',
-  //     })
-  //   }
-  // }, [])
+  useEffect(() => {
+    if (originalImageRef.current) {
+      originalImageRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest', // Prevent vertical alignment changes
+        inline: 'center', // Center horizontally
+      });
+    }
+  }, [imageData]); // Trigger only when `imageData` changes
 
   return (
     <Box sx={style} display="flex" flexDirection="column" alignItems="center">
@@ -78,5 +77,5 @@ export const NeighborRow: React.FC<{
         marginBottom="5px"
       />
     </Box>
-  )
-}
+  );
+};

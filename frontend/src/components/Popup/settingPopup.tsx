@@ -9,7 +9,6 @@ import {
   Typography,
 } from '@mui/material'
 import type React from 'react'
-import { useState } from 'react'
 import { saveConfigToLocalStorage } from '..'
 import { useAppDispatch, useAppSelector } from '../../AppState'
 import { appActions } from '../../AppState'
@@ -17,23 +16,55 @@ import type { ConfigType } from '../../types/app'
 
 const ConfigEditor: React.FC = () => {
   const userConfig = useAppSelector((state) => state.app.config)
+  const queryPayload = useAppSelector((state) => state.app.queryPayload)
   const dispatch = useAppDispatch()
-
-  const [config, setConfig] = useState<ConfigType>(userConfig)
 
   const handleSliderChange = (key: keyof ConfigType, value: number) => {
     const updatedConfig = {
-      ...config,
+      ...userConfig,
       [key]: value,
     }
-    setConfig(updatedConfig)
+    // setConfig(updatedConfig)
     dispatch(appActions.setConfig(updatedConfig))
     saveConfigToLocalStorage(updatedConfig)
+    if (key === 'queryWindowSize') {
+      dispatch(appActions.setQueryPayload({ ...queryPayload, window_size: value }))
+    }
     console.log('Config updated:', updatedConfig)
   }
 
   return (
     <Box style={{ padding: '10px', margin: '10px' }}>
+
+<Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+          <Typography variant="h6">Query Settings</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Typography gutterBottom>Window Size</Typography>
+          <Slider
+            marks={[
+              { value: 2, label: '2' },
+              { value: 3, label: '3' },
+              { value: 4, label: '4' },
+              { value: 5, label: '5' },
+              { value: 6, label: '6' },
+              { value: 7, label: '7' },
+              { value: 8, label: '8' },
+              { value: 9, label: '9' },
+              { value: 10, label: '10' },
+            ]}
+            value={userConfig.queryWindowSize}
+            onChange={(e, newValue) =>
+              handleSliderChange('queryWindowSize', newValue as number)
+            }
+            step={1}
+            min={2}
+            max={10}
+            valueLabelDisplay="auto"
+          />
+        </AccordionDetails>
+      </Accordion>
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
           <Typography variant="h6">Image Grid Settings</Typography>
@@ -51,7 +82,7 @@ const ConfigEditor: React.FC = () => {
               { value: 11, label: '11' },
               { value: 12, label: '12' },
             ]}
-            value={config.ImageGridColumnCount}
+            value={userConfig.ImageGridColumnCount}
             onChange={(e, newValue) =>
               handleSliderChange('ImageGridColumnCount', newValue as number)
             }
@@ -62,7 +93,7 @@ const ConfigEditor: React.FC = () => {
           />
           <Typography gutterBottom>Image Grid Cell Height</Typography>
           <Slider
-            value={config.ImageGridCellHeight}
+            value={userConfig.ImageGridCellHeight}
             onChange={(e, newValue) =>
               handleSliderChange('ImageGridCellHeight', newValue as number)
             }
@@ -81,7 +112,7 @@ const ConfigEditor: React.FC = () => {
         <AccordionDetails>
           <Typography gutterBottom>Neighbor Tab Cell Min Width</Typography>
           <Slider
-            value={config.NeighborTabCellMinWidth}
+            value={userConfig.NeighborTabCellMinWidth}
             onChange={(e, newValue) =>
               handleSliderChange('NeighborTabCellMinWidth', newValue as number)
             }
@@ -92,7 +123,7 @@ const ConfigEditor: React.FC = () => {
           />
           <Typography gutterBottom>Neighbor Tab Row Height</Typography>
           <Slider
-            value={config.NeighborTabRowHeight}
+            value={userConfig.NeighborTabRowHeight}
             onChange={(e, newValue) =>
               handleSliderChange('NeighborTabRowHeight', newValue as number)
             }
@@ -121,7 +152,7 @@ const ConfigEditor: React.FC = () => {
               { value: 11, label: '11' },
               { value: 12, label: '12' },
             ]}
-            value={config.ViewMorePopupColumnCount}
+            value={userConfig.ViewMorePopupColumnCount}
             onChange={(e, newValue) =>
               handleSliderChange('ViewMorePopupColumnCount', newValue as number)
             }
@@ -133,7 +164,7 @@ const ConfigEditor: React.FC = () => {
 
           <Typography gutterBottom>View More Popup Cell Height</Typography>
           <Slider
-            value={config.ViewMorePopupCellHeight}
+            value={userConfig.ViewMorePopupCellHeight}
             onChange={(e, newValue) =>
               handleSliderChange('ViewMorePopupCellHeight', newValue as number)
             }
@@ -162,7 +193,7 @@ const ConfigEditor: React.FC = () => {
               { value: 11, label: '11' },
               { value: 12, label: '12' },
             ]}
-            value={config.SinglePopupColumnCount}
+            value={userConfig.SinglePopupColumnCount}
             onChange={(e, newValue) =>
               handleSliderChange('SinglePopupColumnCount', newValue as number)
             }
@@ -174,7 +205,7 @@ const ConfigEditor: React.FC = () => {
 
           <Typography gutterBottom>Single Popup Cell Height</Typography>
           <Slider
-            value={config.SinglePopupCellHeight}
+            value={userConfig.SinglePopupCellHeight}
             onChange={(e, newValue) =>
               handleSliderChange('SinglePopupCellHeight', newValue as number)
             }
@@ -203,7 +234,7 @@ const ConfigEditor: React.FC = () => {
               { value: 11, label: '11' },
               { value: 12, label: '12' },
             ]}
-            value={config.NeighborPopupColumnCount}
+            value={userConfig.NeighborPopupColumnCount}
             onChange={(e, newValue) =>
               handleSliderChange('NeighborPopupColumnCount', newValue as number)
             }
@@ -215,7 +246,7 @@ const ConfigEditor: React.FC = () => {
 
           <Typography gutterBottom>Neighbor Popup Cell Height</Typography>
           <Slider
-            value={config.NeighborPopupCellHeight}
+            value={userConfig.NeighborPopupCellHeight}
             onChange={(e, newValue) =>
               handleSliderChange('NeighborPopupCellHeight', newValue as number)
             }
@@ -227,7 +258,7 @@ const ConfigEditor: React.FC = () => {
 
           <Typography gutterBottom>Neighbor Popup Span</Typography>
           <Slider
-            value={config.NeighborPopupSpan}
+            value={userConfig.NeighborPopupSpan}
             onChange={(e, newValue) =>
               handleSliderChange('NeighborPopupSpan', newValue as number)
             }
@@ -246,7 +277,7 @@ const ConfigEditor: React.FC = () => {
         <AccordionDetails>
           <Typography gutterBottom> Whiteboard Height</Typography>
           <Slider
-            value={config.WhiteboardCanvasHeight}
+            value={userConfig.WhiteboardCanvasHeight}
             onChange={(e, newValue) =>
               handleSliderChange('WhiteboardCanvasHeight', newValue as number)
             }
@@ -258,7 +289,7 @@ const ConfigEditor: React.FC = () => {
 
           <Typography gutterBottom> Whiteboard Width</Typography>
           <Slider
-            value={config.WhiteboardCanvasWidth}
+            value={userConfig.WhiteboardCanvasWidth}
             onChange={(e, newValue) =>
               handleSliderChange('WhiteboardCanvasWidth', newValue as number)
             }
@@ -277,7 +308,7 @@ const ConfigEditor: React.FC = () => {
         <AccordionDetails>
           <Typography gutterBottom> Like</Typography>
           <Slider
-            value={config.LikeNumber}
+            value={userConfig.LikeNumber}
             onChange={(e, newValue) =>
               handleSliderChange('LikeNumber', newValue as number)
             }
@@ -289,7 +320,7 @@ const ConfigEditor: React.FC = () => {
 
           <Typography gutterBottom> Dislike</Typography>
           <Slider
-            value={config.DislikeNumber}
+            value={userConfig.DislikeNumber}
             onChange={(e, newValue) =>
               handleSliderChange('DislikeNumber', newValue as number)
             }

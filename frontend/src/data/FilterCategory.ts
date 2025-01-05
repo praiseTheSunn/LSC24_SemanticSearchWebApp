@@ -17,4 +17,14 @@ const FilterCategories_AIC2024 = {
   '-v': { category: 'video_id', startIndex: 3, display: '-v ... : Video ID' },
 }
 
-export const FilterCategories = FilterCategories_AIC2024
+const FilterCategories_VBS2025 = {
+  '-t': { category: 'timestamp', startIndex: 3, display: '-t ... : time' },
+  '-obj': {
+    category: 'object_tags',
+    startIndex: 5,
+    display: '-obj ... : Object Detection',
+  },
+  '-v': { category: 'video_id', startIndex: 3, display: '-v ... : Video ID' },
+}
+
+export const FilterCategories = FilterCategories_VBS2025
