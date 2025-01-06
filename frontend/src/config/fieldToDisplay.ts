@@ -1,3 +1,5 @@
+import { Score } from "@mui/icons-material"
+
 const BaseFieldToDisplay = {
   caption: 'Caption',
   ocr: 'OCR',
@@ -19,6 +21,7 @@ export const VBS2025_fieldToDisplay = {
   timestamp: 'Timestamp',
   img_link: 'Image Name',
   frame_id: 'Frame ID',
+  score: 'Score',
 }
 
 export const FieldToDisplay = VBS2025_fieldToDisplay

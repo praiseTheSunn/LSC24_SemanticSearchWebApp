@@ -25,7 +25,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
   const previousScrollTop = useRef(0)
   const viewImageRef = useRef<HTMLDivElement | null>(null)
   const viewImage = useAppSelector(
-    (state) => state.app.neighborPopUpData?.img_link,
+    (state) => state.app.neighborPopUpData?.frame_id,
   )
   const Config = useAppSelector((state) => state.app.config)
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
@@ -34,7 +34,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     async (imageId: string, position: 'start' | 'end') => {
       try {
         const exploreParams = {
-          image_url: imageId,
+          record_id: imageId,
           span: Config.NeighborPopupSpan,
           dataset: queryPayload.dataset,
         }
