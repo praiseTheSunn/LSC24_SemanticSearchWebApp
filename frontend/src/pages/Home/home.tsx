@@ -42,9 +42,9 @@ import type { SearchTermType } from '../../types/search'
 const LevelList = [
   { level: 'Neighbor', bg: TrapoziedBgGray3 },
   { level: 'Similarity', bg: TrapoziedBgGray2 },
-  { level: 'Timeline', bg: TrapoziedBgGrayLeft },
-  { level: 'Location', bg: TrapoziedBgGray4 },
-  { level: 'VQA', bg: TrapoziedBgGray5 },
+  // { level: 'Timeline', bg: TrapoziedBgGrayLeft },
+  // { level: 'Location', bg: TrapoziedBgGray4 },
+  { level: 'VQA', bg: TrapoziedBgGrayLeft },
 ]
 
 const Mode = [
@@ -176,15 +176,15 @@ const Home = () => {
             setSelectedTabIndex(0)
             e.preventDefault()
             break
+          // case '2':
+          //   setSelectedTabIndex(1)
+          //   e.preventDefault()
+          //   break
+          // case '3':
+          //   setSelectedTabIndex(2)
+          //   e.preventDefault()
+          //   break
           case '2':
-            setSelectedTabIndex(1)
-            e.preventDefault()
-            break
-          case '3':
-            setSelectedTabIndex(2)
-            e.preventDefault()
-            break
-          case '4':
             setSelectedTabIndex(3)
             e.preventDefault()
             break
@@ -415,14 +415,14 @@ const Home = () => {
           </Box>
         )}
 
-        {selectedTabIndex === 2 && <TimelineTab />}
+        {/* {selectedTabIndex === 2 && <TimelineTab />}
         {selectedTabIndex === 3 && (
           // <ImageCluster data={timelineData} />
           <MapTab
           // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
           />
-        )}
-        {selectedTabIndex === 4 && <MetadataTab />}
+        )} */}
+        {selectedTabIndex === 2 && <MetadataTab />}
       </Box>
     </div>
   )
