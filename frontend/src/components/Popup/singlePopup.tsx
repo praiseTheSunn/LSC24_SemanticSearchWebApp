@@ -10,6 +10,7 @@ import {
   useGetSimilarsQuery,
 } from '../../AppState'
 import closeIcon from '../../assets/close.png'
+import type { ExploreSimilarParams } from '../../types/api'
 
 const SinglePopup = ({
   onClose,
@@ -20,8 +21,8 @@ const SinglePopup = ({
 
   cellHeight = cellHeight ? cellHeight : Config.SinglePopupCellHeight
   const viewImage = useAppSelector((state) => state.app.similarPopUpData)
-  const exploreSimilarParams = {
-    image_urls: viewImage ? [viewImage?.img_link] : undefined,
+  const exploreSimilarParams : ExploreSimilarParams = {
+    record_ids: viewImage ? [viewImage?.frame_id ?? ""] : [""],
     model: queryPayload.model,
     dataset: queryPayload.dataset,
   }

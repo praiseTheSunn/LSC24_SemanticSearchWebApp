@@ -23,7 +23,7 @@ const ObjectDetail: React.FC<ObjectDetailProps> = ({ viewImage }) => {
                 </span>{' '}
                 {typedFieldKey === 'img_link'
                   ? viewImage.img_link.split('/').pop()?.split('.')[0]
-                  : viewImage[typedFieldKey as keyof ImageRecord]}
+                  : String(viewImage[typedFieldKey as keyof ImageRecord])}
               </Typography>
             </Box>
           )

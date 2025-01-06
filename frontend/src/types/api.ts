@@ -62,7 +62,7 @@ export type TextQueryParams = {
 }
 
 export type ExploreSimilarParams = {
-  image_urls: string[] | undefined
+  record_ids: string[] | undefined
   model: string
   dataset?: string
 }
