@@ -48,3 +48,12 @@ from internal.search.parser import all_parsers
 import sys
 sys.path.append('..')
 image_names = None
+
+# ID mapping
+import pandas as pd
+import numpy as np
+id_mappings = {
+    "vbs25_v3c": pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/v3c/keyframes.csv", index_col=0),
+    "vbs25_mvk": pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/keyframes.csv", index_col=0),
+    "vbs25_lhe": pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/keyframes.csv", index_col=0)
+}

@@ -1,26 +1,29 @@
 import setup
 from setup import dataset_config, image_names
-import numpy as np
 import pandas as pd
 import requests
-from internal.search.parser import all_parsers, time_helpers
+import itertools
+from internal.search.parser import all_parsers
 from internal.search.scorer import combine_score
+from internal.prepare_response import prepare_response
+from functools import reduce
+
+import sys
+sys.path.append('..')
+from db.search import search_video_ids_by_ids
 
 # dataset_name = dataset_config['dataset_name']
 # metadata_index_name = dataset_name
 # encoding_index_name = dataset_name + "_encoding"
 
 
+MAX_TEMPORAL_CONTEXT = 5
+
+
 def temporal_aggregate(clause_record_ids: list[list[str]], clause_scores: list[list[float]]):
     # normalize scores
     for i in range(len(clause_scores)):
         clause_scores[i] = combine_score.get_standardized_scores(clause_scores[i])
-
-    # # convert into DataFrame
-    # raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id_coarse', 'clause_id'])
-    # for i, urls in enumerate(clause_record_ids):
-    #     for j, url in enumerate(urls):
-    #         raw_results_df.loc[len(raw_results_df)] = [url, clause_scores[i][j], setup.metadata_rows.loc[url, 'context_id_coarse'], i]
 
     # convert into DataFrame
     rows = []
@@ -30,25 +33,8 @@ def temporal_aggregate(clause_record_ids: list[list[str]], clause_scores: list[l
             rows.append([record_id, clause_scores[i][j], context_ids_coarse[j], i])
     raw_results_df = pd.DataFrame(rows, columns=['record_id', 'score', 'context_id_coarse', 'clause_id'])
 
-
     # drop context_id_coarse = None
     raw_results_df = raw_results_df.dropna(subset=['context_id_coarse'])
-
-    # # group by context_id_coarse (a for loop), then in which group, calculate the combined score
-    # for context_id_coarse, group in raw_results_df.groupby('context_id_coarse'):
-    #     max_score_0 = group[group['clause_id'] == 0]['score'].max() if not group[group['clause_id'] == 0].empty else 10
-    #     max_score_1 = group[group['clause_id'] == 1]['score'].max() if not group[group['clause_id'] == 1].empty else 10
-    #     combined_score = combine_score.get_combine_score([max_score_0, max_score_1])
-    #     raw_results_df.loc[group.index, 'combined_score'] = combined_score
-    #     raw_results_df.loc[group.index, 'max_score_0'] = max_score_0
-    #     raw_results_df.loc[group.index, 'max_score_1'] = max_score_1
-    #     # for clause_id = 0, only keep 2 highest scores, the same to clause_id = 1
-    #     for clause_id, clause_group in group.groupby('clause_id'):
-    #         if clause_id == 0:
-    #             raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
-    #         else:
-    #             raw_results_df.loc[clause_group.nlargest(2, 'score').index, 'keep'] = True
-
 
     # Initialize new columns for combined_score, max_score_0, max_score_1, and keep
     raw_results_df['combined_score'] = 0.0
@@ -62,8 +48,7 @@ def temporal_aggregate(clause_record_ids: list[list[str]], clause_scores: list[l
     scores_df = pd.DataFrame({'clause_0_scores': clause_0_scores, 'clause_1_scores': clause_1_scores})
     scores_df['combined_scores'] = scores_df.apply(
         lambda row: combine_score.get_combine_score([row['clause_0_scores'], row['clause_1_scores']]), axis=1
-    )
-    
+    )    
 
     # Sort descending and keep only 50 in combined_scores
     combined_scores = scores_df['combined_scores'].nlargest(100)
@@ -74,19 +59,12 @@ def temporal_aggregate(clause_record_ids: list[list[str]], clause_scores: list[l
         
         if context_id_coarse not in context_ids_coarse_with_max_scores:
             continue
-
-        # # Get max scores for both clause_id 0 and 1 (precomputed)
-        # max_score_0 = clause_0_scores.get(context_id_coarse, 10)
-        # max_score_1 = clause_1_scores.get(context_id_coarse, 10)
         
         # Calculate the combined score
-        # combined_score = combine_score.get_combine_score([max_score_0, max_score_1])
         combined_score = combined_scores.loc[context_id_coarse]
         
         # Update the group in the DataFrame
         raw_results_df.loc[group.index, 'combined_score'] = combined_score
-        # raw_results_df.loc[group.index, 'max_score_0'] = max_score_0
-        # raw_results_df.loc[group.index, 'max_score_1'] = max_score_1
         
         # Mark top 2 scores in each clause_id group as 'keep'
         top_2_clause_0 = group[group['clause_id'] == 0].nlargest(2, 'score')
@@ -108,6 +86,106 @@ def temporal_aggregate(clause_record_ids: list[list[str]], clause_scores: list[l
 
 
 def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str]):
+    temporal_ids = []
+    final_record_ids = []
+    final_video_ids = []
+    final_scores = []
+
+    for text_embedding in text_embeddings:
+        data = {
+            "model": model,
+            "embedding": text_embedding,
+            "dataset": dataset,
+            "ids": temporal_ids
+        }
+        response = requests.post("http://localhost:8003/search_milvus", json=data, headers={
+            "Content-Type": "application/json"
+        })
+        raw_results = response.json()
+        record_ids = [entity['id'] for entity in raw_results['response'][0]]
+        scores = [entity['distance'] for entity in raw_results['response'][0]]
+        final_record_ids.append(record_ids)
+        final_video_ids.append(search_video_ids_by_ids(dataset, "keyframes", record_ids))
+        final_scores.append(scores)
+
+        neighbor_ids = [list(range(int(record_id), int(record_id) + MAX_TEMPORAL_CONTEXT + 1)) for record_id in record_ids]
+        neighbor_ids_flat = list(itertools.chain.from_iterable(neighbor_ids))
+        temporal_ids = neighbor_ids_flat
+
+    if len(text_embeddings) == 1:
+        print(f"Search semantic found {len(final_record_ids[0])} results")
+        return {
+            "record_ids": final_record_ids[0],
+            "scores": final_scores[0],
+        }
+    
+    # Temporal query
+    else:    
+        # zip each of the 3-tuple into a df
+        dfs = []
+        for i in range(len(final_record_ids)):
+            df = pd.DataFrame({
+                'record_id': final_record_ids[i],
+                'video_id': final_video_ids[i],
+                'score': final_scores[i],
+            })
+        dfs.append(df)
+
+        # Get the highest score for each video_id in each DataFrame
+        highest_scores_dfs = []
+        for df in dfs:
+            highest_scores_df = df.groupby('video_id').apply(
+                lambda x: pd.Series({
+                    'score': x['score'].max(),  # Highest score
+                    'all_record_ids': list(x['record_id'])  # List of all record IDs for the video_id
+                })
+            ).reset_index()
+            highest_scores_dfs.append(highest_scores_df)
+
+        # Merge all DataFrames in highest_scores_dfs by video_id
+        merged_df = reduce(
+            lambda left, right: pd.merge(left, right, on='video_id', how='outer', suffixes=('', '_y')),
+            highest_scores_dfs
+        )
+
+        # Fill missing scores with 0 and `all_record_ids` with empty lists
+        merged_df['score'] = merged_df['score'].fillna(0)
+        merged_df['all_record_ids'] = merged_df['all_record_ids'].apply(lambda x: x if isinstance(x, list) else [])
+
+        # Combine scores and record_ids
+        merged_df = merged_df.groupby('video_id').agg(
+            combined_score=('score', 'sum'),  # Sum scores across all DataFrames
+            combined_record_ids=('all_record_ids', lambda x: sorted(set(sum(x, []))))  # Flatten, convert to set, and sort
+        ).reset_index()
+
+        # Sort the DataFrame by video_id in descending order
+        merged_df = merged_df.sort_values(by='combined_score', ascending=False)
+
+        print(f"Merged DataFrame shape: {merged_df.shape}")
+        print(f"Merged DataFrame: \n{merged_df.head(20)}")
+
+        # Create the final lists
+        final_grouped_record_ids = []
+        final_scores = []
+
+        for _, row in merged_df.iterrows():
+            record_ids = row['combined_record_ids']
+            score = row['combined_score']
+            
+            # Extend the final lists with record_ids and corresponding scores
+            final_grouped_record_ids.append(record_ids)
+            final_scores.append(score)
+
+        return {
+            "record_ids": final_grouped_record_ids,
+            "scores": final_scores,
+        }
+
+
+        
+
+
+def search_semantic_temporal_deprecated(dataset: str, model: str, text_embeddings: list[str]):
     clause_record_ids = []
     clause_scores = []
     

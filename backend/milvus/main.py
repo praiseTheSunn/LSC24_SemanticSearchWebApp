@@ -30,11 +30,24 @@ async def search_milvus(data: SearchRequest):
     collection_name = dataset + "_" + data.model
     text_embedding = data.embedding
     limit = data.limit
-    print("Milvus limit: ", limit)
+    ids = data.ids
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    response = setup.milvus_client.search(collection_name=collection_name, data=text_embedding, limit=limit)
+
+    if ids:
+        response = setup.milvus_client.search(
+            collection_name=collection_name, 
+            data=text_embedding, 
+            filter=f"""keyframe_id in {ids}""",
+            limit=limit
+        )
+    else:
+        response = setup.milvus_client.search(
+            collection_name=collection_name, 
+            data=text_embedding, 
+            limit=limit
+        )
     return JSONResponse(content={"response": response}, headers=header)
 
 
@@ -51,7 +64,7 @@ async def get_embeddings(data: GetRequest):
         ids = ids
     )
     response = {
-        'record_ids': [raw_results[i]['id'] for i in range(len(raw_results))],
+        'record_ids': [raw_results[i]['keyframe_id'] for i in range(len(raw_results))],
         'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
     }
 

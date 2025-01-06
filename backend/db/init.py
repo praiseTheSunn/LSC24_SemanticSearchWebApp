@@ -52,7 +52,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--table_name", type=str, required=True, help="Name of the table to init")
     args = parser.parse_args()
     
-    db_name = "LHE.db"
+    db_name = "LHE.db"              # MVK.db, V3C.db
     table_name = args.table_name
     schema = ""
 

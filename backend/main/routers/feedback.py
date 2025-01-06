@@ -15,15 +15,14 @@ async def get_feedback(data: RequestFeedback):
         'Access-Control-Allow-Origin': '*'
     }
     data_like = {
-        # "text_query": data.like.text_query,
-        "image_urls": data.like.image_urls,
+        "ids": data.like.ids,
         "prior_scores": data.like.prior_scores,
         "limit": data.like.limit,
         "model": data.model,
         "dataset": data.dataset
     }
     data_dislike = {
-        "image_urls": data.dislike.image_urls,
+        "ids": data.dislike.ids,
         "limit": data.dislike.limit,
         "model": data.model,
         "dataset": data.dataset
@@ -35,20 +34,3 @@ async def get_feedback(data: RequestFeedback):
         "dislike": response_irrelevant
     }
     return JSONResponse(content={"response": response}, headers=header)
-
-# @router.post("/like", response_model=ResponseURLs)
-# async def get_relevant_images(data: RequestFeedbackRelevant):
-#     header = {
-#         'Access-Control-Allow-Origin': '*'
-#     }
-#     response = await feedback.get_relevant_images(data)
-#     return JSONResponse(content={"response": response}, headers=header)
-
-# @router.post("/dislike", response_model=ResponseURLs)
-# async def get_irrelevant_images(data: RequestFeedbackIrrelevant):
-#     header = {
-#         'Access-Control-Allow-Origin': '*'
-#     }
-#     response = await feedback.get_irrelevant_images(data)
-#     return JSONResponse(content={"response": response}, headers=header)
-  

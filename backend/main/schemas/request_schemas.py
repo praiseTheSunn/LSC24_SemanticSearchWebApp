@@ -30,24 +30,24 @@ class RequestSearchByTextQuery(BaseModel):
         }
 
 class RequestExploreSimilarImages(BaseModel):
-    image_urls: list[str]
+    record_ids: list[str]
     model: options_schemas.ModelOptions
     dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
 
     class Config:
         json_schema_extra = {
             "example": {
-                    "image_urls": [
-                        "http://34.124.236.208/img_lsc/201903/15/20190315_130858_000.webp",
-                        "http://34.124.236.208/img_lsc/202006/02/20200602_101851_000.webp",
-                        "http://34.124.236.208/img_lsc/201909/13/20190913_120552_000.webp",
+                    "record_ids": [
+                        "2000",
+                        "2001",
+                        "2002",
                     ],
                     "model": "stfm"
             }
         }
 
 class RequestExploreNeighborImages(BaseModel):
-    image_url: str
+    record_id: str
     span: int
     dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
 
@@ -60,13 +60,12 @@ class RequestExploreNeighborImages(BaseModel):
         }
 
 class RequestFeedbackRelevant(BaseModel):
-    # text_query: str
-    image_urls: list[str]
+    ids: list[str]
     prior_scores: list[float]
     limit: int
 
 class RequestFeedbackIrrelevant(BaseModel):
-    image_urls: list[str]
+    ids: list[str]
     limit: int
 
 class RequestFeedback(BaseModel):
