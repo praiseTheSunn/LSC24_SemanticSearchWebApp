@@ -32,7 +32,6 @@ async def search_with_image_query(payload: RequestSearchByImageQuery):
             "message": "Data retrieval failed",
             "error": response_data
         }
-    # return JSONResponse(content={"response": response}, headers=header)
     return JSONResponse(content=data, status_code=response_status, headers=headers)
 
 
@@ -41,7 +40,6 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
     headers = {
         'Access-Control-Allow-Origin': '*'
     }
-    print(f"Payload: {payload}")
     response_data, response_status = search.search_with_text_query(payload)
     if response_status == 200:
         data = {
@@ -55,5 +53,4 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
             "message": "Data retrieval failed",
             "error": response_data
         }
-    # return JSONResponse(content={"response": response}, headers=header)
     return JSONResponse(content=data, status_code=response_status, headers=headers)

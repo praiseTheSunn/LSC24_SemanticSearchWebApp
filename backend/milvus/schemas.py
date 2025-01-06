@@ -16,8 +16,9 @@ class SearchRequest(BaseModel):
     embedding: List[List[float]]
     limit: Optional[int] = 1000
     dataset: Optional[DatasetOptions] = DatasetOptions.option1
+    ids: Optional[List[int]] = None
 
 class GetRequest(BaseModel):
     collection_name: str
-    ids: List[str]
+    ids: List[int]
     dataset: Optional[DatasetOptions] = DatasetOptions.option1

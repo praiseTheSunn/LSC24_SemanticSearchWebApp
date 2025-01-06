@@ -5,7 +5,7 @@ import itertools
 
 import sys
 sys.path.append('..')
-from db.search import search_metadata, search_metadata_by_ids
+from db.search import search_metadata_by_ids
 
 MAX_RECORDS = 1000
 DEFAULT_PATH = "http://34.124.236.208/img_lsc/201901/01/20190101_103717_000.webp"
@@ -55,7 +55,9 @@ def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_serv
     records_df = pd.DataFrame(records)
 
     records_df['video_id'] = records_df['name'].apply(lambda x: x.split('/')[1])
-    records_df['frame'] = records_df['name'].apply(lambda x: x.split('/')[-1])
+    # records_df['frame_id'] = records_df['name'].apply(lambda x: x.split('/')[-1])
+    records_df['frame_id'] = records_df['id'].apply(lambda x: str(x))
+    records_df['timestamp'] = records_df['timestamp'].apply(lambda x: int(x))
 
     if local_image_server:
         records_df['img_link'] = records_df.apply(lambda row: f"http://127.0.0.1:8000/{dataset[-3:].upper()}/{row['video_id']}/{row['timestamp']}.webp", axis=1)
@@ -64,36 +66,56 @@ def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_serv
 
     if scores:
         records_df['score'] = scores
-        records_df = records_df[['id', 'img_link', 'timestamp', 'video_id', 'score']]
+        records_df = records_df[['img_link', 'timestamp', 'frame_id', 'video_id', 'score']]
     else:
-        records_df = records_df[['id', 'img_link', 'timestamp']]
+        records_df = records_df[['img_link', 'timestamp', 'frame_id']]
 
     records = records_df.to_dict(orient='records')
     return records
 
 
-def prepare_response(dataset, record_ids, scores=None, window_size=3):
+def prepare_response(dataset, record_ids=[], scores=None, window_size=3, temporal_query=False):
+    if len(record_ids) == 0:
+        return []
+
     records = []
 
-    if scores == None:
-        scores = [0] * len(record_ids)  
-
-    db_name = dataset
-
-    records = search_metadata_by_ids(db_name=db_name, table_name="keyframes", id_list=record_ids)
-    records = mapping_metadata(records, dataset=dataset, scores=scores)
+    db_name = dataset    
     
-    neighbor_ids = [list(range(int(record['id']) - window_size, int(record['id']) + window_size + 1)) for record in records]
-    neighbor_ids_flat = list(itertools.chain.from_iterable(neighbor_ids))
-    neighbor_records = search_metadata_by_ids(db_name=db_name, table_name="keyframes", id_list=neighbor_ids_flat)
-    neighbor_records = mapping_metadata(neighbor_records, dataset=dataset)
-    len_neighbors = 2 * window_size + 1
+    if temporal_query == False:
+        print("Len record ids:", len(record_ids))
+        records = search_metadata_by_ids(db_name=db_name, table_name="keyframes", id_list=record_ids)
+        print("Len records:", len(records))
+        if scores == None:
+            scores = [0] * len(records)  
+        records = mapping_metadata(records, dataset=dataset, scores=scores)
 
-    for i, record in enumerate(records):
-        offset = i * len_neighbors
-        record['neighbors'] = neighbor_records[offset : offset + len_neighbors]
-        offset += len_neighbors
+        neighbor_ids = [list(range(int(record['frame_id']) - window_size, int(record['frame_id']) + window_size + 1)) for record in records]
+        neighbor_ids_flat = list(itertools.chain.from_iterable(neighbor_ids))
+        neighbor_records = search_metadata_by_ids(db_name=db_name, table_name="keyframes", id_list=neighbor_ids_flat)
+        neighbor_records = mapping_metadata(neighbor_records, dataset=dataset)
+        len_neighbors = 2 * window_size + 1
 
-    print(records[0])
-    return records
+        for i, record in enumerate(records):
+            offset = i * len_neighbors
+            record['neighbors'] = neighbor_records[offset : offset + len_neighbors]
+            offset += len_neighbors
+
+        print(records[0])
+        return records
+    
+    else:
+        records = []
+        for i, group in enumerate(record_ids):
+            # record_ids in temporal query is a list of groups
+            # each group is a list of record ids
+            # we also have scores for each group
+            # so first we search for the records in each group -> group_records
+            # then we map the metadata for each group -> group_records, with additional scores as the score of the group * len(group)
+            group_records = search_metadata_by_ids(db_name=db_name, table_name="keyframes", id_list=group)
+            group_records = mapping_metadata(group_records, dataset=dataset, scores=[scores[i]] * len(group))
+            records.extend(group_records)
+
+        print(records[0])
+        return records
 
