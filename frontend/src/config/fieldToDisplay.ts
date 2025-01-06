@@ -14,4 +14,12 @@ export const AIC2024_fieldToDisplay = {
   context_en_keywords: 'Context',
 }
 
-export const FieldToDisplay = AIC2024_fieldToDisplay
+export const VBS2025_fieldToDisplay = {
+  video_id: 'Video ID',
+  timestamp: 'Timestamp',
+  img_link: 'Image Name',
+  frame_id: 'Frame ID',
+}
+
+export const FieldToDisplay = VBS2025_fieldToDisplay
+

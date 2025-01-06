@@ -11,7 +11,8 @@ import type {
   ExploreSimilarParams,
   ImageQueryParams,
   TextQueryParams,
-  FeedbackQueryParams
+  FeedbackQueryParams,
+  FeedbackResponse
 } from '../types/api'
 import type { ImageRecord } from '../types/image'
 
@@ -103,7 +104,7 @@ export const ImageApi = createApi({
             body: params,
           }
         },
-        transformResponse: (response: ApiResponse) =>
+        transformResponse: (response: FeedbackResponse) =>
           transformResponse_Feedback_VBS(response),
       }),
     }
