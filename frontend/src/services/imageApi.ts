@@ -1,8 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
-import { get } from 'lodash'
 import { ImageQuery } from '.'
 import {
   transformResponse_Feedback_AIC,
+  transformResponse_Feedback_VBS,
   transformResponse_VBS2025,
 } from '../config/transformResponse'
 import type {
@@ -95,7 +95,7 @@ export const ImageApi = createApi({
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 
-      getFeedbackImages: builder.query<ImageRecord[], FeedbackQueryParams>({
+      getFeedbackImages: builder.query<{like: ImageRecord[], dislike: ImageRecord[] }, FeedbackQueryParams>({
         query: (params) => {
           return {
             url: '/feedback',
@@ -104,7 +104,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_Feedback_AIC(response),
+          transformResponse_Feedback_VBS(response),
       }),
     }
   },
