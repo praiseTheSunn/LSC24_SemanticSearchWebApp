@@ -126,12 +126,12 @@ export const CSVDownloadBox = () => {
 
     const feedbackData: FeedbackQueryParams = {
       like: {
-        image_urls: likeImages.map(({ img_link }) => img_link),
+        ids: likeImages.map(({ frame_id }) => frame_id),
         prior_scores: likeImages.map(({ score }) => score),
         limit: likeLimit,
       },
       dislike: {
-        image_urls: dislikeImages.map(({ img_link }) => img_link),
+        ids: dislikeImages.map(({ frame_id }) => frame_id),
         limit: dislikeLimit,
       },
       model: queryPayload.model,
