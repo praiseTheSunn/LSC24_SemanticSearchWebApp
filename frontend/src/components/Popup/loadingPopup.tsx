@@ -14,7 +14,7 @@ const LoadingPopup = () => {
     },
     [dispatch],
   )
-
+  // console.log('loadingMessage:', loadingMessage)
   return (
     <Box className="loading-popup" style={{ zIndex: '99999' }}>
       <ClickAwayListener

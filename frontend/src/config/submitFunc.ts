@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux'
 import { type Id, toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import type { useSubmitKISAnsweringMutation } from '../AppState'
-import type { AppState, EvaluationState } from '../types/app'
+import type { AppState } from '../types/app'
 import type { ImageRecord } from '../types/image'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
@@ -21,7 +21,8 @@ export const AIC_addImages = async (
   console.log('evaluationId here:', evaluationId)
   console.log('sessionId here:', sessionId)
 
-  const time = Number(src_data.timestamp) * 1000
+  // const time = Number(src_data.timestamp) * 1000
+  const time = Number(src_data.timestamp)
   const video = src_data.video_id
 
   if (!evaluationId || !sessionId || !video) {
