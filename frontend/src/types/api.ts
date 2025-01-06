@@ -114,7 +114,7 @@ export type KISParams = {
 
 export type FeedbackQueryParams = {
   "like": {
-      "image_urls": [
+      "ids": [
         string
       ],
       "prior_scores": [
@@ -123,7 +123,7 @@ export type FeedbackQueryParams = {
       "limit": number
   },
   "dislike": {
-      "image_urls": [
+      "ids": [
         string
       ],
       "limit": number
