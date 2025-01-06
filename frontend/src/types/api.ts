@@ -7,6 +7,18 @@ export type ApiResponse = {
   status: number
 }
 
+export type FeedbackResponse = {
+  data: {
+    like: ImageRecord[]
+    dislike: ImageRecord[]
+  }
+  response?: {
+    like: ImageRecord[]
+    dislike: ImageRecord[]
+  }
+  status: number
+}
+
 export type ApiError = {
   message: string
   status: number
@@ -114,18 +126,12 @@ export type KISParams = {
 
 export type FeedbackQueryParams = {
   "like": {
-      "ids": [
-        string
-      ],
-      "prior_scores": [
-        number
-      ],
+      "ids": string[],
+      "prior_scores": number[],
       "limit": number
   },
   "dislike": {
-      "ids": [
-        string
-      ],
+      "ids": string[],
       "limit": number
   },
   "model": string,
