@@ -8,7 +8,6 @@ export const NeighborRow: React.FC<{
   config: any
 }> = ({ imageData, style, config }) => {
   const neighbors = imageData?.neighbors ?? []
-  console.log("i", imageData)
   const displayedImages = [
     { ...imageData, isOriginal: true },
     ...neighbors,
