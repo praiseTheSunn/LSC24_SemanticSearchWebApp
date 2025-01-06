@@ -168,7 +168,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
 
         for (const key in FilterCategories) {
           if (input.startsWith(key)) {
-            console.log('key:', key)
             const { category, startIndex } =
               FilterCategories[key as keyof typeof FilterCategories]
             const value = input.substring(startIndex)
@@ -213,14 +212,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           const filter = { category: 'query', value, status: 1 }
           setQuery(value)
 
-          console.log('queryPayload enter:', queryPayload, value, {
-            text_query: value,
-            mode: queryPayload.mode,
-            model: queryPayload.model,
-            dataset: queryPayload.dataset,
-            window_size: Config.queryWindowSize,
-          })
-
           trigger({
             text_query: value,
             mode: queryPayload.mode,
@@ -248,11 +239,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       }
 
       if (isError) {
-        console.error('Error:', error)
+        // console.error('Error:', error)
         setLoadingPopup('Error: fetching result')
+        // console.log('HIIIII', error, data, !isFetching)
       }
 
-      if (data && !isFetching) {
+      if (data && !isFetching && !isError) {
         setLoadingPopup('')
         setResult(data)
       }

@@ -81,14 +81,14 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     previousScrollTop.current = scrollTop
 
     if (scrollDirection === 'backward' && scrollTop === 0 && !isFetching) {
-      const firstImage = neighborsData[0]?.img_link
+      const firstImage = neighborsData[0]?.frame_id
       if (firstImage) {
         fetchNeighbors(firstImage, 'start')
       }
     }
 
     if (scrollDirection === 'forward' && !isFetching) {
-      const lastImage = neighborsData[neighborsData.length - 1]?.img_link
+      const lastImage = neighborsData[neighborsData.length - 1]?.frame_id
       if (lastImage) {
         fetchNeighbors(lastImage, 'end')
       }
