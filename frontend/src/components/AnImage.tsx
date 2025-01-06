@@ -43,7 +43,6 @@ const AnImage: React.FC<AnImageProps> = ({
   const time = null
   // const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
   const formattedTime = `${data?.video_id ? `${data.video_id}-` : ''}${timestamp ? `${timestamp}` : ''}`
-  console.log(formattedTime)
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null

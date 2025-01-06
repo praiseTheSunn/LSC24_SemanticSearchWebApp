@@ -68,7 +68,7 @@ export type ExploreSimilarParams = {
 }
 
 export type ExploreNeighborParams = {
-  record_ids: string
+  record_id: string
   span: number
   dataset?: string
 }

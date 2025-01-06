@@ -6,6 +6,7 @@ import { AnImage } from '..'
 import { useAppSelector, useLazyGetNeighborsQuery } from '../../AppState'
 import closeIcon from '../../assets/close.png'
 import type { ImageRecord } from '../../types/image'
+import type { ExploreNeighborParams } from '../../types/api'
 
 // Define the types for props
 interface NeighborPopupProps {
@@ -33,7 +34,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
   const fetchNeighbors = useCallback(
     async (imageId: string, position: 'start' | 'end') => {
       try {
-        const exploreParams = {
+        const exploreParams: ExploreNeighborParams = {
           record_id: imageId,
           span: Config.NeighborPopupSpan,
           dataset: queryPayload.dataset,
@@ -106,8 +107,10 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     if (index >= neighborsData.length) return null
 
     const data = neighborsData[index]
-    const { img_link } = data
-    const isHighlighted = img_link === viewImage
+    // const { img_link } = data
+    // const isHighlighted = img_link === viewImage
+    const { frame_id } = data
+    const isHighlighted = frame_id === viewImage
 
     return (
       <div
