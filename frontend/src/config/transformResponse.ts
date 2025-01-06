@@ -28,7 +28,7 @@ export const transformResponse_AIC2024 = (response: ApiResponse) => {
   return result
 }
 
-export const transformResponse_Feedback_AIC = (response: ApiResponse) => {
+export const transformResponse_Feedback_AIC = (response: FeedbackResponse) => {
   // console.log('Response:', response);
   const convertToMMSS = (seconds: string): string => {
     const iSeconds = Number(seconds)

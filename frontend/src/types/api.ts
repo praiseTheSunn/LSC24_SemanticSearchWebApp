@@ -9,12 +9,12 @@ export type ApiResponse = {
 
 export type FeedbackResponse = {
   data: {
-    like: ImageRecord[]
-    dislike: ImageRecord[]
+    like: ImageRecord[][]
+    dislike: ImageRecord[][]
   }
   response?: {
-    like: ImageRecord[]
-    dislike: ImageRecord[]
+    like: ImageRecord[][]
+    dislike: ImageRecord[][]
   }
   status: number
 }
@@ -68,7 +68,7 @@ export type ExploreSimilarParams = {
 }
 
 export type ExploreNeighborParams = {
-  image_url: string
+  record_ids: string
   span: number
   dataset?: string
 }
