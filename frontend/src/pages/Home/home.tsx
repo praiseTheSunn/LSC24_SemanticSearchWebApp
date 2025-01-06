@@ -44,7 +44,7 @@ const LevelList = [
   { level: 'Similarity', bg: TrapoziedBgGray2 },
   // { level: 'Timeline', bg: TrapoziedBgGrayLeft },
   // { level: 'Location', bg: TrapoziedBgGray4 },
-  { level: 'VQA', bg: TrapoziedBgGray5 },
+  { level: 'VQA', bg: TrapoziedBgGrayLeft },
 ]
 
 const Mode = [
