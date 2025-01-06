@@ -85,7 +85,7 @@ export const transformResponse_VBS2025 = (response: ApiResponse) => {
         : img.date
     // img.date = img.video_id ? img.video_id : img.date
     // img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
-    img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time
+    // img.time = img.timestamp ? convertToMMSS(img.timestamp) : img.time
     if (img.neighbors && img.neighbors.length > 0) {
       for (let i = 0; i < img.neighbors.length; i++) {
         img.neighbors[i].date = img.neighbors[i].context_id_coarse
@@ -93,10 +93,9 @@ export const transformResponse_VBS2025 = (response: ApiResponse) => {
           : img.neighbors[i].video_id
             ? img.neighbors[i].video_id
             : img.neighbors[i].date
-        img.neighbors[i].time = img.neighbors[i].timestamp
-          ? convertToMMSS(img.neighbors[i].timestamp)
-          : img.neighbors[i].time
-        img.neighbors[i].frame_id = img.neighbors[i].id
+        // img.neighbors[i].time = img.neighbors[i].timestamp
+        //   ? convertToMMSS(img.neighbors[i].timestamp)
+        //   : img.neighbors[i].time
       }
     }
 

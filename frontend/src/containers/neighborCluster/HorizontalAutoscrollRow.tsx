@@ -8,6 +8,7 @@ export const NeighborRow: React.FC<{
   config: any
 }> = ({ imageData, style, config }) => {
   const neighbors = imageData?.neighbors ?? []
+  console.log("i", imageData)
   const displayedImages = [
     { ...imageData, isOriginal: true },
     ...neighbors,
@@ -65,7 +66,8 @@ export const NeighborRow: React.FC<{
                 : 'none',
             }}
           >
-            <AnImage data={image} />
+            {/* biome-ignore lint/complexity/noUselessTernary: <explanation> */}
+            <AnImage data={image} allowFeedback={(image as ImageRecord & { isOriginal: boolean }).isOriginal && (image as ImageRecord & { isOriginal: boolean }).isOriginal === true  ? true: false } />
           </Box>
         ))}
       </Box>

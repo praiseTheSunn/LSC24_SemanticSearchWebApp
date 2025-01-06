@@ -18,6 +18,7 @@ interface AnImageProps {
   index?: number
   isDisplayTooltip?: boolean
   isZoomOnHover?: boolean
+  allowFeedback?: boolean
 }
 
 const AnImage: React.FC<AnImageProps> = ({
@@ -25,10 +26,12 @@ const AnImage: React.FC<AnImageProps> = ({
   index,
   isDisplayTooltip,
   isZoomOnHover,
+  allowFeedback,
 }) => {
   if (isNil(data)) return null
   isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true
   isZoomOnHover = isZoomOnHover !== undefined ? isZoomOnHover : true
+  allowFeedback = allowFeedback !== undefined ? allowFeedback : true
 
   const src = data?.img_link ? data.img_link : undefined
   const videoSrc = data?.video_url ? data.video_url : undefined
@@ -36,9 +39,11 @@ const AnImage: React.FC<AnImageProps> = ({
   // const time = data?.time ? data.time : null
   // const timestamp = data?.timestamp ? data.timestamp * 1000 : null
   const date = null
-  const timestamp = data?.video_id ? data.video_id : null
-  const time = data?.timestamp ? data.timestamp : null
-  const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
+  const timestamp = data?.timestamp ? data.timestamp : null
+  const time = null
+  // const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
+  const formattedTime = `${data?.video_id ? `${data.video_id}-` : ''}${timestamp ? `${timestamp}` : ''}`
+  console.log(formattedTime)
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null
@@ -175,7 +180,7 @@ const AnImage: React.FC<AnImageProps> = ({
         toggleImagePreview(null) // Reset the preview when the mouse leaves
       }}
     >
-      {(date || time) && (
+      {(formattedTime.length > 0) && (
         <Box
           sx={{
             position: 'absolute',
@@ -203,7 +208,7 @@ const AnImage: React.FC<AnImageProps> = ({
           backgroundColor: 'white',
         }}
       />
-      <Box
+      {allowFeedback && <Box
         sx={{
           position: 'absolute',
           top: 0,
@@ -235,7 +240,7 @@ const AnImage: React.FC<AnImageProps> = ({
             dislike(data)
           }}
         />
-      </Box>
+      </Box>}
       <Box
         sx={{
           position: 'absolute',
