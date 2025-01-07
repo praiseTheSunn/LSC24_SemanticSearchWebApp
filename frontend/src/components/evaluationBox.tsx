@@ -149,7 +149,7 @@ const EvaluationBox = () => {
         })
 
         if (!responseMaster.data) {
-          toast.error('Invalid username or password', {
+          toast.error('Invalid username or password for master', {
             position: 'bottom-right',
             autoClose: 3000,
             closeOnClick: true,
@@ -158,6 +158,7 @@ const EvaluationBox = () => {
         }
 
         localStorage.setItem('masterSessionID', responseMaster.data)
+        toast.success('Master session ID retrieved')
       }
     } else {
       setLoginState('Login')
