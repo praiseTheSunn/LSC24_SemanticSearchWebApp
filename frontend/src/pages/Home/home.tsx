@@ -50,7 +50,7 @@ const LevelList = [
 const Mode = [
   { mode: 'Similarity', bg: SimilarityIcon, bgat: SimilarityIconActive },
   { mode: 'Timeline', bg: TimelineIcon, bgat: TimelineIconActive },
-  { mode: 'Location', bg: LocationIcon, bgat: LocationIconActive },
+  // { mode: 'Location', bg: LocationIcon, bgat: LocationIconActive },
 ]
 
 const Home = () => {

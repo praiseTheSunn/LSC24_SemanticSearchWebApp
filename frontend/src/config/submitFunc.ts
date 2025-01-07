@@ -10,6 +10,58 @@ import type { useSubmitKISAnsweringMutation } from '../AppState'
 import type { AppState } from '../types/app'
 import type { ImageRecord } from '../types/image'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
+import { useLazyGetEvalIDQuery, useLazyGetSessionIDQuery } from '../AppState'
+import { useCallback } from 'react'
+import { set } from 'lodash'
+
+const VBSAutoSubmit = async (
+  username: string,
+  password: string,
+  src_data: ImageRecord,
+  triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
+) => {
+  const [triggerSessionID, resultSessionID] = useLazyGetSessionIDQuery()
+  // const [triggerEval, resultEval] = useLazyGetEvalIDQuery()
+
+  const setMasterSessionId = useCallback((sessionId: string) => {
+    localStorage.setItem('masterSessionID', sessionId)
+  }, [])
+
+  const masterSessionID = localStorage.getItem('masterSessionID') ?? ''
+  const masterEvaluationID = localStorage.getItem('evaluationId') ?? ''
+
+
+  if (masterSessionID === '') {
+    const resultSessionID = await triggerSessionID({
+      username: username,
+      password: password,
+    })
+
+    if (!resultSessionID.data) {
+      console.log('No session found')
+    } else {
+      setMasterSessionId(resultSessionID.data)
+    }
+  }
+
+  const time = Number(src_data.timestamp)
+  const video = src_data.video_id
+
+  if (!masterEvaluationID || !masterSessionID || !video) {
+    console.log('Missing evaluationId, sessionId or video')
+    return
+  }
+
+  console.log("Hi from here")
+
+  await triggerKIS({
+    session: masterSessionID,
+    evaluation_id: masterEvaluationID,
+    mediaItemName: video,
+    start: time,
+    end: time,
+  })
+}
 
 export const AIC_addImages = async (
   src_data: ImageRecord,
@@ -17,9 +69,6 @@ export const AIC_addImages = async (
 ) => {
   const evaluationId = localStorage.getItem('evaluationId')
   const sessionId = localStorage.getItem('sessionId')
-
-  console.log('evaluationId here:', evaluationId)
-  console.log('sessionId here:', sessionId)
 
   // const time = Number(src_data.timestamp) * 1000
   const time = Number(src_data.timestamp)
@@ -39,4 +88,11 @@ export const AIC_addImages = async (
   })
 
   displayResponseToast(resultKIS)
+
+  const username = localStorage.getItem('username')
+
+  if (resultKIS.data?.submission === 'CORRECT' && username !== '17snapseek1') {
+    VBSAutoSubmit('17snapseek1', 'rN7wvHEkYp9X', src_data, triggerKIS);
+  }
 }
+
