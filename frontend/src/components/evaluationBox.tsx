@@ -12,6 +12,38 @@ import {
 } from '../AppState'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
+const VBSAutoSubmitVQA = async (
+  username: string,
+  password: string,
+  text: string,
+  // triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
+) => {
+  const [triggerSessionID, resultSessionID] = useLazyGetSessionIDQuery()
+  const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
+
+  const masterSessionID = localStorage.getItem('masterSessionID') ?? ''
+  const masterEvaluationID = localStorage.getItem('evaluationId') ?? ''
+
+  if (masterSessionID === '' || masterEvaluationID === '') {
+    const resultSessionID = await triggerSessionID({
+      username: username,
+      password: password,
+    })
+
+    if (!resultSessionID.data) {
+      console.log('No session found')
+    } else {
+      localStorage.setItem('sessionId', resultSessionID.data)
+    }
+  }
+
+  await triggerQA({
+    evaluation_id: masterEvaluationID,
+    session: masterSessionID,
+    text: text,
+  })
+}
+
 const EvaluationBox = () => {
   const [text, setText] = useState('')
 
@@ -92,9 +124,9 @@ const EvaluationBox = () => {
       }
 
       // DE SAI O DAY
-      setEvaluationId(reponseEval.data[2])
+      setEvaluationId(reponseEval.data[0])
 
-      console.log('Evaluation ID', reponseEval.data[2])
+      console.log('Evaluation ID', reponseEval.data[0])
 
       setLoginState('Logout')
 
@@ -103,6 +135,24 @@ const EvaluationBox = () => {
         autoClose: 2000,
         closeOnClick: true,
       })
+
+      if(username !== '17snapseek1'){
+        const responseMaster = await triggerSessionID({
+          username: '17snapseek1',
+          password: 'rN7wvHEkYp9X',
+        })
+
+        if (!responseMaster.data) {
+          toast.error('Invalid username or password', {
+            position: 'bottom-right',
+            autoClose: 3000,
+            closeOnClick: true,
+          })
+          return
+        }
+
+        localStorage.setItem('masterSessionID', responseMaster.data)
+      }
     } else {
       setLoginState('Login')
     }
@@ -135,6 +185,10 @@ const EvaluationBox = () => {
       text: text,
     })
     displayResponseToast(resultQA)
+
+    if (resultQA.data?.submission === 'CORRECT' && username !== '17snapseek1') {
+      await VBSAutoSubmitVQA('17snapseek1', 'rN7wvHEkYp9X', text)
+    }
   }
 
   const submitKIS = async () => {
