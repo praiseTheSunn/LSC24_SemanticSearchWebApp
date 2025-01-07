@@ -1,7 +1,7 @@
 import { Box, Grid, Tooltip, Typography } from '@mui/material'
 import React, { useEffect, useState, useCallback, useMemo } from 'react'
 import type { Dispatch, SetStateAction } from 'react'
-import { useAppSelector } from '../AppState'
+import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { calculateLineCoordinates } from '../utils/bresenhamLine'
 import { getOppositeColor } from '../utils/getOppositeColor'
 import type { DrawnItem, GridDict, Icon } from './Popup/ObjectPositionPopup'
@@ -39,6 +39,8 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
       { x: number; y: number; checked: boolean }[]
     >([])
 
+    const dispatch = useAppDispatch()
+    
     useEffect(() => {
       const updateCursorPosition = (e: MouseEvent) => {
         if (selectedIcon) setCursorPosition({ x: e.clientX, y: e.clientY })
@@ -49,6 +51,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
       }
     }, [selectedIcon])
     const handleMouseUp = async (row: number, col: number) => {
+      console.log('mouse up')
       if (isAutoComplete) {
         if (!contour || contour.length === 0) return
         const autoFillCoors = calculateLineCoordinates(
@@ -73,6 +76,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
         let foundStartPoint = false
         const newDataGrid = [...dataGrid]
         let selectedPair = []
+        dispatch(appActions.setLoadingPopUp('Auto Filling...'))
         // biome-ignore lint/correctness/noConstantCondition: <explanation>
         while (1) {
           selectedPair = []
@@ -90,7 +94,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
             k < Config.WhiteboardGridColumnCount - 1;
             k++
           ) {
-            console.log(randomOnBorderPoint, k)
             if (
               (newDataGrid[randomOnBorderPoint.x][k].color !==
                 newDataGrid[randomOnBorderPoint.x][k - 1].color ||
@@ -116,13 +119,20 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
             foundStartPoint = true
             break
           }
+          console.log('contour', contour)
         }
-
-        if (foundStartPoint === false) return
+        console.log('done find points', selectedPair)
+        if (foundStartPoint === false) {
+          dispatch(appActions.setLoadingPopUp(''))
+          setIsDrawing(false)
+          onDraw(null)
+          return
+        }
         const centroidCoor = {
           x: Math.floor((selectedPair[0].x + selectedPair[1].x) / 2),
           y: Math.floor((selectedPair[0].y + selectedPair[1].y) / 2),
         }
+        console.log('centroid', centroidCoor)
 
         const stack = []
         stack.push(centroidCoor)
@@ -182,7 +192,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
         }
         setDataGrid(newDataGrid)
       }
-      console.log('done drawing')
+      dispatch(appActions.setLoadingPopUp(''))
       setIsDrawing(false)
       onDraw(null)
     }
@@ -195,7 +205,8 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
     }, [onClear, setIsClear])
 
     const handleCellClick = useCallback(
-      (row: number, col: number) => {
+      async (row: number, col: number) => {
+        console.log('drawing', row, col)
         if (selectedIcon === null) return
         setContour((prevContour) => [
           ...prevContour,
@@ -246,7 +257,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
     )
 
     const handleMouseOver = useCallback(
-      (row: number, col: number) => {
+      async (row: number, col: number) => {
         if (isDrawing) handleCellClick(row, col)
       },
       [isDrawing, handleCellClick],
