@@ -41,6 +41,7 @@ const VBSAutoSubmit = async (
       console.log('No session found')
     } else {
       setMasterSessionId(resultSessionID.data)
+      toast.success('Session ID for master retrieved')
     }
   }
 
@@ -54,13 +55,19 @@ const VBSAutoSubmit = async (
 
   console.log("Hi from here")
 
-  await triggerKIS({
+  const masterResponse = await triggerKIS({
     session: masterSessionID,
     evaluation_id: masterEvaluationID,
     mediaItemName: video,
     start: time,
     end: time,
   })
+
+  if (masterResponse.data?.submission === 'CORRECT') {
+    console.log('Master response is correct')
+  } else {
+    console.log('Master response is wrong', masterResponse)
+  }
 }
 
 export const AIC_addImages = async (

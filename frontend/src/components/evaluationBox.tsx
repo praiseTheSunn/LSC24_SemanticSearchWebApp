@@ -37,11 +37,17 @@ const VBSAutoSubmitVQA = async (
     }
   }
 
-  await triggerQA({
+  const masterResponse = await triggerQA({
     evaluation_id: masterEvaluationID,
     session: masterSessionID,
     text: text,
   })
+
+  if (masterResponse.data?.submission === 'CORRECT') {
+    console.log('Master response is correct')
+  } else {
+    console.log('Master response is wrong', masterResponse)
+  }
 }
 
 const EvaluationBox = () => {
