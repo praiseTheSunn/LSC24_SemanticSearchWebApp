@@ -21,6 +21,7 @@ export const VBS2025_fieldToDisplay = {
   timestamp: 'Timestamp',
   img_link: 'Image Name',
   frame_id: 'Frame ID',
+  object_tags: 'Object Tags',
   score: 'Score',
 }
 
