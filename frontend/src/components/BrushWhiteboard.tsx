@@ -280,7 +280,7 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
               border: '1px solid #ccc',
             }}
             onMouseDown={(event) => handleMouseDown(rowIndex, colIndex, event)}
-            onMouseOver={() => handleMouseOver(rowIndex, colIndex)}
+            onMouseOver={async () => handleMouseOver(rowIndex, colIndex)}
             onMouseUp={() => handleMouseUp(rowIndex, colIndex)}
           >
             <Typography
