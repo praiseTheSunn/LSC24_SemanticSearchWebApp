@@ -18,7 +18,7 @@ const FilterCategories_AIC2024 = {
 }
 
 const FilterCategories_VBS2025 = {
-  '-t': { category: 'timestamp', startIndex: 3, display: '-t ... : time' },
+  '-t': { category: 'timestamp', startIndex: 3, display: '-t ... : timestamp' },
   '-obj': {
     category: 'object_tags',
     startIndex: 5,
