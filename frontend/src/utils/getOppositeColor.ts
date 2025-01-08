@@ -1,4 +1,5 @@
 export const getOppositeColor = (HexaStr: string): string => {
+  if (HexaStr === 'none') return '#000000' // Black color
   // Remove the hash symbol if present
   const hex = HexaStr.replace('#', '')
 
