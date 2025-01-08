@@ -51,7 +51,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
       }
     }, [selectedIcon])
     const handleMouseUp = async (row: number, col: number) => {
-      console.log('mouse up')
       if (isAutoComplete) {
         if (!contour || contour.length === 0) return
         const autoFillCoors = calculateLineCoordinates(
@@ -119,9 +118,8 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
             foundStartPoint = true
             break
           }
-          console.log('contour', contour)
         }
-        console.log('done find points', selectedPair)
+
         if (foundStartPoint === false) {
           dispatch(appActions.setLoadingPopUp(''))
           setIsDrawing(false)
@@ -132,7 +130,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
           x: Math.floor((selectedPair[0].x + selectedPair[1].x) / 2),
           y: Math.floor((selectedPair[0].y + selectedPair[1].y) / 2),
         }
-        console.log('centroid', centroidCoor)
 
         const stack = []
         stack.push(centroidCoor)
@@ -206,7 +203,6 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
 
     const handleCellClick = useCallback(
       async (row: number, col: number) => {
-        console.log('drawing', row, col)
         if (selectedIcon === null) return
         setContour((prevContour) => [
           ...prevContour,
@@ -289,9 +285,9 @@ const BrushWhiteboard: React.FC<WhiteboardProps> = React.memo(
                 fontSize: '50%',
                 color: cell.color
                   ? getOppositeColor(cell.color)
-                  : cell.objectName
+                  : (cell.objectName
                     ? 'black'
-                    : 'white',
+                    : 'white'),
                 fontWeight: 'bold',
               }}
             >
