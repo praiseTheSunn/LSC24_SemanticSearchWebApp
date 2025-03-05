@@ -17,26 +17,12 @@ const VBSAutoSubmitVQA = async (
   password: string,
   text: string,
   // triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
+  triggerQA:  ReturnType<typeof useSubmitQuestionAnsweringMutation>[0],
 ) => {
-  const [triggerSessionID, resultSessionID] = useLazyGetSessionIDQuery()
-  const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
+  
 
-  const masterSessionID = localStorage.getItem('masterSessionID') ?? ''
-  const masterEvaluationID = localStorage.getItem('evaluationId') ?? ''
-
-  if (masterSessionID === '' || masterEvaluationID === '') {
-    const resultSessionID = await triggerSessionID({
-      username: username,
-      password: password,
-    })
-
-    if (!resultSessionID.data) {
-      console.log('No session found')
-    } else {
-      localStorage.setItem('sessionId', resultSessionID.data)
-    }
-  }
-
+   const masterSessionID = localStorage.getItem('masterSessionID') ?? ''
+   const masterEvaluationID = localStorage.getItem('evaluationId') ?? ''
   const masterResponse = await triggerQA({
     evaluation_id: masterEvaluationID,
     session: masterSessionID,
@@ -194,7 +180,20 @@ const EvaluationBox = () => {
     displayResponseToast(resultQA)
 
     if (resultQA.data?.submission === 'CORRECT' && username !== '17snapseek1') {
-      await VBSAutoSubmitVQA('17snapseek1', 'rN7wvHEkYp9X', text)
+      // await VBSAutoSubmitVQA('17snapseek1', 'rN7wvHEkYp9X', text, triggerQA)
+      // const masterSessionID = localStorage.getItem('masterSessionID') ?? ''
+      // const masterEvaluationID = localStorage.getItem('evaluationId') ?? ''
+      // const masterResponse = await triggerQA({
+      //   evaluation_id: masterEvaluationID,
+      //   session: masterSessionID,
+      //   text: text,
+      // })
+    
+      // if (masterResponse.data?.submission === 'CORRECT') {
+      //   console.log('Master response is correct')
+      // } else {
+      //   console.log('Master response is wrong', masterResponse)
+      // }
     }
   }
 
