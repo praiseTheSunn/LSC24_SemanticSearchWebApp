@@ -66,7 +66,6 @@ async def search_milvus(data: SearchRequest):
 @app.post("/get_embeddings")
 async def get_embeddings(data: GetRequest):
     collection_name = data.collection_name
-    print("Collection_name: ", collection_name)
     ids = data.ids
     header = {
         'Access-Control-Allow-Origin': '*'
@@ -75,13 +74,9 @@ async def get_embeddings(data: GetRequest):
         collection_name = collection_name,
         ids = ids
     )
-    print("Collection_name: ", collection_name)
     response = {
-        'urls': [raw_results[i]['url'] for i in range(len(raw_results))],
+        'ids': [raw_results[i]['id'] for i in range(len(raw_results))],
         'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
     }
-
-    # debug
-    print("Urls: ", response['urls'])
 
     return JSONResponse(content={"response": response}, headers=header)

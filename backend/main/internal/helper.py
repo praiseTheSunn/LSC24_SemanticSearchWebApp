@@ -13,13 +13,10 @@ def compute_mean_embedding(embeddings: list[list[float]]):
     return mean_embedding
 
 
-async def fetch_embeddings(data: RequestExploreSimilarImages):
-    image_urls = data.image_urls
-    model = data.model
-    if image_urls[0].startswith("http"):
-        short_image_urls = ["/".join(url.split("/")[4:]) for url in image_urls]
-    else:
-        short_image_urls = image_urls
+async def fetch_embeddings(image_urls: list[str], model: str, dataset: str):
+    print("Fetching embeddings")
+    print(image_urls)
+    image_urls = ["/".join(url.split(".")[0].split("/")[-3:]) for url in image_urls]
     # print("Image urls:", image_urls[:3])
     # print("Short image urls:", short_image_urls[:3])
 
@@ -32,7 +29,7 @@ async def fetch_embeddings(data: RequestExploreSimilarImages):
 
     data = {
         "collection_name": dataset_name + "_" + model,
-        "ids": short_image_urls   
+        "ids": image_urls   
     }
     headers = {
         "Content-Type": "application/json"

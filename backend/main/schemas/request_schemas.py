@@ -59,17 +59,39 @@ class RequestExploreNeighborImages(BaseModel):
         }
 
 class RequestFeedbackRelevant(BaseModel):
-    # text_query: str
-    image_urls: list[str]
+    ids: list[str]
     prior_scores: list[float]
     limit: int
 
 class RequestFeedbackIrrelevant(BaseModel):
-    image_urls: list[str]
+    ids: list[str]
     limit: int
 
 class RequestFeedback(BaseModel):
     like: RequestFeedbackRelevant
     dislike: RequestFeedbackIrrelevant
     model: options_schemas.ModelOptions
-    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
+    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option4
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "like": {
+                    "ids": [
+                    "201902/01/20190201_081133_000", "201902/01/20190201_081621_000"
+                    ],
+                    "prior_scores": [
+                    0.1, 0.05
+                    ],
+                    "limit": 10
+                },
+                "dislike": {
+                    "ids": [
+                    
+                    ],
+                    "limit": 10
+                },
+                "model": "clips",
+                "dataset": "lsc24"
+            }
+        }
