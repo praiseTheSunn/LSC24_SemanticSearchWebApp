@@ -1,5 +1,5 @@
 import setup
-from setup import dataset_config, image_names
+from setup import dataset_config, all_image_names
 import numpy as np
 import pandas as pd
 import requests
@@ -93,7 +93,7 @@ class SearchModuleAIC24(SearchModule):
         #     })
 
         if subset != []:
-            subset = list(set(subset) & set(image_names))
+            subset = list(set(subset) & set(all_image_names))
             body["query"]["bool"]["must"] = {
                 "terms": {
                     "_id": subset,
@@ -107,11 +107,11 @@ class SearchModuleAIC24(SearchModule):
             body=body
         )
         response = response["hits"]["hits"]
-        urls = [hit["_id"] for hit in response]
+        ids = [hit["_id"] for hit in response]
         scores = [hit["_score"] for hit in response]
-        print(f"Search keyword found {len(urls)} results")
+        print(f"Search keyword found {len(ids)} results")
         return {
-            "urls": urls,
+            "ids": ids,
             "scores": scores,
         }
 
@@ -171,7 +171,7 @@ class SearchModuleLSC24(SearchModule):
             })
 
         if subset != []:
-            subset = list(set(subset) & set(image_names))
+            subset = list(set(subset) & set(all_image_names))
             body["query"]["bool"]["must"] = {
                 "terms": {
                     "_id": subset,
@@ -185,15 +185,15 @@ class SearchModuleLSC24(SearchModule):
             body=body
         )
         response = response["hits"]["hits"]
-        urls = [hit["_id"] for hit in response]
+        ids = [hit["_id"] for hit in response]
         scores = [hit["_score"] for hit in response]
-        print(f"Search keyword found {len(urls)} results")
+        print(f"Search keyword found {len(ids)} results")
 
         # add date time to field_items for logging
         field_items["date"] = f"{date1}-{date2}"
         field_items["time"] = f"{time1}-{time2}"
         return {
-            "urls": urls,
+            "ids": ids,
             "scores": scores,
         }, field_items
 
@@ -224,22 +224,22 @@ class SearchModuleManager:
         return search_module   
 
 
-def temporal_aggregate(clause_urls: list[list[str]], clause_scores: list[list[float]]):
+def temporal_aggregate(clause_ids: list[list[str]], clause_scores: list[list[float]]):
     # normalize scores
     for i in range(len(clause_scores)):
         clause_scores[i] = combine_score.get_standardized_scores(clause_scores[i])
 
     # # convert into DataFrame
     # raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id_coarse', 'clause_id'])
-    # for i, urls in enumerate(clause_urls):
-    #     for j, url in enumerate(urls):
+    # for i, ids in enumerate(clause_ids):
+    #     for j, url in enumerate(ids):
     #         raw_results_df.loc[len(raw_results_df)] = [url, clause_scores[i][j], setup.metadata_rows.loc[url, 'context_id_coarse'], i]
 
     # convert into DataFrame
     rows = []
-    for i, urls in enumerate(clause_urls):
-        context_ids_coarse = setup.metadata_rows_context_id_coarse.loc[urls].tolist()
-        for j, url in enumerate(urls):
+    for i, ids in enumerate(clause_ids):
+        context_ids_coarse = setup.metadata_rows_context_id_coarse.loc[ids].tolist()
+        for j, url in enumerate(ids):
             rows.append([url, clause_scores[i][j], context_ids_coarse[j], i])
             # print(context_ids_coarse[j])
     raw_results_df = pd.DataFrame(rows, columns=['url', 'score', 'context_id_coarse', 'clause_id'])
@@ -322,7 +322,7 @@ def temporal_aggregate(clause_urls: list[list[str]], clause_scores: list[list[fl
 
 
 def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str]):
-    clause_urls = []
+    clause_ids = []
     clause_scores = []
     
     for text_embedding in text_embeddings:
@@ -335,18 +335,18 @@ def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str
             "Content-Type": "application/json"
         })
         raw_results = response.json()
-        urls = [entity['id'] for entity in raw_results['response'][0]]
+        ids = [entity['id'] for entity in raw_results['response'][0]]
         scores = [entity['distance'] for entity in raw_results['response'][0]]
-        clause_urls.append(urls)
+        clause_ids.append(ids)
         clause_scores.append(scores)
 
     # Single query
     if len(text_embeddings) == 1:  
-        print(f"Search semantic found {len(clause_urls[0])} results")
+        print(f"Search semantic found {len(clause_ids[0])} results")
         for i in range(20):
-            print(i, clause_urls[0][i], clause_scores[0][i])
+            print(i, clause_ids[0][i], clause_scores[0][i])
         return {
-            "urls": clause_urls[0],
+            "ids": clause_ids[0],
             "scores": clause_scores[0],
         }
     # Temporal query
@@ -357,8 +357,8 @@ def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str
 
         # # convert into DataFrame
         # raw_results_df = pd.DataFrame(columns=['url', 'score', 'context_id', 'clause_id'])
-        # for i, urls in enumerate(clause_urls):
-        #     for j, url in enumerate(urls):
+        # for i, ids in enumerate(clause_ids):
+        #     for j, url in enumerate(ids):
         #         raw_results_df.loc[len(raw_results_df)] = [url, clause_scores[i][j], setup.metadata_rows.loc[url, 'context_id'], i]
 
         # # drop context_id = None
@@ -386,11 +386,11 @@ def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str
         # raw_results_df.sort_values(by=['combined_score', 'url'], ascending=[False, True], inplace=True)
         # raw_results_df.drop_duplicates(subset='url', keep='first', inplace=True)
         # raw_results_df = raw_results_df[raw_results_df['keep'] == True]
-        raw_results_df = temporal_aggregate(clause_urls, clause_scores)
+        raw_results_df = temporal_aggregate(clause_ids, clause_scores)
         print(f"Search semantic found {len(raw_results_df)} results\n")
 
         return {
-            "urls": raw_results_df['url'].tolist(),
+            "ids": raw_results_df['url'].tolist(),
             "scores": raw_results_df["combined_score"].tolist(),
         }
 
@@ -427,7 +427,7 @@ def search_objects(dataset: str, object_local_encoding, color_local_encoding, po
     }  
 
     if subset != []:
-        subset = list(set(subset) & set(image_names))
+        subset = list(set(subset) & set(all_image_names))
         body["query"]["bool"]["must"] = {
             "terms": {
                 "_id": subset,
@@ -442,11 +442,11 @@ def search_objects(dataset: str, object_local_encoding, color_local_encoding, po
         body=body
     )
     response = response["hits"]["hits"]
-    urls = [hit["_id"] for hit in response]
+    ids = [hit["_id"] for hit in response]
     scores = [hit["_score"] for hit in response]
-    print(f"Search objects found {len(urls)} results")
+    print(f"Search objects found {len(ids)} results")
     return {
-        "urls": urls,
+        "ids": ids,
         "scores": scores,
     }
 
@@ -501,7 +501,7 @@ def search_objects(dataset: str, object_local_encoding, color_local_encoding, po
 #         })
 
 #     if subset != []:
-#         subset = list(set(subset) & set(image_names))
+#         subset = list(set(subset) & set(all_image_names))
 #         body["query"]["bool"]["must"] = {
 #             "terms": {
 #                 "_id": subset,
@@ -515,11 +515,11 @@ def search_objects(dataset: str, object_local_encoding, color_local_encoding, po
 #         body=body
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
-#     print(f"Search keyword found {len(urls)} results")
+#     print(f"Search keyword found {len(ids)} results")
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 
@@ -608,7 +608,7 @@ def search_objects(dataset: str, object_local_encoding, color_local_encoding, po
 #         body=body
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 
 # def search_match_object_tags(text_query: str) -> list[dict]: 
@@ -628,16 +628,16 @@ def search_objects(dataset: str, object_local_encoding, color_local_encoding, po
 #         },
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 
 
 def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = []) -> list[dict]:
-    clause_urls = []
+    clause_ids = []
     clause_scores = []
     dataset_variant = dataset
     dataset = dataset.split("_")[0]
@@ -654,12 +654,12 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
         for clause in clauses:
             print(f"Searching for keyword: {clause}")
             clause_results, field_items = SearchModuleManager().get_search_module(dataset).search_keywords(dataset_variant, text_query, fields, subset)
-            clause_urls.append(clause_results["urls"])
+            clause_ids.append(clause_results["ids"])
             clause_scores.append(clause_results["scores"])
-        raw_results_df = temporal_aggregate(clause_urls, clause_scores)
+        raw_results_df = temporal_aggregate(clause_ids, clause_scores)
         print(f"Search keyword found {len(raw_results_df)} results")
         return {
-            "urls": raw_results_df['url'].tolist(),
+            "ids": raw_results_df['url'].tolist(),
             "scores": raw_results_df["combined_score"].tolist(),
         }, field_items
     
@@ -669,7 +669,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
         
         clause_results, field_items = SearchModuleManager().get_search_module(dataset).search_keywords(dataset_variant, text_query, fields, subset)
         return {
-            "urls": clause_results["urls"],
+            "ids": clause_results["ids"],
             "scores": clause_results["scores"],
         }, field_items
 
@@ -692,10 +692,10 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         },
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 
@@ -716,10 +716,10 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         },
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 
@@ -737,10 +737,10 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         },
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 
@@ -776,10 +776,10 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         }
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 
@@ -796,10 +796,10 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         }
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 
@@ -845,10 +845,10 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         }
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 
@@ -928,10 +928,10 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         }
 #     )
 #     response = response["hits"]["hits"]
-#     urls = [hit["_id"] for hit in response]
+#     ids = [hit["_id"] for hit in response]
 #     scores = [hit["_score"] for hit in response]
 #     return {
-#         "urls": urls,
+#         "ids": ids,
 #         "scores": scores,
 #     }
 

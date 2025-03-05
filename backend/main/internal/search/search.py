@@ -23,7 +23,7 @@ def search_with_image_query(data: RequestSearchByImageQuery):
             image_embedding = [image_embedding]
         
         results_semantic = search_semantic_temporal(dataset, model, [image_embedding])  
-        return prepare_response(results_semantic["urls"], results_semantic["scores"]), status.HTTP_200_OK            
+        return prepare_response(results_semantic["ids"], results_semantic["scores"]), status.HTTP_200_OK            
     else:
         return response.text, response.status_code
 
@@ -66,23 +66,23 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     # Mode: semantic, objects
     if mode == "vec":
         results_semantic = search_semantic_temporal(dataset, model, text_embeddings) if text_query else None
-        urls_semantic = results_semantic["urls"] if results_semantic else []
-        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_semantic) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
+        ids_semantic = results_semantic["ids"] if results_semantic else []
+        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=ids_semantic) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
         # log
         semantic_log_info = {
             "jointEmbedding": text_query
         }
-        save_log(user_id, "TEXT", [semantic_log_info], combined["urls"])
-        return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        save_log(user_id, "TEXT", [semantic_log_info], combined["ids"])
+        return prepare_response(combined["ids"], combined["scores"]), status.HTTP_200_OK
     
     # Mode: semantic, keywords, objects
     if mode == "vec_kw":
         results_semantic = search_semantic_temporal(dataset, model, text_embeddings) if text_query else None 
-        urls_semantic = results_semantic["urls"] if results_semantic else []
-        results_keywords, field_items = search_keywords_temporal(dataset, text_query, subset=urls_semantic) if text_query else None
-        urls_keywords = results_keywords["urls"] if results_keywords else []
-        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
+        ids_semantic = results_semantic["ids"] if results_semantic else []
+        results_keywords, field_items = search_keywords_temporal(dataset, text_query, subset=ids_semantic) if text_query else None
+        ids_keywords = results_keywords["ids"] if results_keywords else []
+        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=ids_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_semantic, results_keywords, results_objects], 'inner')
 
         # log
@@ -103,16 +103,16 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         if "time" in field_items:
             keywords_log_info["time"] = field_items["time"]
 
-        save_log(user_id, "TEXT", [semantic_log_info, keywords_log_info], combined["urls"])
-        return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        save_log(user_id, "TEXT", [semantic_log_info, keywords_log_info], combined["ids"])
+        return prepare_response(combined["ids"], combined["scores"]), status.HTTP_200_OK
 
     # Mode: keywords, objects
     if mode == "kw":
         results_keywords = search_keywords_temporal(dataset, text_query) if text_query else None
-        urls_keywords = results_keywords["urls"] if results_keywords else []
-        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=urls_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
+        ids_keywords = results_keywords["ids"] if results_keywords else []
+        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=ids_keywords) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
         combined = combine_score.get_combined_scores([results_keywords, results_objects], 'inner')
-        return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        return prepare_response(combined["ids"], combined["scores"]), status.HTTP_200_OK
 
 
         
@@ -121,14 +121,14 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         #     results_semantic = search_semantic_temporal(model, text_embedding)   
         #     results_datetime = search_datetime(text_query)
         #     combined = combine_score.get_combined_scores_datetime([results_semantic], results_datetime)
-        #     return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        #     return prepare_response(combined["ids"], combined["scores"]), status.HTTP_200_OK
 
         # Mode: semantic + multimatch (datetime included)
         if mode == "smt-mm-dtin":
             results_semantic = search_semantic_temporal(model, text_embedding)
             results_keywords = search_keywords_temporal(text_query)
             combined = combine_score.get_combined_scores([results_semantic, results_keywords])
-            return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+            return prepare_response(combined["ids"], combined["scores"]), status.HTTP_200_OK
         
         # # Mode: (semantic + multimatch) x datetime
         # if mode == "smt-mm-dtout":
@@ -136,14 +136,14 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         #     results_multimatch = search_multimatch(text_query)
         #     results_datetime = search_datetime(text_query)
         #     combined = combine_score.get_combined_scores_datetime([results_semantic, results_multimatch], results_datetime)
-        #     return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        #     return prepare_response(combined["ids"], combined["scores"]), status.HTTP_200_OK
         
         # # Mode: semantic + 3 matches (datetime included)
         # if mode == "smt-3m-dtin":
         #     results_semantic = search_semantic_temporal(model, text_embedding)
         #     results_3match_datetime = search_3match_datetime(text_query)
         #     combined = combine_score.get_combined_scores([results_semantic, results_3match_datetime])
-        #     return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        #     return prepare_response(combined["ids"], combined["scores"]), status.HTTP_200_OK
         
         # # Mode: (semantic + 3 matches) x datetime
         # if mode == "smt-3m-dtout":
@@ -153,7 +153,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
         #     results_caption = search_match_caption(text_query)
         #     results_datetime = search_datetime(text_query)
         #     combined = combine_score.get_combined_scores_datetime([results_semantic, results_objects_tags, results_place, results_caption], results_datetime)
-        #     return prepare_response(combined["urls"], combined["scores"]), status.HTTP_200_OK
+        #     return prepare_response(combined["ids"], combined["scores"]), status.HTTP_200_OK
         
         return [], status.HTTP_200_OK
     

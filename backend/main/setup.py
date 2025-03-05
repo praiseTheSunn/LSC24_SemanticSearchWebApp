@@ -15,10 +15,10 @@ system_config = load_config(system_config_file)
 import urllib3
 urllib3.disable_warnings()
 
-from elasticsearch import Elasticsearch
-password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
-es_client = Elasticsearch(f"http://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
-es_client.info()
+# from elasticsearch import Elasticsearch
+# password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
+# es_client = Elasticsearch(f"http://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
+# es_client.info()
 
 
 # SPACY
@@ -48,9 +48,10 @@ metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
 # metadata_rows = metadata_rows[['video_id', 'frame_id', 'video_url', 'timestamp', 'ocr', 'caption',
 #        'caption_keywords', 'context_en_keywords', 'context_id',
 #        'context_id_coarse', 'image_link']]
-metadata_rows = metadata_rows[['video_id', 'frame_id', 'video_url', 'timestamp', 'context_id_coarse', 'image_link']]
-metadata_rows.set_index('image_link', inplace=True)
+# metadata_rows = metadata_rows[['image_id', 'id', 'video_url', 'timestamp', 'context_id_coarse', 'image_link']]
+metadata_rows = metadata_rows[['image_id', 'id', 'date', 'time', 'new_lat', 'new_lng', 'location_displayed']]
+metadata_rows.set_index('image_id', inplace=True)
 
 # metadata_rows_context_id_coarse = metadata_rows['date']
-image_names = sorted(metadata_rows.index.tolist())
+all_image_names = sorted(metadata_rows.index.tolist())
 print(f"Length of metadata_rows: {len(metadata_rows)}")

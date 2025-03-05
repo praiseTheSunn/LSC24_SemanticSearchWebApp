@@ -139,10 +139,10 @@ class ModelManager:
             cls._instance.models = {
                 # "clip": ClipModel(),
                 # "blip2": Blip2Model(),
-                "xlm_roberta": XlmRobertaModel(),
-                "vitamin": VitaminModel(),
+                # "xlm_roberta": XlmRobertaModel(),
+                # "vitamin": VitaminModel(),
                 # "appleclip": AppleClipModel(),
-                # "clips": ClipSModel()
+                "clips": ClipSModel()
             }
         return cls._instance
 

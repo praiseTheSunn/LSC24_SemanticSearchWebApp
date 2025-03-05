@@ -60,6 +60,10 @@ startFrontend.bat
 /backend/objpos/metadata.db
 /backend/objpos/joined_data.db
 
+/backend/db/*.db
+/backend/main/*.db
+/backend/main/elastic_search/utils/*.db
+
 # logs
 /backend/logs/*
 
@@ -77,7 +81,6 @@ startFrontend.bat
 # main
 /backend/main/elastic_search/http_ca.crt
 
-# configs (secret)
-/backend/configs/*
-
 http_ca.crt
+
+/backend/elasticsearch-8.17.0

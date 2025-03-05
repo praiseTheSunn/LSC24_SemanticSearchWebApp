@@ -57,11 +57,7 @@ async def search_milvus(data: SearchRequest):
     response = setup.milvus_client.search(
         collection_name=collection_name, 
         data=text_embedding, 
-        limit=limit,
-        filter="""url in [
-            "L05/L05_V017/0662.webp",
-            "L05/L05_V025/0014.webp"
-        ]"""
+        limit=limit
     )
     return JSONResponse(content={"response": response}, headers=header)
 

@@ -28,7 +28,7 @@ def save_log(user_id: str, category: str, log_infos: list[dict[str, str]], resul
             "rank": i + 1
         })
     # save to json file
-    json.dump(output, open(f"/home/pc/LSC24_SemanticSearchWebApp/backend/logs/{user_id}_{timestamp}.json", "w"))
+    # json.dump(output, open(f"/home/pc/LSC24_SemanticSearchWebApp/backend/logs/{user_id}_{timestamp}.json", "w"))
     
 
 # def save_result_log(category: str, type_value: dict[str, str]):
