@@ -1,5 +1,4 @@
 import setup
-from setup import dataset_config, image_names
 import pandas as pd
 import requests
 import itertools
@@ -7,10 +6,11 @@ from internal.search.parser import all_parsers
 from internal.search.scorer import combine_score
 from internal.prepare_response import prepare_response
 from functools import reduce
+from pprint import pprint
 
 import sys
 sys.path.append('..')
-from db.search import search_video_ids_by_ids
+from db.search import search_video_ids_by_ids, search_metadata_by_ids
 
 # dataset_name = dataset_config['dataset_name']
 # metadata_index_name = dataset_name
@@ -18,6 +18,7 @@ from db.search import search_video_ids_by_ids
 
 
 MAX_TEMPORAL_CONTEXT = 5
+MAX_NUMBER_OF_RESULTS = 1000
 
 
 def temporal_aggregate(clause_record_ids: list[list[str]], clause_scores: list[list[float]]):
@@ -86,6 +87,7 @@ def temporal_aggregate(clause_record_ids: list[list[str]], clause_scores: list[l
 
 
 def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str]):
+    dataset = dataset.lower().replace("lsc", "lsc24")
     temporal_ids = []
     final_record_ids = []
     final_video_ids = []
@@ -98,14 +100,17 @@ def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str
             "dataset": dataset,
             "ids": temporal_ids
         }
-        response = requests.post("http://localhost:8003/search_milvus", json=data, headers={
+        response = requests.post("http://localhost:8003/search_milvus_for_lsc", json=data, headers={
             "Content-Type": "application/json"
         })
         raw_results = response.json()
+        # pprint(raw_results)
         record_ids = [entity['id'] for entity in raw_results['response'][0]]
         scores = [entity['distance'] for entity in raw_results['response'][0]]
+        return prepare_response(dataset, record_ids, scores)
         final_record_ids.append(record_ids)
-        final_video_ids.append(search_video_ids_by_ids(dataset, "keyframes", record_ids))
+        # final_video_ids.append(search_video_ids_by_ids(dataset, "keyframes", record_ids))
+        final_video_ids.append("str")
         final_scores.append(scores)
 
         neighbor_ids = [list(range(int(record_id), int(record_id) + MAX_TEMPORAL_CONTEXT + 1)) for record_id in record_ids]
@@ -179,10 +184,7 @@ def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str
         return {
             "record_ids": final_grouped_record_ids,
             "scores": final_scores,
-        }
-
-
-        
+        }    
 
 
 def search_semantic_temporal_deprecated(dataset: str, model: str, text_embeddings: list[str]):
@@ -222,7 +224,10 @@ def search_semantic_temporal_deprecated(dataset: str, model: str, text_embedding
         }
 
 
-def search_objects(dataset: str, object_local_encoding, color_local_encoding, pose_local_encoding, subset: list[str] = []) -> list[dict]: 
+def search_objects(dataset: str, object_local_encoding, color_local_encoding, pose_local_encoding, subset: list[int] = []) -> list[dict]: 
+    # print(f"Object local encoding: {object_local_encoding}")
+    # print(f"Color local encoding: {color_local_encoding}")
+    # print(f"Pose local encoding: {pose_local_encoding}")
     body = {
         "query": {
             "bool": {
@@ -241,37 +246,64 @@ def search_objects(dataset: str, object_local_encoding, color_local_encoding, po
                             }
                         }
                     },
-                    {
-                        "match": {
-                            "pose_local_encoding": {
-                                "query": pose_local_encoding,
-                            }
-                        }
-                    },
+                    # {
+                    #     "match": {
+                    #         "pose_local_encoding": {
+                    #             "query": pose_local_encoding,
+                    #             "fuzziness": "AUTO",
+                    #         }
+                    #     }
+                    # },
                 ],
             },
         }
     }  
 
+    if dataset == "vbs25_v3c":
+        all_record_ids = list(range(1, 5000000))
+    else:
+        all_record_ids = list(range(1, 200000))
+
+    # print(f"Subset IDs: {subset[:20]}")
+    # print(f"Length of subset: {len(subset)}")
+    
     if subset != []:
-        subset = list(set(subset) & set(image_names))
+        subset = list(set(subset) & set(all_record_ids))
+        # print(f"Subset IDs after filtering: {subset[:20]}")
+        # print(f"Length of subset: {len(subset)}")
         body["query"]["bool"]["must"] = {
             "terms": {
                 "_id": subset,
             }
         }
 
-    # encoding_index_name = dataset + "_encoding"
-    encoding_index_name = "aic24_encoding"
     response = setup.es_client.search(
-        index=encoding_index_name,
-        size=1000,
+        index=dataset,
+        size=MAX_NUMBER_OF_RESULTS,
         body=body
     )
     response = response["hits"]["hits"]
     record_ids = [hit["_id"] for hit in response]
     scores = [hit["_score"] for hit in response]
-    print(f"Search objects found {len(record_ids)} results")
+    # print(f"Object response:")
+    # count = 0
+    # for r in response:
+    #     score = r['_score']
+    #     id = r['_id']
+    #     local_object = r['_source']['local_object_encoding']
+    #     global_object = r['_source']['global_object_encoding']
+    #     # if local_object:
+    #     #     print(f"Local object: {r['_source']['local_object_encoding']}")
+    #     if global_object:
+    #         count += 1
+    #         print(f"Global object: {r['_source']['global_object_encoding']}")
+        # print(f"ID: {id}")
+        # print(f"Score: {score}")
+        # print(f"Metadata: {search_metadata_by_ids(dataset, 'keyframes', [id])}")
+        # print()
+
+    # print(f"OK results: {count}")
+    # print(f"Search objects found {len(record_ids)} results")
     return {
         "record_ids": record_ids,
         "scores": scores,
@@ -292,7 +324,7 @@ def search_keywords(dataset: str, clause: str, subset: list[str] = []) -> list[d
                 "context_vi": {
                     "query": clause,
                     "fuzziness": "AUTO",
-                }                              
+                }     
             }
         })
     else:
@@ -327,8 +359,12 @@ def search_keywords(dataset: str, clause: str, subset: list[str] = []) -> list[d
             }
         })
 
+    if dataset == "vbs25_v3c":
+        all_record_ids = list(range(1, 5000000))
+    else:
+        all_record_ids = list(range(1, 200000))
     if subset != []:
-        subset = list(set(subset) & set(image_names))
+        subset = list(set(subset) & set(all_record_ids))
         body["query"]["bool"]["must"] = {
             "terms": {
                 "_id": subset,
@@ -338,7 +374,7 @@ def search_keywords(dataset: str, clause: str, subset: list[str] = []) -> list[d
     metadata_index_name = dataset
     response = setup.es_client.search(
         index=metadata_index_name,
-        size=1000,
+        size=MAX_NUMBER_OF_RESULTS,
         body=body
     )
     response = response["hits"]["hits"]
@@ -388,7 +424,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         return None
 #     response = setup.es_client.search(
 #         index=metadata_index_name,
-#         size=5000,
+#         size=MAX_NUMBER_OF_RESULTS,
 #         query={
 #             "match": {
 #                 "object_tags": {
@@ -412,7 +448,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #         return None
 #     response = setup.es_client.search(
 #         index=metadata_index_name,
-#         size=5000,
+#         size=MAX_NUMBER_OF_RESULTS,
 #         query={
 #             "match": {
 #                 "location": {
@@ -433,7 +469,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 # def search_match_caption(text_query: str) -> list[dict]:
 #     response = setup.es_client.search(
 #         index=metadata_index_name,
-#         size=5000,
+#         size=MAX_NUMBER_OF_RESULTS,
 #         query={
 #             "match": {
 #                 "caption": {
@@ -458,7 +494,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 #     date1, time1, date2, time2 = time_helpers.fill_date_time(date1, time1, date2, time2)
 #     response = setup.es_client.search(
 #         index=metadata_index_name,
-#         size=10000,
+#         size=MAX_NUMBER_OF_RESULTS,
 #         query={
 #             "bool": {
 #                 "must": [
@@ -493,7 +529,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 # def search_multimatch(text_query: str):
 #     response = setup.es_client.search(
 #         index=metadata_index_name,
-#         size=10000,
+#         size=MAX_NUMBER_OF_RESULTS,
 #         query={
 #             "multi_match": {
 #                 "query" : text_query,
@@ -518,7 +554,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 
 #     response = setup.es_client.search(
 #         index=metadata_index_name,
-#         size=10000,
+#         size=MAX_NUMBER_OF_RESULTS,
 #         query={
 #             "bool": {
 #                 "should": [
@@ -576,7 +612,7 @@ def search_keywords_temporal(dataset: str, text_query: str, subset: list[str] = 
 
 #     response = setup.es_client.search(
 #         index=metadata_index_name,
-#         size=10000,
+#         size=MAX_NUMBER_OF_RESULTS,
 #         query={
 #             "bool": {
 #                 "should": [

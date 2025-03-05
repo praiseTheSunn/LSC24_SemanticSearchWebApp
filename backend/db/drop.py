@@ -20,7 +20,7 @@ if __name__ == "__main__":
     args.add_argument("-t", "--table_name", type=str, required=True, help="Name of the table to drop")
     args = args.parse_args()
 
-    db_name = "V3C.db"
+    db_name = "lsc.db"
     table_name = args.table_name
 
     drop_table(db_name, table_name)

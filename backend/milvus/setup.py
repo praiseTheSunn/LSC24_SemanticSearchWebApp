@@ -1,5 +1,6 @@
 # configs
 import os
+import time
 import yaml
 
 def load_config(config_path: str):
@@ -24,17 +25,17 @@ connections.connect(host="localhost", port="19530")
 try:
     collection_names = utility.list_collections()
     print("List of collections: ", collection_names)
-    for collection_name in collection_names:        
+    start_time = time.time()
+    print("Start loading collections...")
+    for collection_name in collection_names:    
         collection = Collection(collection_name)
-        load_state = utility.load_state(collection_name)
-        print(collection_name, collection.num_entities, load_state)
-
-        if collection_name.startswith(dataset_name) and load_state == False:
-            collection.load(collection_name)
-            print("Loaded collection: ", collection_name)
-        elif not collection_name.startswith(dataset_name) and load_state == True:
-            collection.release(collection_name)
-            print("Released collection: ", collection_name)
+        collection.load()
+        while True:    
+            load_state = utility.load_state(collection_name)
+            print(f"Collection_name: {collection_name}, load_state: {load_state}")
+            if load_state:
+                print(f"Collection {collection_name} loaded successfully after {time.time() - start_time} seconds since start loading all collections.")
+                break
             
 except MilvusException as e:
     print(e)

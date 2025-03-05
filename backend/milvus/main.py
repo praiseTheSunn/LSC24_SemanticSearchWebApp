@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.cors import CORSMiddleware
-from schemas import SearchRequest, GetRequest
+from schemas import SearchRequest, SearchRequestForLSC, GetRequest, GetRequestForLSC
 import numpy as np
 
 
@@ -26,6 +26,35 @@ app.add_middleware(
 # Include the routes
 @app.post("/search_milvus")
 async def search_milvus(data: SearchRequest):
+    dataset = data.dataset.replace("lsc", "lsc24")
+    collection_name = dataset + "_" + data.model
+    text_embedding = data.embedding
+    limit = data.limit
+    ids = data.ids
+    header = {
+        'Access-Control-Allow-Origin': '*'
+    }
+
+    if len(ids) > 0:
+        response = setup.milvus_client.search(
+            collection_name=collection_name, 
+            data=text_embedding, 
+            filter=f"""keyframe_id in {ids}""",
+            limit=limit
+        )
+    else:
+        print(f"Limit: {limit}")
+        response = setup.milvus_client.search(
+            collection_name=collection_name, 
+            data=text_embedding, 
+            limit=limit
+        )
+    return JSONResponse(content={"response": response}, headers=header)
+
+
+@app.post("/search_milvus_for_lsc")
+async def search_milvus_for_lsc(data: SearchRequestForLSC):
+    print("Searching for LSC")
     dataset = data.dataset
     collection_name = dataset + "_" + data.model
     text_embedding = data.embedding
@@ -35,11 +64,11 @@ async def search_milvus(data: SearchRequest):
         'Access-Control-Allow-Origin': '*'
     }
 
-    if ids:
+    if len(ids) > 0:
         response = setup.milvus_client.search(
             collection_name=collection_name, 
             data=text_embedding, 
-            filter=f"""keyframe_id in {ids}""",
+            filter=f"""id in {ids}""",
             limit=limit
         )
     else:
@@ -65,6 +94,28 @@ async def get_embeddings(data: GetRequest):
     )
     response = {
         'record_ids': [raw_results[i]['keyframe_id'] for i in range(len(raw_results))],
+        'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
+    }
+
+    # debug
+    print("Record IDs: ", response['record_ids'])
+    return JSONResponse(content={"response": response}, headers=header)
+
+
+@app.post("/get_embeddings_for_lsc")
+async def get_embeddings_for_lsc(data: GetRequestForLSC):
+    collection_name = data.collection_name
+    print("Collection_name: ", collection_name)
+    ids = data.ids
+    header = {
+        'Access-Control-Allow-Origin': '*'
+    }
+    raw_results = setup.milvus_client.get(
+        collection_name = collection_name,
+        ids = ids
+    )
+    response = {
+        'record_ids': [raw_results[i]['id'] for i in range(len(raw_results))],
         'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
     }
 

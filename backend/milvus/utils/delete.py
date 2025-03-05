@@ -11,10 +11,12 @@ except MilvusException as e:
 from pymilvus import MilvusClient, DataType
 CLUSTER_ENDPOINT = "http://localhost:19530"
 TOKEN = "root:Milvus"
+COLLECTION_NAME = "lsc24_clips"
 
 # 1. Set up a Milvus client
 client = MilvusClient(uri=CLUSTER_ENDPOINT, token=TOKEN)
-client.drop_collection(collection_name='vbs25_v3c_clips')
+client.drop_collection(collection_name=COLLECTION_NAME)
+
 
 
 collections = utility.list_collections()
