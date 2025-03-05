@@ -205,6 +205,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             mode: queryPayload.mode,
             model: queryPayload.model,
             dataset: queryPayload.dataset,
+            user_id: "xxx"
           })
           setDisplayedFilters((previousState: any) => [
             ...previousState,
@@ -359,8 +360,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Model"
-            displayItems={['CLIP', 'BLIP2', 'BEiT-3', 'STFM']}
-            valueItems={['clip', 'blip2', 'beit3', 'stfm']}
+            displayItems={['CLIPS', 'BLIP2', 'BEiT-3', 'STFM']}
+            valueItems={['clips', 'blip2', 'beit3', 'stfm']}
             setData={setModel}
           />
         </Box>

@@ -9,4 +9,5 @@ export type QueryPayload = {
   mode: string
   text_query: string
   dataset: string
+  user_id: string
 }
