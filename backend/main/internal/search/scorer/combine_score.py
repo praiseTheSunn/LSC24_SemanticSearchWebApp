@@ -12,7 +12,10 @@ def get_standardized_scores(scores: list[float]) -> list[float]:
     max_log = np.max(log_transformed)
     min_log = np.min(log_transformed)
     # Scale between [min_target, 100]
-    results = [(min_target + (score - min_log) / (max_log - min_log) * (100 - min_target)) for score in log_transformed]
+    if max_log == min_log:
+        results = [min_target] * len(log_transformed)
+    else:
+        results = [(min_target + (score - min_log) / (max_log - min_log) * (100 - min_target)) for score in log_transformed]
     return results
 
 def get_combine_score(scores) -> float:
@@ -26,7 +29,7 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
     # Remove empty results
     match_results_nonnull_index = []
     
-    for i, result in enumerate(match_results):   
+    for i, result in enumerate(match_results): 
         if result and len(result["record_ids"]) != 0:
             match_results_nonnull_index.append(i)
 
@@ -45,7 +48,7 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
     # Create a dataframe for each category (i dont know how many categories there are)
     dataframes = []
     for i in match_results_nonnull_index:
-        dataframes.append(pd.DataFrame({'record_ids': match_results[i]["record_ids"], 'scores': match_results[i]["scores"]}))
+        dataframes.append(pd.DataFrame({'record_ids': pd.Series(match_results[i]["record_ids"], dtype='int64'), 'scores': match_results[i]["scores"]}))
         dataframes[-1]['scores'] = get_standardized_scores(dataframes[-1]['scores'])
         print(f"Category {i}:")
         print(f"Raw scores: {match_results[i]['scores'][:5]} ... {match_results[i]['scores'][-5:]}")

@@ -63,6 +63,7 @@ startFrontend.bat
 # data
 /backend/data/metadata/*
 /backend/data/embeddings/*
+/backend/data/*
 *.csv
 *.npy
 *.db

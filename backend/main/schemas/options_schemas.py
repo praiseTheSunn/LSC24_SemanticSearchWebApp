@@ -16,3 +16,4 @@ class DatasetOptions(str, Enum):
     option4 = "aic24"
     option5 = "aic24_lesson"
     option6 = "aic24_cooking"
+    option7 = "lsc"

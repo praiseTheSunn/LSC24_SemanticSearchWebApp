@@ -15,11 +15,9 @@ system_config = load_config(system_config_file)
 import urllib3
 urllib3.disable_warnings()
 
-# from elasticsearch import Elasticsearch
-# password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
-# es_client = Elasticsearch(f"https://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
-# es_client.info()
-
+from elasticsearch import Elasticsearch
+password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
+es_client = Elasticsearch(f"https://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
 
 # SPACY
 import spacy
@@ -47,7 +45,6 @@ from internal.search.parser import all_parsers
 # Database
 import sys
 sys.path.append('..')
-image_names = None
 
 # ID mapping
 import pandas as pd
@@ -57,3 +54,6 @@ id_mappings = {
     "vbs25_mvk": pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/keyframes.csv", index_col=0),
     "vbs25_lhe": pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/keyframes.csv", index_col=0)
 }
+
+metadata_df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/metadata/metadata_v3.csv", index_col=0)
+print(metadata_df.head())

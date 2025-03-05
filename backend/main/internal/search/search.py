@@ -22,7 +22,9 @@ def search_with_image_query(data: RequestSearchByImageQuery):
             image_embedding = [image_embedding]
         
         results_semantic = search_semantic_temporal(dataset, model, [image_embedding])  
-        return prepare_response(results_semantic["record_ids"], results_semantic["scores"]), status.HTTP_200_OK            
+        return prepare_response(dataset, results_semantic["record_ids"], results_semantic["scores"]), status.HTTP_200_OK            
+        # return prepare_response(dataset, combined["record_ids"], combined["scores"], window_size=window_size, temporal_query=True), status.HTTP_200_OK
+
     else:
         return response.text, response.status_code
 
@@ -66,7 +68,7 @@ def search_with_text_query(data: RequestSearchByTextQuery):
     if mode == "vec":
         results_semantic = search_semantic_temporal(dataset, model, text_embeddings) if text_query else None
         record_ids_semantic = results_semantic["record_ids"] if results_semantic else []
-        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=record_ids_semantic) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None   
+        results_objects = search_objects(dataset, object_local_encoding, color_local_encoding, pose_local_encoding, subset=record_ids_semantic) if (object_local_encoding or color_local_encoding or pose_local_encoding) else None 
         combined = combine_score.get_combined_scores([results_semantic, results_objects], 'inner')
         if len(text_embeddings) > 1:
             return prepare_response(dataset, combined["record_ids"], combined["scores"], window_size=window_size, temporal_query=True), status.HTTP_200_OK

@@ -4,4 +4,4 @@ conda env export > environment.yml
 sudo docker compose up -d
 
 export DATASET_CONFIG=../configs/vbs25_config.yaml
-python3 -m uvicorn main:app --host 0.0.0.0 --port 8003 --reload
+python3 -m uvicorn main:app  --reload --host 0.0.0.0 --port 8003

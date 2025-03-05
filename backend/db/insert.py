@@ -226,10 +226,51 @@ def insert_keyframes():
             id_mapping.to_csv(ID_MAPPING, index=True)
             id_mapping_updates = []
 
+
+def insert_keyframes_2(args):
+    dataset_name = args["dataset_name"]
+    metadata_path = args["metadata_path"]
+    col_convert = args["col_convert"]
+
+    # Load df
+    df = pd.read_csv(metadata_path)
+    df.rename(columns=col_convert, inplace=True)
+    df = df[["id", "name"]]
+
+    # Insert
+    db_path = f"{dataset_name}.db"
+    table_name = "keyframes"
+    for _, row in df.iterrows():
+        metadata = {
+            "id": row[0],
+            "name": row[1]
+        }
+        if _ % 1000 == 0:
+            print(f"Inserting metadata: {metadata}")
+        insert_metadata(db_path, table_name, metadata)
+
+    # Create id mapping file: from id to name
+    id_mapping_path = f"../data/id_mapping/{dataset_name}/keyframes.csv"
+    if not os.path.exists(id_mapping_path):
+        id_mapping = pd.DataFrame(columns=["keyframe_id", "keyframe_name"])
+        id_mapping.to_csv(id_mapping_path, index=False)
+        print(f"Created {id_mapping_path}")
+
+
+
+
  
 if __name__ == "__main__":
     # insert_videos()
     # insert_contexts()
-    insert_keyframes()
+    args = {
+        "dataset_name": "lsc",
+        "metadata_path": "../data/metadata/metadata_v3.csv",
+        "col_convert": {
+            "id": "id",
+            "image_id": "name"
+        }
+    }
+    insert_keyframes_2(args)
 
     

@@ -18,9 +18,9 @@ dependencies:
   - bottleneck=1.3.7=py310ha9d4c09_0
   - brotli-python=1.0.9=py310h6a678d5_8
   - bzip2=1.0.8=h5eee18b_6
-  - ca-certificates=2024.11.26=h06a4308_0
+  - ca-certificates=2024.12.31=h06a4308_0
   - catalogue=2.0.10=py310h06a4308_0
-  - certifi=2024.12.14=py310h06a4308_0
+  - certifi=2025.1.31=py310h06a4308_0
   - cffi=1.16.0=py310h5eee18b_1
   - charset-normalizer=2.0.4=pyhd3eb1b0_0
   - click=8.1.7=py310h06a4308_0
@@ -38,6 +38,7 @@ dependencies:
   - exceptiongroup=1.2.0=py310h06a4308_0
   - executing=2.0.1=pyhd8ed1ab_0
   - fastapi=0.103.0=py310h06a4308_0
+  - freetype=2.12.1=h4a9f257_0
   - frozenlist=1.4.0=py310h5eee18b_0
   - h11=0.14.0=py310h06a4308_0
   - idna=3.7=py310h06a4308_0
@@ -49,16 +50,24 @@ dependencies:
   - jedi=0.19.1=pyhd8ed1ab_0
   - jinja2=3.1.4=py310h06a4308_0
   - joblib=1.4.2=py310h06a4308_0
+  - jpeg=9e=h5eee18b_3
   - jupyter_client=8.6.2=pyhd8ed1ab_0
   - jupyter_core=5.7.2=py310hff52083_0
   - langcodes=3.3.0=pyhd3eb1b0_0
+  - lcms2=2.16=hb9589c4_0
   - ld_impl_linux-64=2.38=h1181459_1
+  - lerc=4.0.0=h6a678d5_0
+  - libdeflate=1.22=h5eee18b_0
   - libffi=3.4.4=h6a678d5_1
   - libgcc-ng=14.1.0=h77fa898_0
   - libgomp=14.1.0=h77fa898_0
+  - libpng=1.6.39=h5eee18b_0
   - libsodium=1.0.18=h36c2ea0_1
   - libstdcxx-ng=11.2.0=h1234567_1
+  - libtiff=4.5.1=hffd6297_1
   - libuuid=1.41.5=h5eee18b_0
+  - libwebp-base=1.3.2=h5eee18b_1
+  - lz4-c=1.9.4=h6a678d5_1
   - markdown-it-py=2.2.0=py310h06a4308_1
   - markupsafe=2.1.3=py310h5eee18b_0
   - matplotlib-inline=0.1.7=pyhd8ed1ab_0
@@ -75,12 +84,14 @@ dependencies:
   - numexpr=2.8.7=py310h85018f9_0
   - numpy=1.26.4=py310h5f9d8c6_0
   - numpy-base=1.26.4=py310hb5e798b_0
+  - openjpeg=2.5.2=he7f1fd0_0
   - openssl=3.3.1=h4ab18f5_1
   - packaging=23.2=py310h06a4308_0
   - pandas=2.2.2=py310h6a678d5_0
   - parso=0.8.4=pyhd8ed1ab_0
   - pexpect=4.9.0=pyhd8ed1ab_0
   - pickleshare=0.7.5=py_1003
+  - pillow=11.1.0=py310hcea889d_0
   - pip=24.0=py310h06a4308_0
   - platformdirs=4.2.2=pyhd8ed1ab_0
   - preshed=3.0.6=py310h295c915_0
@@ -128,7 +139,7 @@ dependencies:
   - typing_extensions=4.11.0=py310h06a4308_0
   - tzdata=2024a=h04d1e81_0
   - urllib3=1.26.19=py310h06a4308_0
-  - uvicorn=0.20.0=py310h06a4308_0
+  - uvicorn=0.32.1=py310h06a4308_0
   - wasabi=0.9.1=py310h06a4308_0
   - wcwidth=0.2.13=pyhd8ed1ab_0
   - weasel=0.3.4=py310h06a4308_0
@@ -138,6 +149,7 @@ dependencies:
   - zeromq=4.3.5=h6a678d5_0
   - zipp=3.19.2=pyhd8ed1ab_0
   - zlib=1.2.13=h5eee18b_1
+  - zstd=1.5.6=hc292b87_0
   - pip:
       - en-core-web-sm==3.7.1
       - pyyaml==6.0.2

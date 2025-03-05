@@ -34,6 +34,13 @@ class ClipSModel(ModelBase):
         text_embedding = F.normalize(text_embedding, dim=-1)
         return text_embedding
     
+    def calc_image_embedding(self, raw_image: torch.Tensor) -> Any:              
+        image = self.preprocess(raw_image).unsqueeze(0)
+        with torch.no_grad(), torch.cuda.amp.autocast():
+            image_embedding = self.model.encode_image(image)
+            image_embedding = F.normalize(image_embedding, dim=-1)
+        return image_embedding
+    
 
 class ModelManager:
     _instance = None

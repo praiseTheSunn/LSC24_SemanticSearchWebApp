@@ -52,7 +52,7 @@ if __name__ == "__main__":
     parser.add_argument("-t", "--table_name", type=str, required=True, help="Name of the table to init")
     args = parser.parse_args()
     
-    db_name = "LHE.db"              # MVK.db, V3C.db
+    db_name = "lsc.db"              # MVK.db, V3C.db
     table_name = args.table_name
     schema = ""
 
@@ -68,13 +68,18 @@ if __name__ == "__main__":
             name TEXT NOT NULL,
             video_id INTEGER NOT NULL
         """
+    # elif table_name == "keyframes":
+    #     schema = """
+    #         id INTEGER PRIMARY KEY,
+    #         name TEXT NOT NULL,
+    #         timestamp INTEGER NOT NULL,
+    #         context_id INTEGER NOT NULL,
+    #         video_id INTEGER NOT NULL
+    #     """    
     elif table_name == "keyframes":
         schema = """
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            timestamp INTEGER NOT NULL,
-            context_id INTEGER NOT NULL,
-            video_id INTEGER NOT NULL
+            id INTEGER PRIMARY KEY,
+            name TEXT NOT NULL
         """    
 
     initialize_database(db_name, table_name, schema)
