@@ -124,12 +124,12 @@ export const CSVDownloadBox = () => {
     }
     const feedbackData: any = {}
     feedbackData.like = {
-      image_urls: likeImages.map((image) => image.img_link),
+      ids: likeImages.map((image) => image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")),
       prior_scores: likeImages.map((image) => image.score),
       limit: likeLimit,
     }
     feedbackData.dislike = {
-      image_urls: dislikeImages.map((image) => image.img_link),
+      ids: dislikeImages.map((image) => image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")),
       limit: dislikeLimit,
     }
     feedbackData.model = queryPayload.model

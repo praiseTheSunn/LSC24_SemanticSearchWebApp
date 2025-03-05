@@ -2,8 +2,9 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { get } from 'lodash'
 import { ImageQuery } from '.'
 import {
-  transformResponse_AIC2024,
+  transformResponse_LSC2024,
   transformResponse_Feedback_AIC,
+  transformResponse_Feedback_LSC2024,
 } from '../config/transformResponse'
 import type {
   ApiResponse,
@@ -30,7 +31,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
+          transformResponse_LSC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -50,7 +51,7 @@ export const ImageApi = createApi({
           body: params,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
+          transformResponse_LSC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -71,7 +72,7 @@ export const ImageApi = createApi({
           body: params,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
+          transformResponse_LSC2024(response),
         providesTags: (result) =>
           result
             ? [
@@ -91,12 +92,12 @@ export const ImageApi = createApi({
           body: imageQuery,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_AIC2024(response),
+          transformResponse_LSC2024(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 
       getFeedbackImages: builder.query<
-        ImageRecord[],
+        any,
         FeedbackQueryParams | undefined | null
       >({
         query: (params) => {
@@ -107,7 +108,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_Feedback_AIC(response),
+          transformResponse_Feedback_LSC2024(response),
       }),
     }
   },

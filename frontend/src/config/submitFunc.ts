@@ -7,9 +7,26 @@ import { useSelector } from 'react-redux'
 import { type Id, toast } from 'react-toastify'
 import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import type { useSubmitKISAnsweringMutation } from '../AppState'
-import type { AppState, EvaluationState } from '../types/app'
+import type { AppState } from '../types/app'
 import type { ImageRecord } from '../types/image'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
+
+
+export const LSC_addCSVImages = (src: string, toastId: Id, imageDatas : ImageRecord[], dispatch: Dispatch, prevImages: ImageRecord[]) => {
+  const newData = imageDatas.find((item) => item.img_link === src);
+  
+  if (!newData) {
+    toast.update(toastId, { render: 'Error: Image not found',type: 'error', isLoading: false, closeOnClick: true, autoClose: 2000, delay: 500 });
+    return;
+  }
+  
+  toast.update(toastId, { render: `Added: ${newData.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 500, delay: 500 });
+  
+  const updatedCSVImages = [...prevImages, newData];
+  // console.log('updatedCSVImages', updatedCSVImages);
+  
+  dispatch(appActions.setCSVImages(updatedCSVImages));
+}
 
 export const AIC_addImages = async (
   src_data: ImageRecord,
