@@ -22,7 +22,11 @@ export const LSC_addCSVImages = (src: string, toastId: Id, imageDatas : ImageRec
   
   toast.update(toastId, { render: `Added: ${newData.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 500, delay: 500 });
   
-  const updatedCSVImages = [...prevImages, newData];
+  const updatedCSVImages = [...prevImages, newData].filter((value, index, self) =>
+    index === self.findIndex((t) => (
+      t.img_link === value.img_link
+    ))
+  );
   // console.log('updatedCSVImages', updatedCSVImages);
   
   dispatch(appActions.setCSVImages(updatedCSVImages));

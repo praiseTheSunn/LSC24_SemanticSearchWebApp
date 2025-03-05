@@ -59,7 +59,7 @@ export const CSVDownloadBox = () => {
   const handleDownloadCSV = () => {
     if (csvImages.length > 0) {
       const csv = csvImages
-        .map((image) => `${image.video_id}, ${image.frame_id}\n`)
+        .map((image) => `${image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")}\n`)
         .join('')
       const hiddenElement = document.createElement('a')
       hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURI(csv)}`
