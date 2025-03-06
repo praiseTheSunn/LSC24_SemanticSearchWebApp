@@ -75,6 +75,8 @@ const HistoryPopup = ({
       text_query: parsedQuery,
       mode: queryPayload.mode,
       model: queryPayload.model,
+      dataset: queryPayload.dataset,
+      user_id: "xxx"
     })
     setDisplayedFilters(
       historyItem.query.split(' | ').map((filter) => ({
@@ -89,6 +91,7 @@ const HistoryPopup = ({
       mode: queryPayload.mode,
       model: queryPayload.model,
       dataset: queryPayload.dataset,
+      user_id: "xxx",
       window_size: Config.queryWindowSize,
     }).then(() => {
       setSearchTerms(

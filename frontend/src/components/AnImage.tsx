@@ -77,7 +77,6 @@ const AnImage: React.FC<AnImageProps> = ({
     [dispatch],
   )
 
-  const imageDatas = useAppSelector((state) => state.app.data)
   const csvData = useAppSelector((state) => state.app.csvImages)
   const likeImages = useAppSelector((state) => state.app.likedImages)
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
