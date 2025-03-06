@@ -71,14 +71,12 @@ const AnImage: React.FC<AnImageProps> = ({
     [dispatch],
   )
 
-  const imageDatas = useAppSelector((state) => state.app.data)
   const csvData = useAppSelector((state) => state.app.csvImages)
   const likeImages = useAppSelector((state) => state.app.likedImages)
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
 
   const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
   const submit = (src_data: ImageRecord) => {
-    console.log('src', src_data.img_link)
     const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
       position: 'bottom-right',
       closeOnClick: true,
@@ -86,7 +84,7 @@ const AnImage: React.FC<AnImageProps> = ({
     })
 
     // REPLACE FOR EACH COMPETITION HERE
-    LSC_addCSVImages(src_data.img_link, toastId, imageDatas, dispatch, csvData)
+    LSC_addCSVImages(src_data, toastId, dispatch, csvData)
     // AIC_addImages(src_data, triggerKIS)
   }
 

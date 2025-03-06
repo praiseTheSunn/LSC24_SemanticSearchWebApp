@@ -12,17 +12,11 @@ import type { ImageRecord } from '../types/image'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
 
-export const LSC_addCSVImages = (src: string, toastId: Id, imageDatas : ImageRecord[], dispatch: Dispatch, prevImages: ImageRecord[]) => {
-  const newData = imageDatas.find((item) => item.img_link === src);
+export const LSC_addCSVImages = (src: ImageRecord, toastId: Id,dispatch: Dispatch, prevImages: ImageRecord[]) => {
   
-  if (!newData) {
-    toast.update(toastId, { render: 'Error: Image not found',type: 'error', isLoading: false, closeOnClick: true, autoClose: 2000, delay: 500 });
-    return;
-  }
+  toast.update(toastId, { render: `Added: ${src.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 500, delay: 500 });
   
-  toast.update(toastId, { render: `Added: ${newData.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 500, delay: 500 });
-  
-  const updatedCSVImages = [...prevImages, newData].filter((value, index, self) =>
+  const updatedCSVImages = [...prevImages, src].filter((value, index, self) =>
     index === self.findIndex((t) => (
       t.img_link === value.img_link
     ))
