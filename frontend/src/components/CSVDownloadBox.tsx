@@ -235,6 +235,11 @@ export const CSVDownloadBox = () => {
     dispatch(appActions.setLikedImages(updatedImages))
   }
 
+  const handleDeleteCsvImage = (imageToRemove: any) => {
+    const updatedImages = csvImages.filter((image) => image !== imageToRemove)
+    dispatch(appActions.setCSVImages(updatedImages))
+  }
+
   return (
     <React.Fragment>
       <ClickAwayListener
@@ -334,10 +339,22 @@ export const CSVDownloadBox = () => {
             {csvImages.length === 0 ? (
               <Typography>No images to preview</Typography>
             ) : (
-              <ImageGrid
-                style={{ width: '90dvw', minHeight: '60dvw' }}
-                data={csvImages}
-              />
+              <Grid container direction="row" style={{ width: '100%' }}>
+                {csvImages.map((image, index) => (
+                  <Grid
+                    item
+                    xs={3}
+                    style={{ maxWidth: '130px' }}
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    key={index}
+                  >
+                    <ImageBox
+                        image={image.img_link}
+                        onDelete={() => handleDeleteCsvImage(image)}
+                      />
+                  </Grid>
+                ))}
+              </Grid>
             )}
           </Popover>
 

@@ -12,9 +12,10 @@ import type { ImageRecord } from '../types/image'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 
 
-export const LSC_addCSVImages = (src: ImageRecord, toastId: Id,dispatch: Dispatch, prevImages: ImageRecord[]) => {
+export const LSC_addCSVImages = (src: ImageRecord, toastId: Id | null ,dispatch: Dispatch, prevImages: ImageRecord[]) => {
   
-  toast.update(toastId, { render: `Added: ${src.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 500, delay: 500 });
+  // toast.update(toastId, { render: `Added: ${src.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 200, delay: 200 });
+  toast.success(`Added: ${src.img_link}`, { autoClose: 200, position: 'bottom-right' });
   
   const updatedCSVImages = [...prevImages, src].filter((value, index, self) =>
     index === self.findIndex((t) => (
