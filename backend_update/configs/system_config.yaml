@@ -1,0 +1,8 @@
+server_ip: 10.0.1.21
+elasticsearch:
+  password_elasticsearch: 7Ql6nAk3pjvNRIf7m3K=
+available_datasets:
+  - lsc24
+  - v3c
+  - mvk
+  - lhe
