@@ -31,17 +31,17 @@ class RequestSearchByTextQuery(BaseModel):
 class RequestExploreSimilarImages(BaseModel):
     image_urls: list[str]
     model: options_schemas.ModelOptions
-    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
+    dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option4
 
     class Config:
         json_schema_extra = {
             "example": {
                     "image_urls": [
-                        "http://34.124.236.208/img_lsc/201903/15/20190315_130858_000.webp",
-                        "http://34.124.236.208/img_lsc/202006/02/20200602_101851_000.webp",
-                        "http://34.124.236.208/img_lsc/201909/13/20190913_120552_000.webp",
+                        "201903/15/20190315_130858_000",
+                        "202006/02/20200602_101851_000",
+                        "201909/13/20190913_120552_000",
                     ],
-                    "model": "stfm"
+                    "model": "clips"
             }
         }
 

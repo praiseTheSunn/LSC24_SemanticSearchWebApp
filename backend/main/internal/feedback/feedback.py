@@ -83,13 +83,7 @@ async def get_irrelevant_images(data: dict):
         return prepare_response([]), status.HTTP_200_OK
 
     # Get embeddings for the images
-    request_image_embeddings = await fetch_embeddings(
-        RequestExploreSimilarImages(
-            image_urls=image_urls,
-            model=model,
-            dataset=dataset
-        )
-    )
+    request_image_embeddings = await fetch_embeddings(image_urls=image_urls, model=model, dataset=dataset)
     if not request_image_embeddings:
         pass
 

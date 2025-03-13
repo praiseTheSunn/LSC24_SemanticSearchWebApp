@@ -5,8 +5,13 @@ from internal.prepare_response import prepare_response
 
 
 async def explore_similar_images(data: RequestExploreSimilarImages):
+    image_urls = data.image_urls
     model = data.model
-    input_embeddings = await fetch_embeddings(data)
+    dataset = data.dataset
+    print(f"Image urls: {image_urls}")
+    print(f"Model: {model}")
+    print(f"Dataset: {dataset}")
+    input_embeddings = await fetch_embeddings(image_urls, model, dataset)
     if not input_embeddings:
         return None
     
@@ -20,8 +25,10 @@ async def explore_similar_images(data: RequestExploreSimilarImages):
 def explore_neighbor_images(data: RequestExploreNeighborImages):
     image_url = data.image_url
     span = data.span
-    image_name = "/".join(image_url.split("/")[4:])
-    image_position = setup.image_names.index(image_name)
+    image_name = "/".join(image_url.split("/")[-3:])
+    print(f"Image url: {image_url}")
+    print(f"Image name: {image_name}")
+    image_position = setup.all_image_names.index(image_name)
     left_bound = max(0, image_position - span)
-    right_bound = min(len(setup.image_names), image_position + span + 1)
-    return prepare_response(setup.image_names[left_bound : right_bound])
+    right_bound = min(len(setup.all_image_names), image_position + span + 1)
+    return prepare_response(setup.all_image_names[left_bound : right_bound])

@@ -33,5 +33,6 @@ async def fetch_embeddings(data: RequestExploreSimilarImages):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    embeddings = helper.fetch_embeddings(data)
+    print(data)
+    embeddings = await helper.fetch_embeddings(data.image_urls, data.model, data.dataset)
     return JSONResponse(content={"embeddings": embeddings}, headers=header)

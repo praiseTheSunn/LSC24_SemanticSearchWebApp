@@ -35,11 +35,11 @@ class SearchRequest(BaseModel):
     model: str
     embedding: List[List[float]]
     limit: Optional[int] = 1000
-    dataset: Optional[DatasetOptions] = DatasetOptions.option1
+    dataset: Optional[DatasetOptions] = DatasetOptions.option4
 class GetRequest(BaseModel):
     collection_name: str
     ids: List[str]
-    dataset: Optional[DatasetOptions] = DatasetOptions.option1
+    dataset: Optional[DatasetOptions] = DatasetOptions.option4
 
 
 # Include the routes
