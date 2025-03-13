@@ -156,4 +156,4 @@ dependencies:
       - scikit-learn==1.6.0
       - scipy==1.14.1
       - threadpoolctl==3.5.0
-prefix: /home/pc/miniconda3/envs/main
+prefix: /home/hlmquan/miniconda3/envs/main

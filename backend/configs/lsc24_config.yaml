@@ -1,2 +1,2 @@
 dataset_name: lsc24
-metadata_file_path: /home/pc/LSC24_SemanticSearchWebApp/backend/data/metadata/metadata_v3.csv
+metadata_file_path: ~/LSC24_SemanticSearchWebApp/backend/data/lsc24/metadata/metadata_v3.csv

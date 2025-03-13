@@ -9,43 +9,20 @@ def load_config(config_path: str):
 dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/lsc24_config.yaml')   # Default to aic24_config.yaml
 dataset_config = load_config(dataset_config_file)
 dataset_name = dataset_config['dataset_name']
-
 print("Dataset name: ", dataset_name)
 
 
-# milvus setup
-from pymilvus import connections, utility, MilvusException, Collection, MilvusClient
+# setup Milvus
+from pymilvus import MilvusClient, MilvusException, Collection, utility
+client = MilvusClient("milvus_data/demo.db")
 
-CLUSTER_ENDPOINT = "http://localhost:19530"
-TOKEN = "root:Milvus"
-milvus_client = MilvusClient(uri=CLUSTER_ENDPOINT, token=TOKEN)
-connections.connect(host="localhost", port="19530")
 
 try:
-    collection_names = utility.list_collections()
-    print("List of collections: ", collection_names)
+    collection_names = client.list_collections() 
+    print(f"Collections: {collection_names}") 
     for collection_name in collection_names:        
-        collection = Collection(collection_name)
-        load_state = utility.load_state(collection_name)
-        # print(type(load_state))
-        # print(dir(load_state))
-
-        if collection_name.startswith(dataset_name):
-            collection.load(collection_name)
-
-        # if collection_name.startswith(dataset_name) and load_state == False:
-        #     collection.load(collection_name)
-        #     print("Loaded collection: ", collection_name)
-        # elif not collection_name.startswith(dataset_name) and load_state == True:
-        #     collection.release(collection_name)
-        #     print("Released collection: ", collection_name)
-
-    # for collection_name in collection_names:
-    #     collection = Collection(collection_name)
-    #     load_state = utility.load_state(collection_name)
-    #     print(f"{collection_name}\t{collection.num_entities}\t{load_state}")
-
-
+        stats = client.get_collection_stats(collection_name=collection_name)
+        print(stats)
             
 except MilvusException as e:
     print(e)

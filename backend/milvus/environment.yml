@@ -88,6 +88,7 @@ dependencies:
       - environs==9.5.0
       - grpcio==1.63.0
       - marshmallow==3.21.3
+      - milvus==2.3.5
       - milvus-lite==2.4.7
       - pandas==2.2.2
       - protobuf==5.27.2
@@ -97,4 +98,4 @@ dependencies:
       - pyyaml==6.0.2
       - tzdata==2024.1
       - ujson==5.10.0
-prefix: /home/pc/miniconda3/envs/milvus
+prefix: /home/hlmquan/miniconda3/envs/milvus
