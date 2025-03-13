@@ -84,3 +84,5 @@ startFrontend.bat
 http_ca.crt
 
 /backend/elasticsearch-8.17.0
+
+/backend/milvus/milvus_data/*
