@@ -1,25 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from routers.search import search
-from routers.explore import explore
-from routers.display import display
-# from dependencies import *
-# from connectors import sqlalchemy_engine
-# import sql_app.schemas
+from routers import search, explore, display, feedback
 from fastapi.middleware.cors import CORSMiddleware
-
-
-# sql_app.schemas.Base.metadata.create_all(bind = sqlalchemy_engine)
-
 import setup
 
+
 app = FastAPI(
-    name = "Learn Your Life", 
+    name = "SnapSeek Server", 
     docs_url = "/docs", 
     redoc_url = "/redoc",
 )
-
-# Setup CORS policy for FastAPI
 app.add_middleware(
     CORSMiddleware,
     allow_origins = ["*"],
@@ -28,11 +18,13 @@ app.add_middleware(
     allow_headers = ["*"],
 )
 
+
 # Add routers
 routers = [
     search.router,
     explore.router,
-    display.router
+    display.router,
+    feedback.router
 ]
 for router in routers:
     app.include_router(router)

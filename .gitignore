@@ -54,12 +54,18 @@ startFrontend.bat
 
 /backend/csv
 /backend/results
-*.ipynb
 /index
 
 /backend/objpos/image_data.db
 /backend/objpos/metadata.db
 /backend/objpos/joined_data.db
+
+/backend/db/*.db
+/backend/main/*.db
+/backend/main/elastic_search/utils/*.db
+
+# logs
+/backend/logs/*
 
 # data
 /backend/data
@@ -70,6 +76,11 @@ startFrontend.bat
 
 # milvus
 /backend/milvus/volumes
+/backend/milvus/utils/crawl_aic
 
 # main
 /backend/main/elastic_search/http_ca.crt
+
+http_ca.crt
+
+/backend/elasticsearch-8.17.0

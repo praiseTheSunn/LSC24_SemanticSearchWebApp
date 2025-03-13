@@ -1,0 +1,66 @@
+from setup import dataset_config
+import numpy as np
+import requests
+from schemas.request_schemas import RequestExploreSimilarImages
+
+
+dataset_name = dataset_config['dataset_name']
+
+
+def compute_mean_embedding(embeddings: list[list[float]]):
+    embeddings = np.array(embeddings)
+    mean_embedding = np.mean(embeddings, axis=0)
+    return mean_embedding
+
+
+async def fetch_embeddings(image_urls: list[str], model: str, dataset: str):
+    print("Fetching embeddings")
+    print(image_urls)
+    image_urls = ["/".join(url.split(".")[0].split("/")[-3:]) for url in image_urls]
+    # print("Image urls:", image_urls[:3])
+    # print("Short image urls:", short_image_urls[:3])
+
+    # image_urls theo thu tu similarity nhung ket qua tra ve cua ham get() lai la thu tu alphabet cua url
+    # vi vay can tao map tu url den vi tri cua no trong ket qua tra ve
+    # image_urls_sorted = sorted(image_urls)
+    # position_in_result = {}
+    # for pos, url in enumerate(image_urls_sorted):
+    #     position_in_result[url] = pos
+
+    data = {
+        "collection_name": dataset_name + "_" + model,
+        "ids": image_urls   
+    }
+    headers = {
+        "Content-Type": "application/json"
+    }
+    
+    try:
+        raw_results = requests.post("http://localhost:8004/get_embeddings", json=data, headers=headers).json()
+        response = raw_results['response']
+        return response['embeddings'] 
+    except:
+        return None       
+    # vi du lieu nhan duoc la float32 nhung muon serialize de chuyen di phai convert sang float64 -> dung np.array de convert
+
+def explore_similar_embeddings(model: str, image_embedding: list[list[float]], limit: int = 1000, dataset: str = dataset_name):
+    data = {
+        "model": model,
+        "embedding": image_embedding,    
+        "limit": limit,
+        "dataset": dataset
+    }
+
+    headers = {
+        "Content-Type": "application/json"
+    }    
+    response = requests.post("http://localhost:8004/search_milvus", json=data, headers=headers)
+    raw_results = response.json()
+    print(f"Number of similar results: {len(raw_results['response'][0])}")
+
+    urls = [entity['id'] for entity in raw_results['response'][0]]
+    scores = [entity['distance'] for entity in raw_results['response'][0]]
+    return {
+        "urls": urls,
+        "scores": scores,
+    }
