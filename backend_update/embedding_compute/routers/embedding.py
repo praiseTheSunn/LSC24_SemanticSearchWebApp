@@ -19,7 +19,7 @@ async def compute_text_embedding(request: TextEmbeddingRequest):
     text_embedding = embedding.compute_text_embedding(text_query, model)
     if text_embedding is None:
         return JSONResponse(status_code=400, content={"error": "Text embedding could not be computed."}, headers=header)
-    return JSONResponse(content={"text_embedding": text_embedding.tolist()}, headers=header)
+    return JSONResponse(content={"text_embedding": text_embedding.tolist()}, headers={'Access-Control-Allow-Origin': '*'})
 
 
 @router.post("/image")
@@ -28,8 +28,7 @@ async def compute_image_embedding(request: TextEmbeddingRequest):
     model = data.model
     
     print(f"Computing image embedding using {model}")
-    header = { 'Access-Control-Allow-Origin': '*' }
     image_embedding = embedding.compute_image_embedding(image_base64, model)
     if image_embedding is None:
         return JSONResponse(status_code=400, content={"error": "Image embedding could not be computed."}, headers=header)
-    return JSONResponse(content={"image_embedding": image_embedding.tolist()}, headers=header)
+    return JSONResponse(content={"image_embedding": image_embedding.tolist()}, headers={'Access-Control-Allow-Origin': '*'})
