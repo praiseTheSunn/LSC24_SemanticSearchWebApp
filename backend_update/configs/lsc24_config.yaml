@@ -1,2 +1,4 @@
 dataset_name: lsc24
 metadata_file_path: ~/LSC24_SemanticSearchWebApp/backend/data/lsc24/metadata/metadata_v3.csv
+column_mapping:
+  id: int_image_id

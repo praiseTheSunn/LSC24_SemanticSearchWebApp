@@ -82,3 +82,5 @@ startFrontend.bat
 /backend/main/elastic_search/http_ca.crt
 
 # configs (secret)
+
+backend_update/data/lsc24/*

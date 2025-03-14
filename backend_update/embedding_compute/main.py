@@ -20,9 +20,4 @@ app.add_middleware(
     allow_headers = ["*"],
 )
 
-# Add routers
-routers = [
-    embedding.router
-]
-for router in routers:
-    app.include_router(router)
+app.include_router(embedding.router)

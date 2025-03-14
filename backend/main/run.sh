@@ -1,6 +1,3 @@
-sudo sysctl -w vm.max_map_count=262144
-sudo docker start es01
-
 source /root/miniconda3/etc/profile.d/conda.sh
 conda init
 conda activate main
