@@ -36,7 +36,7 @@ async def fetch_embeddings(image_urls: list[str], model: str, dataset: str):
     }
     
     try:
-        raw_results = requests.post("http://localhost:8004/get_embeddings", json=data, headers=headers).json()
+        raw_results = requests.post("http://localhost:20713/get_embeddings", json=data, headers=headers).json()
         response = raw_results['response']
         return response['embeddings'] 
     except:

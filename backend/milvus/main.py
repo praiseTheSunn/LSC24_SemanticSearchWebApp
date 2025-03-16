@@ -54,7 +54,7 @@ async def search_milvus(data: SearchRequest):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    response = setup.milvus_client.search(
+    response = setup.client.search(
         collection_name=collection_name, 
         data=text_embedding, 
         limit=limit
@@ -70,12 +70,12 @@ async def get_embeddings(data: GetRequest):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
-    raw_results = setup.milvus_client.get(
+    raw_results = setup.client.get(
         collection_name = collection_name,
         ids = ids
     )
     response = {
-        'ids': [raw_results[i]['id'] for i in range(len(raw_results))],
+        'ids': [raw_results[i]['image_id'] for i in range(len(raw_results))],
         'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
     }
 
