@@ -331,7 +331,7 @@ def search_semantic_temporal(dataset: str, model: str, text_embeddings: list[str
             "embedding": text_embedding,
             "dataset": dataset,
         }
-        response = requests.post("http://localhost:8004/search_milvus", json=data, headers={
+        response = requests.post("http://localhost:20713/search_milvus", json=data, headers={
             "Content-Type": "application/json"
         })
         raw_results = response.json()

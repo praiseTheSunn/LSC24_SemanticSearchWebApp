@@ -15,7 +15,7 @@ def search_with_image_query(data: RequestSearchByImageQuery):
     dataset = data.dataset
 
     print("Making request to image embedding service...")
-    response = requests.post("http://localhost:8002/embedding/image", json=data.dict())
+    response = requests.post("http://localhost:20712/embedding/image", json=data.dict())
 
     if response.status_code == 200:
         image_embedding = response.json()["image_embedding"]
@@ -51,14 +51,14 @@ def search_with_text_query(data: RequestSearchByTextQuery):
             for clause in clauses:
                 print(f"Computing embedding for clause: {clause}\n")
                 data.text_query = clause
-                response = requests.post("http://localhost:8002/embedding/text", json=data.dict())
+                response = requests.post("http://localhost:20712/embedding/text", json=data.dict())
                 if response.status_code == 200:
                     text_embedding = response.json()["text_embedding"]
                     text_embeddings.append(text_embedding)
         else:
             print("Single query detected.\n")
             print(f"Computing embedding for query: {text_query}\n")
-            response = requests.post("http://localhost:8002/embedding/text", json=data.dict())
+            response = requests.post("http://localhost:20712/embedding/text", json=data.dict())
             if response.status_code == 200:
                 text_embedding = response.json()["text_embedding"]
                 text_embeddings.append(text_embedding)

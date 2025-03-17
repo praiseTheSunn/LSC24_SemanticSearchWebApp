@@ -67,6 +67,7 @@ async def search_milvus(data: SearchRequest):
 async def get_embeddings(data: GetRequest):
     collection_name = data.collection_name
     ids = data.ids
+    print(f"First id: {ids[0]}")
     header = {
         'Access-Control-Allow-Origin': '*'
     }
@@ -74,8 +75,9 @@ async def get_embeddings(data: GetRequest):
         collection_name = collection_name,
         ids = ids
     )
+    print(f"Number of embeddings: {len(raw_results)}")
     response = {
-        'ids': [raw_results[i]['image_id'] for i in range(len(raw_results))],
+        'ids': [raw_results[i]['url'] for i in range(len(raw_results))],
         'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
     }
 

@@ -1,10 +1,6 @@
 import setup
 import open_clip
 import torch
-import base64
-import io
-# from model.beit3 import beit3
-from PIL import Image
 from models import ModelManager
 
 modelManager = ModelManager()
@@ -24,15 +20,10 @@ def compute_image_embedding(image_base64: str, model: str):
         image_base64 += '=' * (4 - missing_padding)
     print(f"Length of base64 string after padding: {len(image_base64)}")
 
-    if model == 'clip':
-        image_bytes = base64.b64decode(image_base64)           # bytes
-        image_stream = io.BytesIO(image_bytes)                 # stream
-        raw_image = Image.open(image_stream)                    
-        image = setup.clip_preprocess(raw_image).unsqueeze(0)
-        with torch.no_grad(), torch.cuda.amp.autocast():
-            image_embedding = setup.clip_model.encode_image(image)
-        return image_embedding
-    return None
+    model_instance = modelManager.get_model(model)
+    if model_instance == None:
+        return None
+    return model_instance.calc_image_embedding(image_base64)
 
 def compute_text_embedding(text_query: str, model: str):
     if text_query == None or model == None:

@@ -15,7 +15,6 @@ def compute_mean_embedding(embeddings: list[list[float]]):
 
 async def fetch_embeddings(image_urls: list[str], model: str, dataset: str):
     print("Fetching embeddings")
-    print(image_urls)
     image_urls = ["/".join(url.split(".")[0].split("/")[-3:]) for url in image_urls]
     # print("Image urls:", image_urls[:3])
     # print("Short image urls:", short_image_urls[:3])
@@ -54,7 +53,7 @@ def explore_similar_embeddings(model: str, image_embedding: list[list[float]], l
     headers = {
         "Content-Type": "application/json"
     }    
-    response = requests.post("http://localhost:8004/search_milvus", json=data, headers=headers)
+    response = requests.post("http://localhost:20713/search_milvus", json=data, headers=headers)
     raw_results = response.json()
     print(f"Number of similar results: {len(raw_results['response'][0])}")
 
