@@ -86,3 +86,7 @@ http_ca.crt
 /backend/elasticsearch-8.17.0
 
 /backend/milvus/milvus_data/*
+
+/backend_update/milvus/milvus_data/*
+/backend_update/data/*
+/backend_update/database

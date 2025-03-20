@@ -67,6 +67,6 @@ def prepare_response(image_names, scores = None):
             break
     
     print(f"Number of records: {len(records)}")
-    if len(records) > 0:
-        pprint(f"First record: {records[0]}")
+    # if len(records) > 0:
+    #     pprint(f"First record: {records[0]}")
     return records
