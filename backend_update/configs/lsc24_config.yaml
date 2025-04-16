@@ -1,4 +1,19 @@
 dataset_name: lsc24
-metadata_file_path: ~/LSC24_SemanticSearchWebApp/backend/data/lsc24/metadata/metadata_v3.csv
+metadata_file_path: ~/LSC24_SemanticSearchWebApp/backend_update/data/lsc24/metadata/metadata_v5.csv
+image_server_url: http://10.0.1.21:20716
+image_extension: .jpg
 column_mapping:
-  id: int_image_id
+  id: record_id
+  image_id: image_id
+  video_id: video_id
+filters:
+  - field_name: date
+    shortened_field_name: d
+    type: str
+  - field_name: location
+    shortened_field_name: l
+    type: str
+  - field_name: ocr
+    shortened_field_name: ocr
+    type: str
+unifying_category: video_id

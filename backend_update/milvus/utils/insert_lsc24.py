@@ -4,9 +4,13 @@ import pandas as pd
 import numpy as np
 import glob
 
+import sys
+sys.path.append("..")
+from dataset.dataset_manager import DatasetManager
 
-EMBEDDING_DIR = "/home/hlmquan/LSC24_SemanticSearchWebApp/backend/data/lsc24/embeddings"
-IMAGE_ID_PATH = "/home/hlmquan/LSC24_SemanticSearchWebApp/backend/data/lsc24/images.json"
+
+EMBEDDING_DIR = "/home/hlmquan/LSC24_SemanticSearchWebApp/backend_update/data/lsc24/embeddings"
+IMAGE_ID_PATH = "/home/hlmquan/LSC24_SemanticSearchWebApp/backend_update/data/lsc24/images.json"
 
 
 client = MilvusClient("milvus_data/demo.db")
@@ -42,9 +46,14 @@ for prefix in prefixes:
     subfolder = glob.glob(f"{EMBEDDING_DIR}/{prefix}.npy")[0]
     vectors = np.load(subfolder)
     image_ids = sorted(df[df["prefix"] == prefix]["image_id"].tolist())
-    data = [{
-        "url": image_id,
-        "embedding": vector.tolist()
-    } for image_id, vector in zip(image_ids, vectors)]
+    data = []
+    for image_id, vector in zip(image_ids, vectors):
+        record_id = DatasetManager.get_dataset("lsc24").image_id_to_record_id[image_id]
+        data.append({
+            "record_id": record_id,
+            "image_id": image_id,
+            "embedding": vector.tolist()
+        })
+        record_id += 1
     client.insert(collection_name=f"lsc24_clips", data=data)
     print(f"Inserted {len(data)} vectors of {prefix} into collection lsc24_clips")

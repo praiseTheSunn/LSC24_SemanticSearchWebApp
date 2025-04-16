@@ -1,13 +1,21 @@
 import sqlite3
-import yaml
 import pandas as pd
-from utils import infer_sqlite_types, load_config
+
+import sys
+sys.path.append('.')
+from .utils import infer_sqlite_types, load_config
 
 
-class ImageDatabaseManager:
+class ImageDatabase:
     def __init__(self, dataset_name: str):
         self.dataset_name = dataset_name
-        self.db_path = f"{self.dataset_name}.db"
+
+        try:
+            self.system_config = load_config("../configs/system_config.yaml")
+        except FileNotFoundError:
+            raise ValueError("System config file not found.")
+        self.db_dir = self.system_config.get("db_dir")
+        self.db_path = f"{self.db_dir}/{self.dataset_name}.db"
         self.conn = sqlite3.connect(self.db_path)
         self.cursor = self.conn.cursor()
 
@@ -64,3 +72,38 @@ class ImageDatabaseManager:
 
     def close(self):
         self.conn.close()
+
+
+    def retrieve_metadata(self, record_ids: list, fields: list):
+        if not record_ids or not fields:
+            return []
+
+        # Validate fields
+        allowed_fields = {'image_id', 'record_id', 'video_id'}
+        selected_fields = [field for field in fields if field in allowed_fields]
+        if not selected_fields:
+            raise ValueError("No valid fields selected.")
+
+        field_list = ', '.join([f'i.{f}' for f in selected_fields])
+
+        # Build VALUES part with (idx, record_id)
+        values_clause = ', '.join(['(?, ?)'] * len(record_ids))
+        params = []
+        for idx, rid in enumerate(record_ids):
+            params.extend([idx, rid])
+
+        query = f"""
+        WITH input(record_index, record_id) AS (
+            VALUES {values_clause}
+        )
+        SELECT {field_list}
+        FROM input
+        JOIN images i ON i.record_id = input.record_id
+        ORDER BY input.record_index
+        """
+
+        self.cursor.execute(query, params)
+        rows = self.cursor.fetchall()
+        column_names = [column[0] for column in self.cursor.description]
+        return [dict(zip(column_names, row)) for row in rows]
+

@@ -1,39 +1,51 @@
 from pydantic import BaseModel
+from enum import Enum
 from typing import List, Literal, Tuple
 from setup import available_models, available_datasets
 
 
-ModelType = Literal[tuple(available_models)] if available_models else str
-DatasetType = Literal[tuple(available_datasets)] if available_datasets else str
+class DatasetOptions(str, Enum):
+    option1 = "vbs25_v3c"
+    option2 = "vbs25_mvk"
+    option3 = "vbs25_lhe"
+    option4 = "aic24"
+    option5 = "aic24_lesson"
+    option6 = "aic24_cooking"
+    option7 = "lsc24"
+
+
+class ModelOptions(str, Enum):
+    option1 = "clips"
+    option2 = "appleclip"
 
 
 class SearchRequest(BaseModel):
-    dataset: DatasetType
-    model: ModelType
-    embedding: List[float]
+    dataset: DatasetOptions
+    model: ModelOptions
+    embedding: List[List[float]]
     limit: int
-    ids: List[str] = []
+    subset_record_ids: List[int] = []
 
     class Config:
         schema_extra = {
             "example": {
                 "dataset": "lsc24",
                 "model": "clips",
-                "embedding": [0.1, 0.2, 0.3],
+                "embedding": [[0.1, 0.2, 0.3]],
                 "limit": 5,
-                "ids": [1, 2, 3]
+                "subset_record_ids": [1, 2, 3]
             }
         }
 
 
 class FetchRequest(BaseModel):
     collection_name: str
-    ids: List[str] = []
+    record_ids: List[int] = []
 
     class Config:
         schema_extra = {
             "example": {
                 "collection_name": "lsc24_clips",
-                "ids": [1, 2, 3]
+                "record_ids": [1, 2, 3]
             }
         }

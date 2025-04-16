@@ -21,13 +21,13 @@ for dataset_name in available_datasets:
 
 # setup Milvus
 from pymilvus import MilvusClient, MilvusException, Collection, utility
-client = MilvusClient("milvus_data/demo.db")
+milvus_client = MilvusClient("milvus_data/demo.db")
 
 try:
-    collection_names = client.list_collections() 
+    collection_names = milvus_client.list_collections() 
     print(f"Collections: {collection_names}") 
     for collection_name in collection_names:        
-        stats = client.get_collection_stats(collection_name=collection_name)
+        stats = milvus_client.get_collection_stats(collection_name=collection_name)
         print(stats)
             
 except MilvusException as e:
