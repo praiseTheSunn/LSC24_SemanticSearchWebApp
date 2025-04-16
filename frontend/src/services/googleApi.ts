@@ -1,6 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { GoogleTranslateQuery } from '.'
-import { TranslateApiKey } from './googleApiKey'
+// import { TranslateApiKey } from './googleApiKey'
 
 type ResquestParams = {
   q: string
@@ -26,7 +26,7 @@ export const GoogleApi = createApi({
     return {
       getTranslatedText: builder.query<TranslationResponse, ResquestParams>({
         query: (params) => {
-          const newParams = { ...params, key: TranslateApiKey }
+          const newParams = { ...params }
           return {
             url: '/language/translate/v2',
             method: 'POST',
