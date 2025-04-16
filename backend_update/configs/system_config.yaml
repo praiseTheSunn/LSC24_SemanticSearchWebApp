@@ -1,9 +1,0 @@
-server_ip: 10.0.1.21
-elasticsearch:
-  password_elasticsearch: 7Ql6nAk3pjvNRIf7m3K=
-available_models:
-  - clips
-available_datasets:
-  - lsc24
-  - vbs25_v3c
-db_dir: /home/hlmquan/LSC24_SemanticSearchWebApp/backend_update/database
