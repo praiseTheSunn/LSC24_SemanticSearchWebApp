@@ -28,7 +28,7 @@ def compute_image_embedding(image_base64: str, model: str):
     image_bytes = base64.b64decode(image_base64)           # bytes
     image_stream = io.BytesIO(image_bytes)                 # stream
     raw_image = Image.open(image_stream)  
-    return image_embedding = model_instance.calc_image_embedding(raw_image) 
+    return model_instance.calc_image_embedding(raw_image) 
 
 
 def compute_text_embedding(text_query: str, model: str):
