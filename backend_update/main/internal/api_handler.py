@@ -49,8 +49,8 @@ async def search_milvus(embedding, dataset, model, limit=1000, subset_record_ids
         return None    
     else:
         raw_results = response.json()
-        record_ids = [entity['id'] for entity in raw_results['response'][0]]
-        scores = [entity['distance'] for entity in raw_results['response'][0]]
+        record_ids = [entity['id'] for entity in raw_results['response']]
+        scores = [entity['distance'] for entity in raw_results['response']]
         return {
             "record_ids": record_ids,
             "scores": scores

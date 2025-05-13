@@ -79,7 +79,7 @@ class ImageDatabase:
             return []
 
         # Validate fields
-        allowed_fields = {'image_id', 'record_id', 'video_id'}
+        allowed_fields = {'image_id', 'record_id', 'video_id', 'local_date', 'local_time', 'location_displayed', 'ocr', 'object_tags'}
         selected_fields = [field for field in fields if field in allowed_fields]
         if not selected_fields:
             raise ValueError("No valid fields selected.")

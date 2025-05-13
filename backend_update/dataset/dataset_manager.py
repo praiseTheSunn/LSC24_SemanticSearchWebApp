@@ -1,6 +1,6 @@
-from dataset.image_dataset import LSC24Dataset, V3CDataset, MVKDataset, LHEDataset
+from dataset.image_dataset import LSC24Dataset, LSC24aDataset, V3CDataset, MVKDataset, LHEDataset
 
-available_datasets = ["lsc24", "vbs25_v3c", "vbs25_mvk", "vbs25_lhe"]
+available_datasets = ["lsc24", "lsc24a", "vbs25_v3c", "vbs25_mvk", "vbs25_lhe"]
 
 class DatasetManager:
     _instance = None
@@ -20,6 +20,8 @@ class DatasetManager:
         if dataset_name not in instance._datasets:
             if dataset_name == "lsc24":
                 instance._datasets[dataset_name] = LSC24Dataset()
+            elif dataset_name == "lsc24a":
+                instance._datasets[dataset_name] = LSC24aDataset()
             elif dataset_name == "vbs25_v3c":
                 instance._datasets[dataset_name] = V3CDataset()
             elif dataset_name == "vbs25_mvk":

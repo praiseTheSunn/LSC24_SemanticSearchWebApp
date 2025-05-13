@@ -2,16 +2,13 @@ import setup
 import json
 import pandas as pd
 import itertools
-import constants
 
 import sys
 sys.path.append('..')
+from dataset.dataset_manager import DatasetManager
 from database.image_database import ImageDatabase
 
 server_ip = setup.system_config['server_ip']
-dataset_name = setup.dataset_config['dataset_name']
-image_server_url = setup.dataset_config['image_server_url']
-image_extension = setup.dataset_config['image_extension']
 
 # with open("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/LHE_video_fps.json") as f:
 #     fps = json.load(f)
@@ -71,10 +68,11 @@ def remove_scores_that_do_not_appear_in_records(scores: list[float], records_df:
     return [score for i, score in enumerate(scores, start=1) if i in valid_order_ids]
 
 
-def print_records_sample(records, n=15):        
+def print_records_sample(records, n=5):        
     for i in range(n):
         record = records[i]
-        print(f"{record['record_id']:<10} {record['image_id']:<15} {record['img_link']:<10}")
+        # print(f"{record['record_id']:<10} {record['image_id']:<15} {record['img_link']:<10}")
+        print(record)
 
 
 def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_server=True):
@@ -122,6 +120,8 @@ def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_serv
 
 def prepare_response(dataset, record_ids=[], scores=None, display_window_size=3, all_neighbor_ids=None):
     dataset = dataset.lower()
+    image_server_url = DatasetManager.get_dataset(dataset).get_image_server_url()
+    image_extension = DatasetManager.get_dataset(dataset).get_image_extension()
     if len(record_ids) == 0:
         return []
     
@@ -140,7 +140,8 @@ def prepare_response(dataset, record_ids=[], scores=None, display_window_size=3,
 
     # Step 2: Retrieve metadata
     db = ImageDatabase(dataset_name=dataset)
-    records = db.retrieve_metadata(record_ids=record_ids, fields=['image_id', 'record_id', 'video_id'])
+    records = db.retrieve_metadata(record_ids=record_ids, fields=['image_id', 'record_id', 'video_id', 'local_date', 'local_time', 'location_displayed', 'ocr', 'object_tags'])
+    print(records[0])
     neighbors = db.retrieve_metadata(record_ids=all_neighbor_ids_flat, fields=['image_id', 'record_id', 'video_id'])
     print(f"Retrieved {len(records)} main records")
     print(f"Retrieved {len(all_neighbor_ids_flat)} neighbor records")
