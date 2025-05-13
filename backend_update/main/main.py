@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from routers import search, explore, feedback
 from fastapi.middleware.cors import CORSMiddleware
-# import setup
 
 
 app = FastAPI(

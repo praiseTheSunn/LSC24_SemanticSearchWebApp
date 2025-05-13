@@ -2,7 +2,7 @@ from pymilvus import connections, utility, MilvusException, MilvusClient, DataTy
 import os
 import pandas as pd
 import numpy as np
-import glob
+from pprint import pprint
 
 import sys
 sys.path.append("..")
@@ -19,7 +19,50 @@ client = MilvusClient("milvus_data/demo.db")
 
 # Load metadata
 df = pd.read_csv(METADATA_PATH)
+print(len(df))
+
+
+
+
+
+from pymilvus.model.sparse.bm25.tokenizers import build_default_analyzer
+from pymilvus.model.sparse import BM25EmbeddingFunction
+
+analyzer = build_default_analyzer(language="en")
+# corpus =  df["activity"].tolist()
+corpus = [
+    "Artificial intelligence was founded as an academic discipline in 1956.",
+    "Alan Turing was the first person to conduct substantial research in AI.",
+    "Born in Maida Vale, London, Turing was raised in southern England.",
+]
+
+bm25 = BM25EmbeddingFunction(analyzer=analyzer)
+bm25.build(corpus=corpus)
+
+
+import random
+
+def generate_mock_sparse_vector(dim=768, sparsity=0.995):
+    """Generate a sparse vector with mostly zeros and a few random non-zero values."""
+    num_nonzeros = int((1 - sparsity) * dim)
+    indices = random.sample(range(dim), num_nonzeros)
+    sparse_vector = {idx: random.uniform(0.1, 1.0) for idx in indices}
+    print(f"Sparse vector: {sparse_vector}")
+    return sparse_vector
+
+def generate_mock_text_string():
+    """Generate a mock text string."""
+    text = "".join(random.choices("abcdefghijklmnopqrstuvwxyz", k=10))
+    print(f"Text: {text}")
+    return text
+
+
+
 for i, row in df.iterrows():
+    if i >= 100:
+        break
+    if i % 10 == 0:
+        print(f"Processing {i}/{len(df)}")
     record_id = row["id"]
     image_id = row["image_id"]
     
@@ -30,11 +73,15 @@ for i, row in df.iterrows():
     print(f"Loading embedding for {record_id}, {image_id}")
     vector = np.load(embedding_path)
 
-    client.insert(collection_name=f"vbs25_v3c_clips", data=[{
+    data = [{
         "record_id": record_id,
         "image_id": image_id,
-        "embedding": vector.tolist()
-    }])
+        "embedding": vector.tolist(),
+        "text_activity": generate_mock_text_string(),
+    }]
+    pprint(f"Data: {data}")
+
+    client.insert(collection_name=f"vbs25_v3c_clips", data=data)
 
 
 # # Load subfolders

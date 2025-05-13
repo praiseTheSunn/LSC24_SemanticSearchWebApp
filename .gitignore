@@ -76,6 +76,7 @@ startFrontend.bat
 
 # milvus
 /backend/milvus/volumes
+/backend_update/milvus/volumes/*
 /backend/milvus/utils/crawl_aic
 
 # main

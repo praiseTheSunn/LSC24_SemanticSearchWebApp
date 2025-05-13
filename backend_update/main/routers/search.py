@@ -5,7 +5,10 @@ from internal.preprocess import parse_raw_query
 from internal.postprocess import prepare_response
 from schemas.request_schemas import RequestSearchByTextQuery, RequestSearchByImageQuery, QueryClause, QueryStructured
 from schemas.response_schemas import ResponseURLs
-import setup
+
+import sys
+sys.path.append("..")
+from dataset.dataset_manager import DatasetManager
 
 
 router = APIRouter(
@@ -52,8 +55,8 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
     inputs = payload.model_dump()
 
     # Preprocess the query
-    config = setup.dataset_configs[inputs["dataset"]]
-    parsed = parse_raw_query(inputs["text_query"], config["filters"])
+    filters = DatasetManager.get_dataset(inputs["dataset"]).get_filters()
+    parsed = parse_raw_query(inputs["text_query"], filters)
     query_structured = QueryStructured(
         clauses=[QueryClause(**q) for q in parsed],
         dataset=inputs["dataset"],

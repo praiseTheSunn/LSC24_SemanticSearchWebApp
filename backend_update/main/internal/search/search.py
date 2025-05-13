@@ -1,10 +1,12 @@
-import setup
 from fastapi import status, HTTPException
 from schemas.request_schemas import QueryClause, QueryStructured
 from internal.search.temporal import expand_temporal, aggregate_temporal
 from internal.api_handler import compute_image_embedding, compute_text_embedding, search_milvus
 from internal.postprocess import prepare_response
 
+import sys
+sys.path.append("..")
+from dataset.dataset_manager import DatasetManager
 
 
 async def search_structure(query_clause: QueryClause, dataset: str, model: str, subset_record_ids: list[str] = []):
@@ -54,7 +56,7 @@ async def search_by_text(query_structured: QueryStructured):
             result = expand_temporal(result, query_structured.clauses[1], query_structured.dataset, query_structured.temporal_window_size)
     else:
         partial_results = [await search_structure(clause, query_structured.dataset, query_structured.model, query_structured.subset_record_ids) for clause in query_structured.clauses]
-        result = aggregate_temporal(partial_results, query_structured.dataset, setup.dataset_config.get("unifying_category"))
+        result = aggregate_temporal(partial_results, query_structured.dataset, DatasetManager.get_dataset(query_structured.dataset).get_unifying_category())
 
     return result, status.HTTP_200_OK
         
