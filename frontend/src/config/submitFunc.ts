@@ -55,3 +55,40 @@ export const AIC_addImages = async (
 
   displayResponseToast(resultKIS)
 }
+
+
+export const Thesis_addImages = async (
+  src_data: ImageRecord,
+  currentQuestId: string,
+  allAnswers: Map<string, {start: string, end: string, answer: string, numberWrongs: number}>,  
+  allQuestions: Map<string, {hints:string[], answers: string[]}>,
+  dispatch: Dispatch
+  ) => {
+  const answer = src_data.img_link.split('/').pop() || ""
+  let flag = false
+  if (allQuestions.has(currentQuestId) && answer) {
+    const questionData = allQuestions.get(currentQuestId)
+    if (questionData) {
+      const { hints, answers } = questionData
+      flag = answer in answers
+    }
+  }
+
+  const prev = allAnswers.get(currentQuestId) as {start: string, end: string, answer: string, numberWrongs: number}
+  if (flag) {
+    toast.success(`Correct: ${answer}`, { autoClose: 200, position: 'bottom-right' })
+    if (allAnswers.get(currentQuestId) !== undefined && allAnswers.get(currentQuestId)?.start !== undefined && allAnswers.get(currentQuestId)?.numberWrongs !== undefined) {
+      dispatch(appActions.setAllAnswers(allAnswers.set(currentQuestId, {
+        ...prev,
+        end: new Date().toISOString(),
+        answer: answer,
+      })))
+    }
+  }else {
+    toast.error(`Incorrect: ${answer}`, { autoClose: 200, position: 'bottom-right' })
+     dispatch(appActions.setAllAnswers(allAnswers.set(currentQuestId, {
+        ...prev,
+        numberWrongs: prev.numberWrongs + 1,
+      })))
+  }
+}

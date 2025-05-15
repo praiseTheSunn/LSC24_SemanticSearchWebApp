@@ -206,46 +206,6 @@ const Home = () => {
     }
   }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
 
-  // useEffect(() => {
-  //   if (submitText !== '') {
-  //     // evalService
-  //     //   .submitText(evaluationId, localStorage.getItem('session'), submitText)
-  //     //   .then((response: ApiResponse) => {
-  //     //     toast.success(`Text submitted: ${response.data.submission}`)
-  //     //     setSubmitText('')
-  //     //     console.log('response', response)
-  //     //     if (response?.data && response?.data?.submission === 'CORRECT') {
-  //     //       evalService
-  //     //         .submitText(
-  //     //           evaluationId,
-  //     //           localStorage.getItem('sessionCentral'),
-  //     //           submitText,
-  //     //         )
-  //     //         .then((response: ApiResponse) => {
-  //     //           toast.success(`Text submitted: ${response.data.submission}`)
-  //     //           setSubmitText('')
-  //     //           console.log('response', response)
-  //     //         })
-  //     //         .catch((error: ApiError) => {
-  //     //           toast.error(`Error submit TEXT: ${error.message}`)
-  //     //           console.log('error', error)
-  //     //         })
-  //     //     }
-  //     //   })
-  //     //   .catch((error: ApiError) => {
-  //     //     toast.error(`Error submit TEXT: ${error.message}`)
-  //     //     console.log('error', error)
-  //     //   })
-  //   }
-  // }, [submitText])
-
-  // useEffect(() => {
-  //   if (submitFilename !== '') {
-  //     // submit(submitFilename)
-  //   }
-  // }, [submitFilename])
-
-  // console.log('result');
 
   return (
     <div
@@ -303,28 +263,6 @@ const Home = () => {
           paddingLeft: '15px',
         }}
       >
-        {LevelList.map((item, index) => (
-          <button
-            key={item.level}
-            type="button"
-            className={`font-base grid-tab text-gray ${index === selectedTabIndex ? 'active' : ''}`}
-            style={{
-              paddingTop: '0.375rem',
-              paddingBottom: '0.375rem',
-              width: '197px',
-              backgroundImage: `url(${item.bg})`,
-              zIndex: 90 - index * 10,
-              border: 'none',
-              backgroundColor: 'transparent',
-              marginLeft: `${index !== 0 && '-20px'}`,
-              position: 'relative',
-              height: '30px',
-            }}
-            onClick={() => handleTabClick(index)}
-          >
-            {item.level}
-          </button>
-        ))}
       </Box>
 
       <Box
@@ -345,34 +283,6 @@ const Home = () => {
               height: '100%',
             }}
           >
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-start',
-                alignItems: 'center',
-                paddingTop: '10px',
-              }}
-            >
-              {Mode.map((item, index) => (
-                <button
-                  key={item.mode}
-                  type="button"
-                  className={`font-base font-bold text-gray border-white ${
-                    index === selectedModeIndex ? 'active' : ''
-                  }`}
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '50%', // Hình tròn
-                    border: '1px solid #ccc', // Viền
-                    margin: '0 10px', // Khoảng cách giữa các nú
-                    backgroundImage: `url(${selectedModeIndex === index ? item.bgat : item.bg})`,
-                    backgroundSize: 'cover',
-                  }}
-                  onClick={() => setSelectedModeIndex(index)}
-                />
-              ))}
-            </Box>
             {selectedModeIndex === 0 && (
               <Box
                 sx={{
@@ -386,31 +296,10 @@ const Home = () => {
                 <ImageGrid style={{ width: '100dvw' }} data={imageAfterFilter} />
               </Box>
             )}
-            {selectedModeIndex !== 0 && (
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  width: '100%',
-                  height: '100%',
-                  overflowY: 'auto',
-                  marginTop: '2px',
-                }}
-              >
-                <SimialrityAdvancedGrid tabindex={selectedModeIndex} />
-              </div>
-            )}
+           
           </Box>
         )}
 
-        {selectedTabIndex === 1 && <TimelineTab />}
-        {selectedTabIndex === 2 && (
-          // <ImageCluster data={timelineData} />
-          <MapTab
-          // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
-          />
-        )}
-        {selectedTabIndex === 3 && <MetadataTab />}
       </Box>
     </div>
   )

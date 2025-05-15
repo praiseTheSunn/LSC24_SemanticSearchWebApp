@@ -109,3 +109,24 @@ export const transformResponse_Feedback_AIC = (response: ApiResponse) => {
 
   return result
 }
+
+
+export const transformResponse_Thesis = (response: ApiResponse) => {
+  // console.log('Response:', response);
+  const convertToMMSS = (seconds: string): string => {
+    const iSeconds = Number(seconds)
+    const minutes = Math.floor(iSeconds / 60)
+    const remainingSeconds = iSeconds % 60
+    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`
+  }
+
+  const data = response.response || response.data
+  const result = data.map((img: ImageRecord) => {
+    img.date = img.video_id ? img.video_id : img.date
+    img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
+    img.img_link = img.img_link.replace('server.selab.edu.vn', '10.0.1.21')
+
+    return img
+  })
+  return result
+}

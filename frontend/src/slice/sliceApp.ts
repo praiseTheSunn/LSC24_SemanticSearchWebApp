@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { defaultConfig, loadConfigFromLocalStorage } from '../components'
 import type { AppState } from '../types/app'
+import { set } from 'lodash'
 
 const initialState: AppState = {
   loadingPopUpMessage: '',
@@ -34,6 +35,10 @@ const initialState: AppState = {
   isEvaluationBoxOpen: false,
 
   config: loadConfigFromLocalStorage() || defaultConfig,
+
+  //Thesis only
+  allQuestions: new Map(),
+  allAnswers: new Map(),
 }
 
 export const sliceApp = createSlice({
@@ -107,6 +112,15 @@ export const sliceApp = createSlice({
 
     setDislikedImages: (state, action) => {
       state.dislikedImages = action.payload
+    },
+
+    setAllQuestions: (state, action) => {
+      state.allQuestions = action.payload
+    },
+
+    setAllAnswers: (state, action) => {
+      state.allAnswers = action.payload
+      localStorage.setItem('allAnswers', JSON.stringify(state.allAnswers))
     },
   },
 })

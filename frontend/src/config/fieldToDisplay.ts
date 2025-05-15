@@ -14,5 +14,10 @@ export const AIC2024_fieldToDisplay = {
   context_en_keywords: 'Context',
 }
 
+const Thesis_fieldToDisplay = {
+  ...BaseFieldToDisplay,
+  activity: 'Activity',
+}
 
-export const FieldToDisplay = AIC2024_fieldToDisplay
+
+export const FieldToDisplay = Thesis_fieldToDisplay

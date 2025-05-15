@@ -25,6 +25,7 @@ import HistoryPopup from './Popup/HistoryPopup'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
 import { FilterCategories } from '../data/FilterCategory'
+import { QueryDisplayer } from './QueryDisplayer/QueryDisplayer'
 
 type SearchBoxProps = {
   displayedFilters: any
@@ -57,6 +58,19 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     const [trigger, result] = useLazyGetImagesQuery()
     const [TriggerTranslate, TranslatedResult] = useLazyGetTranslatedTextQuery()
     const { data, error, isError, isFetching } = result
+
+      const [csvText, setCsvText] = useState("");
+
+      useEffect(() => {
+        fetch("/thesis_query.csv")
+          .then((response) => response.text())
+          .then((text) => {
+            setCsvText(text);
+          })
+          .catch((error) => {
+            console.error("Failed to load CSV:", error);
+          });
+      }, []);
 
     const dispatch = useAppDispatch()
     const setQuery = useCallback(
@@ -263,6 +277,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           mode: queryPayload.mode,
           model: queryPayload.model,
           dataset: queryPayload.dataset,
+          user_id: "xxx"
         })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 
@@ -356,31 +371,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             )}
           </Box>
         </ClickAwayListener>
-        <ImageInputBox />
-        <Box sx={{ marginLeft: '12px' }}>
-          <Dropdown
-            label="Model"
-            displayItems={['CLIPS', 'BLIP2', 'BEiT-3', 'STFM']}
-            valueItems={['clips', 'blip2', 'beit3', 'stfm']}
-            setData={setModel}
-          />
-        </Box>
-        <Box sx={{ marginLeft: '12px' }}>
-          <Dropdown
-            label="Mode"
-            displayItems={['Vector', 'Vector + Keyword', 'Keyword']}
-            valueItems={['vec', 'vec_kw', 'kw']}
-            setData={setMode}
-          />
-        </Box>
-        <Box sx={{ marginLeft: '12px' }}>
-          <Dropdown
-            label="Dataset"
-            displayItems={['All', 'Lesson', 'Cooking']}
-            valueItems={['aic24', 'aic24_lesson', 'aic24_cooking']}
-            setData={setDataset}
-          />
-        </Box>
+        <QueryDisplayer csvText={csvText} hintInterval={1*1000} totalTime={10*1000}/>
         <Box
           display="flex"
           flexDirection="row"
@@ -388,12 +379,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           sx={{ marginLeft: 'auto', marginRight: '20px', zIndex: 100 }}
           gap={2}
         >
-          <LanguageSwitch
-            value={isVietnameseEnabled}
-            onClick={() => dispatch(appActions.toggleVietnamese())}
-          />
           <CSVDownloadBox />
-          {/* <ToggableComponent /> */}
         </Box>
       </Box>
     )

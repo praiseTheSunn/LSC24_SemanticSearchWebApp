@@ -62,6 +62,7 @@ const ImageInputBox = () => {
   }
 
   const model = useAppSelector((state) => state.app.queryPayload.model)
+  const dataset = useAppSelector((state) => state.app.queryPayload.dataset)
   const dispatch = useAppDispatch()
   const [trigger, { data, error, isFetching }] = useLazySearchByImageQuery()
   // const fixBase64Padding = (base64: string): string => {
@@ -88,7 +89,7 @@ const ImageInputBox = () => {
 
   useEffect(() => {
     if (imageSrc) {
-      trigger({ image_base64: imageSrc, model })
+      trigger({ image_base64: imageSrc, model, dataset })
     }
   }, [imageSrc])
 

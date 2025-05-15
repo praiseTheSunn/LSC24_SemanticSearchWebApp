@@ -28,6 +28,7 @@
     "hamburger-react": "^2.5.1",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
+    "papaparse": "^5.5.2",
     "react": "^18.2.0",
     "react-dnd": "^16.0.1",
     "react-dnd-html5-backend": "^16.0.1",
@@ -83,6 +84,7 @@
     "@rsbuild/plugin-sass": "1.0.1-beta.11",
     "@rsbuild/plugin-type-check": "1.0.1-beta.11",
     "@types/leaflet": "^1.9.12",
+    "@types/papaparse": "^5.3.16",
     "file-loader": "^6.2.0",
     "prop-types": "^15.8.1",
     "url-loader": "^4.1.1"

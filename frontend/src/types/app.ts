@@ -42,6 +42,8 @@ export type AppState = {
   isEvaluationBoxOpen: boolean
 
   config: ConfigType
+  allQuestions: Map<string, { hints: string[]; answers: string[] }>
+  allAnswers: Map<string, {start: string, end: string, answer: string, numberWrongs: number}>
 }
 
 export type TimelineState = {

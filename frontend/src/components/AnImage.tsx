@@ -10,7 +10,7 @@ import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { useSubmitKISAnsweringMutation } from '../AppState'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import { AddLikeAction } from '../config/likeResponse'
-import { AIC_addImages, LSC_addCSVImages } from '../config/submitFunc'
+import { AIC_addImages, LSC_addCSVImages, Thesis_addImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
 
 interface AnImageProps {
@@ -74,6 +74,7 @@ const AnImage: React.FC<AnImageProps> = ({
   const csvData = useAppSelector((state) => state.app.csvImages)
   const likeImages = useAppSelector((state) => state.app.likedImages)
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
+  const allQuestions = useAppSelector((state) => state.app.allQuestions)
 
   const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
   const submit = (src_data: ImageRecord) => {
@@ -84,8 +85,9 @@ const AnImage: React.FC<AnImageProps> = ({
     // })
 
     // REPLACE FOR EACH COMPETITION HERE
-    LSC_addCSVImages(src_data, null, dispatch, csvData)
+    // LSC_addCSVImages(src_data, null, dispatch, csvData)
     // AIC_addImages(src_data, triggerKIS)
+    Thesis_addImages(src_data, localStorage.getItem("currentQuestId") || "" ,allQuestions)
   }
 
   const like = (src_data: ImageRecord) => {

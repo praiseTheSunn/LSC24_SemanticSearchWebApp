@@ -5,6 +5,7 @@ import {
   transformResponse_LSC2024,
   transformResponse_Feedback_AIC,
   transformResponse_Feedback_LSC2024,
+  transformResponse_Thesis,
 } from '../config/transformResponse'
 import type {
   ApiResponse,
@@ -31,7 +32,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC2024(response),
+          transformResponse_Thesis(response),
         providesTags: (result) =>
           result
             ? [
