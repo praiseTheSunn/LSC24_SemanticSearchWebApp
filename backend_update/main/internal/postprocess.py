@@ -2,11 +2,12 @@ import setup
 import json
 import pandas as pd
 import itertools
+from pprint import pprint
+from internal.api_handler import fetch_metadata
 
 import sys
 sys.path.append('..')
 from dataset.dataset_manager import DatasetManager
-from database.image_database import ImageDatabase
 
 server_ip = setup.system_config['server_ip']
 
@@ -71,8 +72,8 @@ def remove_scores_that_do_not_appear_in_records(scores: list[float], records_df:
 def print_records_sample(records, n=5):        
     for i in range(n):
         record = records[i]
-        # print(f"{record['record_id']:<10} {record['image_id']:<15} {record['img_link']:<10}")
-        print(record)
+        pprint(record)
+        print()
 
 
 def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_server=True):
@@ -118,7 +119,7 @@ def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_serv
     return records
 
 
-def prepare_response(dataset, record_ids=[], scores=None, display_window_size=3, all_neighbor_ids=None):
+async def prepare_response(dataset, model, record_ids=[], scores=None, display_window_size=3, all_neighbor_ids=None):
     dataset = dataset.lower()
     image_server_url = DatasetManager.get_dataset(dataset).get_image_server_url()
     image_extension = DatasetManager.get_dataset(dataset).get_image_extension()
@@ -132,6 +133,7 @@ def prepare_response(dataset, record_ids=[], scores=None, display_window_size=3,
         all_neighbor_ids = {}
         for record_id in record_ids:
             all_neighbor_ids[record_id] =  list(range(record_id - display_window_size, record_id + display_window_size + 1))
+            print(all_neighbor_ids[record_id])
     all_neighbor_ids_flat = list(set(itertools.chain.from_iterable(all_neighbor_ids.values())))
 
     print(f"Validating record ids for dataset: {dataset}:")
@@ -139,12 +141,21 @@ def prepare_response(dataset, record_ids=[], scores=None, display_window_size=3,
     print(f"Number of neighbor ids (unique): {len(all_neighbor_ids_flat)}")
 
     # Step 2: Retrieve metadata
-    db = ImageDatabase(dataset_name=dataset)
-    records = db.retrieve_metadata(record_ids=record_ids, fields=['image_id', 'record_id', 'video_id', 'local_date', 'local_time', 'location_displayed', 'ocr', 'object_tags'])
-    print(records[0])
-    neighbors = db.retrieve_metadata(record_ids=all_neighbor_ids_flat, fields=['image_id', 'record_id', 'video_id'])
-    print(f"Retrieved {len(records)} main records")
-    print(f"Retrieved {len(all_neighbor_ids_flat)} neighbor records")
+    # db = ImageDatabase(dataset_name=dataset)
+    # records = db.retrieve_metadata(record_ids=record_ids, fields=['image_id', 'record_id', 'video_id', 'local_date', 'local_time', 'location_displayed', 'ocr', 'object_tags'])
+    # neighbors = db.retrieve_metadata(record_ids=all_neighbor_ids_flat, fields=['image_id', 'record_id', 'video_id'])
+
+    records = await fetch_metadata(record_ids=record_ids, dataset=dataset, model=model)
+    neighbors = await fetch_metadata(record_ids=all_neighbor_ids_flat, dataset=dataset, model=model)
+
+    print(f"Record IDs before mapping: {record_ids[:10]}")
+    print(f"Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
+    for rec in records[:10]:
+        print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
+
+    # print(f"Prepare response - Retrieving metadata for {dataset} dataset:")
+    # print(f"Retrieved {len(records)} main records")
+    # print(f"Retrieved {len(all_neighbor_ids_flat)} neighbor records")
 
     # Step 2.5: Add img_link to records
     for record in records:
@@ -164,7 +175,9 @@ def prepare_response(dataset, record_ids=[], scores=None, display_window_size=3,
         record['neighbors'] = actual_neighbors
         result.append(record)
 
-    print_records_sample(result, n=min(10, len(result)))
+    N = 5
+    print(f"First {N} records:")
+    print_records_sample(result, n=min(N, len(result)))
     return result
     
     # else:

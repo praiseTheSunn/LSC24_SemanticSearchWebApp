@@ -41,7 +41,7 @@ def expand_temporal(prev_result, next_clause, dataset, temporal_window_size):
 
 
 
-def aggregate_temporal(partial_results: list[dict], dataset, unifying_category: str):
+def aggregate_temporal(partial_results: list[dict], dataset):
     for i in range(len(partial_results)):
         partial_scores = partial_results[i]["scores"]
         partial_results[i]["scores"] = get_standardized_scores(partial_scores)
@@ -53,8 +53,7 @@ def aggregate_temporal(partial_results: list[dict], dataset, unifying_category: 
         partial_scores = partial_result["scores"]
         # TODO
         # unifying_category_ids = setup.metadata_rows_context_id_coarse.loc[partial_record_ids].tolist()
-        unifying_category_ids = DatasetManager.get_dataset(dataset).get_unifying_category_ids(partial_record_ids, unifying_category)
-        print(len(partial_record_ids), len(partial_scores), len(unifying_category_ids))
+        unifying_category_ids = DatasetManager.get_dataset(dataset).get_unifying_category_ids(partial_record_ids)
         for j, (record_id, score) in enumerate(zip(partial_record_ids, partial_scores)):
             if unifying_category_ids[j] == None:
                 print(f"{record_id} has no unifying category id")
@@ -109,7 +108,8 @@ def aggregate_temporal(partial_results: list[dict], dataset, unifying_category: 
     raw_results_df.sort_values(by=['combined_score', 'record_id'], ascending=[False, True], inplace=True)
     raw_results_df.drop_duplicates(subset='record_id', keep='first', inplace=True)
     raw_results_df = raw_results_df[raw_results_df['keep'] == True]
-    print(raw_results_df.head(20))
+    print("Final temporal results after aggregation:")
+    print(raw_results_df.head(12))
     
     result = {
         "record_ids": [],

@@ -28,7 +28,13 @@ async def search_by_embedding(mean_embedding: list[float], dataset: str, model: 
     if mean_embedding is None:
         return None
     else:
-        result = await search_milvus([mean_embedding], dataset, model, limit=limit, subset_record_ids=subset_record_ids)
+        result = await search_milvus(
+            embedding=[mean_embedding], 
+            dataset=dataset,
+            filters={},
+            model=model, 
+            limit=limit, 
+            subset_record_ids=subset_record_ids)
         print(f"Search result: {result}")
         if result is None:
             return None

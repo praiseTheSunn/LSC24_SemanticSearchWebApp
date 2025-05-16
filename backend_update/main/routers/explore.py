@@ -23,7 +23,7 @@ async def explore_similar_images(payload: RequestExploreSimilarImages):
     record_ids = [DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id] for image_id in image_ids]
 
     response_data, response_status = await explore.explore_similar_images(record_ids=record_ids, dataset=inputs["dataset"], model=inputs["model"])
-    response_data = prepare_response(inputs["dataset"], response_data["record_ids"], scores=response_data["scores"], display_window_size=inputs["display_window_size"])
+    response_data = await prepare_response(inputs["dataset"], inputs["model"], response_data["record_ids"], scores=response_data["scores"], display_window_size=inputs["display_window_size"])
 
     return JSONResponse(content={"response": response_data}, status_code=response_status, headers={'Access-Control-Allow-Origin': '*'})
 
@@ -35,7 +35,7 @@ async def explore_neighbor_images(payload: RequestExploreNeighborImages):
     record_id = DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id]
     
     response_data, response_status = await explore.explore_neighbor_images(record_id=record_id, span=inputs["span"], dataset=inputs["dataset"])
-    response_data = prepare_response(inputs["dataset"], response_data["record_ids"], display_window_size=inputs["display_window_size"])
+    response_data = await prepare_response(inputs["dataset"], "clips", response_data["record_ids"], display_window_size=inputs["display_window_size"])
 
     return JSONResponse(content={"response": response_data}, status_code=response_status, headers={'Access-Control-Allow-Origin': '*'})
 

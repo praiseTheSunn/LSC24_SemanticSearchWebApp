@@ -21,7 +21,13 @@ async def search_structure(query_clause: QueryClause, dataset: str, model: str, 
             detail="Failed to compute text embedding.",
         )
     else:
-        result = await search_milvus(text_embedding, dataset, model, subset_record_ids=subset_record_ids)
+        result = await search_milvus(
+            embedding=text_embedding, 
+            dataset=dataset, 
+            model=model, 
+            filters=filters,
+            subset_record_ids=subset_record_ids
+        )
         if result is None:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -39,7 +45,13 @@ async def search_by_image(image_base64: str, dataset: str, model: str, subset_re
     if image_embedding is None:
         return "Failed to compute text embedding.", status.HTTP_500_INTERNAL_SERVER_ERROR
     else:
-        result = await search_milvus(image_embedding, dataset, model, subset_record_ids=subset_record_ids)
+        result = await search_milvus(
+            embedding=image_embedding, 
+            dataset=dataset,
+            filters={},
+            model=model, 
+            subset_record_ids=subset_record_ids
+        )
         if result is None:
             return "Failed to search in Milvus.", status.HTTP_500_INTERNAL_SERVER_ERROR
         else:
@@ -50,13 +62,15 @@ async def search_by_image(image_base64: str, dataset: str, model: str, subset_re
 
 
 async def search_by_text(query_structured: QueryStructured):
+    print("Searching for query:")
+    print(query_structured)
     if query_structured.use_temporal_window:
         result = await search_structure(query_structured.clauses[0], query_structured.dataset, query_structured.model, query_structured.subset_record_ids)
         if len(query_structured.clauses) > 1:
             result = expand_temporal(result, query_structured.clauses[1], query_structured.dataset, query_structured.temporal_window_size)
     else:
         partial_results = [await search_structure(clause, query_structured.dataset, query_structured.model, query_structured.subset_record_ids) for clause in query_structured.clauses]
-        result = aggregate_temporal(partial_results, query_structured.dataset, DatasetManager.get_dataset(query_structured.dataset).get_unifying_category())
+        result = aggregate_temporal(partial_results, query_structured.dataset)
 
     return result, status.HTTP_200_OK
         

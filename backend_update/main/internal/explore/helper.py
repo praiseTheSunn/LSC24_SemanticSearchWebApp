@@ -13,7 +13,12 @@ async def search_by_embedding(mean_embedding: list[float], dataset: str, model: 
     if mean_embedding is None:
         return None
     else:
-        result = await search_milvus(mean_embedding, dataset, model)
+        result = await search_milvus(
+            embedding=mean_embedding, 
+            dataset=dataset, 
+            filters={}, 
+            model=model
+        )
         if result is None:
             return None
         else:

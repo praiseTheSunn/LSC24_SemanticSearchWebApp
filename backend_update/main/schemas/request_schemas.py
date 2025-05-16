@@ -37,7 +37,7 @@ class RequestSearchByTextQuery(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                    "text_query": "a man walking in the park -d 2019/02 -l park | a house",
+                    "text_query": "a man walking in the park -d 2019-01-08 -l park -a computer | a house",
                     "dataset": "lsc24",
                     "model": "clips",
                     "use_temporal_window": False,
@@ -73,7 +73,7 @@ class QueryStructured(BaseModel):
                     {
                         "text": "a man walking in the park",
                         "filters": {
-                            "date": "2019/02",
+                            "date": "2019-01-08",
                             "location": "park"
                         }
                     }

@@ -96,9 +96,7 @@ async def get_embeddings(data: GetRequest):
         'record_ids': [raw_results[i]['keyframe_id'] for i in range(len(raw_results))],
         'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
     }
-
-    # debug
-    print("Record IDs: ", response['record_ids'])
+    
     return JSONResponse(content={"response": response}, headers=header)
 
 
