@@ -57,25 +57,31 @@ export const CSVDownloadBox = () => {
   const dislikeLimit = Config.DislikeNumber
 
   const handleDownloadCSV = () => {
-    if (csvImages.length > 0) {
-      const csv = csvImages
-        .map((image) => `${image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")}\n`)
-        .join('')
-      const hiddenElement = document.createElement('a')
-      hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURI(csv)}`
-      hiddenElement.target = '_blank'
-      hiddenElement.download = 'images.csv'
-      hiddenElement.click()
-    } else {
-      toast.error('No images to download', {
+    let allAnswers = localStorage.getItem('allAnswers')
+    if (!allAnswers) {
+      toast.error('No answers found in localStorage', {
         position: 'bottom-left',
       })
+      return
     }
+    allAnswers = JSON.stringify(JSON.parse(allAnswers), null, 2)
+    const blob = new Blob([allAnswers], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'allAnswers.json'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    URL.revokeObjectURL(url)
+    toast.success('Downloaded allAnswers.json', {
+      position: 'bottom-left',
+    })
   }
 
   const handleClearCSV = () => {
-    dispatch(appActions.setCSVImages([]))
-    toast.success('Cleared', {
+    localStorage.clear()
+    toast.success('Cleared cache', {
       position: 'bottom-left',
     })
   }
@@ -185,7 +191,7 @@ export const CSVDownloadBox = () => {
     }
   }, [handleSubmitFeedback])
 
-  const ImageBox = ({ image, onDelete }) => {
+  const ImageBox = ({ image, onDelete } : {image: any, onDelete: any}) => {
     return (
       <div
         style={{
@@ -284,23 +290,13 @@ export const CSVDownloadBox = () => {
           >
             <SpeedDialAction
               icon={<FileDownloadIcon />}
-              tooltipTitle="Download CSV"
+              tooltipTitle="Download JSON"
               onClick={handleDownloadCSV}
             />
             <SpeedDialAction
               icon={<DeleteForeverRoundedIcon />}
-              tooltipTitle="Clear CSV"
+              tooltipTitle="Clear cache"
               onClick={() => handleClearCSV()}
-            />
-            <SpeedDialAction
-              icon={<PreviewIcon />}
-              tooltipTitle="Preview CSV"
-              onClick={(e) => handlePreviewCSVOpen(e)}
-            />
-            <SpeedDialAction
-              icon={<LoginIcon />}
-              tooltipTitle="Login"
-              onClick={(e) => handleLoginOpen(e)}
             />
             <SpeedDialAction
               icon={<SettingsIcon />}
