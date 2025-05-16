@@ -60,10 +60,14 @@ export const AIC_addImages = async (
 export const Thesis_addImages = async (
   src_data: ImageRecord,
   currentQuestId: string,
-  allAnswers: Map<string, {start: string, end: string, answer: string, numberWrongs: number}>,  
+  allAnswers:Record<string, {start: string, end: string, answer: string, numberWrongs: number}>,
   allQuestions: Map<string, {hints:string[], answers: string[]}>,
   dispatch: Dispatch
   ) => {
+  if (localStorage.getItem('isTimeOver') === 'true') {
+    alert('Time is over!')
+    return
+  }
   const answer = src_data.img_link.split('/').pop() || ""
   let flag = false
   if (allQuestions.has(currentQuestId) && answer) {
@@ -74,21 +78,25 @@ export const Thesis_addImages = async (
     }
   }
 
-  const prev = allAnswers.get(currentQuestId) as {start: string, end: string, answer: string, numberWrongs: number}
+  const prev = allAnswers[currentQuestId]
+  const allAnswerClone = {...allAnswers}
   if (flag) {
     toast.success(`Correct: ${answer}`, { autoClose: 200, position: 'bottom-right' })
-    if (allAnswers.get(currentQuestId) !== undefined && allAnswers.get(currentQuestId)?.start !== undefined && allAnswers.get(currentQuestId)?.numberWrongs !== undefined) {
-      dispatch(appActions.setAllAnswers(allAnswers.set(currentQuestId, {
+    if (allAnswers[currentQuestId] !== undefined && allAnswers[currentQuestId]?.start !== undefined && allAnswers[currentQuestId]?.numberWrongs !== undefined) {
+      allAnswerClone[currentQuestId] = {
         ...prev,
         end: new Date().toISOString(),
         answer: answer,
-      })))
+      }
+      dispatch(appActions.setAllAnswers(allAnswerClone))
     }
   }else {
     toast.error(`Incorrect: ${answer}`, { autoClose: 200, position: 'bottom-right' })
-     dispatch(appActions.setAllAnswers(allAnswers.set(currentQuestId, {
+    allAnswerClone[currentQuestId] ={
         ...prev,
-        numberWrongs: prev.numberWrongs + 1,
-      })))
+       numberWrongs: (prev?.numberWrongs || 0) + 1,
+      }
+    console.log('allAnswerClone', allAnswerClone)
+    dispatch(appActions.setAllAnswers(allAnswerClone))
   }
 }

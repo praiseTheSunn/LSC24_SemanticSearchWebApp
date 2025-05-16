@@ -124,7 +124,7 @@ export const transformResponse_Thesis = (response: ApiResponse) => {
   const result = data.map((img: ImageRecord) => {
     img.date = img.video_id ? img.video_id : img.date
     img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
-    img.img_link = img.img_link.replace('server.selab.edu.vn', '10.0.1.21')
+    // img.img_link = img.img_link.replace('server.selab.edu.vn', '10.0.1.21')
 
     return img
   })

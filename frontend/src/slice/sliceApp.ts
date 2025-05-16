@@ -38,7 +38,7 @@ const initialState: AppState = {
 
   //Thesis only
   allQuestions: new Map(),
-  allAnswers: new Map(),
+  allAnswers: {},
 }
 
 export const sliceApp = createSlice({
@@ -120,7 +120,18 @@ export const sliceApp = createSlice({
 
     setAllAnswers: (state, action) => {
       state.allAnswers = action.payload
-      localStorage.setItem('allAnswers', JSON.stringify(state.allAnswers))
+      localStorage.setItem('allAnswers', JSON.stringify(action.payload))
+      console.log('action.payload', action.payload)
     },
+
+    setEndInAllAnswers: (state, action) => {
+      const { questionId, endTime } = action.payload
+      const allAnswersClone = { ...state.allAnswers }
+      if (allAnswersClone[questionId]) {
+        allAnswersClone[questionId].end = endTime
+      }
+      state.allAnswers = allAnswersClone
+      localStorage.setItem('allAnswers', JSON.stringify(allAnswersClone))
+    }
   },
 })

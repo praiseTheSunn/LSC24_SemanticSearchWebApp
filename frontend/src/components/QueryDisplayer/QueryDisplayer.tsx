@@ -41,6 +41,7 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
 
   const dispatch = useAppDispatch()
   const allQuestions = useAppSelector((state) => state.app.allQuestions)
+  const allAnswers = useAppSelector((state) => state.app.allAnswers)
 
   // Parse CSV when component mounts
   useEffect(() => {
@@ -76,6 +77,7 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
         dispatch(appActions.setAllQuestions( grouped))
       },
     })
+    localStorage.setItem('isTimeOver', JSON.stringify(true))
   }, [csvText])
 
   const startQuestion = () => {
@@ -83,6 +85,7 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
       alert('No more questions!')
       return
     }
+    localStorage.setItem('isTimeOver', JSON.stringify(false))
 
     const entries = Array.from(allQuestions.entries())
     let index: number
@@ -98,12 +101,24 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
 
     const [questionID, qData] = entries[index]
     setCurrent({ question: questionID, ...qData }) // You can store questionID if needed
-
+    localStorage.setItem("currentQuestId", questionID)
     setHintIndex(0)
     setDisplayedHints([qData.hints[0]])
     setRemainingTime(totalTime)
     setCanGoNext(false)
     setIsRunning(true)
+    // Merge global state's allAnswers and localStorage's allAnswers
+    const localAllAnswers = JSON.parse(localStorage.getItem('allAnswers') || '{}')
+    const allAnswersClone = { ...localAllAnswers, ...allAnswers }
+    allAnswersClone[questionID] = {
+        start: new Date().toISOString(),
+        end: '',
+        answer: '',
+        numberWrongs: 0,
+      }
+    dispatch(appActions.setAllAnswers(
+      allAnswersClone
+    ))
   }
 
   // Handle countdown timer
@@ -120,6 +135,13 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
           setCanGoNext(true)
           setIsRunning(false)
           localStorage.setItem('usedQuestion', JSON.stringify([...usedQuestions]))
+          dispatch(appActions.setEndInAllAnswers(
+            {
+              questionId: localStorage.getItem("currentQuestId") || "", 
+              endTime: new Date().toISOString(), 
+            }
+          ))
+          localStorage.setItem('isTimeOver', JSON.stringify(true))
           return 0
         }
         return prev - 1000
