@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { defaultConfig, loadConfigFromLocalStorage } from '../components'
 import type { AppState } from '../types/app'
-import { set } from 'lodash'
 
 const initialState: AppState = {
   loadingPopUpMessage: '',
@@ -125,6 +124,9 @@ export const sliceApp = createSlice({
     },
 
     setEndInAllAnswers: (state, action) => {
+      if (localStorage.getItem('isAlreadyCorrect') === 'true') {
+        return
+      }
       const { questionId, endTime } = action.payload
       const allAnswersClone = { ...state.allAnswers }
       if (allAnswersClone[questionId]) {

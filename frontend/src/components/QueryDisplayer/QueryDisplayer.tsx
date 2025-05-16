@@ -86,6 +86,7 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
       return
     }
     localStorage.setItem('isTimeOver', JSON.stringify(false))
+    localStorage.setItem('isAlreadyCorrect', 'false')
 
     const entries = Array.from(allQuestions.entries())
     let index: number

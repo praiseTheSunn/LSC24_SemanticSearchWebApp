@@ -68,18 +68,24 @@ export const Thesis_addImages = async (
     alert('Time is over!')
     return
   }
-  const answer = src_data.img_link.split('/').pop() || ""
+  const filename = src_data.img_link.split('/').pop() || ""
+  const answer = filename.replace(/\.[^/.]+$/, "")
   let flag = false
   if (allQuestions.has(currentQuestId) && answer) {
     const questionData = allQuestions.get(currentQuestId)
     if (questionData) {
       const { hints, answers } = questionData
-      flag = answer in answers
+      flag = answers.some((ans) => ans.toLowerCase() === answer.toLowerCase())
     }
   }
 
   const prev = allAnswers[currentQuestId]
   const allAnswerClone = {...allAnswers}
+  if (localStorage.getItem('isAlreadyCorrect') === 'true') {
+    toast.success(`Already Correct: ${answer}`, { autoClose: 200, position: 'bottom-right' })
+    return
+  }
+  
   if (flag) {
     toast.success(`Correct: ${answer}`, { autoClose: 200, position: 'bottom-right' })
     if (allAnswers[currentQuestId] !== undefined && allAnswers[currentQuestId]?.start !== undefined && allAnswers[currentQuestId]?.numberWrongs !== undefined) {
@@ -89,6 +95,7 @@ export const Thesis_addImages = async (
         answer: answer,
       }
       dispatch(appActions.setAllAnswers(allAnswerClone))
+      localStorage.setItem('isAlreadyCorrect', 'true')
     }
   }else {
     toast.error(`Incorrect: ${answer}`, { autoClose: 200, position: 'bottom-right' })

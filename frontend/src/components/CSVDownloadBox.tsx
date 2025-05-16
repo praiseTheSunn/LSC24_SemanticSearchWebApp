@@ -84,6 +84,9 @@ export const CSVDownloadBox = () => {
     toast.success('Cleared cache', {
       position: 'bottom-left',
     })
+    setTimeout(() => {
+      window.location.reload()
+      }, 1500)
   }
 
   const handlePreviewCSVOpen = (event: React.MouseEvent<HTMLElement>) => {
