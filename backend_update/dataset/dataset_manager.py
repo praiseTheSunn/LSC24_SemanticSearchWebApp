@@ -1,41 +1,52 @@
-from dataset.image_dataset import LSC24Dataset, LSC24aDataset, V3CDataset, MVKDataset, LHEDataset
-
-available_datasets = ["lsc24", "lsc24a", "vbs25_v3c", "vbs25_mvk", "vbs25_lhe"]
+from typing import Dict, Type
 
 class DatasetManager:
     _instance = None
+    _datasets: Dict[str, object] = {}      # name → *singleton instance*
 
-    def __new__(cls):
+    # ---------- ① singleton boilerplate ----------
+    def __new__(cls, *args, **kwargs):
         if cls._instance is None:
-            cls._instance = super(DatasetManager, cls).__new__(cls)
-            cls._instance._datasets = {}  # Instance-level cache
+            cls._instance = super().__new__(cls)
         return cls._instance
+    
+    # ---------- registry API ----------
+    @classmethod
+    def register(cls, name: str, dataset_cls: Type):
+        """
+        Register a dataset *and* create its singleton instance right away.
+        """
+        if name in cls._datasets:
+            raise KeyError(f"Dataset '{name}' already registered")
+
+        instance = dataset_cls()            # <-- eager instantiation
+        cls._datasets[name] = instance
+        return instance                     # handy if caller wants the handle
 
     @classmethod
-    def get_dataset(cls, dataset_name):
-        """Returns a dataset instance based on type (Singleton-based)."""
-        instance = cls()
-        if dataset_name not in available_datasets:
-            raise ValueError(f"Unknown dataset: {dataset_name}")
-        if dataset_name not in instance._datasets:
-            if dataset_name == "lsc24":
-                instance._datasets[dataset_name] = LSC24Dataset()
-            elif dataset_name == "lsc24a":
-                instance._datasets[dataset_name] = LSC24aDataset()
-            elif dataset_name == "vbs25_v3c":
-                instance._datasets[dataset_name] = V3CDataset()
-            elif dataset_name == "vbs25_mvk":
-                instance._datasets[dataset_name] = MVKDataset()
-            elif dataset_name == "vbs25_lhe":
-                instance._datasets[dataset_name] = LHEDataset()
-            else:
-                raise ValueError(f"Dataset not implemented: {dataset_name}")
-        return instance._datasets[dataset_name]
+    def get_dataset(cls, name: str):
+        """
+        Retrieve the (already-created) singleton instance.
+        """
+        try:
+            return cls._datasets[name]
+        except KeyError:
+            raise ValueError(f"Unknown or unregistered dataset: {name}")
 
     @classmethod
     def close_all(cls):
-        """Closes all dataset connections."""
-        instance = cls()
-        for dataset in instance._datasets.values():
-            dataset.close()
-        instance._datasets.clear()
+        for ds in cls._datasets.values():
+            if hasattr(ds, "close"):
+                ds.close()
+        cls._datasets.clear()
+
+
+# ------------------------- REGISTER DATASETS -------------------------
+from dataset.image_dataset import LSC24Dataset, V3CDataset, MVKDataset, LHEDataset
+available_datasets = ["lsc24",  "vbs25_v3c", "vbs25_mvk", "vbs25_lhe"]
+
+print("Initializing dataset manager...")
+DatasetManager.register("lsc24", LSC24Dataset)
+# DatasetManager.register("vbs25_v3c", V3CDataset)
+# DatasetManager.register("vbs25_mvk", MVKDataset)
+# DatasetManager.register("vbs25_lhe", LHEDataset)

@@ -80,7 +80,6 @@ def print_data_record(data_record):
             print(f"{key}: {len(value)}-dimensional vector")
         else:
             print(f"{key}: {value}")
-    print("\n")
 
 
 def create_collection(client, collection_name, metadata_file_path, column_mapping, full_text_fields, force=True):
@@ -126,17 +125,19 @@ if __name__ == "__main__":
 
     # INSERT DATA
     df = pd.read_csv(metadata_file_path)
+    df = df[df["image_available"] == 1]
     df = df[column_mapping.keys()]
     df.rename(columns=column_mapping, inplace=True)
     df.set_index("record_id", inplace=True)
     df["prefix"] = df["image_id"].apply(lambda x: x[:9])
     prefixes = sorted(df["prefix"].unique().tolist())
     
-    for prefix in prefixes[:30]:
+    for prefix in prefixes:
         vectors_path = f"{embedding_dir}/{prefix}.npy"
         vectors = np.load(vectors_path)
         image_ids = sorted(df[df["prefix"] == prefix]["image_id"].tolist())
         data = []
+        assert len(image_ids) == len(vectors), f"Length mismatch: {len(image_ids)} != {len(vectors)}"
         for image_id, vector in zip(image_ids, vectors):
             record_id = DatasetManager.get_dataset(DATASET_NAME).image_id_to_record_id[image_id]
             data_record = {
@@ -148,16 +149,21 @@ if __name__ == "__main__":
                 if mapped_col in ["record_id", "image_id", "embedding"]:
                     continue
                 elif mapped_col in full_text_fields:
-                    data_record[f"text_{mapped_col}"] = df[mapped_col].iloc[record_id]
+                    data_record[f"text_{mapped_col}"] = df[mapped_col].loc[record_id]
                 else:
-                    data_record[mapped_col] = df[mapped_col].iloc[record_id]
+                    data_record[mapped_col] = df[mapped_col].loc[record_id]
             
             data.append(data_record)
+            
+            # if image_id == "201901/26/20190126_191903_000":
+            #     print_data_record(data_record)
 
         # Print only the last data record for each prefix
         print_data_record(data_record)
+        print()
 
         client.insert(collection_name=collection_name, data=data)
         print(f"Inserted {len(data)} vectors of {prefix} into collection {collection_name}")
+        print()
 
 

@@ -9,8 +9,9 @@ router = APIRouter(prefix="/search", tags=["Search"])
 async def search_milvus(payload: SearchRequest):
     collection_name = payload.dataset + "_" + payload.model
     text_embedding = payload.embedding
+    filters = payload.filters
     limit = payload.limit
     subset_record_ids = payload.subset_record_ids
-    results = search_milvus_internal(collection_name, text_embedding, limit, subset_record_ids)
+    results = search_milvus_internal(collection_name, text_embedding, filters, limit, subset_record_ids)
     return JSONResponse(content={"response": results}, headers={'Access-Control-Allow-Origin': '*'})
     

@@ -3,7 +3,6 @@ import re
 import sqlite3
 import yaml
 from abc import ABC, abstractmethod
-from pymilvus import DataType
 
 
 def load_config(config_path: str):
@@ -48,16 +47,17 @@ class ImageDataset(ABC):
         start_time = time.time()
         print(f"Creating image ID to record ID mapping for {self.dataset_name} dataset...")
         df = pd.read_csv(self.metadata_file_path)
-        print(f"Metadata file loaded in {time.time() - start_time:.2f} seconds")
         id_column_mapping = {k: v for k, v in self.column_mapping.items() if v in ["image_id", "record_id"]}
-        df = df[list(id_column_mapping.keys())]
-        print(f"Columns filtered in {time.time() - start_time:.2f} seconds")
-        df = df.rename(columns=id_column_mapping)
-        print(f"Columns renamed in {time.time() - start_time:.2f} seconds")
-        self.image_id_to_record_id = df.set_index("image_id")["record_id"].to_dict()
+        id_df = df[list(id_column_mapping.keys())]
+        id_df = id_df.rename(columns=id_column_mapping)
+        self.image_id_to_record_id = id_df.set_index("image_id")["record_id"].to_dict()
         print(f"Image ID to Record ID mapping created in {time.time() - start_time:.2f} seconds")
-        self.record_id_to_image_id = df.set_index("record_id")["image_id"].to_dict()
+        self.record_id_to_image_id = id_df.set_index("record_id")["image_id"].to_dict()
         print(f"Record ID to Image ID mapping created in {time.time() - start_time:.2f} seconds")
+
+        unify_column_mapping = {k: v for k, v in self.column_mapping.items() if v in ["record_id", self.unifying_category]}
+        unify_df = df[list(unify_column_mapping.keys())]
+        self.unify_df = unify_df.rename(columns=unify_column_mapping)        
 
     
     @abstractmethod
@@ -93,42 +93,50 @@ class ImageDataset(ABC):
         image_id = re.sub(r'\.\w+$', '', image_id)          
         return image_id    
     
-    def get_unifying_category_ids(self, record_ids, unifying_category):
-        # Create temp table with an index to preserve input order and duplicates
-        self.cursor.execute("""
-            CREATE TEMP TABLE IF NOT EXISTS temp_record_ids (
-                idx INTEGER,
-                record_id INTEGER
-            )
-        """)
+    # def get_unifying_category_ids(self, record_ids, unifying_category):
+    #     # Create temp table with an index to preserve input order and duplicates
+    #     self.cursor.execute("""
+    #         CREATE TEMP TABLE IF NOT EXISTS temp_record_ids (
+    #             idx INTEGER,
+    #             record_id INTEGER
+    #         )
+    #     """)
 
-        # Clear temp table
-        self.cursor.execute("DELETE FROM temp_record_ids")
+    #     # Clear temp table
+    #     self.cursor.execute("DELETE FROM temp_record_ids")
 
-        # Insert with input order index
-        self.cursor.executemany(
-            "INSERT INTO temp_record_ids (idx, record_id) VALUES (?, ?)",
-            [(i, rid) for i, rid in enumerate(record_ids)]
-        )
+    #     # Insert with input order index
+    #     self.cursor.executemany(
+    #         "INSERT INTO temp_record_ids (idx, record_id) VALUES (?, ?)",
+    #         [(i, rid) for i, rid in enumerate(record_ids)]
+    #     )
 
 
-        # # how many distinct record_ids in record_ids
-        # # Get the count of distinct record_ids
-        # query = "SELECT COUNT(DISTINCT record_id) FROM images"
-        # self.cursor.execute(query)
-        # distinct_count = self.cursor.fetchone()[0]
-        # print(f"Distinct count of record_ids: {distinct_count}")
+    #     # # how many distinct record_ids in record_ids
+    #     # # Get the count of distinct record_ids
+    #     # query = "SELECT COUNT(DISTINCT record_id) FROM images"
+    #     # self.cursor.execute(query)
+    #     # distinct_count = self.cursor.fetchone()[0]
+    #     # print(f"Distinct count of record_ids: {distinct_count}")
 
-        # Join and order by idx to preserve input order and allow duplicates
-        query = f"""
-            SELECT i.{unifying_category}
-            FROM temp_record_ids t
-            LEFT JOIN images i ON i.record_id = t.record_id
-            ORDER BY t.idx
-        """
-        self.cursor.execute(query)
-        return [row[0] for row in self.cursor.fetchall()]
+    #     # Join and order by idx to preserve input order and allow duplicates
+    #     query = f"""
+    #         SELECT i.{unifying_category}
+    #         FROM temp_record_ids t
+    #         LEFT JOIN images i ON i.record_id = t.record_id
+    #         ORDER BY t.idx
+    #     """
+    #     self.cursor.execute(query)
+    #     return [row[0] for row in self.cursor.fetchall()]
     
+    def get_unifying_category_ids(self, record_ids):    
+        temp_df = pd.DataFrame({"record_id": record_ids})
+        result = temp_df.merge(self.unify_df, on="record_id", how="left") 
+        print("Unifying category extracted: ")       
+        print(f"{result.head()}")
+        print()
+        return result[self.unifying_category].tolist()
+
     def get_metadata_file_path(self):
         return self.metadata_file_path
     
@@ -174,10 +182,3 @@ class MVKDataset(ImageDataset):
 class LHEDataset(ImageDataset):
     def get_dataset_name(self):
         return "vbs25_lhe"
-
-
-# a = LSC24Dataset()
-# print(a)
-# print(a.get_dataset_name())
-# print(a.column_mapping)
-# print(a.standardize_image_id("https://example.com/image.jpg"))

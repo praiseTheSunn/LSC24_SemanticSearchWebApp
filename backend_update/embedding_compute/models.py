@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
 from typing import Any
-import setup
 import time
 import torch
 import torch.nn.functional as F
@@ -59,3 +58,6 @@ class ModelManager:
             print(f"Model '{model_name}' not available.")
             return None
         return model
+
+print("Loading models...")
+model_manager = ModelManager()

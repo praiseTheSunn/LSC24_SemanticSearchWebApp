@@ -1,5 +1,3 @@
-import setup
-import torch
 import base64
 import io
 from PIL import Image

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
-from typing import List, Literal, Tuple
+from typing import List, Literal, Tuple, Dict
 from setup import available_models, available_datasets
 
 
@@ -24,6 +24,7 @@ class SearchRequest(BaseModel):
     dataset: DatasetOptions
     model: ModelOptions
     embedding: List[List[float]]
+    filters: Dict[str, str] = {}
     limit: int
     subset_record_ids: List[int] = []
 
@@ -33,10 +34,17 @@ class SearchRequest(BaseModel):
                 "dataset": "lsc24",
                 "model": "clips",
                 "embedding": [[0.1, 0.2, 0.3]],
+                "filters": {"location": "kitchen", "activity": "preparing some food"},
                 "limit": 5,
                 "subset_record_ids": [1, 2, 3]
             }
         }
+
+
+class FetchMetadataRequest(BaseModel):
+    dataset: DatasetOptions
+    model: ModelOptions
+    record_ids: List[int]
 
 
 class FetchRequest(BaseModel):

@@ -1,5 +1,5 @@
 import requests
-from constants import API_TEXT_EMBEDDING, API_IMAGE_EMBEDDING, API_SEARCH_MILVUS, API_FETCH_EMBEDDINGS
+from constants import API_TEXT_EMBEDDING, API_IMAGE_EMBEDDING, API_SEARCH_MILVUS, API_FETCH_EMBEDDINGS, API_FETCH_METADATA
 
 
 async def compute_text_embedding(text_query, model):
@@ -33,9 +33,10 @@ async def compute_image_embedding(image_base64, model):
 
 
 
-async def search_milvus(embedding, dataset, model, limit=1000, subset_record_ids=[]):
+async def search_milvus(embedding, dataset, filters, model, limit=1000, subset_record_ids=[]):
     data = {
         "embedding": embedding,
+        "filters": filters,
         "dataset": dataset,
         "model": model,
         "limit": limit,
@@ -49,13 +50,28 @@ async def search_milvus(embedding, dataset, model, limit=1000, subset_record_ids
         return None    
     else:
         raw_results = response.json()
-        record_ids = [entity['id'] for entity in raw_results['response']]
+        record_ids = [entity['record_id'] for entity in raw_results['response']]
         scores = [entity['distance'] for entity in raw_results['response']]
         return {
             "record_ids": record_ids,
             "scores": scores
         }
     
+
+async def fetch_metadata(record_ids, dataset, model):
+    data = {
+        "dataset": dataset,
+        "model": model,
+        "record_ids": record_ids
+    }
+
+    response = requests.post(API_FETCH_METADATA, json=data)
+    if response.status_code == 200:
+        raw_results = response.json()
+        metadata = raw_results["response"]
+        return metadata
+    else:
+        return None
 
 
 async def fetch_embeddings(record_ids, dataset, model):

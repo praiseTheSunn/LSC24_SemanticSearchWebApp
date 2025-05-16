@@ -28,7 +28,7 @@ async def search_with_image_query(payload: RequestSearchByImageQuery):
     response_data, response_status = await search_by_image(image_base64=inputs["image_base64"], dataset=inputs["dataset"], model=inputs["model"])
 
     # Postprocess the response
-    response_data = prepare_response(inputs["dataset"], response_data["record_ids"], response_data["scores"], inputs["display_window_size"])
+    response_data = await prepare_response(inputs["dataset"], inputs["model"], response_data["record_ids"], response_data["scores"], inputs["display_window_size"])
 
     if response_status == 200:
         data = {
@@ -74,10 +74,23 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
 
     # Postprocess the response
     if inputs["use_temporal_window"]:
-        response_data = prepare_response(inputs["dataset"], response_data["record_ids"], response_data["scores"], inputs["display_window_size"])
+        response_data = await prepare_response(
+            inputs["dataset"], 
+            inputs["model"], 
+            response_data["record_ids"], 
+            response_data["scores"], 
+            inputs["display_window_size"]
+        )
     else:
-        response_data = prepare_response(inputs["dataset"], response_data["record_ids"], response_data["scores"], inputs["display_window_size"], response_data["all_neighbor_ids"])
-
+        response_data = await prepare_response(
+            inputs["dataset"], 
+            inputs["model"], 
+            response_data["record_ids"], 
+            response_data["scores"], 
+            inputs["display_window_size"], 
+            response_data["all_neighbor_ids"]
+        )
+        
     if response_status == 200:
         data = {"status": response_status, "message": "Data retrieved successfully", "data": response_data}
     else:
