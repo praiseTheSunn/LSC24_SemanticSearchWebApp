@@ -17,6 +17,7 @@ export const AIC2024_fieldToDisplay = {
 const Thesis_fieldToDisplay = {
   ...BaseFieldToDisplay,
   activity: 'Activity',
+  img_link: 'FrameID',
 }
 
 
