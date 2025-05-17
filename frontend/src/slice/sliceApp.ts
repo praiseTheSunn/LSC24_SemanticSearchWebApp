@@ -120,7 +120,6 @@ export const sliceApp = createSlice({
     setAllAnswers: (state, action) => {
       state.allAnswers = action.payload
       localStorage.setItem('allAnswers', JSON.stringify(action.payload))
-      console.log('action.payload', action.payload)
     },
 
     setEndInAllAnswers: (state, action) => {

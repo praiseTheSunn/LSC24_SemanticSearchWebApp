@@ -90,7 +90,6 @@ const RichImageGrid = () => {
           const columnWidth = width / columnCount
           const rowHeight = columnWidth / 2 // Making rows square by setting row height equal to column width
           const rowCount = Math.ceil(simData.length / columnCount)
-          console.log('autosizer heigh', height)
 
           return (
             <Grid

@@ -89,7 +89,6 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
           const cellHeight: number = 240
 
           const displayData = tabindex === 2 ? locationBasedData : timeBasedData
-          console.log('displayData:', displayData, 'rerender')
           const rowCount: number = Math.ceil(displayData.length / columnCount)
           return (
             <Grid

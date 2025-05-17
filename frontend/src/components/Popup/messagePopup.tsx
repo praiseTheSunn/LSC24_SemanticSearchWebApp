@@ -39,7 +39,6 @@ const MessagePopup = forwardRef<HTMLDivElement, MessagePopupProps>(
       setDisplayedFilters([])
       setSearchTerms([])
       setQuery('')
-      console.log(queryPayload.dataset)
     }
 
     const showPopup = useAppSelector((state) => state.app.isMessagePopUpOpen)

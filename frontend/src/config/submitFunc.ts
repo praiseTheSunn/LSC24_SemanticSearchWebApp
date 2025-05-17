@@ -103,7 +103,6 @@ export const Thesis_addImages = async (
         ...prev,
        numberWrongs: (prev?.numberWrongs || 0) + 1,
       }
-    console.log('allAnswerClone', allAnswerClone)
     dispatch(appActions.setAllAnswers(allAnswerClone))
   }
 }
