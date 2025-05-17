@@ -104,7 +104,7 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
     setCurrent({ question: questionID, ...qData }) // You can store questionID if needed
     localStorage.setItem("currentQuestId", questionID)
     setHintIndex(0)
-    setDisplayedHints([qData.hints[0]])
+    setDisplayedHints([qData.hints[qData.hints.length - 1]])
     setRemainingTime(totalTime)
     setCanGoNext(false)
     setIsRunning(true)
@@ -127,8 +127,9 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
     if (!isRunning) return
 
     timerRef.current = setInterval(() => {
+      const isAlreadyCorrect = localStorage.getItem('isAlreadyCorrect') === 'true';
       setRemainingTime((prev) => {
-        if (prev <= 1000) {
+        if (isAlreadyCorrect || prev <= 1000) {
           if (timerRef.current && hintTimerRef.current) {
             clearInterval(timerRef.current)
             clearInterval(hintTimerRef.current)
@@ -154,7 +155,8 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
         if (!current) return prevHint
         const nextHint = prevHint + 1
         if (nextHint < current.hints.length) {
-          setDisplayedHints((hints) => [...hints, current.hints[nextHint]])
+          // setDisplayedHints((hints) => [...hints, current.hints[nextHint]])
+          setDisplayedHints([current.hints[current.hints.length - 1]])
         } else if (hintTimerRef.current) {
           clearInterval(hintTimerRef.current)
         }
