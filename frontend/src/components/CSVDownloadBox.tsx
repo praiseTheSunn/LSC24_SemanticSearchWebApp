@@ -123,20 +123,18 @@ export const CSVDownloadBox = () => {
       })
       return
     }
-
-    const feedbackData: FeedbackQueryParams = {
-      like: {
-        ids: likeImages.map(({ frame_id }) => frame_id),
-        prior_scores: likeImages.map(({ score }) => score),
-        limit: likeLimit,
-      },
-      dislike: {
-        ids: dislikeImages.map(({ frame_id }) => frame_id),
-        limit: dislikeLimit,
-      },
-      model: queryPayload.model,
-      dataset: queryPayload.dataset,
-    };    
+    const feedbackData: any = {}
+    feedbackData.like = {
+      ids: likeImages.map((image) => image.record_id),
+      prior_scores: likeImages.map((image) => image.score),
+      limit: likeLimit,
+    }
+    feedbackData.dislike = {
+      ids: dislikeImages.map((image) => image.record_id),
+      limit: dislikeLimit,
+    }
+    feedbackData.model = queryPayload.model
+    feedbackData.dataset = queryPayload.dataset
 
     triggerFeedbackQuery(feedbackData)
 
