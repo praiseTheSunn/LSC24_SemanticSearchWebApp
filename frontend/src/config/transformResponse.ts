@@ -107,50 +107,16 @@ export const transformResponse_VBS2025 = (response: ApiResponse) => {
 }
 
 
-export const transformResponse_Feedback_VBS = (response: FeedbackResponse) => {
-  // console.log('Response:', response);
-  const convertToMMSS = (seconds: string): string => {
-    const iSeconds = Number(seconds)
-    const minutes = Math.floor(iSeconds / 60)
-    const remainingSeconds = iSeconds % 60
-    return `${String(minutes).padStart(2, '0')}:${String(remainingSeconds).padStart(2, '0')}`
-  }
+export const transformResponse_Feedback_Thesis = (response: ApiResponse) => {
+
   const data = response.response || response.data
-  const likes = data.like[0].map((img: ImageRecord) => {
-    img.date = img.context_id_coarse
-      ? img.context_id_coarse
-      : img.video_id
-        ? img.video_id
-        : img.date
-
-    if (img.neighbors && img.neighbors.length > 0) {
-      for (let i = 0; i < img.neighbors.length; i++) {
-        img.neighbors[i].date = img.neighbors[i].context_id_coarse
-          ? img.neighbors[i].context_id_coarse
-          : img.neighbors[i].video_id
-            ? img.neighbors[i].video_id
-            : img.neighbors[i].date
-        // img.neighbors[i].time = img.neighbors[i].timestamp
-        //   ? convertToMMSS(img.neighbors[i].timestamp)
-        //   : img.neighbors[i].time
-      }
-    }
-    return img
-  })
-
-  const dislikes = data.dislike[0].map((img: ImageRecord) => {
-    img.date = img.context_id_coarse
-      ? img.context_id_coarse
-      : img.video_id
-        ? img.video_id
-        : img.date
-    return img
-  })
 
   const result = {
-    like: likes,
-    dislike: dislikes,
+    like: data.like,
+    dislike: data.dislike,
   }
 
   return result
 }
+
+
