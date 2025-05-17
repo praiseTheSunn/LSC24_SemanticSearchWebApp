@@ -36,6 +36,7 @@ export type ObjPosResponse = {
   context_id_coarse?: string
   like?: any 
   dislike?: any
+  record_id?: number
 }
 
 export type TextQueryParams = {

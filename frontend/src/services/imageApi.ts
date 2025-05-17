@@ -6,6 +6,7 @@ import {
   transformResponse_Feedback_AIC,
   transformResponse_Feedback_LSC2024,
   transformResponse_Thesis,
+  transformResponse_Feedback_Thesis,
 } from '../config/transformResponse'
 import type {
   ApiResponse,
@@ -109,7 +110,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_Feedback_LSC2024(response),
+          transformResponse_Feedback_Thesis(response),
       }),
     }
   },

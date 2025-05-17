@@ -130,3 +130,18 @@ export const transformResponse_Thesis = (response: ApiResponse) => {
   })
   return result
 }
+
+
+export const transformResponse_Feedback_Thesis = (response: ApiResponse) => {
+
+  const data = response.response || response.data
+
+  const result = {
+    like: data.like,
+    dislike: data.dislike,
+  }
+
+  return result
+}
+
+
