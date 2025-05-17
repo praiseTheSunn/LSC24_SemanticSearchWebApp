@@ -15,8 +15,6 @@ import {
   TrapoziedBgGrayLeft,
 } from '../../assets'
 import { ObjectDetail, SearchBox } from '../../components'
-import MapTab from '../../containers/location/mapTab'
-import MetadataTab from '../../containers/metadata/metadataTab'
 import ImageGrid from '../../containers/similarity/image-grid'
 import TimelineTab from '../../containers/timeline/timelineTab'
 import 'react-tooltip/dist/react-tooltip.css'

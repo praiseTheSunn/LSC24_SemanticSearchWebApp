@@ -2,7 +2,7 @@ import { Dictionary } from 'lodash'
 import type { ImageRecord } from './image'
 
 export type ApiResponse = {
-  data: ObjPosResponse[] | ImageRecord[]
+  data: ObjPosResponse[] | ImageRecord[] | any
   response?: ObjPosResponse[] | ImageRecord[]
   status: number
 }
@@ -30,10 +30,12 @@ export type ObjPosResponse = {
   day_of_week: string
   location_displayed: string
   video_url?: string
-  timestamp?: number
+  timestamp?: string
   video_id?: string
   frame_id?: string
   context_id_coarse?: string
+  like?: any 
+  dislike?: any
 }
 
 export type TextQueryParams = {

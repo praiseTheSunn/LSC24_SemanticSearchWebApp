@@ -178,6 +178,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
       mode: queryPayload.mode,
       model: queryPayload.model,
       dataset: queryPayload.dataset,
+      user_id: queryPayload.user_id || 'xxx',
     }
     console.log('Query:', searchQuery)
     trigger(searchQuery)

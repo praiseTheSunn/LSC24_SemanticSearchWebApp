@@ -21,7 +21,7 @@ const ImageGroup: React.FC<ImageGroupProps> = ({
     images.sort((a, b) => a.time.localeCompare(b.time))
   } else {
     // sort images by score
-    images.sort((a, b) => b.score - a.score)
+    images.sort((a, b) => (b?.score ?? 0) - (a?.score || 0))
   }
 
   const [showMore, setShowMore] = React.useState(false)
