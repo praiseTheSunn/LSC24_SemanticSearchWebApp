@@ -258,7 +258,16 @@ const Home = () => {
   return (
     <div
       className="home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative"
-      style={{ backgroundColor: '#F5F5F5' }}
+      style={{ 
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        width: '100%',
+        minHeight: '200px',
+        overflow: 'hidden',
+        position: 'relative',
+        backgroundColor: '#F5F5F5', 
+      }}
     >
       {loadingPopUpMessage ? <LoadingPopup /> : null}
       {videoPopupSource ? <VideoPopup /> : null}
@@ -337,7 +346,7 @@ const Home = () => {
 
       <Box
         style={{
-          height: 'calc(100dvh - 120px)',
+          height: 'calc(100dvh)',
           borderRadius: '5px',
           padding: '0 0 0 10px',
           backgroundColor: '#fff',
