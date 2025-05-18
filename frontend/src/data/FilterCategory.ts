@@ -9,5 +9,9 @@ const FilterCategories_AIC2024 = {
   '-v': { category: 'video_id', startIndex: 3, display: '-v ... : Video ID' },
 }
 
+const FilterCategories_Thesis = {
+  '-a': { category: 'activity', startIndex: 3, display: '-a ... : activity' },
+}
 
-export const FilterCategories = FilterCategories_AIC2024
+
+export const FilterCategories = FilterCategories_Thesis
