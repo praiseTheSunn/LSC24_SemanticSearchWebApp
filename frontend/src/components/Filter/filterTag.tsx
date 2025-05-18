@@ -45,6 +45,7 @@ const FilterTag: React.FC<FilterTagProps> = ({
             filter.status === 1 ? 'rgb(170, 247, 155)' : 'rgb(253, 174, 174)',
           width: '100%',
           maxWidth: '272px',
+          minHeight: '34px'
         }}
       >
         <Typography
@@ -58,16 +59,19 @@ const FilterTag: React.FC<FilterTagProps> = ({
         >
           {filterValue}
         </Typography>
-        <IconButton
-          size="small"
-          onClick={() => onIconClick(index, filter.category, filterValue)}
-          title={filter.status === 1 ? 'Disable' : 'Enable'}
-          sx={{
-            color: filter.status === 1 ? 'rgb(29, 162, 3)' : 'rgb(211, 0, 0)',
-          }}
-        >
-          {filter.status === 1 ? <CheckCircleIcon /> : <CancelIcon />}
-        </IconButton>
+        {filter.category !== 'query' && (
+          <IconButton
+            size="small"
+            onClick={() => onIconClick(index, filter.category, filterValue)}
+            title={filter.status === 1 ? 'Disable' : 'Enable'}
+            sx={{
+              color: filter.status === 1 ? 'rgb(29, 162, 3)' : 'rgb(211, 0, 0)',
+            }}
+          >
+            {filter.status === 1 ? <CheckCircleIcon /> : <CancelIcon />}
+          </IconButton>
+        )}
+        
       </Paper>
     </Box>
   )

@@ -9,6 +9,12 @@ import './index.css'
 
 const rootEl = document.getElementById('root')
 if (rootEl) {
+  rootEl.style.height = '100vh'
+  rootEl.style.width = '100vw'
+  rootEl.style.margin = '0'
+  rootEl.style.padding = '0'
+  rootEl.style.boxSizing = 'border-box'
+
   const root = ReactDOM.createRoot(rootEl)
   root.render(
     <React.StrictMode>
