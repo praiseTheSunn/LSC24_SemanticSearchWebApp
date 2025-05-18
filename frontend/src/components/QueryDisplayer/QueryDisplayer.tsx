@@ -249,8 +249,20 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
             display="flex"
             alignItems="center"
             justifyContent="center"
+            flexDirection={'column'}
           >
             Click "Start" to begin the questions!
+            <br />
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 'bold',
+                color: 'red',
+                marginLeft: 1,
+              }}
+            >
+              Test Query: Cottage and shed for sale. A stone cottage with a broken roof on the left side. The cottage was surrounded by tall trees and had 4 windows and a door 
+            </Typography>
           </Typography>
         )}
       </Box>

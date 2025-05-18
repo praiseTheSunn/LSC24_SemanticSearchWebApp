@@ -371,7 +371,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             )}
           </Box>
         </ClickAwayListener>
-        <QueryDisplayer csvText={csvText} hintInterval={6 * 60 *1000} totalTime={6 * 60 *1000}/>
+        <QueryDisplayer csvText={csvText} hintInterval={6 * 60 *1000} totalTime={5 * 60 *1000}/>
         <Box
           display="flex"
           flexDirection="row"
