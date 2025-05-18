@@ -292,6 +292,11 @@ export const CSVDownloadBox = () => {
             FabProps={{ size: 'medium' }}
           >
             <SpeedDialAction
+              icon={<LoginIcon />}
+              tooltipTitle="Login"
+              onClick={(e) => handleLoginOpen(e)}
+            />
+            <SpeedDialAction
               icon={<FileDownloadIcon />}
               tooltipTitle="Download JSON"
               onClick={handleDownloadCSV}

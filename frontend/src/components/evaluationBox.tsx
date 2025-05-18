@@ -65,33 +65,33 @@ const EvaluationBox = () => {
   const GetSessionID = async () => {
     if (loginState === 'Login') {
       console.log('This is', username, password)
-      const response = await triggerSessionID({
-        username: username,
-        password: password,
-      })
-      if (!response.data) {
-        toast.error('Invalid username or password', {
-          position: 'bottom-right',
-          autoClose: 3000,
-          closeOnClick: true,
-        })
-        return
-      }
+      // const response = await triggerSessionID({
+      //   username: username,
+      //   password: password,
+      // })
+      // if (!response.data) {
+      //   toast.error('Invalid username or password', {
+      //     position: 'bottom-right',
+      //     autoClose: 3000,
+      //     closeOnClick: true,
+      //   })
+      //   return
+      // }
 
-      setSessionId(response.data)
+      // setSessionId(response.data)
 
-      const reponseEval = await triggerEval({ session: response.data })
-      if (!reponseEval.data) {
-        toast.error('Invalid session id', {
-          position: 'bottom-right',
-          autoClose: 3000,
-          closeOnClick: true,
-        })
-        return
-      }
+      // const reponseEval = await triggerEval({ session: response.data })
+      // if (!reponseEval.data) {
+      //   toast.error('Invalid session id', {
+      //     position: 'bottom-right',
+      //     autoClose: 3000,
+      //     closeOnClick: true,
+      //   })
+      //   return
+      // }
 
       // DE SAI O DAY
-      setEvaluationId(reponseEval.data[0])
+      // setEvaluationId(reponseEval.data[0])
 
       setLoginState('Logout')
 
