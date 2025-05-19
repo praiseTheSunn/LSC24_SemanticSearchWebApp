@@ -74,7 +74,7 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
             entry?.answers?.push(item.answer)
           }
         }
-        dispatch(appActions.setAllQuestions( grouped))
+        dispatch(appActions.setAllQuestions(grouped))
       },
     })
     localStorage.setItem('isTimeOver', JSON.stringify(true))
@@ -112,11 +112,11 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
     const localAllAnswers = JSON.parse(localStorage.getItem('allAnswers') || '{}')
     const allAnswersClone = { ...localAllAnswers, ...allAnswers }
     allAnswersClone[questionID] = {
-        start: new Date().toISOString(),
-        end: '',
-        answer: '',
-        numberWrongs: 0,
-      }
+      start: new Date().toISOString(),
+      end: '',
+      answer: '',
+      numberWrongs: 0,
+    }
     dispatch(appActions.setAllAnswers(
       allAnswersClone
     ))
@@ -139,8 +139,8 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
           localStorage.setItem('usedQuestion', JSON.stringify([...usedQuestions]))
           dispatch(appActions.setEndInAllAnswers(
             {
-              questionId: localStorage.getItem("currentQuestId") || "", 
-              endTime: new Date().toISOString(), 
+              questionId: localStorage.getItem("currentQuestId") || "",
+              endTime: new Date().toISOString(),
             }
           ))
           localStorage.setItem('isTimeOver', JSON.stringify(true))
@@ -252,7 +252,7 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
             flexDirection={'column'}
           >
             Click "Start" to begin the questions!
-            <br />
+            {/* <br />
             <Typography
               variant="body2"
               sx={{
@@ -262,7 +262,7 @@ export const QueryDisplayer: React.FC<QueryDisplayerProps> = ({
               }}
             >
               Test Query: Cottage and shed for sale. A stone cottage with a broken roof on the left side. The cottage was surrounded by tall trees and had 4 windows and a door 
-            </Typography>
+            </Typography> */}
           </Typography>
         )}
       </Box>

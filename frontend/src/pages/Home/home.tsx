@@ -120,7 +120,7 @@ const Home = () => {
 
   const [imageAfterFilter, setImageAfterFilter] = useState<ImageRecord[]>([])
   useEffect(() => {
-    if ((imageDatas !== null) && (imageDatas !== undefined) && ((imageDatas as ImageRecord[]).length > 0)){
+    if ((imageDatas !== null) && (imageDatas !== undefined) && ((imageDatas as ImageRecord[]).length > 0)) {
       setImageAfterFilter(imageDatas)
     }
   }, [imageDatas])
@@ -191,7 +191,7 @@ const Home = () => {
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'Control') {
+      if (e.key === 'Control' || e.key === 'Meta') {
         setIsCtrlPressed(false)
       }
     }
@@ -208,7 +208,7 @@ const Home = () => {
   return (
     <div
       className="home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative"
-      style={{ 
+      style={{
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
@@ -216,7 +216,7 @@ const Home = () => {
         minHeight: '200px',
         overflow: 'hidden',
         position: 'relative',
-        backgroundColor: '#F5F5F5', 
+        backgroundColor: '#F5F5F5',
       }}
     >
       {loadingPopUpMessage ? <LoadingPopup /> : null}
@@ -303,7 +303,7 @@ const Home = () => {
                 <ImageGrid style={{ width: '100dvw' }} data={imageAfterFilter} />
               </Box>
             )}
-           
+
           </Box>
         )}
 

@@ -87,7 +87,7 @@ const AnImage: React.FC<AnImageProps> = ({
     // REPLACE FOR EACH COMPETITION HERE
     // LSC_addCSVImages(src_data, null, dispatch, csvData)
     // AIC_addImages(src_data, triggerKIS)
-    Thesis_addImages(src_data, localStorage.getItem("currentQuestId") || "" , allAnswers, allQuestions, dispatch)
+    Thesis_addImages(src_data, localStorage.getItem("currentQuestId") || "", allAnswers, allQuestions, dispatch)
   }
 
   const like = (src_data: ImageRecord) => {
@@ -120,7 +120,7 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
-    if (e.ctrlKey) {
+    if (e.ctrlKey || e.metaKey) {
       submit(data)
     }
     if (e.altKey) {
