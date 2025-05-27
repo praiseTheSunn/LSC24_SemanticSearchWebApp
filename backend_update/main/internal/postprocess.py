@@ -11,47 +11,14 @@ from dataset.dataset_manager import DatasetManager
 
 server_ip = setup.system_config['server_ip']
 
-# with open("/home/pc/LSC24_SemanticSearchWebApp/backend/data/mappings/LHE_video_fps.json") as f:
-#     fps = json.load(f)
-
-# from setup import metadata_df
-
-
-# def prepare_response_deprecated(image_names, scores = None):
-
-#     records = []
-#     rows = setup.metadata_rows
-
-#     if scores == None:
-#         scores = [0] * len(image_names)
-
-#     for i, image_name in enumerate(image_names):
-#         image_path = f"http://{server_ip}/AIC_IMAGE/{image_name}"
-#         try:
-#             record = rows.loc[image_name].to_dict()
-#             for key, value in record.items():
-#                 if pd.isna(value):
-#                     record[key] = None
-#         except:
-#             record = rows.loc[DEFAULT_PATH].to_dict()
-#         record['img_link'] = image_path
-#         record['score'] = scores[i]
-
-#         if dataset_name == 'lsc24':
-#             if pd.isna(record['new_lat']):
-#                 record['new_lat'] = None
-#                 record['new_lng'] = None   
-
-#             if not isinstance(record['object_tags'], str):
-#                 record['object_tags'] = None
-
-#         records.append(record)  
-#         if len(records) >= MAX_RECORDS:
-#             break      
-    
-#     print("Number of records:", len(records))
-#     return records
-
+# For explore_neighbor in the activity-filted case
+# This is a temporary solution to get the metadata from the CSV file
+# and not from the Milvus database
+df = pd.read_csv(DatasetManager.get_dataset("lsc24").get_metadata_file_path())
+df.rename(columns=DatasetManager.get_dataset("lsc24").get_column_mapping(), inplace=True)
+df = df[DatasetManager.get_dataset("lsc24").get_column_mapping().values()]
+df.set_index("record_id", inplace=True)
+print(f"Temporarily loading the metadata from the CSV file for the lsc24 dataset: Done.")
 
 def json_to_string(json_string):
     if json_string == '[]' or json_string == None:
@@ -123,6 +90,7 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     dataset = dataset.lower()
     image_server_url = DatasetManager.get_dataset(dataset).get_image_server_url()
     image_extension = DatasetManager.get_dataset(dataset).get_image_extension()
+
     if len(record_ids) == 0:
         return []
     
@@ -133,7 +101,6 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
         all_neighbor_ids = {}
         for record_id in record_ids:
             all_neighbor_ids[record_id] =  list(range(record_id - display_window_size, record_id + display_window_size + 1))
-            print(all_neighbor_ids[record_id])
     all_neighbor_ids_flat = list(set(itertools.chain.from_iterable(all_neighbor_ids.values())))
 
     print(f"Validating record ids for dataset: {dataset}:")
@@ -145,8 +112,17 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     # records = db.retrieve_metadata(record_ids=record_ids, fields=['image_id', 'record_id', 'video_id', 'local_date', 'local_time', 'location_displayed', 'ocr', 'object_tags'])
     # neighbors = db.retrieve_metadata(record_ids=all_neighbor_ids_flat, fields=['image_id', 'record_id', 'video_id'])
 
-    records = await fetch_metadata(record_ids=record_ids, dataset=dataset, model=model)
-    neighbors = await fetch_metadata(record_ids=all_neighbor_ids_flat, dataset=dataset, model=model)
+    if model != "default":
+        records = await fetch_metadata(record_ids=record_ids, dataset=dataset, model=model)
+        neighbors = await fetch_metadata(record_ids=all_neighbor_ids_flat, dataset=dataset, model=model)
+    # For explore_neighbor in the activity-filted case
+    else:
+        records = []
+        for record_id in record_ids:
+            record = df.loc[record_id].to_dict()
+            record['record_id'] = record_id
+            records.append(record)
+        neighbors = []
 
     print(f"Record IDs before mapping: {record_ids[:10]}")
     print(f"Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
@@ -170,28 +146,13 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     result = []
     for i, record in enumerate(records):
         rid = record['record_id']
-        actual_neighbors = [neighbor_metadata[nid] for nid in all_neighbor_ids[rid]]
         record['score'] = scores[i] if scores else 0
-        record['neighbors'] = actual_neighbors
+        if neighbors:
+            actual_neighbors = [neighbor_metadata[nid] for nid in all_neighbor_ids[rid]]
+            record['neighbors'] = actual_neighbors
         result.append(record)
 
     N = 5
     print(f"First {N} records:")
     print_records_sample(result, n=min(N, len(result)))
     return result
-    
-    # else:
-    #     records = []
-    #     for i, group in enumerate(record_ids):
-    #         # record_ids in temporal query is a list of groups
-    #         # each group is a list of record ids
-    #         # we also have scores for each group
-    #         # so first we search for the records in each group -> group_records
-    #         # then we map the metadata for each group -> group_records, with additional scores as the score of the group * len(group)
-    #         group_records = search_metadata_by_ids(db_name=db_name, table_name="keyframes", id_list=group)
-    #         group_records = mapping_metadata(group_records, dataset=dataset, scores=[scores[i]] * len(group))
-    #         records.extend(group_records)
-
-        
-        # return records
-

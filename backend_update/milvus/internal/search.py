@@ -2,7 +2,7 @@ import setup
 from pprint import pprint
 from pymilvus import (
     AnnSearchRequest,
-    WeightedRanker
+    WeightedRanker, RRFRanker
 )
 
 import sys
@@ -47,8 +47,10 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
     if filters:
         for field, value in filters.items():
             if field not in dataset.get_full_text_fields():
+                if field == "activity":
+                    field = "text_activity"
                 if isinstance(value, str):
-                    expr_list.append(f"{field} LIKE '{value}'")
+                    expr_list.append(f"{field} LIKE '%{value}%'")
                 else:
                     expr_list.append(f"{field} LIKE {value}")
     expr = " and ".join(expr_list)
@@ -82,20 +84,69 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
                 }
                 reqs.append(AnnSearchRequest(**search_param_sparse))
                 
-    dense_weight = 0.6
+    dense_weight = 0.8
     sparse_weight = (1 - dense_weight) / len(reqs[1:]) if len(reqs) > 1 else 0
     ranker = WeightedRanker(dense_weight, *[sparse_weight] * (len(reqs) - 1))
+    print(f"Ranker weights: {ranker._weights}")
+
+    # sparse_weight = 1 / len(reqs) if len(reqs) > 0 else 0
+    # ranker = WeightedRanker(*[sparse_weight] * (len(reqs)))
+    # print(f"Ranker weights: {ranker._weights}")
+
+    # ranker = WeightedRanker(1)
+    # print(f"Ranker weights: {ranker._weights}")
+    
+    # ranker = RRFRanker(k=60)
+
+    # results = setup.milvus_client.search(
+    #     collection_name=collection_name,
+    #     anns_field="embedding",
+    #     data=text_embedding,
+    #     limit=limit,
+    #     filter=expr,
+    #     search_params={"metric_type": "IP"}
+    # )[0]
+
+    # second_results = setup.milvus_client.search(
+    #     collection_name=collection_name,
+    #     anns_field="embedding",
+    #     data=text_embedding,
+    #     limit=limit,
+    #     search_params={"metric_type": "IP"}
+    # )[0]
+
     
     results = setup.milvus_client.hybrid_search(
-        collection_name=collection_name, reqs=reqs, ranker=ranker, limit=limit, output_fields=["record_id"]
+        collection_name=collection_name, reqs=reqs, ranker=ranker, limit=100, output_fields=["record_id"]
     )[0]
+
+    second_results = setup.milvus_client.search(
+        collection_name=collection_name,
+        anns_field="embedding",
+        data=text_embedding,
+        limit=limit,
+        search_params={"metric_type": "IP"}
+    )[0]
+
+
+    # create a list called concatenated_results, the first elements are from results, the rest are from second_results (remove duplicates from results)
+    concatenated_results = []
+    for hit in results:
+        if hit not in concatenated_results:
+            concatenated_results.append(hit)
+    for hit in second_results:
+        if hit not in concatenated_results:
+            concatenated_results.append(hit)
+
 
     serialized_results = [
         {
             "record_id": hit.get("record_id"),
             "distance": hit.get("distance"),
         }
-        for hit in results
+        for hit in concatenated_results
     ]
+    pprint(f"Filters: {filters}")
     pprint(f"First 5 search results: {serialized_results[:5]}")
+    pprint(f"Number of results returned: {len(serialized_results)}")
     return serialized_results

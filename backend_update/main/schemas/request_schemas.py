@@ -33,6 +33,8 @@ class RequestSearchByTextQuery(BaseModel):
     color_global_encoding: Optional[Dict[str, int]] = {}
     color_local_encoding: Optional[str] = ""
     pose_local_encoding: Optional[str] = ""
+    user_id: Optional[str] = "default"
+    query_id: Optional[str] = "default"
 
     class Config:
         json_schema_extra = {
@@ -42,7 +44,9 @@ class RequestSearchByTextQuery(BaseModel):
                     "model": "clips",
                     "use_temporal_window": False,
                     "temporal_window_size": 3,
-                    "display_window_size": 0
+                    "display_window_size": 0,
+                    "user_id": "rhymastic",
+                    "query_id": "LSC25-xxx"
             }
         }
 
@@ -92,6 +96,8 @@ class RequestExploreSimilarImages(BaseModel):
     dataset: options_schemas.DatasetOptions
     model: options_schemas.ModelOptions
     display_window_size: int = 0
+    user_id: Optional[str] = "default"
+    query_id: Optional[str] = "default"
 
     class Config:
         json_schema_extra = {
@@ -101,7 +107,9 @@ class RequestExploreSimilarImages(BaseModel):
                         "http://10.0.1.21:20716/201910/31/20191031_070027_000.jpg"
                     ],
                     "dataset": "lsc24",
-                    "model": "clips"
+                    "model": "clips",
+                    "user_id": "rhymastic",
+                    "query_id": "LSC25-xxx"
             }
         }
 
@@ -111,13 +119,17 @@ class RequestExploreNeighborImages(BaseModel):
     dataset: options_schemas.DatasetOptions
     span: int
     display_window_size: int = 0
+    user_id: Optional[str] = "default"
+    query_id: Optional[str] = "default"
 
     class Config:
         json_schema_extra = {
             "example": {
                     "image_url": "http://10.0.1.21:20716/201910/31/20191031_070027_000.jpg",
                     "dataset": "lsc24",
-                    "span": 30
+                    "span": 30,
+                    "user_id": "rhymastic",
+                    "query_id": "LSC25-xxx"
             }
         }
 

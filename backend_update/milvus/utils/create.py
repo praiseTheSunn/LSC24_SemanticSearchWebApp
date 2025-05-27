@@ -83,6 +83,7 @@ def print_data_record(data_record):
 
 
 def create_collection(client, collection_name, metadata_file_path, column_mapping, full_text_fields, force=True):
+    schema = get_milvus_schema(metadata_file_path, column_mapping, full_text_fields)
     # Drop the collection if force is True and it exists
     if force and client.has_collection(collection_name):
         print(f"Dropping existing collection '{collection_name}'...")
@@ -125,20 +126,30 @@ if __name__ == "__main__":
 
     # INSERT DATA
     df = pd.read_csv(metadata_file_path)
-    df = df[df["image_available"] == 1]
+    df = df[(df["image_available"] == 1)]
     df = df[column_mapping.keys()]
     df.rename(columns=column_mapping, inplace=True)
     df.set_index("record_id", inplace=True)
     df["prefix"] = df["image_id"].apply(lambda x: x[:9])
     prefixes = sorted(df["prefix"].unique().tolist())
     
-    for prefix in prefixes:
+    for prefix in prefixes:                # Each prefix is for a day in the dataset
         vectors_path = f"{embedding_dir}/{prefix}.npy"
         vectors = np.load(vectors_path)
-        image_ids = sorted(df[df["prefix"] == prefix]["image_id"].tolist())
+
+        df_prefix = df[df["prefix"] == prefix]
+        # Filter out rows where activity is 'unknown'
+        df_prefix = df_prefix[df_prefix["activity"] != "unknown"]
+
+        image_ids = sorted(df_prefix["image_id"].tolist())
+        indices = [i for i, img_id in enumerate(sorted(df[df["prefix"] == prefix]["image_id"].tolist())) if img_id in set(image_ids)]
+        filtered_vectors = vectors[indices]
+
+        assert len(image_ids) == len(filtered_vectors), f"Length mismatch after filtering: {len(image_ids)} != {len(filtered_vectors)}"
+
         data = []
-        assert len(image_ids) == len(vectors), f"Length mismatch: {len(image_ids)} != {len(vectors)}"
-        for image_id, vector in zip(image_ids, vectors):
+
+        for image_id, vector in zip(image_ids, filtered_vectors):
             record_id = DatasetManager.get_dataset(DATASET_NAME).image_id_to_record_id[image_id]
             data_record = {
                 "record_id": record_id,
