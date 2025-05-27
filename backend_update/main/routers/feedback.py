@@ -31,7 +31,7 @@ async def get_feedback(payload: RequestFeedback):
     response_relevant = await feedback.get_relevant_images(**data_like)
     response_irrelevant = await feedback.get_irrelevant_images(**data_dislike)
     response = {
-        "like": prepare_response(payload.dataset, payload.model, response_relevant["record_ids"], display_window_size=0),
-        "dislike": prepare_response(payload.dataset, payload.model, response_irrelevant["record_ids"], display_window_size=0)
+        "like": await prepare_response(payload.dataset, payload.model, response_relevant["record_ids"], display_window_size=0),
+        "dislike": await prepare_response(payload.dataset, payload.model, response_irrelevant["record_ids"], display_window_size=0)
     }
     return JSONResponse(content={"response": response}, status_code=status.HTTP_200_OK, headers=header)

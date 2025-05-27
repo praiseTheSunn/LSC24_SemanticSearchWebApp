@@ -32,12 +32,11 @@ def fetch_metadata(collection_name: str, record_ids: list):
         output_fields=None  # Set to None to retrieve all fields
     )
 
+
     serialized_results = sorted([
         {convert_key(key): convert_floats(hit.get(key)) for key in hit if key != "embedding"}
         for hit in results
     ], key=lambda x: record_ids.index(x.get("record_id")))
-
-    
 
     print(f"Record IDs before mapping: {record_ids[:10]}")
     print(f"Record IDs after mapping: {[rec['record_id'] for rec in serialized_results[:10]]}")

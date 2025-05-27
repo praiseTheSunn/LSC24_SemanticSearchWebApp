@@ -10,6 +10,8 @@ import sys
 sys.path.append("..")
 from dataset.dataset_manager import DatasetManager
 
+import logging
+import time
 
 router = APIRouter(
     prefix = '/search',
@@ -53,6 +55,8 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
 
     # Extract the parameters from the payload  
     inputs = payload.model_dump()
+    logging.info(f"Start time: {time.time()}") 
+    logging.info(f"Inputs: {inputs}")
 
     # Preprocess the query
     filters = DatasetManager.get_dataset(inputs["dataset"]).get_filters()
@@ -95,4 +99,7 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
         data = {"status": response_status, "message": "Data retrieved successfully", "data": response_data}
     else:
         data = {"status": response_status, "message": "Data retrieval failed", "error": response_data}
+
+    logging.info(f"End time: {time.time()}")
+    logging.info("")
     return JSONResponse(content=data, status_code=response_status, headers={'Access-Control-Allow-Origin': '*'})

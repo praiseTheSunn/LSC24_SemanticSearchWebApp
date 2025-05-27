@@ -35,7 +35,7 @@ async def explore_neighbor_images(payload: RequestExploreNeighborImages):
     record_id = DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id]
     
     response_data, response_status = await explore.explore_neighbor_images(record_id=record_id, span=inputs["span"], dataset=inputs["dataset"])
-    response_data = await prepare_response(inputs["dataset"], "clips", response_data["record_ids"], display_window_size=inputs["display_window_size"])
+    response_data = await prepare_response(inputs["dataset"], "default", response_data["record_ids"], display_window_size=inputs["display_window_size"])      # model=default for not retrieving data from Milvus
 
     return JSONResponse(content={"response": response_data}, status_code=response_status, headers={'Access-Control-Allow-Origin': '*'})
 

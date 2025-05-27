@@ -33,7 +33,7 @@ async def compute_image_embedding(image_base64, model):
 
 
 
-async def search_milvus(embedding, dataset, filters, model, limit=1000, subset_record_ids=[]):
+async def search_milvus(embedding, dataset, filters, model, limit=500, subset_record_ids=[]):
     data = {
         "embedding": embedding,
         "filters": filters,
