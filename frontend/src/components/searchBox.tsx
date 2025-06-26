@@ -217,7 +217,10 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             mode: queryPayload.mode,
             model: queryPayload.model,
             dataset: queryPayload.dataset,
-            window_size: Config.queryWindowSize,
+            temporal_window_size: 0,
+            user_id: "xxx",
+            use_temporal_window: false,
+            display_window_size: Config.queryWindowSize,
           })
           setDisplayedFilters((previousState: any) => [
             ...previousState,
@@ -276,7 +279,10 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           mode: queryPayload.mode,
           model: queryPayload.model,
           dataset: queryPayload.dataset,
-          window_size: Config.queryWindowSize,
+          temporal_window_size: 0,
+          user_id: "xxx",
+          use_temporal_window: false,
+          display_window_size: Config.queryWindowSize
         })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 
@@ -387,14 +393,14 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             setData={setMode}
           />
         </Box>
-        <Box sx={{ marginLeft: '12px' }}>
+        {/* <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
             displayItems={['V3C', 'MVK', 'LHE']}
             valueItems={['vbs25_v3c', 'vbs25_mvk', 'vbs25_lhe']}
             setData={setDataset}
           />
-        </Box>
+        </Box> */}
         {/* <Box sx={{ marginLeft: '12px', marginTop: '7px' }}>
           <Button 
             variant="contained" 
@@ -405,7 +411,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             </Button>
         </Box> */}
 
-        <ClickAwayListener onClickAway={() => toggleDictionaryPopup(false)}>
+        {/* <ClickAwayListener onClickAway={() => toggleDictionaryPopup(false)}>
           <Box position="relative">
             <Button
               variant="contained"
@@ -421,7 +427,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
 
             {showDictionary && <DictionaryPopup />}
           </Box>
-        </ClickAwayListener>
+        </ClickAwayListener> */}
 
         <Box
           display="flex"

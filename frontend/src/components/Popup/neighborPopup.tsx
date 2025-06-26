@@ -6,7 +6,6 @@ import { AnImage } from '..'
 import { useAppSelector, useLazyGetNeighborsQuery } from '../../AppState'
 import closeIcon from '../../assets/close.png'
 import type { ImageRecord } from '../../types/image'
-import type { ExploreNeighborParams } from '../../types/api'
 
 // Define the types for props
 interface NeighborPopupProps {
@@ -26,7 +25,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
   const previousScrollTop = useRef(0)
   const viewImageRef = useRef<HTMLDivElement | null>(null)
   const viewImage = useAppSelector(
-    (state) => state.app.neighborPopUpData?.frame_id,
+    (state) => state.app.neighborPopUpData?.img_link,
   )
   const Config = useAppSelector((state) => state.app.config)
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
@@ -34,8 +33,8 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
   const fetchNeighbors = useCallback(
     async (imageId: string, position: 'start' | 'end') => {
       try {
-        const exploreParams: ExploreNeighborParams = {
-          record_id: imageId,
+        const exploreParams = {
+          image_url: imageId,
           span: Config.NeighborPopupSpan,
           dataset: queryPayload.dataset,
         }
@@ -81,14 +80,14 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     previousScrollTop.current = scrollTop
 
     if (scrollDirection === 'backward' && scrollTop === 0 && !isFetching) {
-      const firstImage = neighborsData[0]?.frame_id
+      const firstImage = neighborsData[0]?.img_link
       if (firstImage) {
         fetchNeighbors(firstImage, 'start')
       }
     }
 
     if (scrollDirection === 'forward' && !isFetching) {
-      const lastImage = neighborsData[neighborsData.length - 1]?.frame_id
+      const lastImage = neighborsData[neighborsData.length - 1]?.img_link
       if (lastImage) {
         fetchNeighbors(lastImage, 'end')
       }
@@ -107,10 +106,8 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     if (index >= neighborsData.length) return null
 
     const data = neighborsData[index]
-    // const { img_link } = data
-    // const isHighlighted = img_link === viewImage
-    const { frame_id } = data
-    const isHighlighted = frame_id === viewImage
+    const { img_link } = data
+    const isHighlighted = img_link === viewImage
 
     return (
       <div

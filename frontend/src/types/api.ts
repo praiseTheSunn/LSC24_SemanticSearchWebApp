@@ -9,12 +9,12 @@ export type ApiResponse = {
 
 export type FeedbackResponse = {
   data: {
-    like: ImageRecord[][]
-    dislike: ImageRecord[][]
+    like: ImageRecord[]
+    dislike: ImageRecord[]
   }
   response?: {
-    like: ImageRecord[][]
-    dislike: ImageRecord[][]
+    like: ImageRecord[]
+    dislike: ImageRecord[]
   }
   status: number
 }
@@ -61,17 +61,19 @@ export type TextQueryParams = {
   color_global_encoding?: { [key: string]: number }
   color_local_encoding?: string
   dataset?: string
-  window_size?: number
+  temporal_window_size?: number
+  use_temporal_window: boolean
+  display_window_size: number
 }
 
 export type ExploreSimilarParams = {
-  record_ids: string[] | undefined
+  image_urls: string[] | undefined
   model: string
   dataset?: string
 }
 
 export type ExploreNeighborParams = {
-  record_id: string
+  image_url: string
   span: number
   dataset?: string
 }
