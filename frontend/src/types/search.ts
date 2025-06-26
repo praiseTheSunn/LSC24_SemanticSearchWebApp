@@ -9,5 +9,7 @@ export type QueryPayload = {
   mode: string
   text_query: string
   dataset: string
-  window_size: number
+  temporal_window_size: number
+  use_temporal_window: boolean
+  display_window_size: number
 }

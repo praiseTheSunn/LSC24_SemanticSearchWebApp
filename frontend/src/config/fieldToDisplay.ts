@@ -25,5 +25,11 @@ export const VBS2025_fieldToDisplay = {
   score: 'Score',
 }
 
-export const FieldToDisplay = VBS2025_fieldToDisplay
+export const LSC_fieldToDisplay = {
+  activity: "Activity",
+  ocr: "OCR",
+  location: "Location",
+}
+
+export const FieldToDisplay = LSC_fieldToDisplay
 

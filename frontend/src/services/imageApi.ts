@@ -1,10 +1,11 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { ImageQuery } from '.'
 import {
-  transformResponse_Feedback_AIC,
-  transformResponse_Feedback_VBS,
-  transformResponse_VBS2025,
-  transformResponse_Feedback_Thesis,
+  transformResponse_Feedback_LSC,
+  // transformResponse_Feedback_AIC,
+  // transformResponse_VBS2025,
+  // transformResponse_Feedback_Thesis,
+  transformResponse_LSC,
 } from '../config/transformResponse'
 import type {
   ApiResponse,
@@ -32,7 +33,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_VBS2025(response),
+          transformResponse_LSC(response),
         providesTags: (result) =>
           result
             ? [
@@ -52,7 +53,7 @@ export const ImageApi = createApi({
           body: params,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_VBS2025(response),
+          transformResponse_LSC(response),
         providesTags: (result) =>
           result
             ? [
@@ -73,7 +74,7 @@ export const ImageApi = createApi({
           body: params,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_VBS2025(response),
+          transformResponse_LSC(response),
         providesTags: (result) =>
           result
             ? [
@@ -93,7 +94,7 @@ export const ImageApi = createApi({
           body: imageQuery,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_VBS2025(response),
+          transformResponse_LSC(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 
@@ -106,7 +107,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: FeedbackResponse) =>
-          transformResponse_Feedback_VBS(response),
+          transformResponse_Feedback_LSC(response),
       }),
     }
   },
