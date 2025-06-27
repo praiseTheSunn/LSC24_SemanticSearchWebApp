@@ -67,6 +67,7 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
         model=inputs["model"],
         use_temporal_window=inputs["use_temporal_window"],
         temporal_window_size=inputs["temporal_window_size"],
+        display_window_size=inputs["display_window_size"],
         subset_record_ids=inputs["subset_record_ids"],
     )
 
@@ -79,20 +80,19 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
     # Postprocess the response
     if inputs["use_temporal_window"]:
         response_data = await prepare_response(
-            inputs["dataset"], 
-            inputs["model"], 
-            response_data["record_ids"], 
-            response_data["scores"], 
-            inputs["display_window_size"]
+            dataset=inputs["dataset"], 
+            model=inputs["model"], 
+            record_ids=response_data["record_ids"], 
+            scores=response_data["scores"], 
+            display_window_size=inputs["display_window_size"]
         )
     else:
         response_data = await prepare_response(
-            inputs["dataset"], 
-            inputs["model"], 
-            response_data["record_ids"], 
-            response_data["scores"], 
-            inputs["display_window_size"], 
-            response_data["all_neighbor_ids"]
+            dataset=inputs["dataset"], 
+            model=inputs["model"], 
+            record_ids=response_data["record_ids"], 
+            scores=response_data["scores"], 
+            display_window_size=inputs["display_window_size"], 
         )
         
     if response_status == 200:

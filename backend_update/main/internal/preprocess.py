@@ -1,13 +1,13 @@
 import shlex
 
-def parse_raw_query(raw_input: str, filters_config: list) -> list[dict]:
+def parse_raw_query(raw_input: str, filters_config: dict) -> list[dict]:
     """
     Parses a raw input string into structured query clauses,
     where each clause may contain text and multiple-word filters.
     """
     result = []
     clauses = raw_input.split("|")
-    filter_map = {f['shortened_field_name']: f['field_name'] for f in filters_config}
+    filter_map = {v["shortened_field_name"]: k for k, v in filters_config.items() if "shortened_field_name" in v}
 
     for clause in clauses:
         parts = shlex.split(clause.strip())

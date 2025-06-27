@@ -28,7 +28,6 @@ class ImageDataset(ABC):
         self.column_mapping = self.config.get("column_mapping")
         self.filters = self.config.get("filters", [])
         self.unifying_category = self.config.get("unifying_category", None)
-        self.full_text_fields = self.config.get("full_text_fields", [])
 
         # # DB
         # self.db_path = f"../database/{self.dataset_name}.db"
@@ -132,9 +131,6 @@ class ImageDataset(ABC):
     def get_unifying_category_ids(self, record_ids):    
         temp_df = pd.DataFrame({"record_id": record_ids})
         result = temp_df.merge(self.unify_df, on="record_id", how="left") 
-        print("Unifying category extracted: ")       
-        print(f"{result.head()}")
-        print()
         return result[self.unifying_category].tolist()
 
     def get_metadata_file_path(self):
@@ -157,9 +153,6 @@ class ImageDataset(ABC):
     
     def get_unifying_category(self):
         return self.unifying_category
-    
-    def get_full_text_fields(self):
-        return self.full_text_fields
 
 
 

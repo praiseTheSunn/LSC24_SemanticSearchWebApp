@@ -1,6 +1,11 @@
+
+import itertools
+import numpy as np
 import pandas as pd
 from fastapi import status, HTTPException
 from internal.search.scorer import get_combine_score, get_standardized_scores
+from internal.api_handler import fetch_embeddings, compute_text_embedding
+from schemas.request_schemas import QueryClause
 
 import sys
 sys.path.append('..')
@@ -8,9 +13,7 @@ from dataset.dataset_manager import DatasetManager
 
 
 
-def expand_temporal(prev_result, next_clause, dataset, temporal_window_size):
-    # image_dataset = dataset_manager.get_dataset(dataset)
-    
+async def expand_temporal(prev_result, next_clause: QueryClause, dataset: str, temporal_window_size: int, threshold: float):
     result = {
         "record_ids": [],
         "scores": [],
@@ -18,108 +21,122 @@ def expand_temporal(prev_result, next_clause, dataset, temporal_window_size):
 
     record_ids = prev_result["record_ids"]
     record_scores = prev_result["scores"]
+    all_next_record_ids = {}
+
+    for record_id in record_ids:
+        neighbors = list(range(int(record_id) + 1, int(record_id) + temporal_window_size + 1))
+        all_next_record_ids[record_id] = neighbors
+
+    all_next_flat = list(itertools.chain.from_iterable(all_next_record_ids.values()))
+    print(f"Total next record IDs to fetch: {len(all_next_flat)}")
+
+    # Fetch embeddings (ordered list)
+    all_next_embeddings_list = await fetch_embeddings(
+        record_ids=all_next_flat,
+        dataset=dataset,
+        model="clips"
+    )
+
+    # Convert to NumPy matrix
+    embeddings_matrix = np.vstack(all_next_embeddings_list)  # shape: (N, D)
+    print(f"Embeddings matrix shape: {embeddings_matrix.shape}")
+
+    # Normalize next clause embedding
+    next_clause_embedding = await compute_text_embedding(next_clause.text, model="clips")
+    next_clause_embedding = np.array(next_clause_embedding).reshape(1, -1)  # shape: (1, D)
+    print(f"Next clause embedding shape: {next_clause_embedding.shape}")
+
+    # Compute all similarities in one go
+    similarities = embeddings_matrix @ next_clause_embedding.T  # shape: (N,)
+    print(f"Similarities shape: {similarities.shape}")
+
+    # Map similarities back to record IDs
+    id_to_score = dict(zip(all_next_flat, similarities))
+    print(f"ID to score mapping: {len(id_to_score)} entries")
+
     for record_id, record_score in zip(record_ids, record_scores):
-        next_record_ids = list(range(int(record_id) + 1, int(record_id) + temporal_window_size + 1))
-        for next_record_id in next_record_ids:
-            highest_score = 0
-            next_clause_match = record_id
-            # TODO
-            # score = calculate_score(next_record_id, next_clause, dataset)
-            score = 100
-            if score > highest_score:
-                highest_score = score
-                next_clause_match = next_record_id
+        next_ids = all_next_record_ids[record_id]
+        scored_neighbors = [(nid, id_to_score.get(nid, -1)) for nid in next_ids]
 
-        # TODO: validate the score match
-        # combined_score = combine_score(record_score, highest_score)
-        combined_score = record_score
+        # Pick best match
+        best_next_id, best_score = max(scored_neighbors, key=lambda x: x[1])
+        best_score = float(best_score)
 
-        result["record_ids"].append(int((record_id + next_clause_match) / 2))
-        result["scores"].append(combined_score)
+        if best_score >= threshold:
+            mid_record_id = int((int(record_id) + int(best_next_id)) / 2)
+            combined_score = get_combine_score([record_score, best_score])
+            result["record_ids"].append(mid_record_id)
+            result["scores"].append(combined_score)
+
+    # sort results by score
+    if result["scores"]:
+        sorted_indices = np.argsort(result["scores"])[::-1]
+        result["record_ids"] = [result["record_ids"][i] for i in sorted_indices]
+        result["scores"] = [result["scores"][i] for i in sorted_indices]
 
     return result
 
 
 
-def aggregate_temporal(partial_results: list[dict], dataset):
+def aggregate_temporal(partial_results: list[dict], dataset: str, n_results_returned: int):
     for i in range(len(partial_results)):
-        partial_scores = partial_results[i]["scores"]
-        partial_results[i]["scores"] = get_standardized_scores(partial_scores)
+        partial_results[i]["scores"] = get_standardized_scores(partial_results[i]["scores"])
 
-    # convert into DataFrame
+    # Build list of rows
     rows = []
+    dm = DatasetManager.get_dataset(dataset)
     for i, partial_result in enumerate(partial_results):
-        partial_record_ids = partial_result["record_ids"]
-        partial_scores = partial_result["scores"]
-        # TODO
-        # unifying_category_ids = setup.metadata_rows_context_id_coarse.loc[partial_record_ids].tolist()
-        unifying_category_ids = DatasetManager.get_dataset(dataset).get_unifying_category_ids(partial_record_ids)
-        for j, (record_id, score) in enumerate(zip(partial_record_ids, partial_scores)):
-            if unifying_category_ids[j] == None:
-                print(f"{record_id} has no unifying category id")
-            rows.append([record_id, score, unifying_category_ids[j], i])
-    raw_results_df = pd.DataFrame(rows, columns=['record_id', 'score', 'unifying_category_id', 'clause_id'])
+        record_ids = partial_result["record_ids"]
+        scores = partial_result["scores"]
+        unifying_ids = dm.get_unifying_category_ids(record_ids)
+        for rid, score, ucid in zip(record_ids, scores, unifying_ids):
+            if ucid is not None:
+                rows.append((rid, score, ucid, i))
 
-    # drop unifying_category_id = None
-    raw_results_df = raw_results_df.dropna(subset=['unifying_category_id'])
+    df = pd.DataFrame(rows, columns=['record_id', 'score', 'unifying_category_id', 'clause_id'])
 
-    # Initialize new columns for combined_score, max_score_0, max_score_1, and keep
-    raw_results_df['combined_score'] = 0.0
-    raw_results_df['max_score_0'] = 0.0
-    raw_results_df['max_score_1'] = 0.0
-    raw_results_df['keep'] = False
+    # Precompute max scores per clause
+    max_scores = df.groupby(['unifying_category_id', 'clause_id'])['score'].max().unstack(fill_value=10)
+    max_scores['combined_score'] = max_scores.apply(lambda row: get_combine_score([row.get(0, 10), row.get(1, 10)]), axis=1)
 
-    # Precompute max scores for clause_id == 0 and clause_id == 1 in a single step
-    clause_0_scores = raw_results_df[raw_results_df['clause_id'] == 0].groupby('unifying_category_id')['score'].max()
-    clause_1_scores = raw_results_df[raw_results_df['clause_id'] == 1].groupby('unifying_category_id')['score'].max()
-    scores_df = pd.DataFrame({'clause_0_scores': clause_0_scores, 'clause_1_scores': clause_1_scores})
-    scores_df.fillna(10, inplace=True)
-    scores_df['combined_scores'] = scores_df.apply(
-        lambda row: get_combine_score([row['clause_0_scores'], row['clause_1_scores']]), axis=1
-    )
+    # Keep top N combined scores
+    top_ids = max_scores['combined_score'].nlargest(n_results_returned).index.tolist()
+    top_combined_scores = max_scores.loc[top_ids]['combined_score'].to_dict()
 
-    # Sort descending and keep only 50 in combined_scores
-    combined_scores = scores_df['combined_scores'].nlargest(50)
-    unifying_category_ids_with_max_scores = combined_scores.index.tolist()
+    # Filter df to only those unifying_category_ids
+    df = df[df['unifying_category_id'].isin([uid for uid, _ in top_combined_scores.items()])].copy()
 
-    # Now, iterate over each context_id_coarse group
-    for unifying_category_id, group in raw_results_df.groupby('unifying_category_id'):
-        
-        if unifying_category_id not in unifying_category_ids_with_max_scores:
-            continue
-        
-        # Calculate the combined score
-        combined_score = combined_scores.loc[unifying_category_id]
-        
-        # Update the group in the DataFrame
-        raw_results_df.loc[group.index, 'combined_score'] = combined_score
-        
-        # Mark top 2 scores in each clause_id group as 'keep'
-        top_2_clause_0 = group[group['clause_id'] == 0].nlargest(2, 'score')
-        top_2_clause_1 = group[group['clause_id'] == 1].nlargest(2, 'score')
-        
-        raw_results_df.loc[top_2_clause_0.index, 'keep'] = True
-        raw_results_df.loc[top_2_clause_1.index, 'keep'] = True
+    # Map combined scores back
+    df['combined_score'] = df['unifying_category_id'].map(top_combined_scores)
 
-    # drop rows where combined_score = NaN
-    raw_results_df = raw_results_df.dropna(subset=['combined_score'])
+    # Keep flags for top 2 per clause within group
+    df['rank_within_clause'] = df.groupby(['unifying_category_id', 'clause_id'])['score'].rank(method='first', ascending=False)
+    df['keep'] = df['rank_within_clause'] <= 2
 
-    # sort by combined score, then by record_id -> remove duplicates by 'record_id' -> filter those with 'keep' = True
-    raw_results_df.sort_values(by=['combined_score', 'record_id'], ascending=[False, True], inplace=True)
-    raw_results_df.drop_duplicates(subset='record_id', keep='first', inplace=True)
-    raw_results_df = raw_results_df[raw_results_df['keep'] == True]
-    print("Final temporal results after aggregation:")
-    print(raw_results_df.head(12))
-    
+    # Final dedup and sort
+    df = df[df['keep']]
+    df.sort_values(by=['combined_score', 'record_id'], ascending=[False, True], inplace=True)
+    df.drop_duplicates(subset='record_id', inplace=True)
+
+    # Group and reduce: mean record_id and max score
+    summary_df = df.groupby('unifying_category_id').agg({
+        'record_id': 'mean',
+        'combined_score': 'max'
+    }).astype({'record_id': int})
+
+    # Sort by combined_score descending
+    summary_df.sort_values(by='combined_score', ascending=False, inplace=True)
+    print(f"Summary DataFrame:\n{summary_df}")
+
+    # Build final result using the sorted summary
     result = {
-        "record_ids": [],
-        "scores": [],
-        "all_neighbor_ids": {}
+        "record_ids": summary_df['record_id'].tolist(),
+        "scores": summary_df['combined_score'].tolist(),
+        # "all_neighbor_ids": {
+        #     int(group['record_id'].mean()): sorted(group['record_id'].tolist())
+        #     for unifying_category_id in summary_df.index
+        #     for _, group in [df[df['unifying_category_id'] == unifying_category_id]]
+        # }
     }
-    raw_results_df_grouped = raw_results_df.groupby('unifying_category_id', sort=False)
-    for unifying_category_id, group in raw_results_df_grouped:
-        record_id = int(group['record_id'].mean())
-        result["record_ids"].append(record_id)
-        result["scores"].append(group['combined_score'].max())
-        result["all_neighbor_ids"][record_id] = sorted(group['record_id'].tolist())
+
     return result

@@ -34,6 +34,8 @@ try:
         stats = milvus_client.get_collection_stats(collection_name=collection_name)
         print(f"Collection name: {collection_name}")
         print(f"Collection stats: {stats}")
+        milvus_client.load_collection(collection_name=collection_name)
+        print(f"Collection '{collection_name}' loaded successfully.")
             
 except MilvusException as e:
     print(e)

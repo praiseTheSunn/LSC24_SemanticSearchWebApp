@@ -96,16 +96,26 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     
     # Step 1: 
     # If neighbor IDs is not provided, get all neighbor IDs for the window around each record_id
-    # If neighbor IDs is provided, use it to get the actual neighbors
-    if all_neighbor_ids is None:    
-        all_neighbor_ids = {}
-        for record_id in record_ids:
-            all_neighbor_ids[record_id] =  list(range(record_id - display_window_size, record_id + display_window_size + 1))
+    # If neighbor IDs is provided (due to using independent temporal queries in the temporal search), use it to get the actual neighbors
+    # if all_neighbor_ids is None:    
+    #     all_neighbor_ids = {}
+    #     for record_id in record_ids:
+    #         all_neighbor_ids[record_id] =  list(range(record_id - display_window_size, record_id + display_window_size + 1))
+    #         print(f"Record ID {record_id} has number of neighbors: {len(all_neighbor_ids[record_id])}")
+    # all_neighbor_ids_flat = list(set(itertools.chain.from_iterable(all_neighbor_ids.values())))
+
+    # New version: just do the same for both cases
+    
+    all_neighbor_ids = {}
+    for record_id in record_ids:
+        all_neighbor_ids[record_id] =  list(range(record_id - display_window_size, record_id + display_window_size + 1))
     all_neighbor_ids_flat = list(set(itertools.chain.from_iterable(all_neighbor_ids.values())))
+    
 
     print(f"Validating record ids for dataset: {dataset}:")
     print(f"Number of record ids: {len(record_ids)}")
     print(f"Number of neighbor ids (unique): {len(all_neighbor_ids_flat)}")
+    print(f"Model: {model}")
 
     # Step 2: Retrieve metadata
     # db = ImageDatabase(dataset_name=dataset)
@@ -124,10 +134,13 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
             records.append(record)
         neighbors = []
 
-    print(f"Record IDs before mapping: {record_ids[:10]}")
-    print(f"Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
-    for rec in records[:10]:
-        print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
+    # # DEBUG
+    # print(f"Record IDs before mapping: {record_ids[:10]}")
+    # print(f"Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
+    # for rec in records[:10]:
+    #     print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
+
+
 
     # print(f"Prepare response - Retrieving metadata for {dataset} dataset:")
     # print(f"Retrieved {len(records)} main records")
@@ -148,11 +161,15 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
         rid = record['record_id']
         record['score'] = scores[i] if scores else 0
         if neighbors:
-            actual_neighbors = [neighbor_metadata[nid] for nid in all_neighbor_ids[rid]]
-            record['neighbors'] = actual_neighbors
+            neighbors_for_this_rid = []
+            for nid in all_neighbor_ids[rid]:
+                if nid in neighbor_metadata:
+                    neighbors_for_this_rid.append(neighbor_metadata[nid])
+            record['neighbors'] = neighbors_for_this_rid
         result.append(record)
 
-    N = 5
-    print(f"First {N} records:")
-    print_records_sample(result, n=min(N, len(result)))
+    # DEBUG
+    # N = 5
+    # print(f"First {N} records:")
+    # print_records_sample(result, n=min(N, len(result)))
     return result
