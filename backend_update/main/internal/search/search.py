@@ -64,13 +64,21 @@ async def search_by_image(image_base64: str, dataset: str, model: str, subset_re
 async def search_by_text(query_structured: QueryStructured):
     print("Searching for query:")
     print(query_structured)
+
     if query_structured.use_temporal_window:
+        THRESHOLD = 0.05
         result = await search_structure(query_structured.clauses[0], query_structured.dataset, query_structured.model, query_structured.subset_record_ids)
         if len(query_structured.clauses) > 1:
-            result = expand_temporal(result, query_structured.clauses[1], query_structured.dataset, query_structured.temporal_window_size)
+            result = await expand_temporal(result, query_structured.clauses[1], query_structured.dataset, query_structured.temporal_window_size, THRESHOLD)
     else:
+        N_RESULTS_RETURNED = 500
         partial_results = [await search_structure(clause, query_structured.dataset, query_structured.model, query_structured.subset_record_ids) for clause in query_structured.clauses]
-        result = aggregate_temporal(partial_results, query_structured.dataset)
+        if len(query_structured.clauses) == 1:
+            result = partial_results[0]
+        else:
+            # Aggregate the results
+            print(f"Aggregating {len(partial_results)} partial results...")
+            result = aggregate_temporal(partial_results, query_structured.dataset, N_RESULTS_RETURNED)
 
     return result, status.HTTP_200_OK
         

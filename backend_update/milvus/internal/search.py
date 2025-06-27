@@ -40,19 +40,20 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
 
     dataset_name = "_".join(collection_name.split("_")[:-1])
     dataset = DatasetManager.get_dataset(dataset_name)
+    dataset_filters = dataset.get_filters()
     reqs = []
     expr_list = []
 
     # Add expr
     if filters:
         for field, value in filters.items():
-            if field not in dataset.get_full_text_fields():
-                if field == "activity":
-                    field = "text_activity"
-                if isinstance(value, str):
-                    expr_list.append(f"{field} LIKE '%{value}%'")
+            if field in dataset_filters:
+                if not dataset_filters[field]["lowercase_storing"] and dataset_filters[field]["lowercase_indexing"]:
+                    expr_list.append(f"{field}_indexing LIKE '%{value.lower()}%'")
                 else:
-                    expr_list.append(f"{field} LIKE {value}")
+                    expr_list.append(f"{field} LIKE '%{value}%'")
+            else:
+                expr_list.append(f"{field} LIKE {value}")
     expr = " and ".join(expr_list)
     print(f"Filter expression: {expr}")
 
@@ -68,23 +69,23 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
     }
     reqs.append(AnnSearchRequest(**search_param_dense))
 
-    # Add sparse search request
-    if filters:
-        for field in filters:
-            if field in dataset.get_full_text_fields():
-                search_param_sparse = {
-                    "data": [filters[field]],
-                    "anns_field": f"sparse_{field}",
-                    "param": {
-                        "metric_type": "BM25",
-                        "params": {"drop_ratio_build": 0.0}
-                    },
-                    "expr": expr,
-                    "limit": limit
-                }
-                reqs.append(AnnSearchRequest(**search_param_sparse))
+    # # Add sparse search request
+    # if filters:
+    #     for field in filters:
+    #         if field in dataset.get_full_text_fields():
+    #             search_param_sparse = {
+    #                 "data": [filters[field]],
+    #                 "anns_field": f"sparse_{field}",
+    #                 "param": {
+    #                     "metric_type": "BM25",
+    #                     "params": {"drop_ratio_build": 0.0}
+    #                 },
+    #                 "expr": expr,
+    #                 "limit": limit
+    #             }
+    #             reqs.append(AnnSearchRequest(**search_param_sparse))
                 
-    dense_weight = 0.8
+    dense_weight = 0.5
     sparse_weight = (1 - dense_weight) / len(reqs[1:]) if len(reqs) > 1 else 0
     ranker = WeightedRanker(dense_weight, *[sparse_weight] * (len(reqs) - 1))
     print(f"Ranker weights: {ranker._weights}")
@@ -116,8 +117,8 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
     # )[0]
 
     
-    results = setup.milvus_client.hybrid_search(
-        collection_name=collection_name, reqs=reqs, ranker=ranker, limit=100, output_fields=["record_id"]
+    first_results = setup.milvus_client.hybrid_search(
+        collection_name=collection_name, reqs=reqs, ranker=ranker, limit=500, output_fields=["record_id"]
     )[0]
 
     second_results = setup.milvus_client.search(
@@ -131,7 +132,7 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
 
     # create a list called concatenated_results, the first elements are from results, the rest are from second_results (remove duplicates from results)
     concatenated_results = []
-    for hit in results:
+    for hit in first_results:
         if hit not in concatenated_results:
             concatenated_results.append(hit)
     for hit in second_results:
@@ -144,7 +145,7 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
             "record_id": hit.get("record_id"),
             "distance": hit.get("distance"),
         }
-        for hit in concatenated_results
+        for hit in first_results
     ]
     pprint(f"Filters: {filters}")
     pprint(f"First 5 search results: {serialized_results[:5]}")
