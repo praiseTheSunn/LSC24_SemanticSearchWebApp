@@ -10,7 +10,7 @@ import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { useSubmitKISAnsweringMutation } from '../AppState'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import { AddLikeAction } from '../config/likeResponse'
-import { AIC_addImages } from '../config/submitFunc'
+import { AIC_addImages, LSC_addImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
 
 interface AnImageProps {
@@ -81,15 +81,15 @@ const AnImage: React.FC<AnImageProps> = ({
   const submit = (src_data: ImageRecord) => {
     console.log('src', src_data.img_link)
 
-    // const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
+    // toast.info(`Submitting: ${src_data.img_link}`, {
     //   position: 'bottom-right',
     //   closeOnClick: true,
-    //   autoClose: 2000,
+    //   autoClose: 1000,
     // })
 
     // REPLACE FOR EACH COMPETITION HERE
     // LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
-    AIC_addImages(src_data, triggerKIS)
+    LSC_addImages(src_data, triggerKIS)
   }
 
   const like = (src_data: ImageRecord) => {

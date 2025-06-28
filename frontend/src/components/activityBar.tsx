@@ -9,6 +9,7 @@ import type {
   TimelineTabActivityRowData,
   VisibilityType,
 } from '../types/image'
+import { activityColorMapExtended } from '../config/activityColorMap'
 
 interface Activity {
   images: ImageRecord[]
@@ -21,18 +22,19 @@ interface ActivityBarProps {
   onActivitySelect: (activity_id: number | null) => void
 }
 
-const activityColorMap: { [key: string]: string } = {
-  'driving car': '#800000',
-  'working on computer': '#9a6324',
-  eating: '#808000',
-  'doing laundry': '#469990',
-  cooking: '#000075',
-  biking: '#000000',
-  'watching tv': '#911eb4',
-  writing: '#3cb44b',
-  shopping: '#ffe119',
-  Other: '#f58231',
-}
+// const activityColorMap: { [key: string]: string } = {
+//   'driving car': '#800000',
+//   'working on computer': '#9a6324',
+//   eating: '#808000',
+//   'doing laundry': '#469990',
+//   cooking: '#000075',
+//   biking: '#000000',
+//   'watching tv': '#911eb4',
+//   writing: '#3cb44b',
+//   shopping: '#ffe119',
+//   Other: '#f58231',
+// }
+const activityColorMap = activityColorMapExtended
 
 const ActivityBar: React.FC<ActivityBarProps> = ({
   rowData,
@@ -47,7 +49,7 @@ const ActivityBar: React.FC<ActivityBarProps> = ({
 
   if (rowData) {
     for (const activity_item of rowData) {
-      activity_item.images.sort((a, b) => b.score - a.score)
+      activity_item.images.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
     }
   }
 
@@ -116,7 +118,7 @@ const ActivityBar: React.FC<ActivityBarProps> = ({
       />
 
       {rowData.map((activity_item: TimelineTabActivityData, index: number) => {
-        const activity_id = activity_item.activity_id
+        const activity_id = activity_item.activity
         const activity = activity_item.activity
         const color = activityColorMap[activity]
         const best_img = activity_item.images[0].img_link

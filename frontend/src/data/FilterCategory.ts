@@ -27,4 +27,13 @@ const FilterCategories_VBS2025 = {
   '-v': { category: 'video_id', startIndex: 3, display: '-v ... : Video ID' },
 }
 
-export const FilterCategories = FilterCategories_VBS2025
+const FilterCategories_LSC2024 = {
+  '-act ': { category: 'activity', startIndex: 5, display: '-act ... : Activity' },
+  '-ocr ': { category: 'ocr', startIndex: 5, display: '-ocr ... : OCR text' },
+  '-loc ': { category: 'location', startIndex: 5, display: '-loc ... : Location' },
+  '-d ': {category: 'date', startIndex: 3, display: '-d ... : date'},
+  '-t ': {category: 'time', startIndex: 3, display: '-t ... : time'},
+  '-textasdasdsa ': {category: 'SUBMIT TEXT', startIndex: 6, display: '-text ... : Submit text'},
+}
+
+export const FilterCategories = FilterCategories_LSC2024

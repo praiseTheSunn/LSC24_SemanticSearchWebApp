@@ -29,6 +29,7 @@ export const LSC_fieldToDisplay = {
   activity: "Activity",
   ocr: "OCR",
   location: "Location",
+  score: "Score",
 }
 
 export const FieldToDisplay = LSC_fieldToDisplay
