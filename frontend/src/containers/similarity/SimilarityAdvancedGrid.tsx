@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import { useAppSelector } from '../../AppState'
@@ -12,53 +12,60 @@ interface SimialrityAdvancedGridProps {
 const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
   tabindex,
 }) => {
-  const [locationBasedData, setLocationBasedData] = useState<ImageRecord[][]>(
-    [],
-  )
-  const [timeBasedData, setTimeBasedData] = useState<ImageRecord[][]>([])
   const data = useAppSelector((state) => state.app.data)
 
-  useEffect(() => {
-    const locationDataMap = new Map()
-    const timeDataMap = new Map()
+  const { locationBasedData, timeBasedData } = useMemo(() => {
+    const locationDataMap = new Map<string, ImageRecord[]>()
+    const timeDataMap = new Map<string, ImageRecord[]>()
 
     for (const item of data) {
-      const location = item.location_displayed
+      const location = item.location
       if (!locationDataMap.has(location)) {
         locationDataMap.set(location, [])
       }
-      locationDataMap.get(location).push(item)
+      const locationArray = locationDataMap.get(location)
+      if (locationArray) {
+        locationArray.push(item)
+      }
 
       const date = item.date
       if (!timeDataMap.has(date)) {
         timeDataMap.set(date, [])
       }
-      timeDataMap.get(date).push(item)
+      const timeArray = timeDataMap.get(date)
+      if (timeArray) {
+        timeArray.push(item)
+      }
     }
 
+    // Sort the arrays
     for (const value of locationDataMap.values()) {
-      value.sort((a: ImageRecord, b: ImageRecord) => b?.score - a?.score)
+      value.sort((a: ImageRecord, b: ImageRecord) => (b?.score || 0) - (a?.score || 0))
     }
     for (const value of timeDataMap.values()) {
-      value.sort((a: ImageRecord, b: ImageRecord) => b?.score - a?.score)
+      value.sort((a: ImageRecord, b: ImageRecord) => (b?.score || 0) - (a?.score || 0))
     }
 
-    setLocationBasedData(Array.from(locationDataMap.values()))
-    setTimeBasedData(Array.from(timeDataMap.values()))
+    return {
+      locationBasedData: Array.from(locationDataMap.values()),
+      timeBasedData: Array.from(timeDataMap.values())
+    }
   }, [data])
 
   // let totalItems: number = 0;
   // totalItems: number = 0;
   const glob_columnCount: number = 9
 
+  const displayData = useMemo(() => {
+    return tabindex === 2 ? locationBasedData : timeBasedData
+  }, [tabindex, locationBasedData, timeBasedData])
+
   const cellRenderer = ({
     columnIndex,
     rowIndex,
     style,
   }: { columnIndex: number; rowIndex: number; style: React.CSSProperties }) => {
-    const displayData = tabindex === 2 ? locationBasedData : timeBasedData
-    const item: ImageRecord[] =
-      displayData?.[rowIndex * glob_columnCount + columnIndex]
+    const item: ImageRecord[] = displayData?.[rowIndex * glob_columnCount + columnIndex]
     if (!item) return null
 
     return (
@@ -68,18 +75,19 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
           {/* Thêm margin vào bên trong */}
           <ImageGroup
             images={item}
-            title={tabindex === 2 ? item[0]?.location_displayed : item[0]?.date}
+            title={tabindex === 2 ? item[0]?.location : item[0]?.date}
           />
         </div>
       </div>
     )
   }
+  
 
   return (
     <div
       style={{
-        width: '100%',
-        height: '100%',
+        width: '99dvw',
+        height: '98%',
       }}
     >
       <AutoSizer>
@@ -89,7 +97,6 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
           const cellHeight: number = 240
 
           const displayData = tabindex === 2 ? locationBasedData : timeBasedData
-          console.log('displayData:', displayData, 'rerender')
           const rowCount: number = Math.ceil(displayData.length / columnCount)
           return (
             <Grid

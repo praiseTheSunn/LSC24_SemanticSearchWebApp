@@ -67,14 +67,12 @@ const GeomanControl = ({
           : longitudes[Math.floor(longitudes.length / 2)]
 
       // Set the map view to the median position
-      console.log('median', medianLat, medianLng)
       map.setView([medianLat, medianLng], 13) // You can adjust the zoom level as needed
     }
   }, [dataSrc, map.setView])
 
   useEffect(() => {
     // received geofeatures from parent
-    console.log('geoFeatures in events', data)
     if (data === undefined) {
       return
     }
@@ -115,7 +113,11 @@ const GeomanControl = ({
       const marker = L.marker([clusterLat, clusterLng], { icon: defaultIcon })
 
       // Construct scrollable popup content
-      const clusterPopupContent = `<div style="width: 150px; max-height: 200px; overflow-y: auto;"><img src='${cluster[0].img_link}' max-width='100px' height='100px' /></div>`
+      const clusterPopupContent = 
+        `<div style="width: 150px; max-height: 200px; overflow-y: auto;">
+        <img src='${cluster[0].img_link}' max-width='100px' height='100px' />
+        <div>${cluster[0].location}</div>
+        </div>`
       marker.bindPopup(clusterPopupContent)
 
       marker.on('mouseover', (e) => {

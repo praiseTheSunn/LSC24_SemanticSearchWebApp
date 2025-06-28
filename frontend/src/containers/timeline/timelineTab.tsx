@@ -128,16 +128,15 @@ const TimelineTab = () => {
       }
       const activityData = activityDataMap.get(item.date)
       if (
-        !activityData.some((data: any) => data.activity_id === item.activity_id)
+        !activityData.some((data: any) => data.activity === item.activity)
       ) {
         activityData.push({
-          activity_id: item.activity_id,
           activity: item.activity,
           images: [item],
         })
       } else {
         const existingActivity = activityData.find(
-          (data: any) => data.activity_id === item.activity_id,
+          (data: any) => data.activity === item.activity,
         )
         existingActivity.images.push(item)
       }
@@ -151,7 +150,7 @@ const TimelineTab = () => {
     })
     activityDataMap.forEach((value, key) => {
       value.sort(
-        (a: ImageRecord, b: ImageRecord) => a.activity_id - b.activity_id,
+        (a: ImageRecord, b: ImageRecord) => String(a.activity).localeCompare(String(b.activity)),
       )
     })
     console.log('locationDataMap', locationDataMap)
@@ -220,7 +219,7 @@ const TimelineTab = () => {
     const selectedActivityID = selectedActivityIDs[rowIndex]
     const filteredActivityData = selectedActivityID
       ? activityRowData.filter(
-          (item: any) => item.activity_id === selectedActivityID,
+          (item: any) => item.activity === selectedActivityID,
         )
       : activityRowData
 
@@ -307,9 +306,9 @@ const TimelineTab = () => {
                 <ActivityBar
                   rowData={activityRowData}
                   visibility={rowModes[rowIndex] === 1 ? 'visible' : 'hidden'}
-                  onActivitySelect={(activity_id) => {
+                  onActivitySelect={(activity) => {
                     const newSelectedActivityIDs = [...selectedActivityIDs]
-                    newSelectedActivityIDs[rowIndex] = activity_id
+                    newSelectedActivityIDs[rowIndex] = activity
                     setSelectedActivityIDs(newSelectedActivityIDs)
                   }}
                 />
@@ -342,7 +341,7 @@ const TimelineTab = () => {
                         <ImageGroup
                           sortType={1}
                           images={locationItem.images}
-                          title={locationItem.images[0].location_displayed}
+                          title={locationItem.images[0].location}
                         />
                       </Box>
                     ),
@@ -362,25 +361,7 @@ const TimelineTab = () => {
                     marginLeft: '8px',
                   }}
                 >
-                  {filteredActivityData.length === 1 ? (
-                    <Box
-                      display="flex"
-                      flexDirection="row"
-                      flexWrap="wrap"
-                      gap="8px"
-                    >
-                      {filteredActivityData[0].images.map(
-                        (imageItem: ImageRecord, listIndex: number) => (
-                          <ImageSingle
-                            // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-                            key={listIndex}
-                            image={imageItem}
-                          />
-                        ),
-                      )}
-                    </Box>
-                  ) : (
-                    <Box
+                  <Box
                       display="flex"
                       flexDirection="row"
                       flexWrap="wrap"
@@ -407,7 +388,6 @@ const TimelineTab = () => {
                         ),
                       )}
                     </Box>
-                  )}
                 </Box>
               )}
             </Box>

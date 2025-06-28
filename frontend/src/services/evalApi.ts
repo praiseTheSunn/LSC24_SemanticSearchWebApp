@@ -1,7 +1,6 @@
 import { QuestionAnswer } from '@mui/icons-material'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { EvalQuery } from '.'
-import { transformResponse_Feedback_AIC } from '../config/transformResponse'
 import type {
   EvalIDResponse,
   EvalLoginParams,
@@ -64,6 +63,13 @@ export const EvalApi = createApi({
 
       submitKISAnswering: builder.mutation<SubmitResponse, KISParams>({
         query: (params) => {
+          const myAnswers = params.start && params.end ? {
+                      mediaItemName: params.mediaItemName,
+                      start: params.start,
+                      end: params.end,
+                    } : {
+                      mediaItemName: params.mediaItemName,
+                    }
           return {
             url: `api/v2/submit/${params.evaluation_id}`,
             method: 'POST',
@@ -72,11 +78,7 @@ export const EvalApi = createApi({
               answerSets: [
                 {
                   answers: [
-                    {
-                      mediaItemName: params.mediaItemName,
-                      start: params.start,
-                      end: params.end,
-                    },
+                    myAnswers
                   ],
                 },
               ],

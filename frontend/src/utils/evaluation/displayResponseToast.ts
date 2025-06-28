@@ -15,7 +15,7 @@ export const displayResponseToast = (result: any) => {
     if (result.data.status === true && result.data.submission === 'CORRECT') {
       toast.success('Submission CORRECT', {
         position: 'bottom-right',
-        autoClose: 2000,
+        autoClose: 1000,
       })
     } else if (
       result.data.status === true &&
@@ -24,7 +24,7 @@ export const displayResponseToast = (result: any) => {
       console.log('KIS result:', result.data.description) // In ra response khi có dữ liệu
       toast.error(`Submission WRONG ${result.data.description}`, {
         position: 'bottom-right',
-        autoClose: 2000,
+        autoClose: 1000,
       })
     } else {
       toast.error(`Submission FAILED ${result.data.description}`, {

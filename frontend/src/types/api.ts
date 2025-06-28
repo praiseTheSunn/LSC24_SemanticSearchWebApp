@@ -48,7 +48,9 @@ export type ObjPosResponse = {
   context_id_coarse?: string
   like?: any 
   dislike?: any
-  record_id?: number
+  record_id: number | string
+  neighbors?: ObjPosResponse[]
+  image_id?: string
 }
 
 export type TextQueryParams = {
@@ -125,8 +127,8 @@ export type KISParams = {
   session: string
   evaluation_id: string
   mediaItemName: string
-  start: number
-  end: number
+  start?: number
+  end?: number
 }
 
 export type FeedbackQueryParams = {

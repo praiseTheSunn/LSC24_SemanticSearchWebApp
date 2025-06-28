@@ -50,7 +50,7 @@ const MapTab = () => {
     //   </div>
     // </div>
     <div style={{ padding: '20px', display: 'flex' }}>
-      <div style={{ height: '500px', width: '1000px', flex: 1 }}>
+      <div style={{ height: '500px', width: '1000px', flex: 1 , zIndex: 0}}>
         <MapContainer
           center={[53.38998, -6.1457602]}
           zoom={13}

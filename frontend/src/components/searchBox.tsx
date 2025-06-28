@@ -14,6 +14,7 @@ import {
   useAppSelector,
   useLazyGetImagesQuery,
   useLazyGetTranslatedTextQuery,
+  useSubmitQuestionAnsweringMutation,
 } from '../AppState'
 import { HistoryIcon } from '../assets'
 import { FilterCategories } from '../data/FilterCategory'
@@ -26,13 +27,14 @@ import DictionaryPopup from './Popup/DictionaryPopup'
 import HistoryPopup from './Popup/HistoryPopup'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
+import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
+import { toast } from 'react-toastify'
 
 type SearchBoxProps = {
   displayedFilters: any
   setDisplayedFilters: any
   handleFilterChange: any
   setSearchTerms: Dispatch<SetStateAction<SearchTermType[]>>
-  setSubmitText: Dispatch<SetStateAction<string>>
   setSubmitFilename: Dispatch<SetStateAction<string>>
 }
 
@@ -43,7 +45,6 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       setDisplayedFilters,
       handleFilterChange,
       setSearchTerms,
-      setSubmitText,
       setSubmitFilename,
     },
     ref,
@@ -152,6 +153,30 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       setMessagePopup(true)
     }
 
+    const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
+
+    const SubmitText = async (text: string) => {
+      const evaluationId = localStorage.getItem('evaluationId') 
+      const sessionId = localStorage.getItem('sessionId') 
+      if (!evaluationId || !sessionId) {
+        return
+      }
+
+      toast.info(`Submitting text: ${text}`, {
+        position: 'bottom-right',
+        closeOnClick: true,
+        autoClose: 1000,
+      })
+      // triggerQA({ evaluation_id: evaluationId[0], session: result.data, text: text })
+      const resultQA = await triggerQA({
+        evaluation_id: evaluationId,
+        session: sessionId,
+        text: text,
+      })
+      displayResponseToast(resultQA)
+  
+    }
+
     const lastHistory = useAppSelector(
       (state) => state.app.queryHistory[state.app.queryHistory.length - 1],
     )?.query
@@ -188,7 +213,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             ...previousState,
             filter,
           ])
-          setSubmitText(value)
+          SubmitText(value)
         } else if (input === '-c') {
           // Handle special case
         } else if (input.startsWith('-file ')) {

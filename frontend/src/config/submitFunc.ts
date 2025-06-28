@@ -1,18 +1,6 @@
-// const AICSubmitFunc = (evalId: number, sesId: string | null, filename: string) => {
-//   const toastId = toast.loading(`Submitting: ${filename}`, { closeOnClick: true });
-
-import type { Dispatch } from '@reduxjs/toolkit'
-import { useEffect } from 'react'
-import { useSelector } from 'react-redux'
-import { type Id, toast } from 'react-toastify'
-import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import type { useSubmitKISAnsweringMutation } from '../AppState'
-import type { AppState } from '../types/app'
 import type { ImageRecord } from '../types/image'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
-import { useLazyGetEvalIDQuery, useLazyGetSessionIDQuery } from '../AppState'
-import { useCallback } from 'react'
-import { set } from 'lodash'
 
 const VBSAutoSubmit = async (
   username: string,
@@ -52,7 +40,7 @@ export const AIC_addImages = async (
   const video = src_data.video_id
 
   if (!evaluationId || !sessionId || !video) {
-    console.log('Missing evaluationId, sessionId or video')
+    alert('Missing evaluationId, sessionId or video')
     return
   }
 
@@ -90,5 +78,34 @@ export const AIC_addImages = async (
     //   }
     // }, 20000)
   }
+}
+
+export const LSC_addImages = async (
+  src_data: ImageRecord,
+  triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
+) => {
+  const evaluationId = localStorage.getItem('evaluationId')
+  const sessionId = localStorage.getItem('sessionId')
+
+  // const time = Number(src_data.timestamp) * 1000
+  const time = src_data.time
+  const video = src_data.video_id
+  console.log('LSC_addImages', time, video)
+
+  if (!evaluationId || !sessionId || !video) {
+    alert('Missing evaluationId, sessionId or video')
+    return
+  }
+
+  const resultKIS = await triggerKIS({
+    session: sessionId,
+    evaluation_id: evaluationId,
+    mediaItemName: src_data.image_id.split('/').pop() ?? '',
+    // start: time,
+    // end: time,
+  })
+
+  displayResponseToast(resultKIS)
+
 }
 

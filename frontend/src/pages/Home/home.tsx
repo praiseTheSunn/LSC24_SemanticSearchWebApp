@@ -40,17 +40,17 @@ import type { ImageRecord } from '../../types/image'
 import type { SearchTermType } from '../../types/search'
 
 const LevelList = [
-  { level: 'Neighbor', bg: TrapoziedBgGray3 },
-  { level: 'Similarity', bg: TrapoziedBgGray2 },
-  // { level: 'Timeline', bg: TrapoziedBgGrayLeft },
-  // { level: 'Location', bg: TrapoziedBgGray4 },
-  { level: 'VQA', bg: TrapoziedBgGrayLeft },
+  { level: 'Neighbor', bg: TrapoziedBgGrayLeft },
+  { level: 'Similarity', bg: TrapoziedBgGray3 },
+  { level: 'Timeline', bg: TrapoziedBgGray2 },
+  { level: 'Location', bg: TrapoziedBgGray4 },
+  // { level: 'VQA', bg: TrapoziedBgGrayLeft },
 ]
 
 const Mode = [
   { mode: 'Similarity', bg: SimilarityIcon, bgat: SimilarityIconActive },
   { mode: 'Timeline', bg: TimelineIcon, bgat: TimelineIconActive },
-  // { mode: 'Location', bg: LocationIcon, bgat: LocationIconActive },
+  { mode: 'Location', bg: LocationIcon, bgat: LocationIconActive },
 ]
 
 const Home = () => {
@@ -68,7 +68,6 @@ const Home = () => {
     setSelectedTabIndex(index)
   }
   const [searchTerms, setSearchTerms] = useState<SearchTermType[]>([])
-  const [submitText, setSubmitText] = useState('')
   const [submitFilename, setSubmitFilename] = useState('')
 
   const neighborPopupData: ImageRecord | null | undefined = useAppSelector(
@@ -136,10 +135,8 @@ const Home = () => {
   }, [imageDatas])
 
   useEffect(() => {
-    // console.log('searchTerms changed', searchTerms)
     if (searchTerms.length > 0) {
       let fuseResults: ImageRecord[] = imageDatas
-      // console.log('fuseResults', fuseResults.length, fuseResults);
 
       for (let i = 0; i < searchTerms.length; i++) {
         if (searchTerms[i].value !== '') {
@@ -176,15 +173,15 @@ const Home = () => {
             setSelectedTabIndex(0)
             e.preventDefault()
             break
-          // case '2':
-          //   setSelectedTabIndex(1)
-          //   e.preventDefault()
-          //   break
-          // case '3':
-          //   setSelectedTabIndex(2)
-          //   e.preventDefault()
-          //   break
           case '2':
+            setSelectedTabIndex(1)
+            e.preventDefault()
+            break
+          case '3':
+            setSelectedTabIndex(2)
+            e.preventDefault()
+            break
+          case '4':
             setSelectedTabIndex(3)
             e.preventDefault()
             break
@@ -213,39 +210,6 @@ const Home = () => {
       document.removeEventListener('keyup', handleKeyUp)
     }
   }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
-
-  // useEffect(() => {
-  //   if (submitText !== '') {
-  //     // evalService
-  //     //   .submitText(evaluationId, localStorage.getItem('session'), submitText)
-  //     //   .then((response: ApiResponse) => {
-  //     //     toast.success(`Text submitted: ${response.data.submission}`)
-  //     //     setSubmitText('')
-  //     //     console.log('response', response)
-  //     //     if (response?.data && response?.data?.submission === 'CORRECT') {
-  //     //       evalService
-  //     //         .submitText(
-  //     //           evaluationId,
-  //     //           localStorage.getItem('sessionCentral'),
-  //     //           submitText,
-  //     //         )
-  //     //         .then((response: ApiResponse) => {
-  //     //           toast.success(`Text submitted: ${response.data.submission}`)
-  //     //           setSubmitText('')
-  //     //           console.log('response', response)
-  //     //         })
-  //     //         .catch((error: ApiError) => {
-  //     //           toast.error(`Error submit TEXT: ${error.message}`)
-  //     //           console.log('error', error)
-  //     //         })
-  //     //     }
-  //     //   })
-  //     //   .catch((error: ApiError) => {
-  //     //     toast.error(`Error submit TEXT: ${error.message}`)
-  //     //     console.log('error', error)
-  //     //   })
-  //   }
-  // }, [submitText])
 
   // useEffect(() => {
   //   if (submitFilename !== '') {
@@ -306,7 +270,6 @@ const Home = () => {
         setDisplayedFilters={setDisplayedFilters}
         handleFilterChange={handleFilterChange}
         setSearchTerms={setSearchTerms}
-        setSubmitText={setSubmitText}
         setSubmitFilename={setSubmitFilename}
       />
 
@@ -415,7 +378,6 @@ const Home = () => {
                   width: '100%',
                   height: '100%',
                   overflowY: 'auto',
-                  marginTop: '2px',
                 }}
               >
                 <SimialrityAdvancedGrid tabindex={selectedModeIndex} />
@@ -424,14 +386,14 @@ const Home = () => {
           </Box>
         )}
 
-        {/* {selectedTabIndex === 2 && <TimelineTab />}
+        {selectedTabIndex === 2 && <TimelineTab />}
         {selectedTabIndex === 3 && (
           // <ImageCluster data={timelineData} />
           <MapTab
           // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
           />
-        )} */}
-        {selectedTabIndex === 2 && <MetadataTab />}
+        )}
+        {/* {selectedTabIndex === 2 && <MetadataTab />} */}
       </Box>
     </div>
   )

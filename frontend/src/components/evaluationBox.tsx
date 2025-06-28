@@ -75,9 +75,6 @@ const EvaluationBox = () => {
     const session = localStorage.getItem('session')
     const username = localStorage.getItem('username')
     const password = localStorage.getItem('password')
-    if (session && username && password) {
-      setLoginState('Logout')
-    }
     if (username) {
       setUsername(username)
     }
@@ -93,7 +90,6 @@ const EvaluationBox = () => {
         username: username,
         password: password,
       })
-      console.log('Response', response.data)
       if (!response.data) {
         toast.error('Invalid username or password', {
           position: 'bottom-right',
@@ -128,24 +124,24 @@ const EvaluationBox = () => {
         closeOnClick: true,
       })
 
-      if(username !== '17snapseek1'){
-        const responseMaster = await triggerSessionID({
-          username: '17snapseek1',
-          password: 'rN7wvHEkYp9X',
-        })
+      // if(username !== '17snapseek1'){
+      //   const responseMaster = await triggerSessionID({
+      //     username: '17snapseek1',
+      //     password: 'rN7wvHEkYp9X',
+      //   })
 
-        if (!responseMaster.data) {
-          toast.error('Invalid username or password for master', {
-            position: 'bottom-right',
-            autoClose: 3000,
-            closeOnClick: true,
-          })
-          return
-        }
+      //   if (!responseMaster.data) {
+      //     toast.error('Invalid username or password for master', {
+      //       position: 'bottom-right',
+      //       autoClose: 3000,
+      //       closeOnClick: true,
+      //     })
+      //     return
+      //   }
 
-        localStorage.setItem('masterSessionID', responseMaster.data)
-        toast.success('Master session ID retrieved')
-      }
+      //   localStorage.setItem('masterSessionID', responseMaster.data)
+      //   toast.success('Master session ID retrieved')
+      // }
     } else {
       setLoginState('Login')
     }
@@ -179,22 +175,6 @@ const EvaluationBox = () => {
     })
     displayResponseToast(resultQA)
 
-    if (resultQA.data?.submission === 'CORRECT' && username !== '17snapseek1') {
-      // await VBSAutoSubmitVQA('17snapseek1', 'rN7wvHEkYp9X', text, triggerQA)
-      // const masterSessionID = localStorage.getItem('masterSessionID') ?? ''
-      // const masterEvaluationID = localStorage.getItem('evaluationId') ?? ''
-      // const masterResponse = await triggerQA({
-      //   evaluation_id: masterEvaluationID,
-      //   session: masterSessionID,
-      //   text: text,
-      // })
-    
-      // if (masterResponse.data?.submission === 'CORRECT') {
-      //   console.log('Master response is correct')
-      // } else {
-      //   console.log('Master response is wrong', masterResponse)
-      // }
-    }
   }
 
   const submitKIS = async () => {
