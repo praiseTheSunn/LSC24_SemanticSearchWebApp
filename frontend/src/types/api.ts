@@ -85,6 +85,7 @@ export type ImageQueryParams = {
   image_base64: string | ArrayBuffer
   model: string
   dataset?: string
+  display_window_size: number
 }
 
 export type ObjPosParams = {
@@ -143,5 +144,6 @@ export type FeedbackQueryParams = {
       "limit": number
   },
   "model": string,
-  "dataset": string
+  "dataset": string,
+  display_window_size: number,
 }

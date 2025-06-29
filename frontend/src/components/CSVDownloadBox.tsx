@@ -135,6 +135,7 @@ export const CSVDownloadBox = () => {
     }
     feedbackData.model = queryPayload.model
     feedbackData.dataset = queryPayload.dataset
+    feedbackData.display_window_size = Config.neighborDisplaySize
 
     triggerFeedbackQuery(feedbackData)
 
