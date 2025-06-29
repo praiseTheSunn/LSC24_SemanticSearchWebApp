@@ -26,10 +26,11 @@ export const ImageApi = createApi({
     return {
       getImages: builder.query<ImageRecord[], TextQueryParams>({
         query: (params) => {
+          const tempParams = { ...params, user_id: localStorage.getItem('username') }
           return {
             url: '/search/search_with_text_query',
             method: 'POST',
-            body: params,
+            body: tempParams,
           }
         },
         transformResponse: (response: ApiResponse) =>
@@ -46,12 +47,13 @@ export const ImageApi = createApi({
             : [{ type: 'Image', id: 'LIST' }],
       }),
       getSimilars: builder.query<ImageRecord[], ExploreSimilarParams>({
-        query: (params) => ({
+        query: (params) => {
+          const tempParams = { ...params, user_id: localStorage.getItem('username') }
+          return{
           url: '/explore/explore_similar_images',
           method: 'POST',
-          // body: { image_urls: urls, model: 'clip', dataset: 'aic24' },
-          body: params,
-        }),
+          body: tempParams,
+        }},
         transformResponse: (response: ApiResponse) =>
           transformResponse_LSC(response),
         providesTags: (result) =>
@@ -67,12 +69,13 @@ export const ImageApi = createApi({
       }),
 
       getNeighbors: builder.query<ImageRecord[], ExploreNeighborParams>({
-        query: (params) => ({
+        query: (params) => {
+          const tempParams = { ...params, user_id: localStorage.getItem('username') }
+          return{
           url: '/explore/explore_neighbor_images',
           method: 'POST',
-          // body: { image_url: img_url, span: 30, dataset: 'aic24' },
-          body: params,
-        }),
+          body: tempParams,
+        }},
         transformResponse: (response: ApiResponse) =>
           transformResponse_LSC(response),
         providesTags: (result) =>
@@ -88,11 +91,13 @@ export const ImageApi = createApi({
       }),
 
       searchByImage: builder.query<ImageRecord[], ImageQueryParams>({
-        query: (imageQuery) => ({
+        query: (imageQuery) => {
+          const tempParams = { ...imageQuery, user_id: localStorage.getItem('username') }
+          return {
           url: '/search/search_with_image_query',
           method: 'POST',
-          body: imageQuery,
-        }),
+          body: tempParams,
+        }},
         transformResponse: (response: ApiResponse) =>
           transformResponse_LSC(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
@@ -100,10 +105,11 @@ export const ImageApi = createApi({
 
       getFeedbackImages: builder.query<{like: ImageRecord[], dislike: ImageRecord[] }, FeedbackQueryParams>({
         query: (params) => {
+          const tempParams = { ...params, user_id: localStorage.getItem('username') }
           return {
             url: '/feedback',
             method: 'POST',
-            body: params,
+            body: tempParams,
           }
         },
         transformResponse: (response: FeedbackResponse) =>
