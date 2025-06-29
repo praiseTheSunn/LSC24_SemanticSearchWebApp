@@ -92,7 +92,9 @@ const HistoryPopup = ({
       model: queryPayload.model,
       dataset: queryPayload.dataset,
       user_id: "xxx",
-      window_size: Config.queryWindowSize,
+      display_window_size: Config.neighborDisplaySize,
+      use_temporal_window: false,
+      temporal_window_size: 3,
     }).then(() => {
       setSearchTerms(
         filters.map((filter) => ({

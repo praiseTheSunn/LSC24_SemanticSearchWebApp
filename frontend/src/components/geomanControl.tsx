@@ -4,6 +4,7 @@ import * as L from 'leaflet'
 import { useEffect, useState } from 'react'
 import type React from 'react'
 import { useMap } from 'react-leaflet'
+import type { ImageRecord } from '../types/image'
 
 interface locationJSON {
   new_lat: number
@@ -17,9 +18,9 @@ const GeomanControl = ({
   setData,
   dataSrc,
 }: {
-  data: locationJSON[]
-  setData: React.Dispatch<React.SetStateAction<locationJSON[]>>
-  dataSrc: locationJSON[]
+  data: any[]
+  setData: React.Dispatch<React.SetStateAction<any[]>>
+  dataSrc: any[]
 }) => {
   const map = useMap()
   const [prevClickItem, setPrevClickItem] = useState(null)
@@ -88,7 +89,7 @@ const GeomanControl = ({
     const clusteringRadius = 0.01 // Example radius of 0.01 degrees
 
     // Group data into clusters based on proximity
-    const clusters: { [key: string]: locationJSON[] } = {}
+    const clusters: { [key: string]: locationJSON[] & ImageRecord[] } = {}
 
     for (const d of dataSrc) {
       if (d.new_lat === null || d.new_lng === null) {
@@ -141,7 +142,7 @@ const GeomanControl = ({
 
   // process bounding box events
   map.on('pm:create', (e) => {
-    const feature = e.layer.toGeoJSON()
+    const feature = (e.layer as L.Layer & { toGeoJSON: () => any }).toGeoJSON()
     if (dataSrc === null) {
       return
     }

@@ -60,7 +60,9 @@ export const loadConfigFromLocalStorage = (): ConfigType | null => {
 export const defaultConfig: ConfigType = {
   gridRowGap: '2px',
 
-  queryWindowSize: 3,
+  neighborDisplaySize: 3,
+  useTemporalWindow: false,
+  temporalWindowSize: 5,
 
   NeighborTabCellMinWidth: 130,
   NeighborTabRowHeight: 150,

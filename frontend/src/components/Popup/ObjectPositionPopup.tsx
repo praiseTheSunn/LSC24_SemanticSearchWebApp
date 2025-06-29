@@ -37,7 +37,7 @@ import { InitPoseCoor } from '../../data/InitPoseCoor'
 import { LHEImages } from '../../data/LHEImages'
 import { MVKImages } from '../../data/MVKImages'
 import { DragIconList } from '../../data/icon'
-import type { ObjPosResponse } from '../../types/api'
+import type { ObjPosResponse, TextQueryParams } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 import { brushEncoding } from '../../utils/encoding/brushEncoding'
 import { objColorPosEncoding } from '../../utils/encoding/objColorPosEncoding'
@@ -195,7 +195,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
       }
     }
 
-    const searchQuery = {
+    const searchQuery: TextQueryParams = {
       object_global_encoding: obj_global_encoding,
       color_global_encoding: finalColorGlobalEncoding,
       object_local_encoding: finalObjLocalEncoding.trim(),
@@ -205,6 +205,10 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
       mode: queryPayload.mode,
       model: queryPayload.model,
       dataset: queryPayload.dataset,
+      user_id: "xxx",
+      display_window_size: systemConfig.neighborDisplaySize,
+      use_temporal_window: false,
+      temporal_window_size: 0
     }
     console.log('Query:', searchQuery)
     trigger(searchQuery)

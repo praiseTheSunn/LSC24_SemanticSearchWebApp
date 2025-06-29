@@ -11,7 +11,7 @@ import type { ImageRecord } from '../../types/image'
 import LocationTimeline from './locationTimeline'
 
 const MapTab = () => {
-  const [geojsonFeature, setGeojsonFeature] = useState([])
+  const [geojsonFeature, setGeojsonFeature] = useState<any[]>([])
 
   const data: ImageRecord[] = useAppSelector((state) => state.app.data)
 
