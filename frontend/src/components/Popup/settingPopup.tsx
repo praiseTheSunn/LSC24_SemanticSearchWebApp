@@ -6,6 +6,7 @@ import {
   Box,
   Paper,
   Slider,
+  Switch,
   Typography,
 } from '@mui/material'
 import type React from 'react'
@@ -27,9 +28,9 @@ const ConfigEditor: React.FC = () => {
     // setConfig(updatedConfig)
     dispatch(appActions.setConfig(updatedConfig))
     saveConfigToLocalStorage(updatedConfig)
-    if (key === 'queryWindowSize') {
+    if (key === 'neighborDisplaySize') {
       dispatch(
-        appActions.setQueryPayload({ ...queryPayload, window_size: value }),
+        appActions.setQueryPayload({ ...queryPayload, display_window_size: value }),
       )
     }
     console.log('Config updated:', updatedConfig)
@@ -42,7 +43,7 @@ const ConfigEditor: React.FC = () => {
           <Typography variant="h6">Query Settings</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Typography gutterBottom>Window Size</Typography>
+          <Typography gutterBottom>No of Displaying neighbors</Typography>
           <Slider
             marks={[
               { value: 2, label: '2' },
@@ -55,9 +56,9 @@ const ConfigEditor: React.FC = () => {
               { value: 9, label: '9' },
               { value: 10, label: '10' },
             ]}
-            value={userConfig.queryWindowSize}
+            value={userConfig.neighborDisplaySize}
             onChange={(e, newValue) =>
-              handleSliderChange('queryWindowSize', newValue as number)
+              handleSliderChange('neighborDisplaySize', newValue as number)
             }
             step={1}
             min={2}
@@ -65,6 +66,36 @@ const ConfigEditor: React.FC = () => {
             valueLabelDisplay="auto"
           />
         </AccordionDetails>
+        {/* <AccordionDetails>
+          <Typography gutterBottom>Temporal window size</Typography>
+          <Slider
+            marks={[
+              { value: 2, label: '2' },
+              { value: 3, label: '3' },
+              { value: 4, label: '4' },
+              { value: 5, label: '5' },
+              { value: 6, label: '6' },
+              { value: 7, label: '7' },
+              { value: 8, label: '8' },
+              { value: 9, label: '9' },
+              { value: 10, label: '10' },
+            ]}
+            value={userConfig.temporalWindowSize}
+            onChange={(e, newValue) =>
+              handleSliderChange('temporalWindowSize', newValue as number)
+            }
+            step={1}
+            min={2}
+            max={10}
+            valueLabelDisplay="auto"
+          />
+        </AccordionDetails>
+        <AccordionDetails>
+          <Typography gutterBottom>Temporal Mode</Typography>
+          <Switch>
+
+          </Switch>
+        </AccordionDetails> */}
       </Accordion>
       <Accordion>
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>

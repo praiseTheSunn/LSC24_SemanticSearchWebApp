@@ -13,7 +13,7 @@ export const activityColorMapExtended: { [key: string]: string } = {
   "having a drink": "#f7786b",
   "lying": "#7393b3",
   "making financial transactions": "#7c0a02",
-  "NO ACTIVITY": "#2d464a",
+  "no activity": "#2d464a",
   "organizing clothes": "#b4c424",
   "personal hygiene": "#7a575f",
   "playing music instruments": "#a7754d",

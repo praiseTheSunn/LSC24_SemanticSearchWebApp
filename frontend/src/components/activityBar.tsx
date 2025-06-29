@@ -19,7 +19,7 @@ interface Activity {
 interface ActivityBarProps {
   rowData: TimelineTabActivityRowData
   visibility: VisibilityType
-  onActivitySelect: (activity_id: number | null) => void
+  onActivitySelect: (activity_id: number | null | string) => void
 }
 
 // const activityColorMap: { [key: string]: string } = {
@@ -56,7 +56,7 @@ const ActivityBar: React.FC<ActivityBarProps> = ({
   const [clickedIndex, setClickedIndex] = useState<number | null>(null)
 
   const handleActivityClick = (
-    activity_id: number | null,
+    activity_id: number | null | string,
     index: number | null,
   ) => {
     if (clickedIndex !== index) {
@@ -120,7 +120,7 @@ const ActivityBar: React.FC<ActivityBarProps> = ({
       {rowData.map((activity_item: TimelineTabActivityData, index: number) => {
         const activity_id = activity_item.activity
         const activity = activity_item.activity
-        const color = activityColorMap[activity]
+        const color = activityColorMap[activity.toLowerCase()]
         const best_img = activity_item.images[0].img_link
 
         return (
@@ -137,7 +137,7 @@ const ActivityBar: React.FC<ActivityBarProps> = ({
             }}
             data-tooltip-content={activity}
             data-tooltip-img={best_img}
-            onClick={() => handleActivityClick(activity_id, best_img, index)}
+            onClick={() => handleActivityClick(activity_id, index)}
           />
         )
       })}
