@@ -245,7 +245,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             temporal_window_size: 0,
             user_id: "xxx",
             use_temporal_window: false,
-            display_window_size: Config.queryWindowSize,
+            display_window_size: Config.neighborDisplaySize,
           })
           setDisplayedFilters((previousState: any) => [
             ...previousState,
@@ -307,7 +307,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           temporal_window_size: 0,
           user_id: "xxx",
           use_temporal_window: false,
-          display_window_size: Config.queryWindowSize
+          display_window_size: Config.neighborDisplaySize
         })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 

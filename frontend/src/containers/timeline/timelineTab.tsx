@@ -153,8 +153,8 @@ const TimelineTab = () => {
         (a: ImageRecord, b: ImageRecord) => String(a.activity).localeCompare(String(b.activity)),
       )
     })
-    console.log('locationDataMap', locationDataMap)
-    console.log('activityDataMap', activityDataMap)
+    // console.log('locationDataMap', locationDataMap)
+    // console.log('activityDataMap', activityDataMap)
 
     // Update state
     setLocationBasedData(locationDataMap)

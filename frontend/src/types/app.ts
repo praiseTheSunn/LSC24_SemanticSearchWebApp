@@ -55,7 +55,9 @@ export type TimelineState = {
 export type ConfigType = {
   gridRowGap: string
 
-  queryWindowSize: number
+  neighborDisplaySize: number
+  useTemporalWindow: boolean
+  temporalWindowSize: number
 
   NeighborTabCellMinWidth: number
   NeighborTabRowHeight: number
