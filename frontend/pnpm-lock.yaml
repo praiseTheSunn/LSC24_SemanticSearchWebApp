@@ -1582,8 +1582,8 @@ packages:
   caniuse-api@3.0.0:
     resolution: {integrity: sha512-bsTwuIg/BZZK/vreVTYYbSWoe2F+71P7K5QGEX+pT250DZbfU1MQ5prOKpPR+LL6uWKK3KMwMCAS74QB3Um1uw==}
 
-  caniuse-lite@1.0.30001649:
-    resolution: {integrity: sha512-fJegqZZ0ZX8HOWr6rcafGr72+xcgJKI9oWfDW5DrD7ExUtgZC7a7R7ZYmZqplh7XDocFdGeIFn7roAxhOeYrPQ==}
+  caniuse-lite@1.0.30001726:
+    resolution: {integrity: sha512-VQAUIUzBiZ/UnlM28fSp2CRF3ivUn1BWEvxMcVTNwpw91Py1pGbPIyIKtd+tzct9C3ouceCVdGAXxZOpZAsgdw==}
 
   chalk@2.4.1:
     resolution: {integrity: sha512-ObN6h1v2fTJSmUXoS3nMQ92LbDK9be4TV+6G+omQlGJFdcUX5heKi1LZ1YnRMIgwTLEj3E24bT6tYni50rlCfQ==}
@@ -4161,7 +4161,7 @@ snapshots:
       '@rspack/core': 1.0.0-beta.2(@swc/helpers@0.5.11)
       '@rspack/lite-tapable': 1.0.0-beta.2
       '@swc/helpers': 0.5.11
-      caniuse-lite: 1.0.30001649
+      caniuse-lite: 1.0.30001726
       core-js: 3.37.1
     optionalDependencies:
       fsevents: 2.3.3
@@ -4275,7 +4275,7 @@ snapshots:
       '@module-federation/runtime-tools': 0.2.3
       '@rspack/binding': 1.0.0-beta.2
       '@rspack/lite-tapable': 1.0.0-beta.2
-      caniuse-lite: 1.0.30001649
+      caniuse-lite: 1.0.30001726
     optionalDependencies:
       '@swc/helpers': 0.5.11
 
@@ -5981,7 +5981,7 @@ snapshots:
 
   browserslist@4.23.3:
     dependencies:
-      caniuse-lite: 1.0.30001649
+      caniuse-lite: 1.0.30001726
       electron-to-chromium: 1.5.5
       node-releases: 2.0.18
       update-browserslist-db: 1.1.0(browserslist@4.23.3)
@@ -6011,11 +6011,11 @@ snapshots:
   caniuse-api@3.0.0:
     dependencies:
       browserslist: 4.23.3
-      caniuse-lite: 1.0.30001649
+      caniuse-lite: 1.0.30001726
       lodash.memoize: 4.1.2
       lodash.uniq: 4.5.0
 
-  caniuse-lite@1.0.30001649: {}
+  caniuse-lite@1.0.30001726: {}
 
   chalk@2.4.1:
     dependencies:
