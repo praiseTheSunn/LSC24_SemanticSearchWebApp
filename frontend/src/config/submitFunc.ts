@@ -100,7 +100,7 @@ export const LSC_addImages = async (
   const resultKIS = await triggerKIS({
     session: sessionId,
     evaluation_id: evaluationId,
-    mediaItemName: src_data.image_id.split('/').pop() ?? '',
+    mediaItemName: src_data?.image_id?.split('/').pop() ?? '',
     // start: time,
     // end: time,
   })

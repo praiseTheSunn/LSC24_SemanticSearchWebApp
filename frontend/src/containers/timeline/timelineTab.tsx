@@ -46,7 +46,7 @@ const TimelineTab = () => {
   const [inHoldMode, setInHoldMode] = useState(false)
   const [dates, setDates] = useState<string[]>([])
   const [selectedActivityIDs, setSelectedActivityIDs] = useState<
-    (number | null)[]
+    (number | null | string)[]
   >([])
   const [locationBasedData, setLocationBasedData] =
     useState<TimelineTabLocationAllData | null>(null)

@@ -62,6 +62,7 @@ export type TextQueryParams = {
   object_local_encoding?: string
   color_global_encoding?: { [key: string]: number }
   color_local_encoding?: string
+  pose_local_encoding?: string
   dataset?: string
   temporal_window_size?: number
   use_temporal_window: boolean
