@@ -1,3 +1,4 @@
+import numpy as np
 import setup
 import json
 import pandas as pd
@@ -118,27 +119,42 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     print(f"Model: {model}")
 
     # Step 2: Retrieve metadata
-    # db = ImageDatabase(dataset_name=dataset)
-    # records = db.retrieve_metadata(record_ids=record_ids, fields=['image_id', 'record_id', 'video_id', 'local_date', 'local_time', 'location_displayed', 'ocr', 'object_tags'])
-    # neighbors = db.retrieve_metadata(record_ids=all_neighbor_ids_flat, fields=['image_id', 'record_id', 'video_id'])
 
-    if model != "default":
-        records = await fetch_metadata(record_ids=record_ids, dataset=dataset, model=model)
-        neighbors = await fetch_metadata(record_ids=all_neighbor_ids_flat, dataset=dataset, model=model)
-    # For explore_neighbor in the activity-filted case
-    else:
-        records = []
-        for record_id in record_ids:
-            record = df.loc[record_id].to_dict()
-            record['record_id'] = record_id
-            records.append(record)
-        neighbors = []
+    # # Activity-only case: split between search and explore
+    # if model != "default":
+    #     records = await fetch_metadata(record_ids=record_ids, dataset=dataset, model=model)
+    #     neighbors = await fetch_metadata(record_ids=all_neighbor_ids_flat, dataset=dataset, model=model)
+    # else:
+    #     # For records
+    #     records_df = df.loc[record_ids].copy()
+    #     records_df['record_id'] = records_df.index
+    #     records_df = records_df.replace([np.inf, -np.inf], np.nan).dropna()
+    #     records = records_df.to_dict(orient='records')
 
-    # # DEBUG
-    # print(f"Record IDs before mapping: {record_ids[:10]}")
-    # print(f"Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
-    # for rec in records[:10]:
-    #     print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
+    #     # For neighbors
+    #     neighbors_df = df.loc[all_neighbor_ids_flat].copy()
+    #     neighbors_df['record_id'] = neighbors_df.index
+    #     neighbors_df = neighbors_df.replace([np.inf, -np.inf], np.nan).dropna()
+    #     neighbors = neighbors_df.to_dict(orient='records')
+
+    # Activity and non-activity both
+    # Temporary use of CSV file for metadata
+    records_df = df.loc[record_ids].copy()
+    records_df['record_id'] = records_df.index
+    records_df = records_df.replace([np.inf, -np.inf], np.nan).dropna()
+    records = records_df.to_dict(orient='records')
+
+    # For neighbors
+    neighbors_df = df.loc[all_neighbor_ids_flat].copy()
+    neighbors_df['record_id'] = neighbors_df.index
+    neighbors_df = neighbors_df.replace([np.inf, -np.inf], np.nan).dropna()
+    neighbors = neighbors_df.to_dict(orient='records')
+
+    # DEBUG
+    print(f"Record IDs before mapping: {record_ids[:10]}")
+    print(f"Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
+    for rec in records[:10]:
+        print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
 
 
 

@@ -1,6 +1,6 @@
 import setup
 import numpy as np
-from pprint import pprint
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 def convert_floats(obj):
@@ -49,9 +49,23 @@ def fetch_embeddings(collection_name: str, record_ids: list):
         collection_name=collection_name,
         ids=record_ids
     )
-
-    results = {
-        'record_ids': [raw_results[i]['record_id'] for i in range(len(raw_results))],
-        'embeddings': [np.array(raw_results[i]['embedding']).tolist() for i in range(len(raw_results))]
+    return {
+        'record_ids': [r['record_id'] for r in raw_results],
+        'embeddings': [np.array(r['embedding']).tolist() for r in raw_results]
     }
-    return results
+
+def fetch_embeddings_new(collection_name: str, record_ids: list, batch_size=500, max_workers=16):
+    # Split into batches
+    batches = [record_ids[i:i + batch_size] for i in range(0, len(record_ids), batch_size)]
+
+    all_ids = []
+    all_embeddings = []
+
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(fetch_embeddings, collection_name, batch) for batch in batches]
+        for future in as_completed(futures):
+            result = future.result()
+            all_ids.extend(result['record_ids'])
+            all_embeddings.extend(result['embeddings'])
+
+    return {'record_ids': all_ids, 'embeddings': all_embeddings}

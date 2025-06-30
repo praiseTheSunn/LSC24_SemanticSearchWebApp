@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Dict, Optional, Any, List
+from typing import Dict, Optional, Any, List, Union
 from schemas import options_schemas
 
 
@@ -21,6 +21,10 @@ class RequestSearchByImageQuery(BaseModel):
 
 
 class RequestSearchByTextQuery(BaseModel):
+    class SearchFilters(BaseModel):
+        date: Optional[Union[str, None]] = ""
+        location: Optional[Union[str, None]] = ""
+        ocr: Optional[Union[str, None]] = ""
     text_query: str
     dataset: options_schemas.DatasetOptions = options_schemas.DatasetOptions.option1
     model: options_schemas.ModelOptions
@@ -35,6 +39,7 @@ class RequestSearchByTextQuery(BaseModel):
     pose_local_encoding: Optional[str] = ""
     user_id: Optional[str] = "default"
     query_id: Optional[str] = "default"
+    filters: Optional[SearchFilters] = None
 
     class Config:
         json_schema_extra = {

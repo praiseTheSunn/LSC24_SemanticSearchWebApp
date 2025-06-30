@@ -39,15 +39,6 @@ def get_milvus_schema(csv_path, column_mapping, filters):
             schema.add_field(field_name=mapped_col, datatype=DataType.VARCHAR, max_length=100)
 
     schema.add_field(field_name="embedding", datatype=DataType.FLOAT_VECTOR, dim=768)
-    
-    # for mapped_col in full_text_fields:
-    #     bm25_function = Function(
-    #         name=f"text_bm25_emb_{mapped_col}",
-    #         input_field_names=[f"text_{mapped_col}"],
-    #         output_field_names=[f"sparse_{mapped_col}"],
-    #         function_type=FunctionType.BM25,
-    #     )
-    #     schema.add_function(bm25_function)
 
     return schema
 
@@ -64,15 +55,6 @@ def get_index_params():
         M=16,
         efConstruction=100,
     )
-
-    # # Add BM25 sparse index for each full text field
-    # for field in full_text_fields:
-    #     sparse_field_name = f"sparse_{field}"
-    #     index_params.add_index(
-    #         field_name=sparse_field_name,
-    #         index_type="SPARSE_INVERTED_INDEX",
-    #         metric_type="BM25"
-    #     )
 
     return index_params
 

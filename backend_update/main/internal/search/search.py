@@ -43,7 +43,7 @@ async def search_structure(query_clause: QueryClause, dataset: str, model: str, 
 async def search_by_image(image_base64: str, dataset: str, model: str, subset_record_ids: list[str] = []):
     image_embedding = await compute_image_embedding(image_base64, model)
     if image_embedding is None:
-        return "Failed to compute text embedding.", status.HTTP_500_INTERNAL_SERVER_ERROR
+        return "Failed to compute image embedding.", status.HTTP_500_INTERNAL_SERVER_ERROR
     else:
         result = await search_milvus(
             embedding=image_embedding, 
