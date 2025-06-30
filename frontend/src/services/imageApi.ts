@@ -26,7 +26,7 @@ export const ImageApi = createApi({
     return {
       getImages: builder.query<ImageRecord[], TextQueryParams>({
         query: (params) => {
-          const tempParams = { ...params, user_id: localStorage.getItem('username') }
+          const tempParams = { ...params, user_id: localStorage.getItem('username'), query_id: localStorage.getItem('evaluationId') }
           return {
             url: '/search/search_with_text_query',
             method: 'POST',
@@ -48,7 +48,7 @@ export const ImageApi = createApi({
       }),
       getSimilars: builder.query<ImageRecord[], ExploreSimilarParams>({
         query: (params) => {
-          const tempParams = { ...params, user_id: localStorage.getItem('username') }
+          const tempParams = { ...params, user_id: localStorage.getItem('username'), query_id: localStorage.getItem('evaluationId') }
           return{
           url: '/explore/explore_similar_images',
           method: 'POST',
@@ -70,7 +70,7 @@ export const ImageApi = createApi({
 
       getNeighbors: builder.query<ImageRecord[], ExploreNeighborParams>({
         query: (params) => {
-          const tempParams = { ...params, user_id: localStorage.getItem('username') }
+          const tempParams = { ...params, user_id: localStorage.getItem('username'), query_id: localStorage.getItem('evaluationId') }
           return{
           url: '/explore/explore_neighbor_images',
           method: 'POST',
@@ -92,7 +92,7 @@ export const ImageApi = createApi({
 
       searchByImage: builder.query<ImageRecord[], ImageQueryParams>({
         query: (imageQuery) => {
-          const tempParams = { ...imageQuery, user_id: localStorage.getItem('username') }
+          const tempParams = { ...imageQuery, user_id: localStorage.getItem('username'), query_id: localStorage.getItem('evaluationId') }
           return {
           url: '/search/search_with_image_query',
           method: 'POST',
@@ -105,7 +105,7 @@ export const ImageApi = createApi({
 
       getFeedbackImages: builder.query<{like: ImageRecord[], dislike: ImageRecord[] }, FeedbackQueryParams>({
         query: (params) => {
-          const tempParams = { ...params, user_id: localStorage.getItem('username') }
+          const tempParams = { ...params, user_id: localStorage.getItem('username'), query_id: localStorage.getItem('evaluationId') }
           return {
             url: '/feedback',
             method: 'POST',
