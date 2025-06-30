@@ -61,7 +61,9 @@ export const EvalApi = createApi({
             eval_http.post(`submit`, {
               user_id: localStorage.getItem('username') || '',
               text: params.text,
-            }).then();
+            }).then().catch((err) => {
+              console.error('Submit or logging failed:', err)
+              });
           } catch (err) {
             console.error('Submit or logging failed:', err);
           }
@@ -100,7 +102,9 @@ export const EvalApi = createApi({
             eval_http.post('submit', {
               user_id: localStorage.getItem('username') || '',
               media_item_name: params.mediaItemName,
-            }).then();
+            }).then().catch((err) => {
+              console.error('Submission or logging failed:', err)
+              });
           } catch (err) {
             console.error('Submission or logging failed:', err);
           }
