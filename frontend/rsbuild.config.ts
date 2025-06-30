@@ -32,4 +32,7 @@ export default defineConfig({
       'process.env.NODE_DEBUG': false,
     },
   },
+  dev: {
+    hmr: false
+  }
 })
