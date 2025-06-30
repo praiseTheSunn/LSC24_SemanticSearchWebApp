@@ -25,9 +25,15 @@ async def search_with_image_query(payload: RequestSearchByImageQuery):
     
     # Extract the parameters from the payload  
     inputs = payload.model_dump()
+    inputs["model"] = "clips"           # TEMPORARY FIX: Hardcoded model name for testing purposes
+    inputs["dataset"] = "lsc24"         # TEMPORARY FIX: Hardcoded dataset name for testing purposes
 
     # Search for the image
     response_data, response_status = await search_by_image(image_base64=inputs["image_base64"], dataset=inputs["dataset"], model=inputs["model"])
+
+    # DEBUG
+    print(inputs)
+    print(response_data)
 
     # Postprocess the response
     response_data = await prepare_response(inputs["dataset"], inputs["model"], response_data["record_ids"], response_data["scores"], inputs["display_window_size"])
@@ -55,6 +61,19 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
 
     # Extract the parameters from the payload  
     inputs = payload.model_dump()
+    print(inputs.keys())
+    if inputs["filters"]:
+        for k, v in inputs["filters"].items():
+            if k == "location":
+                k = "-l"
+            elif k == "date":
+                k = "-d"
+            elif k == "ocr":
+                k = "-ocr"
+            if v is None or v == "":
+                continue
+            inputs["text_query"] += f" {k} {v}"
+
     logging.info(f"Start time: {time.time()}") 
     logging.info(f"Inputs: {inputs}")
 

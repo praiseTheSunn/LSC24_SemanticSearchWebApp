@@ -4,6 +4,8 @@ from internal.feedback import feedback
 from internal.postprocess import prepare_response
 from schemas.request_schemas import RequestFeedback
 from schemas.response_schemas import ResponseURLs
+import time
+import logging
 
 router = APIRouter(
     prefix = '/feedback',
@@ -15,6 +17,11 @@ async def get_feedback(payload: RequestFeedback):
     header = {
         'Access-Control-Allow-Origin': '*'
     }
+
+    inputs = payload.model_dump()
+    logging.info(f"Start time: {time.time()}")
+    logging.info(f"Inputs: {inputs}")
+
     data_like = {
         "record_ids": payload.like.ids,
         "prior_scores": payload.like.prior_scores,
@@ -34,4 +41,8 @@ async def get_feedback(payload: RequestFeedback):
         "like": await prepare_response(payload.dataset, payload.model, response_relevant["record_ids"], display_window_size=0),
         "dislike": await prepare_response(payload.dataset, payload.model, response_irrelevant["record_ids"], display_window_size=0)
     }
+
+    logging.info(f"End time: {time.time()}")
+    logging.info(f"")
+
     return JSONResponse(content={"response": response}, status_code=status.HTTP_200_OK, headers=header)

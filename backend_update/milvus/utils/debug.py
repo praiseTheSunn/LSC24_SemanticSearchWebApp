@@ -16,6 +16,10 @@ print(f"Collections: {collections}")
 r = client.get_collection_stats("lsc24_clips")
 print(r)
 
+# describe collection
+description = client.describe_collection("lsc24_clips")
+print(description)
+
 r = client.get(
     collection_name="lsc24_clips",
     ids=[346132],

@@ -6,6 +6,7 @@ from fastapi import status, HTTPException
 from internal.search.scorer import get_combine_score, get_standardized_scores
 from internal.api_handler import fetch_embeddings, compute_text_embedding
 from schemas.request_schemas import QueryClause
+import time
 
 import sys
 sys.path.append('..')
@@ -19,23 +20,34 @@ async def expand_temporal(prev_result, next_clause: QueryClause, dataset: str, t
         "scores": [],
     }
 
+    RECORD_IDS_CUTOFF_1 = 100
+    RECORD_IDS_CUTOFF_2 = 300
+
     record_ids = prev_result["record_ids"]
     record_scores = prev_result["scores"]
     all_next_record_ids = {}
 
-    for record_id in record_ids:
-        neighbors = list(range(int(record_id) + 1, int(record_id) + temporal_window_size + 1))
+    for i, record_id in enumerate(record_ids):
+        if i < RECORD_IDS_CUTOFF_1:
+            neighbors = list(range(int(record_id) + 1, int(record_id) + int(temporal_window_size + 1)))
+        elif i < RECORD_IDS_CUTOFF_2:
+            neighbors = list(range(int(record_id) + 1, int(record_id) + int(temporal_window_size / 2 + 1)))
+        else:
+            neighbors = list(range(int(record_id) + 1, int(record_id) + int(temporal_window_size / 3 + 1)))
         all_next_record_ids[record_id] = neighbors
 
     all_next_flat = list(itertools.chain.from_iterable(all_next_record_ids.values()))
+    all_next_flat = list(set(all_next_flat))
     print(f"Total next record IDs to fetch: {len(all_next_flat)}")
 
     # Fetch embeddings (ordered list)
+    start_time = time.time()
     all_next_embeddings_list = await fetch_embeddings(
         record_ids=all_next_flat,
         dataset=dataset,
         model="clips"
     )
+    print(f"Fetched embeddings for {len(all_next_flat)} records in {time.time() - start_time:.2f} seconds")
 
     # Convert to NumPy matrix
     embeddings_matrix = np.vstack(all_next_embeddings_list)  # shape: (N, D)
@@ -46,14 +58,17 @@ async def expand_temporal(prev_result, next_clause: QueryClause, dataset: str, t
     next_clause_embedding = np.array(next_clause_embedding).reshape(1, -1)  # shape: (1, D)
     print(f"Next clause embedding shape: {next_clause_embedding.shape}")
 
-    # Compute all similarities in one go
+    # Compute all similarities in one go    
+    start_time = time.time()
     similarities = embeddings_matrix @ next_clause_embedding.T  # shape: (N,)
     print(f"Similarities shape: {similarities.shape}")
+    print(f"Computed similarities in {time.time() - start_time:.2f} seconds")
 
     # Map similarities back to record IDs
     id_to_score = dict(zip(all_next_flat, similarities))
     print(f"ID to score mapping: {len(id_to_score)} entries")
 
+    start_time = time.time()
     for record_id, record_score in zip(record_ids, record_scores):
         next_ids = all_next_record_ids[record_id]
         scored_neighbors = [(nid, id_to_score.get(nid, -1)) for nid in next_ids]
@@ -67,6 +82,7 @@ async def expand_temporal(prev_result, next_clause: QueryClause, dataset: str, t
             combined_score = get_combine_score([record_score, best_score])
             result["record_ids"].append(mid_record_id)
             result["scores"].append(combined_score)
+    print(f"Processed {len(result['record_ids'])} records in {time.time() - start_time:.2f} seconds")
 
     # sort results by score
     if result["scores"]:
