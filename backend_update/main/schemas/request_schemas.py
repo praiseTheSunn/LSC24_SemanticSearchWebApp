@@ -153,6 +153,8 @@ class RequestFeedback(BaseModel):
     dislike: RequestFeedbackIrrelevant
     model: options_schemas.ModelOptions
     dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
+    user_id: Optional[str] = "default"
+    query_id: Optional[str] = "default"
 
     class Config:
         json_schema_extra = {
