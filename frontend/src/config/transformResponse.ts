@@ -121,14 +121,36 @@ import type { ImageRecord } from '../types/image'
 
 
 export const transformResponse_LSC = (response: ApiResponse) => {
-  return response.response || response.data
+  const data = response.response || response.data
+  return data.map((img: ImageRecord) => {
+    img.img_link = img.img_link.replace('server.selab.edu.vn', '10.0.1.21')
+    img.neighbors = img.neighbors?.map((neighbor: ImageRecord) => {
+      neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn', '10.0.1.21')
+      return neighbor
+    }) || []
+    return img
+  })
 }
 export const transformResponse_Feedback_LSC = (response: FeedbackResponse) => {
   const data = response.response || response.data
 
   const result = {
-    like: data.like,
-    dislike: data.dislike,
+    like: data.like.map((img: ImageRecord) => {
+      img.img_link = img.img_link.replace('server.selab.edu.vn', '10.0.1.21')
+      img.neighbors = img.neighbors?.map((neighbor: ImageRecord) => {
+        neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn', '10.0.1.21')
+        return neighbor
+      }) || []
+      return img
+    }),
+    dislike: data.dislike.map((img: ImageRecord) => {
+      img.img_link = img.img_link.replace('server.selab.edu.vn', '10.0.1.21')
+      img.neighbors = img.neighbors?.map((neighbor: ImageRecord) => {
+        neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn', '10.0.1.21')
+        return neighbor
+      }) || []
+      return img
+    }),
   }
 
   return result
