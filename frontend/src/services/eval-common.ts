@@ -1,5 +1,6 @@
 import axios from 'axios'
-const baseURL = 'aaa'
+import { BASE_API_URL } from '../types/constants'
+const baseURL = BASE_API_URL
 
 if (!baseURL) {
   throw new Error(
