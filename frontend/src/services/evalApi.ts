@@ -70,7 +70,7 @@ export const EvalApi = createApi({
         },
       }),
 
-      submitKISAnswering: builder.mutation<SubmitResponse, KISParams & { user_id: string }>({
+      submitKISAnswering: builder.mutation<SubmitResponse, KISParams>({
         query: (params) => {
           const answer = params.start != undefined && params.end != undefined
             ? {
