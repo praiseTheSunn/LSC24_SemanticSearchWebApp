@@ -28,11 +28,11 @@ const FilterCategories_VBS2025 = {
 }
 
 const FilterCategories_LSC2024 = {
-  '-act ': { category: 'activity', startIndex: 5, display: '-act ... : Activity' },
+  '-a ': { category: 'activity', startIndex: 3, display: '-a ... : Activity' },
   '-ocr ': { category: 'ocr', startIndex: 5, display: '-ocr ... : OCR text' },
-  '-loc ': { category: 'location', startIndex: 5, display: '-loc ... : Location' },
+  '-l ': { category: 'location', startIndex: 3, display: '-l ... : Location' },
   '-d ': {category: 'date', startIndex: 3, display: '-d ... : date'},
-  '-t ': {category: 'time', startIndex: 3, display: '-t ... : time'},
+  '-t ': {category: 'time', startIndex: 3, display: '-t ... : time (only frontend filter)'},
   '-textasdasdsa ': {category: 'SUBMIT TEXT', startIndex: 6, display: '-text ... : Submit text'},
 }
 
