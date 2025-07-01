@@ -2,10 +2,10 @@ from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from internal.feedback import feedback
 from internal.postprocess import prepare_response
+from internal.logger import save_log
 from schemas.request_schemas import RequestFeedback
 from schemas.response_schemas import ResponseURLs
-import time
-import logging
+from datetime import datetime
 
 router = APIRouter(
     prefix = '/feedback',
@@ -19,8 +19,6 @@ async def get_feedback(payload: RequestFeedback):
     }
 
     inputs = payload.model_dump()
-    logging.info(f"Start time: {time.time()}")
-    logging.info(f"Inputs: {inputs}")
 
     data_like = {
         "record_ids": payload.like.ids,
@@ -38,11 +36,15 @@ async def get_feedback(payload: RequestFeedback):
     response_relevant = await feedback.get_relevant_images(**data_like)
     response_irrelevant = await feedback.get_irrelevant_images(**data_dislike)
     response = {
-        "like": await prepare_response(payload.dataset, payload.model, response_relevant["record_ids"], display_window_size=0),
-        "dislike": await prepare_response(payload.dataset, payload.model, response_irrelevant["record_ids"], display_window_size=0)
+        "like": await prepare_response(payload.dataset, payload.model, response_relevant["record_ids"], display_window_size=3),
+        "dislike": await prepare_response(payload.dataset, payload.model, response_irrelevant["record_ids"], display_window_size=3)
     }
 
-    logging.info(f"End time: {time.time()}")
-    logging.info(f"")
+    save_log(
+        log_path=f"./logs/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.json",
+        interaction_type="FEEDBACK",
+        payload=payload,
+        response=response
+    )
 
     return JSONResponse(content={"response": response}, status_code=status.HTTP_200_OK, headers=header)
