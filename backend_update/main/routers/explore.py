@@ -2,14 +2,16 @@ from fastapi import APIRouter, status, HTTPException, Depends
 from fastapi.responses import JSONResponse
 from internal.explore import explore
 from internal.postprocess import prepare_response
+from internal.logger import save_log
 from schemas.request_schemas import RequestExploreSimilarImages, RequestExploreNeighborImages
 from schemas.response_schemas import ResponseURLs, ResponseEmbeddings
-import time
+from datetime import datetime
 import logging
 
 import sys
 sys.path.append("..")
 from dataset.dataset_manager import DatasetManager
+import pandas as pd
 
 
 router = APIRouter(
@@ -17,22 +19,34 @@ router = APIRouter(
     tags = ['explore'],
 )
 
+df = pd.read_csv("/home/hlmquan/LSC24_SemanticSearchWebApp/backend_update/data/lsc24/metadata/metadata_v6.csv") 
+df.set_index("id", inplace=True)
+
+
 
 @router.post("/explore_similar_images", response_model=ResponseURLs)
 async def explore_similar_images(payload: RequestExploreSimilarImages):
     
     inputs = payload.model_dump()
-    logging.info(f"Start time: {time.time()}") 
-    logging.info(f"Inputs: {inputs}")
 
-    image_ids = [DatasetManager.get_dataset(inputs["dataset"]).standardize_image_id(url) for url in inputs["image_urls"]]
-    record_ids = [DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id] for image_id in image_ids]
+    
+    if 'image_ids' in inputs.keys() and inputs["image_ids"] is not None:
+        # If image_ids are provided, use them directly
+        image_ids = inputs["image_ids"]
+        record_ids = [int(image_id) for image_id in image_ids]
+    elif 'image_urls' in inputs.keys() and inputs["image_urls"] is not None:
+        image_ids = [DatasetManager.get_dataset(inputs["dataset"]).standardize_image_id(url) for url in inputs["image_urls"]]
+        record_ids = [DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id] for image_id in image_ids]
 
     response_data, response_status = await explore.explore_similar_images(record_ids=record_ids, dataset=inputs["dataset"], model=inputs["model"])
     response_data = await prepare_response(inputs["dataset"], inputs["model"], response_data["record_ids"], scores=response_data["scores"], display_window_size=inputs["display_window_size"])
-    
-    logging.info(f"End time: {time.time()}") 
-    logging.info(f"")
+
+    save_log(
+        log_path=f"./logs/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.json",
+        interaction_type="EXOLORE_SIMILAR",
+        payload=payload,
+        response=response_data
+    )
 
     return JSONResponse(content={"response": response_data}, status_code=response_status, headers={'Access-Control-Allow-Origin': '*'})
 
@@ -41,11 +55,18 @@ async def explore_similar_images(payload: RequestExploreSimilarImages):
 async def explore_neighbor_images(payload: RequestExploreNeighborImages):
 
     inputs = payload.model_dump()
-    logging.info(f"Start time: {time.time()}") 
-    logging.info(f"Inputs: {inputs}")
+    print(inputs)
 
-    image_id = DatasetManager.get_dataset(inputs["dataset"]).standardize_image_id(inputs["image_url"])
-    record_id = DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id]
+    if 'image_id' in inputs.keys() and inputs["image_id"] is not None:
+        print("Using image_id directly")
+        # If image_id is provided, use it directly
+        image_id = inputs["image_id"]
+        record_id = int(image_id)
+    elif 'image_url' in inputs.keys() and inputs["image_url"] is not None:
+        print("Standardizing image_url to image_id")
+        image_id = DatasetManager.get_dataset(inputs["dataset"]).standardize_image_id(inputs["image_url"])
+        record_id = DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id]
+        print(f"Standardized image_id: {image_id}")
 
     # DEBUG
     print(f"Exploring neighbors for image ID: {image_id}, Record ID: {record_id}, Dataset: {inputs['dataset']}, Span: {inputs['span']}")
@@ -53,8 +74,12 @@ async def explore_neighbor_images(payload: RequestExploreNeighborImages):
     response_data, response_status = await explore.explore_neighbor_images(record_id=record_id, span=inputs["span"], dataset=inputs["dataset"])
     response_data = await prepare_response(inputs["dataset"], "default", response_data["record_ids"], display_window_size=inputs["display_window_size"])      # model=default for not retrieving data from Milvus
     
-    logging.info(f"End time: {time.time()}") 
-    logging.info(f"")
+    save_log(
+        log_path=f"./logs/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.json",
+        interaction_type="EXPLORE_NEIGHBOR",
+        payload=payload,
+        response=response_data
+    )
 
     return JSONResponse(content={"response": response_data}, status_code=response_status, headers={'Access-Control-Allow-Origin': '*'})
 

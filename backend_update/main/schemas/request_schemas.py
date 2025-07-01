@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator, model_validator
 from typing import Dict, Optional, Any, List, Union
 from schemas import options_schemas
 
@@ -39,6 +39,7 @@ class RequestSearchByTextQuery(BaseModel):
     pose_local_encoding: Optional[str] = ""
     user_id: Optional[str] = "default"
     query_id: Optional[str] = "default"
+    evaluation_id: Optional[str] = "default"
     filters: Optional[SearchFilters] = None
 
     class Config:
@@ -51,7 +52,8 @@ class RequestSearchByTextQuery(BaseModel):
                     "temporal_window_size": 3,
                     "display_window_size": 0,
                     "user_id": "rhymastic",
-                    "query_id": "LSC25-xxx"
+                    "query_id": "LSC25-xxx",
+                    "evaluation_id": "abcd-..."
             }
         }
 
@@ -97,12 +99,23 @@ class QueryStructured(BaseModel):
 
 
 class RequestExploreSimilarImages(BaseModel):
-    image_urls: list[str]
+    image_urls: Optional[list[str]] = None
+    image_ids: Optional[list[int]] = None
     dataset: options_schemas.DatasetOptions
     model: options_schemas.ModelOptions
     display_window_size: int = 0
     user_id: Optional[str] = "default"
     query_id: Optional[str] = "default"
+    evaluation_id: Optional[str] = "default"
+
+    @model_validator(mode="before")
+    @classmethod
+    def only_one_of_media_or_text(cls, data: dict):
+        has_media = bool(data.get("image_urls"))
+        has_text = bool(data.get("image_ids"))
+        if has_media == has_text:  # both True or both False → invalid
+            raise ValueError("Exactly one of 'image_urls' or 'image_ids' must be provided.")
+        return data
 
     class Config:
         json_schema_extra = {
@@ -114,18 +127,30 @@ class RequestExploreSimilarImages(BaseModel):
                     "dataset": "lsc24",
                     "model": "clips",
                     "user_id": "rhymastic",
-                    "query_id": "LSC25-xxx"
+                    "query_id": "LSC25-xxx",
+                    "evaluation_id": "abcd-..."
             }
         }
 
 
 class RequestExploreNeighborImages(BaseModel):
-    image_url: str
+    image_url: Optional[str] = None
+    image_id: Optional[int] = None
     dataset: options_schemas.DatasetOptions
     span: int
     display_window_size: int = 0
     user_id: Optional[str] = "default"
     query_id: Optional[str] = "default"
+    evaluation_id: Optional[str] = "default"
+
+    @model_validator(mode="before")
+    @classmethod
+    def only_one_of_media_or_text(cls, data: dict):
+        has_media = bool(data.get("image_url"))
+        has_text = bool(data.get("image_id"))
+        if has_media == has_text:  # both True or both False → invalid
+            raise ValueError("Exactly one of 'image_url' or 'image_id' must be provided.")
+        return data
 
     class Config:
         json_schema_extra = {
@@ -134,9 +159,12 @@ class RequestExploreNeighborImages(BaseModel):
                     "dataset": "lsc24",
                     "span": 30,
                     "user_id": "rhymastic",
-                    "query_id": "LSC25-xxx"
+                    "query_id": "LSC25-xxx",                    
+                    "evaluation_id": "abcd-..."
             }
         }
+
+
 
 
 class RequestFeedbackRelevant(BaseModel):
@@ -155,6 +183,7 @@ class RequestFeedback(BaseModel):
     dataset: Optional[options_schemas.DatasetOptions] = options_schemas.DatasetOptions.option1
     user_id: Optional[str] = "default"
     query_id: Optional[str] = "default"
+    evaluation_id: Optional[str] = "default"
 
     class Config:
         json_schema_extra = {
@@ -170,5 +199,32 @@ class RequestFeedback(BaseModel):
                 },
                 "model": "clips",
                 "dataset": "lsc24"
+            }
+        }
+
+class RequestLogSubmit(BaseModel):
+    user_id: str
+    query_id: Optional[str] = "default"
+    evaluation_id: Optional[str] = "default"
+    media_item_name: Optional[str] = None
+    text: Optional[str] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def only_one_of_media_or_text(cls, data: dict):
+        has_media = bool(data.get("media_item_name"))
+        has_text = bool(data.get("text"))
+        if has_media == has_text:  # both True or both False → invalid
+            raise ValueError("Exactly one of 'media_item_name' or 'text' must be provided.")
+        return data
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user_id": "rhymastic",
+                "query_id": "LSC25-xxx",
+                "evaluation_id": "abcd-...",
+                "media_item_name": "20191031_070027_000",
+                # or alternatively:
             }
         }

@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from internal.search.search import search_by_image, search_by_text
 from internal.preprocess import parse_raw_query
 from internal.postprocess import prepare_response
+from internal.logger import save_log
 from schemas.request_schemas import RequestSearchByTextQuery, RequestSearchByImageQuery, QueryClause, QueryStructured
 from schemas.response_schemas import ResponseURLs
 
@@ -11,7 +12,7 @@ sys.path.append("..")
 from dataset.dataset_manager import DatasetManager
 
 import logging
-import time
+from datetime import datetime
 
 router = APIRouter(
     prefix = '/search',
@@ -74,9 +75,6 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
                 continue
             inputs["text_query"] += f" {k} {v}"
 
-    logging.info(f"Start time: {time.time()}") 
-    logging.info(f"Inputs: {inputs}")
-
     # Preprocess the query
     filters = DatasetManager.get_dataset(inputs["dataset"]).get_filters()
     parsed = parse_raw_query(inputs["text_query"], filters)
@@ -119,6 +117,11 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
     else:
         data = {"status": response_status, "message": "Data retrieval failed", "error": response_data}
 
-    logging.info(f"End time: {time.time()}")
-    logging.info("")
+    save_log(
+        log_path=f"./logs/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.json",
+        interaction_type="SEARCH_TEXT",
+        payload=payload,
+        response=response_data
+    )
+
     return JSONResponse(content=data, status_code=response_status, headers={'Access-Control-Allow-Origin': '*'})
