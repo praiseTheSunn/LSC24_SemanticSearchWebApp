@@ -10,7 +10,7 @@ import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { useSubmitKISAnsweringMutation } from '../AppState'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import { AddLikeAction } from '../config/likeResponse'
-import { AIC_addImages, LSC_addCSVImages } from '../config/submitFunc'
+import { AIC_addImages, LSC_addCSVImages, AIC_addCSVImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
 
 interface AnImageProps {
@@ -118,7 +118,7 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
-    if (e.ctrlKey) {
+    if (e.ctrlKey || e.metaKey) {
       submit(data)
     }
     if (e.altKey) {

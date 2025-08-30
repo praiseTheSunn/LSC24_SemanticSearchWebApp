@@ -55,3 +55,18 @@ export const AIC_addImages = async (
 
   displayResponseToast(resultKIS)
 }
+
+export const AIC_addCSVImages = (src: ImageRecord, toastId: Id | null ,dispatch: Dispatch, prevImages: ImageRecord[]) => {
+  
+  // toast.update(toastId, { render: `Added: ${src.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 200, delay: 200 });
+  toast.success(`Added: ${src.img_link}`, { autoClose: 200, position: 'bottom-right' });
+  
+  const updatedCSVImages = [...prevImages, src].filter((value, index, self) =>
+    index === self.findIndex((t) => (
+      t.img_link === value.img_link
+    ))
+  );
+  // console.log('updatedCSVImages', updatedCSVImages);
+  
+  dispatch(appActions.setCSVImages(updatedCSVImages));
+}
