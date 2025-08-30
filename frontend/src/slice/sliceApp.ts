@@ -21,7 +21,7 @@ const initialState: AppState = {
     model: 'clips',
     mode: 'vec',
     text_query: '',
-    dataset: 'lsc24',
+    dataset: 'aic25',
     user_id: 'xxx',
   },
   queryHistory: [],

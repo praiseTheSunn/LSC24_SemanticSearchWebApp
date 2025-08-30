@@ -5,6 +5,7 @@ import {
   transformResponse_LSC2024,
   transformResponse_Feedback_AIC,
   transformResponse_Feedback_LSC2024,
+  transformResponse_AIC2025
 } from '../config/transformResponse'
 import type {
   ApiResponse,
@@ -31,7 +32,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC2024(response),
+          transformResponse_AIC2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -51,7 +52,7 @@ export const ImageApi = createApi({
           body: params,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC2024(response),
+          transformResponse_AIC2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -72,7 +73,7 @@ export const ImageApi = createApi({
           body: params,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC2024(response),
+          transformResponse_AIC2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -92,7 +93,7 @@ export const ImageApi = createApi({
           body: imageQuery,
         }),
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC2024(response),
+          transformResponse_AIC2025(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 

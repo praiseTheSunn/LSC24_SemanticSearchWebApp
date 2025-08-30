@@ -59,19 +59,35 @@ export const CSVDownloadBox = () => {
   const handleDownloadCSV = () => {
     if (csvImages.length > 0) {
       const csv = csvImages
-        .map((image) => `${image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")}\n`)
-        .join('')
-      const hiddenElement = document.createElement('a')
-      hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURI(csv)}`
-      hiddenElement.target = '_blank'
-      hiddenElement.download = 'images.csv'
-      hiddenElement.click()
+        .map((image) => {
+          // Bỏ http://127.0.0.1:8080/ và .jpg/.webp
+          const cleanPath = image.img_link
+            .replace("http://127.0.0.1:8080/", "")
+            .replace(/\.(jpg|jpeg|png|webp)$/i, "");
+
+          // Tách thành mảng theo "/"
+          const parts = cleanPath.split("/"); 
+          // Lấy "K05_V004" từ parts[1]
+          const folder = parts[1]; 
+          // Lấy "21990" từ parts[2]
+          const id = parts[2]; 
+
+          return `${folder},${id}`;
+        })
+        .join("\n");
+
+      const hiddenElement = document.createElement("a");
+      hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURI(csv)}`;
+      hiddenElement.target = "_blank";
+      hiddenElement.download = "images.csv";
+      hiddenElement.click();
     } else {
-      toast.error('No images to download', {
-        position: 'bottom-left',
-      })
+      toast.error("No images to download", {
+        position: "bottom-left",
+      });
     }
-  }
+  };
+
 
   const handleClearCSV = () => {
     dispatch(appActions.setCSVImages([]))
