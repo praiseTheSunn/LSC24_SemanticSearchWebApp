@@ -25,12 +25,14 @@ export const transformResponse_LSC2024 = (response: ApiResponse) => {
 export const transformResponse_Feedback_LSC2024 = (response: ApiResponse) => {
 
   const data = response.response || response.data
-  const likes = data.like[0].map((img: ImageRecord) => {
+  console.log('Transformed feedback data:', data);
+
+  const likes = data.like.map((img: ImageRecord) => {
     img.img_link = img.img_link.replace('8000', '8080')
     return img
   })
 
-  const dislikes = data.dislike[0].map((img: ImageRecord) => {
+  const dislikes = data.dislike.map((img: ImageRecord) => {
     img.img_link = img.img_link.replace('8000', '8080')
     return img
   })
@@ -39,9 +41,39 @@ export const transformResponse_Feedback_LSC2024 = (response: ApiResponse) => {
     like: likes,
     dislike: dislikes,
   }
+  console.log('Transformed feedback response:', result);
 
   return result
 }
+
+export const transformResponse_Feedback_AIC2025 = (response: ApiResponse) => {
+
+  const data = response.response || response.data
+  console.log('Transformed feedback data:', data);
+
+  const likes = data.like.map((img: ImageRecord) => {
+    img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+    img.img_link = img.img_link.substring(0, 22) + img.img_link.substring(22, 25) + '/' + img.img_link.substring(22)
+    img.img_link = img.img_link.replace('jpg', 'webp')
+    return img
+  })
+
+  const dislikes = data.dislike.map((img: ImageRecord) => {
+    img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+    img.img_link = img.img_link.substring(0, 22) + img.img_link.substring(22, 25) + '/' + img.img_link.substring(22)
+    img.img_link = img.img_link.replace('jpg', 'webp')
+    return img
+  })
+
+  const result = {
+    like: likes,
+    dislike: dislikes,
+  }
+  console.log('Transformed feedback response:', result);
+
+  return result
+}
+
 
 
 

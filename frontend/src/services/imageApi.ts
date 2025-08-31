@@ -5,6 +5,7 @@ import {
   transformResponse_LSC2024,
   transformResponse_Feedback_AIC,
   transformResponse_Feedback_LSC2024,
+  transformResponse_Feedback_AIC2025,
   transformResponse_AIC2025
 } from '../config/transformResponse'
 import type {
@@ -109,7 +110,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_Feedback_LSC2024(response),
+          transformResponse_Feedback_AIC2025(response),
       }),
     }
   },
