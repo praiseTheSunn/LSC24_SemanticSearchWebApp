@@ -7,6 +7,18 @@ export type ApiResponse = {
   status: number
 }
 
+export type FeedbackResponse = {
+  data: {
+    like: ImageRecord[]
+    dislike: ImageRecord[]
+  }
+  response?: {
+    like: ImageRecord[]
+    dislike: ImageRecord[]
+  }
+  status: number
+}
+
 export type ApiError = {
   message: string
   status: number
@@ -34,6 +46,11 @@ export type ObjPosResponse = {
   video_id?: string
   frame_id?: string
   context_id_coarse?: string
+  like?: any 
+  dislike?: any
+  record_id: number | string
+  neighbors?: ObjPosResponse[]
+  image_id?: string
 }
 
 export type TextQueryParams = {
@@ -45,7 +62,11 @@ export type TextQueryParams = {
   object_local_encoding?: string
   color_global_encoding?: { [key: string]: number }
   color_local_encoding?: string
+  pose_local_encoding?: string
   dataset?: string
+  temporal_window_size?: number
+  use_temporal_window: boolean
+  display_window_size: number
 }
 
 export type ExploreSimilarParams = {
@@ -64,6 +85,7 @@ export type ImageQueryParams = {
   image_base64: string | ArrayBuffer
   model: string
   dataset?: string
+  display_window_size: number
 }
 
 export type ObjPosParams = {
@@ -107,20 +129,21 @@ export type KISParams = {
   session: string
   evaluation_id: string
   mediaItemName: string
-  start: number
-  end: number
+  start?: number
+  end?: number
 }
 
 export type FeedbackQueryParams = {
-  dataset: string
-  dislike: {
-    ids: string[]
-    limit: number
-  }
-  like: {
-    ids: string[]
-    limit: number
-    prior_scores: number[]
-  }
-  model: string
+  "like": {
+      "ids": string[],
+      "prior_scores": number[],
+      "limit": number
+  },
+  "dislike": {
+      "ids": string[],
+      "limit": number
+  },
+  "model": string,
+  "dataset": string,
+  display_window_size: number,
 }

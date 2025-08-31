@@ -27,7 +27,7 @@ import pico8Colors from '../../assets/ObjColors/pico8'
 import { HumanPoses } from '../../data/HumanPoses'
 import { InitPoseCoor } from '../../data/InitPoseCoor'
 import { DragIconList } from '../../data/icon'
-import type { ObjPosResponse } from '../../types/api'
+import type { ObjPosResponse, TextQueryParams } from '../../types/api'
 import type { ImageRecord } from '../../types/image'
 import { brushEncoding } from '../../utils/encoding/brushEncoding'
 import { objColorPosEncoding } from '../../utils/encoding/objColorPosEncoding'
@@ -180,7 +180,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
       dataset: queryPayload.dataset,
     }
     console.log('Query:', searchQuery)
-    trigger(searchQuery)
+    trigger(searchQuery as TextQueryParams)
   }
 
   useEffect(() => {

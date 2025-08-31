@@ -204,7 +204,7 @@ export const CSVDownloadBox = () => {
     }
   }, [handleSubmitFeedback])
 
-  const ImageBox = ({ image, onDelete }) => {
+  const ImageBox = ({ image, onDelete }  : {image: any, onDelete: any}) => {
     return (
       <div
         style={{

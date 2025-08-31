@@ -37,10 +37,10 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
     }
 
     for (const value of locationDataMap.values()) {
-      value.sort((a: ImageRecord, b: ImageRecord) => b?.score - a?.score)
+      value.sort((a: ImageRecord, b: ImageRecord) => (b?.score ?? 0) - (a?.score ?? 0))
     }
     for (const value of timeDataMap.values()) {
-      value.sort((a: ImageRecord, b: ImageRecord) => b?.score - a?.score)
+      value.sort((a: ImageRecord, b: ImageRecord) => (b?.score ?? 0) - (a?.score ?? 0))
     }
 
     setLocationBasedData(Array.from(locationDataMap.values()))

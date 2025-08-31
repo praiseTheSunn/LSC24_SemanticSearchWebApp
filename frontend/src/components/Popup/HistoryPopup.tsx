@@ -22,6 +22,7 @@ import {
   useLazyGetImagesQuery,
 } from '../../AppState'
 import type { SearchTermType } from '../../types/search'
+import type { TextQueryParams } from '../../types/api'
 
 const HistoryPopup = ({
   setSearchTerms,
@@ -91,7 +92,7 @@ const HistoryPopup = ({
       model: queryPayload.model,
       dataset: queryPayload.dataset,
       user_id: "xxx"
-    }).then(() => {
+    } as TextQueryParams).then(() => {
       setSearchTerms(
         filters.map((filter) => ({
           category: filter.split(': ')[0],

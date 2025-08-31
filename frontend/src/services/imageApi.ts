@@ -2,9 +2,6 @@ import { createApi } from '@reduxjs/toolkit/query/react'
 import { get } from 'lodash'
 import { ImageQuery } from '.'
 import {
-  transformResponse_LSC2024,
-  transformResponse_Feedback_AIC,
-  transformResponse_Feedback_LSC2024,
   transformResponse_Feedback_AIC2025,
   transformResponse_AIC2025
 } from '../config/transformResponse'

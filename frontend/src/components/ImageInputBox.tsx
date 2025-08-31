@@ -15,6 +15,7 @@ import {
   useAppSelector,
   useLazySearchByImageQuery,
 } from '../AppState'
+import { ImageQueryParams } from '../types/api'
 
 const ImageInputBox = () => {
   const [imageSrc, setImageSrc] = useState<string | ArrayBuffer | undefined>(
@@ -88,7 +89,7 @@ const ImageInputBox = () => {
 
   useEffect(() => {
     if (imageSrc) {
-      trigger({ image_base64: imageSrc, model })
+      trigger({ image_base64: imageSrc, model } as ImageQueryParams)
     }
   }, [imageSrc])
 
