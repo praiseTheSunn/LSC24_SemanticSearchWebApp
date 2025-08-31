@@ -140,12 +140,13 @@ export const CSVDownloadBox = () => {
     }
     const feedbackData: any = {}
     feedbackData.like = {
-      ids: likeImages.map((image) => image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")),
+      // ids: likeImages.map((image) => image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")),
+      ids: likeImages.map((image) => image.record_id),
       prior_scores: likeImages.map((image) => image.score),
       limit: likeLimit,
     }
     feedbackData.dislike = {
-      ids: dislikeImages.map((image) => image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")),
+      ids: dislikeImages.map((image) => image.record_id),
       limit: dislikeLimit,
     }
     feedbackData.model = queryPayload.model
@@ -164,6 +165,7 @@ export const CSVDownloadBox = () => {
   useEffect(() => {
     if (data) {
       const likedImages = data.like
+      console.log("likedImages:", likedImages)
       const likeSimilarImages =
         likedImages.map((image: any) => image.img_link) || []
       const dislikeSimilarImages =
@@ -178,6 +180,7 @@ export const CSVDownloadBox = () => {
         (image: any) => !dislikeSimilarImages.includes(image.img_link),
       )
 
+      console.log('afterFeedbackImage:', afterFeedbackImage)
       dispatch(appActions.setAppImageData(afterFeedbackImage))
     }
 
