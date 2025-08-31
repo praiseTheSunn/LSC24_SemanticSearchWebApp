@@ -37,7 +37,7 @@ const AnImage: React.FC<AnImageProps> = ({
   const timestamp = data?.timestamp ? data.timestamp * 1000 : null
   // const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
   // const formattedTime: string = `${date ? date : ''}-${time ? time : ''}`
-  const formattedTime: string = `${src.substring(26, 34) + src.substring(34).replace('.webp', '')}`
+  const formattedTime: string = `${(src ?? ("")).substring(26, 34) + (src ?? ("")).substring(34).replace('.webp', '')}`
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null

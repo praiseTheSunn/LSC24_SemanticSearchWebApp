@@ -47,7 +47,7 @@ const ActivityBar: React.FC<ActivityBarProps> = ({
 
   if (rowData) {
     for (const activity_item of rowData) {
-      activity_item.images.sort((a, b) => b.score - a.score)
+      activity_item.images.sort((a, b) => (b.score ?? 0) - (a.score ?? 0))
     }
   }
 
@@ -135,7 +135,7 @@ const ActivityBar: React.FC<ActivityBarProps> = ({
             }}
             data-tooltip-content={activity}
             data-tooltip-img={best_img}
-            onClick={() => handleActivityClick(activity_id, best_img, index)}
+            onClick={() => handleActivityClick(activity_id, index)}
           />
         )
       })}

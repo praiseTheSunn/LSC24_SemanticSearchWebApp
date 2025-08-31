@@ -25,6 +25,7 @@ import HistoryPopup from './Popup/HistoryPopup'
 // import { usePopUp } from '../contexts/popUpContext'
 import Dropdown from './dropDown'
 import { FilterCategories } from '../data/FilterCategory'
+import type { TextQueryParams } from '../types/api'
 
 type SearchBoxProps = {
   displayedFilters: any
@@ -206,7 +207,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             model: queryPayload.model,
             dataset: queryPayload.dataset,
             user_id: "xxx"
-          })
+          } as TextQueryParams)
           setDisplayedFilters((previousState: any) => [
             ...previousState,
             filter,
@@ -263,7 +264,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           mode: queryPayload.mode,
           model: queryPayload.model,
           dataset: queryPayload.dataset,
-        })
+        } as TextQueryParams)
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 
         const updatedQuery = `query: ${translatedText}`
