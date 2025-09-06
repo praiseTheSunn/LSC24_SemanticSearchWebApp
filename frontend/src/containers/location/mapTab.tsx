@@ -11,24 +11,24 @@ import type { ImageRecord } from '../../types/image'
 import LocationTimeline from './locationTimeline'
 
 const MapTab = () => {
-  const [geojsonFeature, setGeojsonFeature] = useState<any[]>([])
+  // const [geojsonFeature, setGeojsonFeature] = useState([])
 
-  const data: ImageRecord[] = useAppSelector((state) => state.app.data)
+  // const data: ImageRecord[] = useAppSelector((state) => state.app.data)
 
-  const myIcon = L.icon({
-    iconUrl: require('../../assets/close.png'),
-    iconSize: [64, 64],
-    shadowUrl: undefined,
-    shadowSize: undefined,
-    shadowAnchor: undefined,
-  })
+  // const myIcon = L.icon({
+  //   iconUrl: require('../../assets/close.png'),
+  //   iconSize: [64, 64],
+  //   shadowUrl: undefined,
+  //   shadowSize: undefined,
+  //   shadowAnchor: undefined,
+  // })
 
-  useEffect(() => {
-    if (data === undefined) {
-      return
-    }
-    setGeojsonFeature(data)
-  }, [data])
+  // useEffect(() => {
+  //   if (data === undefined) {
+  //     return
+  //   }
+  //   setGeojsonFeature(data)
+  // }, [data])
 
   return (
     // <div className="p-5 flex">
@@ -60,13 +60,13 @@ const MapTab = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
-          <GeomanControl
+          {/* <GeomanControl
             data={geojsonFeature}
             setData={
               setGeojsonFeature as React.Dispatch<React.SetStateAction<JSON[]>>
             }
             dataSrc={data}
-          />
+          /> */}
         </MapContainer>
       </div>
       <div
@@ -77,7 +77,7 @@ const MapTab = () => {
           marginLeft: '20px',
         }}
       >
-        <LocationTimeline data={geojsonFeature} />
+        {/* <LocationTimeline data={geojsonFeature} /> */}
       </div>
     </div>
   )

@@ -1,11 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react'
 import { ImageQuery } from '.'
 import {
-  transformResponse_Feedback_LSC,
-  // transformResponse_Feedback_AIC,
-  // transformResponse_VBS2025,
-  // transformResponse_Feedback_Thesis,
-  transformResponse_LSC,
+  transformResponse_Feedback_AIC2025,
+  transformResponse_AIC2025
 } from '../config/transformResponse'
 import type {
   ApiResponse,
@@ -34,7 +31,7 @@ export const ImageApi = createApi({
           }
         },
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC(response),
+          transformResponse_AIC2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -55,7 +52,7 @@ export const ImageApi = createApi({
           body: tempParams,
         }},
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC(response),
+          transformResponse_AIC2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -77,7 +74,7 @@ export const ImageApi = createApi({
           body: tempParams,
         }},
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC(response),
+          transformResponse_AIC2025(response),
         providesTags: (result) =>
           result
             ? [
@@ -99,11 +96,14 @@ export const ImageApi = createApi({
           body: tempParams,
         }},
         transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC(response),
+          transformResponse_AIC2025(response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 
-      getFeedbackImages: builder.query<{like: ImageRecord[], dislike: ImageRecord[] }, FeedbackQueryParams>({
+      getFeedbackImages: builder.query<
+        any,
+        FeedbackQueryParams | undefined | null
+      >({
         query: (params) => {
           const tempParams = { ...params, user_id: localStorage.getItem('username') }
           return {
@@ -112,8 +112,8 @@ export const ImageApi = createApi({
             body: tempParams,
           }
         },
-        transformResponse: (response: FeedbackResponse) =>
-          transformResponse_Feedback_LSC(response),
+        transformResponse: (response: ApiResponse) =>
+          transformResponse_Feedback_AIC2025(response),
       }),
     }
   },

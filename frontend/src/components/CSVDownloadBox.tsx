@@ -60,19 +60,35 @@ export const CSVDownloadBox = () => {
   const handleDownloadCSV = () => {
     if (csvImages.length > 0) {
       const csv = csvImages
-        .map((image) => `${image.video_id}, ${image.frame_id}\n`)
-        .join('')
-      const hiddenElement = document.createElement('a')
-      hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURI(csv)}`
-      hiddenElement.target = '_blank'
-      hiddenElement.download = 'images.csv'
-      hiddenElement.click()
+        .map((image) => {
+          // Bỏ http://127.0.0.1:8080/ và .jpg/.webp
+          const cleanPath = image.img_link
+            .replace("http://127.0.0.1:8080/", "")
+            .replace(/\.(jpg|jpeg|png|webp)$/i, "");
+
+          // Tách thành mảng theo "/"
+          const parts = cleanPath.split("/"); 
+          // Lấy "K05_V004" từ parts[1]
+          const folder = parts[1]; 
+          // Lấy "21990" từ parts[2]
+          const id = parts[2]; 
+
+          return `${folder},${id}`;
+        })
+        .join("\n");
+
+      const hiddenElement = document.createElement("a");
+      hiddenElement.href = `data:text/csv;charset=utf-8,${encodeURI(csv)}`;
+      hiddenElement.target = "_blank";
+      hiddenElement.download = "images.csv";
+      hiddenElement.click();
     } else {
-      toast.error('No images to download', {
-        position: 'bottom-left',
-      })
+      toast.error("No images to download", {
+        position: "bottom-left",
+      });
     }
-  }
+  };
+
 
   const handleClearCSV = () => {
     dispatch(appActions.setCSVImages([]))
@@ -125,6 +141,7 @@ export const CSVDownloadBox = () => {
     }
     const feedbackData: any = {}
     feedbackData.like = {
+      // ids: likeImages.map((image) => image.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")),
       ids: likeImages.map((image) => image.record_id),
       prior_scores: likeImages.map((image) => image.score),
       limit: likeLimit,
@@ -149,6 +166,7 @@ export const CSVDownloadBox = () => {
   useEffect(() => {
     if (data) {
       const likedImages = data.like
+      console.log("likedImages:", likedImages)
       const likeSimilarImages =
         likedImages.map((image: any) => image.img_link) || []
       const dislikeSimilarImages =
@@ -163,6 +181,7 @@ export const CSVDownloadBox = () => {
         (image: any) => !dislikeSimilarImages.includes(image.img_link),
       )
 
+      console.log('afterFeedbackImage:', afterFeedbackImage)
       dispatch(appActions.setAppImageData(afterFeedbackImage))
     }
 
@@ -237,6 +256,11 @@ export const CSVDownloadBox = () => {
   const handleDeleteLikedImage = (imageToRemove: any) => {
     const updatedImages = likeImages.filter((image) => image !== imageToRemove)
     dispatch(appActions.setLikedImages(updatedImages))
+  }
+
+  const handleDeleteCsvImage = (imageToRemove: any) => {
+    const updatedImages = csvImages.filter((image) => image !== imageToRemove)
+    dispatch(appActions.setCSVImages(updatedImages))
   }
 
   return (
@@ -338,10 +362,22 @@ export const CSVDownloadBox = () => {
             {csvImages.length === 0 ? (
               <Typography>No images to preview</Typography>
             ) : (
-              <ImageGrid
-                style={{ width: '90dvw', minHeight: '60dvw' }}
-                data={csvImages}
-              />
+              <Grid container direction="row" style={{ width: '100%' }}>
+                {csvImages.map((image, index) => (
+                  <Grid
+                    item
+                    xs={3}
+                    style={{ maxWidth: '130px' }}
+                    // biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+                    key={index}
+                  >
+                    <ImageBox
+                        image={image.img_link}
+                        onDelete={() => handleDeleteCsvImage(image)}
+                      />
+                  </Grid>
+                ))}
+              </Grid>
             )}
           </Popover>
 

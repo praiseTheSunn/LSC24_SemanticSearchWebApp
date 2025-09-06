@@ -29,6 +29,7 @@ import HistoryPopup from './Popup/HistoryPopup'
 import Dropdown from './dropDown'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 import { toast } from 'react-toastify'
+import type { TextQueryParams } from '../types/api'
 
 type SearchBoxProps = {
   displayedFilters: any
@@ -418,14 +419,14 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             setData={setMode}
           />
         </Box>
-        {/* <Box sx={{ marginLeft: '12px' }}>
+        <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={['V3C', 'MVK', 'LHE']}
-            valueItems={['vbs25_v3c', 'vbs25_mvk', 'vbs25_lhe']}
+            displayItems={['All', 'Lesson', 'Cooking']}
+            valueItems={['aic25', 'aic25_lesson', 'aic25_cooking']}
             setData={setDataset}
           />
-        </Box> */}
+        </Box>
         {/* <Box sx={{ marginLeft: '12px', marginTop: '7px' }}>
           <Button 
             variant="contained" 

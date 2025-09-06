@@ -211,7 +211,7 @@ const ObjectPositionPopup = ({ query }: { query?: string }) => {
       temporal_window_size: 0
     }
     console.log('Query:', searchQuery)
-    trigger(searchQuery)
+    trigger(searchQuery as TextQueryParams)
   }
 
   useEffect(() => {

@@ -34,7 +34,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     async (imageId: string, position: 'start' | 'end') => {
       try {
         const exploreParams = {
-          image_url: imageId,
+          image_url: imageId.replace("http://127.0.0.1:8080/", "").replace(".jpg", ""),
           span: Config.NeighborPopupSpan,
           dataset: queryPayload.dataset,
         }

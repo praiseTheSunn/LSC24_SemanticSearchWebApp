@@ -12,4 +12,5 @@ export type QueryPayload = {
   temporal_window_size: number
   use_temporal_window: boolean
   display_window_size: number
+  user_id: string
 }

@@ -10,7 +10,7 @@ import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { useSubmitKISAnsweringMutation } from '../AppState'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import { AddLikeAction } from '../config/likeResponse'
-import { AIC_addImages, LSC_addImages } from '../config/submitFunc'
+import { AIC_addCSVImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
 
 interface AnImageProps {
@@ -35,10 +35,12 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const src = data?.img_link ? data.img_link : undefined
   const videoSrc = data?.video_url ? data.video_url : undefined
-  // const date = data?.date ? data.date : null
-  // const time = data?.time ? data.time : null
-  // const timestamp = data?.timestamp ? data.timestamp * 1000 : null
-  const formattedTime = `${data?.date}    ${data?.time ?? ''}`
+  const date = data?.date ? data.date : null
+  const time = data?.time ? data.time : null
+  const timestamp = data?.timestamp ? data.timestamp * 1000 : null
+  // const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
+  // const formattedTime: string = `${date ? date : ''}-${time ? time : ''}`
+  const formattedTime: string = `${(src ?? ("")).substring(26, 34) + (src ?? ("")).substring(34).replace('.webp', '')}`
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null
@@ -79,17 +81,15 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
   const submit = (src_data: ImageRecord) => {
-    console.log('src', src_data.img_link)
-
-    // toast.info(`Submitting: ${src_data.img_link}`, {
+    // const toastId = toast.loading(`Submitting: ${src_data.img_link}`, {
     //   position: 'bottom-right',
     //   closeOnClick: true,
     //   autoClose: 1000,
     // })
 
     // REPLACE FOR EACH COMPETITION HERE
-    // LSC_addCSVImages(src_data, toastId, imageDatas, dispatch, csvData, evaluationId, sessionId, triggerKIS)
-    LSC_addImages(src_data, triggerKIS)
+    AIC_addCSVImages(src_data, null, dispatch, csvData)
+    // AIC_addImages(src_data, triggerKIS)
   }
 
   const like = (src_data: ImageRecord) => {
@@ -122,7 +122,7 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
-    if (e.ctrlKey) {
+    if (e.ctrlKey || e.metaKey) {
       submit(data)
     }
     if (e.altKey) {
