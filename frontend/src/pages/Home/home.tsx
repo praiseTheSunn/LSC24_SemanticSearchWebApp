@@ -42,8 +42,8 @@ import type { SearchTermType } from '../../types/search'
 const LevelList = [
   { level: 'Neighbor', bg: TrapoziedBgGrayLeft },
   { level: 'Similarity', bg: TrapoziedBgGray3 },
-  { level: 'Timeline', bg: TrapoziedBgGray2 },
-  { level: 'Location', bg: TrapoziedBgGray4 },
+  // { level: 'Timeline', bg: TrapoziedBgGray2 },
+  // { level: 'Location', bg: TrapoziedBgGray4 },
   // { level: 'VQA', bg: TrapoziedBgGrayLeft },
 ]
 
@@ -386,13 +386,13 @@ const Home = () => {
           </Box>
         )}
 
-        {selectedTabIndex === 2 && <TimelineTab />}
+        {/* {selectedTabIndex === 2 && <TimelineTab />}
         {selectedTabIndex === 3 && (
           // <ImageCluster data={timelineData} />
           <MapTab
           // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
           />
-        )}
+        )} */}
         {/* {selectedTabIndex === 2 && <MetadataTab />} */}
       </Box>
     </div>
