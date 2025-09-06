@@ -15,6 +15,7 @@ import {
   useAppSelector,
   useLazySearchByImageQuery,
 } from '../AppState'
+import { ImageQueryParams } from '../types/api'
 
 const ImageInputBox = () => {
   const [imageSrc, setImageSrc] = useState<string | ArrayBuffer | undefined>(

@@ -34,5 +34,10 @@ export default defineConfig({
   },
   dev: {
     hmr: false
-  }
+  },
+   output: {
+    distPath: {
+      root: './dist'
+    },
+  },
 })

@@ -22,6 +22,7 @@ import {
   useLazyGetImagesQuery,
 } from '../../AppState'
 import type { SearchTermType } from '../../types/search'
+import type { TextQueryParams } from '../../types/api'
 
 const HistoryPopup = ({
   setSearchTerms,
