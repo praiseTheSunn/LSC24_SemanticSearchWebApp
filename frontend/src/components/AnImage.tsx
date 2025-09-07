@@ -37,10 +37,11 @@ const AnImage: React.FC<AnImageProps> = ({
   const videoSrc = data?.video_url ? data.video_url : undefined
   const date = data?.date ? data.date : null
   const time = data?.time ? data.time : null
-  const timestamp = data?.timestamp ? data.timestamp * 1000 : null
+  // const timestamp = data?.timestamp ? data.timestamp * 1000 : null
+  const timestamp = time.substring(1, 2) + time.substring(3, 5)
   // const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
   // const formattedTime: string = `${date ? date : ''}-${time ? time : ''}`
-  const formattedTime: string = `${(src ?? ("")).substring(26, 34) + (src ?? ("")).substring(34).replace('.webp', '')}`
+  const formattedTime: string = `${(src ?? ("")).substring(26, 34) + (src ?? ("")).substring(34).replace('.webp', '')}-${time ? time : ''}`
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null
@@ -266,7 +267,7 @@ const AnImage: React.FC<AnImageProps> = ({
               dispatch(
                 appActions.setVideoDataForPopup({
                   source: videoSrc,
-                  timestamp: data.timestamp ? data.timestamp : undefined,
+                  timestamp: timestamp ? timestamp : undefined,
                 }),
               )
             }}
