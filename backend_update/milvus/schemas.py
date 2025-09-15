@@ -8,9 +8,9 @@ class DatasetOptions(str, Enum):
     option1 = "vbs25_v3c"
     option2 = "vbs25_mvk"
     option3 = "vbs25_lhe"
-    option4 = "aic24"
-    option5 = "aic24_lesson"
-    option6 = "aic24_cooking"
+    option4 = "aic25"
+    option5 = "aic25_lesson"
+    option6 = "aic25_cooking"
     option7 = "lsc24"
     option8 = "lsc24a"
 

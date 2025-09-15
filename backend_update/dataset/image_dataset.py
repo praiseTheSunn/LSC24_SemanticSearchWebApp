@@ -45,18 +45,37 @@ class ImageDataset(ABC):
         import time
         start_time = time.time()
         print(f"Creating image ID to record ID mapping for {self.dataset_name} dataset...")
-        df = pd.read_csv(self.metadata_file_path)
-        id_column_mapping = {k: v for k, v in self.column_mapping.items() if v in ["image_id", "record_id"]}
-        id_df = df[list(id_column_mapping.keys())]
-        id_df = id_df.rename(columns=id_column_mapping)
-        self.image_id_to_record_id = id_df.set_index("image_id")["record_id"].to_dict()
-        print(f"Image ID to Record ID mapping created in {time.time() - start_time:.2f} seconds")
-        self.record_id_to_image_id = id_df.set_index("record_id")["image_id"].to_dict()
-        print(f"Record ID to Image ID mapping created in {time.time() - start_time:.2f} seconds")
 
-        unify_column_mapping = {k: v for k, v in self.column_mapping.items() if v in ["record_id", self.unifying_category]}
-        unify_df = df[list(unify_column_mapping.keys())]
-        self.unify_df = unify_df.rename(columns=unify_column_mapping)        
+        start_time = time.time()
+
+        # Load only required columns
+        self.df = pd.read_csv(self.metadata_file_path, usecols=self.column_mapping.keys())
+        if "lesson" in self.dataset_name:
+            self.df = self.df[self.df["video_id"].str.startswith("L25")]
+        elif "cooking" in self.dataset_name:
+            self.df = self.df[self.df["video_id"].str.startswith("L26")]
+
+        # Rename + reorder
+        self.df.rename(columns=self.column_mapping, inplace=True)
+        self.df = self.df[list(self.column_mapping.values())]
+
+        # Reset record_id to count from 0
+        self.df.reset_index(drop=True, inplace=True)   # drop old record_id
+        self.df.index.name = "record_id"               # set new index name
+
+        # --- Build mappings efficiently ---
+        # Image ID <-> Record ID
+        id_df = self.df[["image_id"]].reset_index()  # keep record_id from index
+        self.image_id_to_record_id = id_df.set_index("image_id")["record_id"].to_dict()
+        self.record_id_to_image_id = id_df.set_index("record_id")["image_id"].to_dict()
+        print(f"First image_id: {list(self.image_id_to_record_id.keys())[0]}")
+        print(f"First record_id: {list(self.record_id_to_image_id.keys())[0]}")
+        print(f"Image ID <-> Record ID mappings created in {time.time() - start_time:.2f} seconds")
+        print()
+
+        # --- Unifying category subset ---
+        self.unify_df = self.df[[self.unifying_category]].reset_index()
+            
 
     
     @abstractmethod
@@ -89,7 +108,9 @@ class ImageDataset(ABC):
         # Step 2: Remove any leading domain/IP with port if present
         # image_id = re.sub(r'^[^/]+:?[^/]*/', '', image_id)          
         # Step 3: Remove file extension (if any)
-        image_id = re.sub(r'\.\w+$', '', image_id)          
+        image_id = re.sub(r'\.\w+$', '', image_id)
+        if self.dataset_name.startswith("aic25"):
+            image_id = image_id[4:]
         return image_id    
     
     # def get_unifying_category_ids(self, record_ids, unifying_category):
@@ -160,10 +181,18 @@ class LSC24Dataset(ImageDataset):
     def get_dataset_name(self):
         return "lsc24"
 
-class LSC24aDataset(ImageDataset):
+class AIC25Dataset(ImageDataset):
     def get_dataset_name(self):
-        return "lsc24a"
-    
+        return "aic25"
+
+class AIC25LessonDataset(ImageDataset):
+    def get_dataset_name(self):
+        return "aic25_lesson"
+
+class AIC25CookingDataset(ImageDataset):
+    def get_dataset_name(self):
+        return "aic25_cooking"
+
 class V3CDataset(ImageDataset):
     def get_dataset_name(self):
         return "vbs25_v3c"

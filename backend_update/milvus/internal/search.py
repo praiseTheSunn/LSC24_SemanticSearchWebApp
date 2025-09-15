@@ -47,13 +47,18 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
     # Add expr
     if filters:
         for field, value in filters.items():
-            if field in dataset_filters:
+            # Not sparse vector -> a normal metadata field -> expr
+            if field in dataset_filters and not dataset_filters[field].get("sparse_vector", False):
                 if not dataset_filters[field]["lowercase_storing"] and dataset_filters[field]["lowercase_indexing"]:
                     expr_list.append(f"{field}_indexing LIKE '%{value.lower()}%'")
                 else:
                     expr_list.append(f"{field} LIKE '%{value}%'")
+            # Sparse vector -> leave for later process         
+            elif field in dataset_filters and dataset_filters[field].get("sparse_vector", False):
+                continue
             else:
                 expr_list.append(f"{field} LIKE {value}")
+
     expr = " and ".join(expr_list)
     print(f"Filter expression: {expr}")
 
@@ -69,21 +74,21 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
     }
     reqs.append(AnnSearchRequest(**search_param_dense))
 
-    # # Add sparse search request
-    # if filters:
-    #     for field in filters:
-    #         if field in dataset.get_full_text_fields():
-    #             search_param_sparse = {
-    #                 "data": [filters[field]],
-    #                 "anns_field": f"sparse_{field}",
-    #                 "param": {
-    #                     "metric_type": "BM25",
-    #                     "params": {"drop_ratio_build": 0.0}
-    #                 },
-    #                 "expr": expr,
-    #                 "limit": limit
-    #             }
-    #             reqs.append(AnnSearchRequest(**search_param_sparse))
+    # Add sparse search request
+    if filters:
+        for field, value in filters.items():            
+            if field in dataset_filters and dataset_filters[field].get("sparse_vector", False):
+                search_param_sparse = {
+                    "data": [filters[field]],
+                    "anns_field": f"{field}_sparse",
+                    "param": {
+                        "metric_type": "BM25",
+                        "params": {"drop_ratio_build": 0.0}
+                    },
+                    "expr": expr,
+                    "limit": limit
+                }
+                reqs.append(AnnSearchRequest(**search_param_sparse))
                 
     dense_weight = 0.5
     sparse_weight = (1 - dense_weight) / len(reqs[1:]) if len(reqs) > 1 else 0
@@ -121,13 +126,13 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
         collection_name=collection_name, reqs=reqs, ranker=ranker, limit=500, output_fields=["record_id"]
     )[0]
 
-    second_results = setup.milvus_client.search(
-        collection_name=collection_name,
-        anns_field="embedding",
-        data=text_embedding,
-        limit=limit,
-        search_params={"metric_type": "IP"}
-    )[0]
+    # second_results = setup.milvus_client.search(
+    #     collection_name=collection_name,
+    #     anns_field="embedding",
+    #     data=text_embedding,
+    #     limit=limit,
+    #     search_params={"metric_type": "IP"}
+    # )[0]
 
 
     # create a list called concatenated_results, the first elements are from results, the rest are from second_results (remove duplicates from results)
@@ -135,9 +140,9 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
     for hit in first_results:
         if hit not in concatenated_results:
             concatenated_results.append(hit)
-    for hit in second_results:
-        if hit not in concatenated_results:
-            concatenated_results.append(hit)
+    # for hit in second_results:
+    #     if hit not in concatenated_results:
+    #         concatenated_results.append(hit)
 
 
     serialized_results = [
