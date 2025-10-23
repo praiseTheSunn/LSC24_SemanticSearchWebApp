@@ -71,14 +71,13 @@ async def search_by_text(query_structured: QueryStructured):
         if len(query_structured.clauses) > 1:
             result = await expand_temporal(result, query_structured.clauses[1], query_structured.dataset, query_structured.temporal_window_size, THRESHOLD)
     else:
-        N_RESULTS_RETURNED = 500
         partial_results = [await search_structure(clause, query_structured.dataset, query_structured.model, query_structured.subset_record_ids) for clause in query_structured.clauses]
         if len(query_structured.clauses) == 1:
             result = partial_results[0]
         else:
             # Aggregate the results
             print(f"Aggregating {len(partial_results)} partial results...")
-            result = aggregate_temporal(partial_results, query_structured.dataset, N_RESULTS_RETURNED)
+            result = aggregate_temporal(partial_results, query_structured.dataset, query_structured.top_k)
 
     return result, status.HTTP_200_OK
         

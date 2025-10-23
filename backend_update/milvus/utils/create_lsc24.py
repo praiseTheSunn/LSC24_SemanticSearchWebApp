@@ -14,30 +14,37 @@ from dataset.dataset_manager import DatasetManager
 
 
     
-def get_milvus_schema(csv_path, column_mapping, filters):    
+def get_milvus_schema(csv_path, column_mapping, keyword_fields):    
     schema = MilvusClient.create_schema(auto_id=False, enable_dynamic_field=True)
     df = pd.read_csv(csv_path, nrows=10)
 
     for col in column_mapping.keys():
         dtype = df[col].dtype
         mapped_col = column_mapping.get(col, col)
+
+        # Primary key
         if mapped_col == "record_id":
             schema.add_field(field_name="record_id", datatype=DataType.INT64, is_primary=True)
-        elif mapped_col in filters:
-            if filters[mapped_col]["lowercase_storing"] == False and filters[mapped_col]["lowercase_indexing"] == True:
-                schema.add_field(field_name=mapped_col, datatype=DataType.VARCHAR, max_length=32768)
-                schema.add_field(field_name=f"{mapped_col}_indexing", datatype=DataType.VARCHAR, max_length=32768)
-            else:
-                schema.add_field(field_name=mapped_col, datatype=DataType.VARCHAR, max_length=32768)
+
+        # Fields with special keyword field config
+        elif mapped_col in keyword_fields:
+            schema.add_field(field_name=mapped_col, datatype=DataType.VARCHAR, max_length=32768, enable_analyzer=True)
+            schema.add_field(field_name=f"{mapped_col}_sparse", datatype=DataType.SPARSE_FLOAT_VECTOR)
+
+        # Other columns follow pandas-inferred dtype
         elif pd.api.types.is_integer_dtype(dtype):
             schema.add_field(field_name=mapped_col, datatype=DataType.INT64)
+
         elif pd.api.types.is_float_dtype(dtype):
             schema.add_field(field_name=mapped_col, datatype=DataType.FLOAT)
+
         elif pd.api.types.is_bool_dtype(dtype):
             schema.add_field(field_name=mapped_col, datatype=DataType.BOOL)
+
         else:
             schema.add_field(field_name=mapped_col, datatype=DataType.VARCHAR, max_length=100)
 
+    # Dense embedding field
     schema.add_field(field_name="embedding", datatype=DataType.FLOAT_VECTOR, dim=768)
 
     return schema
@@ -56,6 +63,8 @@ def get_index_params():
         efConstruction=100,
     )
 
+    # Add sparse/BM25 index params based on keyword_fields if provided via caller
+    # Note: caller should customize this function if it needs access to keyword_fields
     return index_params
 
 
@@ -67,8 +76,8 @@ def print_data_record(data_record):
             print(f"{key}: {value}")
 
 
-def create_collection(client, collection_name, metadata_file_path, column_mapping, filters, force=True):
-    schema = get_milvus_schema(metadata_file_path, column_mapping, filters)
+def create_collection(client, collection_name, metadata_file_path, column_mapping, keyword_fields, force=True):
+    schema = get_milvus_schema(metadata_file_path, column_mapping, keyword_fields)
     # Drop the collection if force is True and it exists
     if force and client.has_collection(collection_name):
         print(f"Dropping existing collection '{collection_name}'...")
@@ -77,9 +86,41 @@ def create_collection(client, collection_name, metadata_file_path, column_mappin
     # Create the collection if it doesn't exist (or was just dropped)
     if force or not client.has_collection(collection_name):
         print(f"Creating collection '{collection_name}'...")
-        schema = get_milvus_schema(metadata_file_path, column_mapping, filters)
-        index_params = get_index_params()
-        client.create_collection(collection_name=collection_name, schema=schema, index_params=index_params)
+        # Add BM25 functions for sparse_vector fields (bridge raw text -> sparse vector)
+        functions = []
+        for col, fcfg in keyword_fields.items():
+            bm25_func = Function(
+                name=f"{col}_bm25_func",
+                function_type=FunctionType.BM25,
+                input_field_names=[col],
+                output_field_names=[f"{col}_sparse"]
+            )
+            functions.append(bm25_func)
+
+        # Add functions to schema
+        for func in functions:
+            schema.add_function(func)
+
+        # Index params (including dense + sparse where appropriate)
+        index_params = MilvusClient.prepare_index_params()
+        index_params.add_index(
+            field_name="embedding",
+            index_name="embedding_index",
+            index_type="HNSW",
+            metric_type="IP",
+            M=16,
+            efConstruction=100,
+        )
+
+        # BM25 sparse vector indexes
+        for col, fcfg in keyword_fields.items():
+            index_params.add_index(
+                field_name=f"{col}_sparse",
+                index_type="SPARSE_INVERTED_INDEX",
+                metric_type="BM25",
+            )
+
+        client.create_collection(collection_name=collection_name, schema=schema, index_params=index_params, functions=functions)
     else:
         print(f"Collection '{collection_name}' already exists.")
 
@@ -109,20 +150,17 @@ if __name__ == "__main__":
     metadata_file_path = image_dataset.get_metadata_file_path()
     embedding_dir = image_dataset.get_embedding_dir()
     column_mapping = image_dataset.get_column_mapping()
-    filters = image_dataset.get_filters()
+    keyword_fields = image_dataset.get_keyword_fields()
 
 
     # CREATE COLLECTION
     client = MilvusClient(host="localhost", port="19530")    
-    create_collection(client, collection_name, metadata_file_path, column_mapping, filters, force=FORCE)
+    create_collection(client, collection_name, metadata_file_path, column_mapping, keyword_fields, force=FORCE)
 
 
     # INSERT DATA
-    df = pd.read_csv(metadata_file_path)
+    df = image_dataset.df
     df = df[(df["image_available"] == 1)]
-    df = df[column_mapping.keys()]
-    df.rename(columns=column_mapping, inplace=True)
-    df.set_index("record_id", inplace=True)
     df["prefix"] = df["image_id"].apply(lambda x: x[:9])
     prefixes = sorted(df["prefix"].unique().tolist())
     
@@ -155,23 +193,22 @@ if __name__ == "__main__":
                 "embedding": vector.tolist()
             }
             for mapped_col in column_mapping.values():
+                dtype = df[mapped_col].dtype
                 if mapped_col in ["record_id", "image_id", "embedding"]:
                     continue
-                # TEMPORARY FIX
-                elif mapped_col in filters:
-                    value = df_prefix[mapped_col].loc[record_id]
-                    if filters[mapped_col]["lowercase_storing"] == True:
-                        value = value.lower()
-                        data_record[mapped_col] = value
-                    elif filters[mapped_col]["lowercase_storing"] == False and filters[mapped_col]["lowercase_indexing"] == True:
-                        value_indexing = value.lower()
-                        data_record[mapped_col] = value
-                        data_record[f"{mapped_col}_indexing"] = value_indexing
-                    else:
-                        data_record[mapped_col] = value
                 else:
-                    data_record[mapped_col] = df[mapped_col].loc[record_id]
-            
+                    value = df[mapped_col].loc[record_id]
+                    if pd.isna(value):
+                        if pd.api.types.is_integer_dtype(dtype):
+                            data_record[mapped_col] = 0
+                        elif pd.api.types.is_float_dtype(dtype):
+                            data_record[mapped_col] = 0.0
+                        elif pd.api.types.is_bool_dtype(dtype):
+                            data_record[mapped_col] = False
+                        else:
+                            data_record[mapped_col] = ""
+                    else:
+                        data_record[mapped_col] = value            
             data.append(data_record)
 
         # Print only the last data record for each prefix

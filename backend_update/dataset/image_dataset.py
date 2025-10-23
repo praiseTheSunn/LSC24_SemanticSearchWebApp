@@ -27,6 +27,7 @@ class ImageDataset(ABC):
         self.image_extension = self.config.get("image_extension")
         self.column_mapping = self.config.get("column_mapping")
         self.filters = self.config.get("filters", [])
+        self.keyword_fields = self.config.get("keyword_fields", [])
         self.unifying_category = self.config.get("unifying_category", None)
 
         # # DB
@@ -55,7 +56,7 @@ class ImageDataset(ABC):
         elif "cooking" in self.dataset_name:
             self.df = self.df[self.df["video_id"].str.startswith("L26")]
 
-        # Rename + reorder
+        # Rename + reorder. Also keep only columns in the config file for indexing
         self.df.rename(columns=self.column_mapping, inplace=True)
         self.df = self.df[list(self.column_mapping.values())]
 
@@ -171,6 +172,9 @@ class ImageDataset(ABC):
     
     def get_filters(self):
         return self.filters
+    
+    def get_keyword_fields(self):
+        return self.keyword_fields
     
     def get_unifying_category(self):
         return self.unifying_category
