@@ -87,7 +87,7 @@ def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_serv
     return records
 
 
-async def prepare_response(dataset, model, record_ids=[], scores=None, display_window_size=3, all_neighbor_ids=None):
+async def prepare_response(dataset, model, record_ids=[], scores=None, display_window_size=3, all_neighbor_ids=None, top_k=100):
     dataset_name = dataset.lower()
     dataset = DatasetManager.get_dataset(dataset_name)
     image_server_url = dataset.get_image_server_url()
@@ -190,6 +190,9 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
                     neighbors_for_this_rid.append(neighbor_metadata[nid])
             record['neighbors'] = neighbors_for_this_rid
         result.append(record)
+
+        if len(result) >= top_k:
+            break
 
     # DEBUG
     # N = 5

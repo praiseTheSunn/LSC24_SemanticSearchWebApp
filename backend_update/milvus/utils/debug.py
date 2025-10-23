@@ -13,13 +13,13 @@ client = MilvusClient(host="localhost", port="19530")
 collections = client.list_collections()
 print(f"Collections: {collections}")
 
-r = client.get_collection_stats("aic25_clips")
+r = client.get_collection_stats("lsc24_clips")
 print(r)
 
 # client.drop_collection("aic25_clips")
 
 # describe collection
-description = client.describe_collection("aic25_clips")
+description = client.describe_collection("lsc24_clips")
 print(description)
 
 r = client.get(

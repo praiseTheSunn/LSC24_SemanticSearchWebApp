@@ -86,12 +86,14 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
         temporal_window_size=inputs["temporal_window_size"],
         display_window_size=inputs["display_window_size"],
         subset_record_ids=inputs["subset_record_ids"],
+        top_k=inputs["top_k"]
     )
 
     if len(query_structured.clauses) > 2:
         return JSONResponse(content={"status": status.HTTP_400_BAD_REQUEST, "message": "Data retrieval failed", "error": "Excessive number of temporal clauses in the query."}, status_code=status.HTTP_400_BAD_REQUEST, headers={'Access-Control-Allow-Origin': '*'})
     
     # Search for each clause
+    print(f"N_RESULTS: {query_structured.top_k}")
     response_data, response_status = await search_by_text(query_structured)
 
     # Postprocess the response
@@ -101,7 +103,8 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
             model=inputs["model"], 
             record_ids=response_data["record_ids"], 
             scores=response_data["scores"], 
-            display_window_size=inputs["display_window_size"]
+            display_window_size=inputs["display_window_size"],
+            top_k=inputs["top_k"]
         )
     else:
         response_data = await prepare_response(
@@ -109,7 +112,8 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
             model=inputs["model"], 
             record_ids=response_data["record_ids"], 
             scores=response_data["scores"], 
-            display_window_size=inputs["display_window_size"], 
+            display_window_size=inputs["display_window_size"],
+            top_k=inputs["top_k"]
         )
         
     if response_status == 200:

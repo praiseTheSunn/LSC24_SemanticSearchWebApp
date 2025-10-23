@@ -1,4 +1,6 @@
+
 import requests
+import asyncio
 from constants import API_TEXT_EMBEDDING, API_IMAGE_EMBEDDING, API_SEARCH_MILVUS, API_FETCH_EMBEDDINGS, API_FETCH_METADATA
 
 
@@ -8,9 +10,10 @@ async def compute_text_embedding(text_query, model):
         "model": model
     }
 
-    response = requests.post(API_TEXT_EMBEDDING, json=data)
-    if response.status_code == 200:
-        text_embedding = response.json()["text_embedding"]
+    # Use requests in a thread to avoid blocking the event loop
+    resp = await asyncio.to_thread(requests.post, API_TEXT_EMBEDDING, json=data)
+    if resp.status_code == 200:
+        text_embedding = resp.json().get("text_embedding")
     else:
         text_embedding = None
     return text_embedding
@@ -22,9 +25,9 @@ async def compute_image_embedding(image_base64, model):
         "model": model
     }
 
-    response = requests.post(API_IMAGE_EMBEDDING, json=data)
-    if response.status_code == 200:
-        image_embedding = response.json()["image_embedding"]
+    resp = await asyncio.to_thread(requests.post, API_IMAGE_EMBEDDING, json=data)
+    if resp.status_code == 200:
+        image_embedding = resp.json().get("image_embedding")
         if model == "stfm":  # image embedding must be at format [[]], but 'stfm' model returns [] so I have to wrap it
             image_embedding = [image_embedding]
     else:
@@ -43,20 +46,18 @@ async def search_milvus(embedding, dataset, filters, model, limit=500, subset_re
         "subset_record_ids": subset_record_ids
     }
 
-    response = requests.post(API_SEARCH_MILVUS, json=data, headers={
-        "Content-Type": "application/json"
-    })
-    if response.status_code != 200:
-        return None    
+    resp = await asyncio.to_thread(requests.post, API_SEARCH_MILVUS, json=data, headers={"Content-Type": "application/json"})
+    if resp.status_code != 200:
+        return None
     else:
-        raw_results = response.json()
-        record_ids = [entity['record_id'] for entity in raw_results['response']]
-        scores = [entity['distance'] for entity in raw_results['response']]
+        raw_results = resp.json()
+        record_ids = [entity.get('record_id') for entity in raw_results.get('response', [])]
+        scores = [entity.get('distance') for entity in raw_results.get('response', [])]
         return {
             "record_ids": record_ids,
             "scores": scores
         }
-    
+
 
 async def fetch_metadata(record_ids, dataset, model):
     data = {
@@ -65,10 +66,10 @@ async def fetch_metadata(record_ids, dataset, model):
         "record_ids": record_ids
     }
 
-    response = requests.post(API_FETCH_METADATA, json=data)
-    if response.status_code == 200:
-        raw_results = response.json()
-        metadata = raw_results["response"]
+    resp = await asyncio.to_thread(requests.post, API_FETCH_METADATA, json=data)
+    if resp.status_code == 200:
+        raw_results = resp.json()
+        metadata = raw_results.get("response")
         return metadata
     else:
         return None
@@ -80,10 +81,10 @@ async def fetch_embeddings(record_ids, dataset, model):
         "record_ids": record_ids
     }
 
-    response = requests.post(API_FETCH_EMBEDDINGS, json=data)
-    if response.status_code == 200:
-        raw_results = response.json()
-        embeddings = raw_results["response"]["embeddings"]
+    resp = await asyncio.to_thread(requests.post, API_FETCH_EMBEDDINGS, json=data)
+    if resp.status_code == 200:
+        raw_results = resp.json()
+        embeddings = raw_results.get("response", {}).get("embeddings")
         return embeddings
     else:
         return None

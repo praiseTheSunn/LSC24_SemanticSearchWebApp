@@ -94,7 +94,7 @@ async def expand_temporal(prev_result, next_clause: QueryClause, dataset: str, t
 
 
 
-def aggregate_temporal(partial_results: list[dict], dataset: str, n_results_returned: int):
+def aggregate_temporal(partial_results: list[dict], dataset: str, top_k: int):
     for i in range(len(partial_results)):
         partial_results[i]["scores"] = get_standardized_scores(partial_results[i]["scores"])
 
@@ -116,7 +116,7 @@ def aggregate_temporal(partial_results: list[dict], dataset: str, n_results_retu
     max_scores['combined_score'] = max_scores.apply(lambda row: get_combine_score([row.get(0, 10), row.get(1, 10)]), axis=1)
 
     # Keep top N combined scores
-    top_ids = max_scores['combined_score'].nlargest(n_results_returned).index.tolist()
+    top_ids = max_scores['combined_score'].nlargest(top_k).index.tolist()
     top_combined_scores = max_scores.loc[top_ids]['combined_score'].to_dict()
 
     # Filter df to only those unifying_category_ids

@@ -20,7 +20,7 @@ class ModelOptions(str, Enum):
     option2 = "appleclip"
 
 
-class SearchRequest(BaseModel):
+class MilvusSearchDenseRequest(BaseModel):
     dataset: DatasetOptions
     model: ModelOptions
     embedding: List[List[float]]
@@ -35,6 +35,29 @@ class SearchRequest(BaseModel):
                 "model": "clips",
                 "embedding": [[0.1, 0.2, 0.3]],
                 "filters": {"location": "kitchen", "activity": "preparing some food"},
+                "limit": 5,
+                "subset_record_ids": [1, 2, 3]
+            }
+        }
+
+
+class MilvusSearchSparseRequest(BaseModel):
+    dataset: DatasetOptions
+    model: ModelOptions
+    query: str
+    anns_field: str
+    filters: Dict[str, str] = {}
+    limit: int
+    subset_record_ids: List[int] = []
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "dataset": "lsc24",
+                "model": "clips",
+                "query": "rhym",
+                "anns_field": "tags_sparse",
+                "filters": {"location": "kitchen"},
                 "limit": 5,
                 "subset_record_ids": [1, 2, 3]
             }

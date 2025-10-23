@@ -41,6 +41,7 @@ class RequestSearchByTextQuery(BaseModel):
     query_id: Optional[str] = "default"
     evaluation_id: Optional[str] = "default"
     filters: Optional[SearchFilters] = None
+    top_k: Optional[int] = 500
 
     class Config:
         json_schema_extra = {
@@ -67,6 +68,8 @@ class QueryStructured(BaseModel):
     clauses: List[QueryClause]
     dataset: options_schemas.DatasetOptions
     model: options_schemas.ModelOptions
+    # Maximum number of results to return (used to limit the final result set)
+    top_k: int = 500
     use_temporal_window: bool = True
     temporal_window_size: int = 3
     display_window_size: int = 5
