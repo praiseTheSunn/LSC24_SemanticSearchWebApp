@@ -16,6 +16,7 @@ class TextSemanticTool(BaseTool):
             "dataset": {"type": "string", "example": "lsc24"},
             "model": {"type": "string", "example": "clips"},
             "filters": {"type": "object", "example": {"exclude_tags": ["people"]}},
+            "subset_record_ids": {"type": "array", "example": [123, 456, 789]}
         }  
 
     
@@ -45,7 +46,7 @@ class TextSemanticTool(BaseTool):
                     "result_count": len(search_results),
                     "dataset": params.get("dataset"),
                     "model": params.get("model"),
-                    "top_k": params.get("top_k")
+                    "top_k": params.get("top_k"),
                 },
                 metadata={
                     "tool": "text_semantic",
@@ -84,6 +85,7 @@ class TextSemanticTool(BaseTool):
                 "model": params.get("model", "clips"),
                 "embedding": vector,
                 "limit": params.get("top_k", 100),
+                "subset_record_ids": params.get("subset_record_ids", [])
             }
 
             return payload, None
@@ -103,7 +105,8 @@ class OCRTool(BaseTool):
             "query": {"type": "string", "example": "happy new year"},
             "top_k": {"type": "int", "example": 100},
             "dataset": {"type": "string", "example": "lsc24"},
-            "model": {"type": "string", "example": "clips"}
+            "model": {"type": "string", "example": "clips"},
+            "subset_record_ids": {"type": "array", "example": [123, 456, 789]}
         }
     
     async def execute(self, context: ToolExecutionContext) -> ToolResult:
@@ -115,7 +118,8 @@ class OCRTool(BaseTool):
                 "model": params.get("model", "clips"),
                 "query": params.get("query", ""),
                 "anns_field": "ocr_sparse",
-                "limit": params.get("top_k", 100)
+                "limit": params.get("top_k", 100),
+                "subset_record_ids": params.get("subset_record_ids", [])
             }
 
             # Validate required parameters
@@ -167,7 +171,8 @@ class ActivityTool(BaseTool):
             "query": {"type": "string", "example": "playing soccer"},
             "top_k": {"type": "int", "example": 100},
             "dataset": {"type": "string", "example": "lsc24"},
-            "model": {"type": "string", "example": "clips"}
+            "model": {"type": "string", "example": "clips"},
+            "subset_record_ids": {"type": "array", "example": [123, 456, 789]}
         }
     
     async def execute(self, context: ToolExecutionContext) -> ToolResult:
@@ -179,7 +184,8 @@ class ActivityTool(BaseTool):
                 "model": params.get("model", "clips"),
                 "query": params.get("query", ""),
                 "anns_field": "activity_sparse",
-                "limit": params.get("top_k", 100)
+                "limit": params.get("top_k", 100),
+                "subset_record_ids": params.get("subset_record_ids", [])
             }
 
             # Validate required parameters
@@ -231,7 +237,8 @@ class ObjectTool(BaseTool):
             "query": {"type": "string", "example": "car, tree"},
             "top_k": {"type": "int", "example": 100},
             "dataset": {"type": "string", "example": "lsc24"},
-            "model": {"type": "string", "example": "clips"}
+            "model": {"type": "string", "example": "clips"},
+            "subset_record_ids": {"type": "array", "example": [123, 456, 789]}
         }
     
     async def execute(self, context: ToolExecutionContext) -> ToolResult:
@@ -243,7 +250,8 @@ class ObjectTool(BaseTool):
                 "model": params.get("model", "clips"),
                 "query": params.get("query", ""),
                 "anns_field": "object_tags_sparse",
-                "limit": params.get("top_k", 100)
+                "limit": params.get("top_k", 100),
+                "subset_record_ids": params.get("subset_record_ids", [])
             }
 
             # Validate required parameters
@@ -295,7 +303,8 @@ class SearchByImageTool(BaseTool):
             "image_base64": {"type": "string", "example": "<base64-image>"},
             "top_k": {"type": "int", "example": 100},
             "dataset": {"type": "string", "example": "lsc24"},
-            "model": {"type": "string", "example": "clips"}
+            "model": {"type": "string", "example": "clips"},
+            "subset_record_ids": {"type": "array", "example": [123, 456, 789]}
         }
     
     async def execute(self, context: ToolExecutionContext) -> ToolResult:

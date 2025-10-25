@@ -20,27 +20,25 @@ def search_dense(payload: MilvusSearchDenseRequest) -> List[Dict[str, Any]]:
 
     Returns a list of dicts: {record_id, distance}
     """
-    ranker = WeightedRanker(1.0)
-    search_param_dense = {
-        "data": payload.embedding,
-        "anns_field": "embedding",
-        "param": {
+    print(f"Payload limit: {payload.limit}")
+    print(f"Length of subset_record_ids: {len(payload.subset_record_ids)}")
+    results = setup.milvus_client.search(
+        collection_name=f"aic25_clips", 
+        data=payload.embedding,
+        anns_field="embedding",
+        limit=payload.limit,
+        output_fields=["record_id"],
+        filter=f"""record_id IN {payload.subset_record_ids}""" if payload.subset_record_ids else None,
+        search_params={
             "metric_type": "IP",
         },
-        "expr": f"""id in {payload.subset_record_ids}""" if payload.subset_record_ids else None,
-        "limit": payload.limit
-    }
-    reqs = [(AnnSearchRequest(**search_param_dense))]
-
-    results = setup.milvus_client.hybrid_search(
-        collection_name=payload.dataset + "_" + payload.model, 
-        reqs=reqs, 
-        ranker=ranker,
-        output_fields=["record_id"]
     )[0]
+    
+    print(f"Number of results from Milvus: {len(results)}")
     serialized_results = [
         {"record_id": hit.get("record_id") or hit.get("id"), "distance": hit.get("distance")} for hit in results
     ]
+    print(f"Dense search completed for query <embedding>. Number of results: {len(serialized_results)}")
     return serialized_results
 
 
@@ -52,29 +50,26 @@ def search_sparse(payload: MilvusSearchSparseRequest) -> List[Dict[str, Any]]:
     Returns list of {record_id, distance}
     """
     # Build a single AnnSearchRequest for the sparse field
-    ranker = WeightedRanker(1.0)
-    search_param_sparse = {
-        "data": [payload.query],
-        "anns_field": payload.anns_field,
-        "param": {
+    print(f"Payload limit: {payload.limit}")
+    print(f"Length of subset_record_ids: {len(payload.subset_record_ids)}")
+    results = setup.milvus_client.search(
+        collection_name=f"{payload.dataset}_{payload.model}", 
+        data=[payload.query],
+        anns_field=payload.anns_field,
+        limit=payload.limit,
+        output_fields=["record_id"],
+        filter=f"""record_id IN {payload.subset_record_ids}""" if payload.subset_record_ids else None,
+        search_params={
             "metric_type": "BM25",
             "params": {"drop_ratio_build": 0.0}
         },
-        "expr": f"""id in {payload.subset_record_ids}""" if payload.subset_record_ids else None,
-        "limit": payload.limit
-    }
-    reqs = [(AnnSearchRequest(**search_param_sparse))]
-
-
-    results = setup.milvus_client.hybrid_search(
-        collection_name=payload.dataset + "_" + payload.model, 
-        reqs=reqs, 
-        ranker=ranker,
-        output_fields=["record_id"]
     )[0]
+    
+    print(f"Number of results from Milvus: {len(results)}")
     serialized_results = [
         {"record_id": hit.get("record_id") or hit.get("id"), "distance": hit.get("distance")} for hit in results
     ]
+    print(f"Sparse search completed for query '{payload.query}' on field {payload.anns_field}. Number of results: {len(serialized_results)}")
     return serialized_results
 
 

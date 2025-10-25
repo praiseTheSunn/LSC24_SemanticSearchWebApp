@@ -5,9 +5,7 @@ from schemas import AgentPlanRequest, ExecutePlanRequest, PlanStatusResponse, Ag
 from internal.agent_core import LangChainAgentCore
 from typing import Dict, Any
 from internal.tools_adapter import StepQuery, ExecutionContext, Candidate, run_step_via_main
-from internal.merge import merge_candidates, apply_filters, rerank_candidates
-import asyncio
-
+from internal.merge import incremental_merge
 # Prefer the milvus internal helpers (re-export shim)
 try:
     from backend_update.milvus.internal.search import (
@@ -102,6 +100,11 @@ async def execute_plan(plan_id: str, payload: ExecutePlanRequest):
     results = []
     ctx = ExecutionContext(last_text=None, global_constraints=plan_data.get("constraints") or {})
 
+    # We'll perform incremental merging after each action so later steps can use subset_record_ids
+    processed_actions = []
+    prev_merged: list[Candidate] = []
+    new_merged: list[Candidate] = []
+    
     for action in plan_data.get("actions", []):
         tool_name = action.get("tool")
         params = action.get("parameters", {}) or {}
@@ -109,37 +112,42 @@ async def execute_plan(plan_id: str, payload: ExecutePlanRequest):
         # Prefer executing the registered Tool class via ToolManager
         candidates: list[Candidate] = []
         tool = tool_manager.get_tool(tool_name)
+        print(f"Tool: {tool}")
         if tool:
             # build execution context
-            exec_ctx = ToolExecutionContext(
-                tool=tool_name,
-                parameters=params,
-                session_id=payload.session_id,
-                action_id=action.get("id")
-            )
             try:
+                exec_ctx = ToolExecutionContext(
+                    tool=tool_name,
+                    parameters=params,
+                    session_id=payload.session_id,
+                    action_id=action.get("id")
+                )
+            except Exception as e:
+                print(f"Error building execution context: {str(e)}")
+                raise e
+            try:
+                params_copy = {k: v for k, v in params.items() if k != "subset_record_ids"}
+                print(f"Executing tool: {tool_name} with params: {params_copy} and length of subset_record_ids: {len(params.get('subset_record_ids', [])) if 'subset_record_ids' in params else 0}")
+
                 result: ToolResult = await tool_manager.execute_tool(tool_name, exec_ctx)
-                print(f"Tool '{tool_name}' executed with result: {result}")
                 if result.success and result.data:
                     data = result.data
-                    # data may be {'results': [...]}, or {'response': [...]}, or a list
                     candidates_list = []
                     if isinstance(data, dict):
                         candidates_list = data.get("results") or data.get("response") or data.get("data") or []
+                        print(f"Tool '{tool_name}' executed with top-10 result: {candidates_list[:10]}")
                     elif isinstance(data, list):
                         candidates_list = data
                     else:
                         candidates_list = []
 
                     for item in candidates_list:
-                        # try to extract record id and score
                         if isinstance(item, dict):
                             rid = item.get("record_id") or item.get("id") or item.get("recordId")
                             score = item.get("score") or item.get("distance") or item.get("similarity") or 1.0
                             try:
                                 candidates.append(Candidate(record_id=int(rid), score=float(score), source=f"tool:{tool_name}", metadata=item))
                             except Exception:
-                                # skip malformed entries
                                 continue
                 else:
                     # Tool executed but returned no data or failed -> fallback to adapter
@@ -155,28 +163,7 @@ async def execute_plan(plan_id: str, payload: ExecutePlanRequest):
             # common params
             dataset = params.get("dataset") or ctx.global_constraints.get("dataset") or "lsc24"
             model = params.get("model") or ctx.global_constraints.get("model") or "clips"
-            top_k = int(params.get("top_k") or params.get("n_results") or ctx.global_constraints.get("top_k") or 500)
-            collection_name = f"{dataset}_{model}"
-
-            # OCR shortcut
-            if tool_name in ("ocr", "OCR", "ocr_tool") and apply_filter_only is not None:
-                ocr_text = params.get("ocr") or params.get("query") or params.get("ocr_text")
-                if ocr_text:
-                    try:
-                        matches = await asyncio.to_thread(apply_filter_only, collection_name, {"ocr": ocr_text}, top_k)
-                        for m in matches:
-                            rid = m.get("record_id") or m.get("id")
-                            candidates.append(Candidate(record_id=int(rid), score=float(m.get("score", 1.0) if m.get("score") is not None else 1.0), source="milvus_ocr", metadata=m))
-                    except Exception:
-                        step = StepQuery(action_type=tool_name, params=params, n_results=top_k, step_id=action.get("id"))
-                        candidates, ctx = await run_step_via_main(step, ctx)
-                else:
-                    step = StepQuery(action_type=tool_name, params=params, n_results=top_k, step_id=action.get("id"))
-                    candidates, ctx = await run_step_via_main(step, ctx)
-            else:
-                # Default fallback to main HTTP adapter
-                step = StepQuery(action_type=tool_name, params=params, n_results=params.get("top_k"), step_id=action.get("id"))
-                candidates, ctx = await run_step_via_main(step, ctx)
+        
 
         # store candidates in context keyed by step id
         if action.get("id"):
@@ -186,8 +173,30 @@ async def execute_plan(plan_id: str, payload: ExecutePlanRequest):
         serialized = [c.model_dump() for c in candidates]
         results.append({"action_id": action.get("id"), "tool": tool_name, "candidates": serialized})
 
-    # Merge candidates from all steps
-    merged = merge_candidates(ctx.candidates_by_step or {}, top_k=plan_data.get("top_k") or 500)
+        # Perform incremental merge up to this step so subsequent steps can use subset_record_ids
+        print()
+        new_merged = incremental_merge(prev_merged, candidates, action, top_k=plan_data.get("top_k") or 500)
+        prev_merged = new_merged
+        print()
+
+        # Mark this action as processed (ensure we use the dict form expected by incremental_merge)
+        processed_actions.append(action if isinstance(action, dict) else action.model_dump())
+
+        # Optionally propagate subset_record_ids to remaining steps when their merge strategy is rerank or filter
+        merged_ids = [int(c.record_id) for c in new_merged]
+        # Find upcoming actions and inject subset_record_ids when they request rerank/filter
+        for upcoming in plan_data.get("actions", []):
+            # only consider future steps (not processed yet)
+            if upcoming in processed_actions:
+                continue
+            up_params = upcoming.get("parameters", {}) or {}
+            merge_cfg = (up_params.get("merge") or {})
+            if merge_cfg.get("strategy", "").lower() in ("rerank", "filter"):
+                up_params["subset_record_ids"] = merged_ids
+                upcoming["parameters"] = up_params
+
+    # After the loop, final merged list is the last new_merged (or empty)
+    merged = new_merged if 'new_merged' in locals() else []
     merged_serialized = [m.model_dump() for m in merged]
 
     # Update plan store
@@ -200,8 +209,8 @@ async def execute_plan(plan_id: str, payload: ExecutePlanRequest):
             "plan_id": plan_id,
             "session_id": payload.session_id,
             "status": "completed",
-            "results": results,
-            "merged": merged_serialized,
+            # "results": results,
+            "results": merged_serialized,
             "message": "Plan execution completed"
         },
         headers={'Access-Control-Allow-Origin': '*'}
@@ -214,33 +223,54 @@ async def create_and_execute(payload: AgentPlanRequest):
     try:
         print(f"Payload: {payload}")
         print()
-        plan = await agent_core.create_plan(goal=payload.goal, session_id=payload.session_id, constraints=payload.constraints)
+        # plan = await agent_core.create_plan(goal=payload.goal, session_id=payload.session_id, constraints=payload.constraints)
 
         # create a dummy plan for testing
         # "Create and execute failed: 1 validation error for AgentPlan\ncreated_at\n  Input should be a valid datetime [type=datetime_type, input_value=None, input_type=NoneType]\n 
 
-        # plan = AgentPlan(
-        #     id="plan-123",
-        #     goal=payload.goal,
-        #     status="pending",
-        #     created_at=datetime.datetime.now(),
-        #     actions=[]
-        # )
+        plan = AgentPlan(
+            id="plan-123",
+            goal=payload.goal,
+            status="pending",
+            created_at=datetime.datetime.now(),
+            actions=[]
+        )
 
         # For now, plan.actions may be empty (LLM parsing not implemented). We'll create a simple default plan if empty.
         if not plan.actions:
-            # Example: simple retrieval plan
+            # Example: simple retrieval plan with merge strategies per step
             plan.actions = [
                 {
                     "id": "step-1",
                     "tool": "text_semantic",
-                    "parameters": {"query": "a man buying a train model in a mall", "top_k": 100, "dataset": "lsc24"},
+                    "parameters": {
+                        "query": "picture of me taking a photo",
+                        "top_k": 50,
+                        "dataset": "lsc24",
+                        "merge": {"strategy": "search", "weight": 0.7}
+                    },
                     "status": "pending"
                 },
                 {
                     "id": "step-2",
-                    "tool": "ocr",
-                    "parameters": {"query": "computer", "top_k": 100, "dataset": "lsc24"},
+                    "tool": "text_semantic",
+                    "parameters": {
+                        "query": "taking a photo",
+                        "top_k": 50,
+                        "dataset": "lsc24",
+                        "merge": {"strategy": "rerank", "weight": 0.7}
+                    },
+                    "status": "pending"
+                },
+                {
+                    "id": "step-3",
+                    "tool": "activity",
+                    "parameters": {
+                        "query": "taking a photo",
+                        "top_k": 50,
+                        "dataset": "lsc24",
+                        "merge": {"strategy": "filter", "threshold": 0.}
+                    },
                     "status": "pending"
                 }
             ]

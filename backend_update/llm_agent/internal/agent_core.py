@@ -254,6 +254,17 @@ class LangChainAgentCore:
 
             multi_step_instruction = "If you are not given an explicit number of steps, produce a clear multi-step plan (typically 2-3 steps) appropriate to the goal. If the task is simple, include at least 2 steps. Be granular: break down retrieval, filtering, verification, and summary where relevant."
 
+            # Add merge-strategy documentation so the planner can include merge semantics per step
+            merge_doc = (
+                "Each step should optionally include a `merge` parameter dict to specify how its results "
+                "are combined with previous results. The `merge` dict may contain:\n"
+                "- strategy: one of 'search', 'rerank', 'filter'\n"
+                "  - 'search': the step is a full search (subset_record_ids=[]). Provide `weight` in [0,1] to indicate how much to trust this new search when combining with previous combined scores.\n"
+                "  - 'rerank': the step reorders a subset (subset_record_ids = previous result ids). Provide `weight` in [0,1] to indicate mixing between new ordering and previous combined scores (same ids).\n"
+                "  - 'filter': the step filters the existing combined list by inspecting only previous ids (subset_record_ids = previous result ids). Provide `threshold` (float) and items with score < threshold in this step are removed from the combined list.\n"
+                "Example merge: {\"strategy\": \"search\", \"weight\": 0.7} or {\"strategy\": \"filter\", \"threshold\": 0.4}.\n"
+            )
+
             planning_prompt = f"""
             Create a step-by-step plan to accomplish this goal: {goal}
 
@@ -263,6 +274,8 @@ class LangChainAgentCore:
             Constraints (apply these defaults or include them in the step parameters): {json.dumps(constraints or {})}
 
             {multi_step_instruction}
+
+            {merge_doc}
 
             Please provide a structured plan with specific steps and tool usage. Format your response as a JSON object with a top-level key `plan` which is a list of steps. Each step should include: step (int), tool (one of the tool names), and parameters (mapping of parameter names to values). Use parameter names exactly as listed above when possible.
             """
