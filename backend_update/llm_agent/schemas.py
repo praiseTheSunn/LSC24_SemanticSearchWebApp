@@ -8,6 +8,8 @@ from enum import Enum
 class ToolType(str, Enum):
     TEXT_SEMANTIC = "text_semantic"
     OCR = "ocr"
+    ACTIVITY = "activity"
+    OBJECT = "object_tags"
 
 class ActionStatus(str, Enum):
     PENDING = "pending"
