@@ -223,7 +223,7 @@ async def create_and_execute(payload: AgentPlanRequest):
     try:
         print(f"Payload: {payload}")
         print()
-        # plan = await agent_core.create_plan(goal=payload.goal, session_id=payload.session_id, constraints=payload.constraints)
+        plan = await agent_core.create_plan(goal=payload.goal, session_id=payload.session_id, constraints=payload.constraints)
 
         # create a dummy plan for testing
         # "Create and execute failed: 1 validation error for AgentPlan\ncreated_at\n  Input should be a valid datetime [type=datetime_type, input_value=None, input_type=NoneType]\n 

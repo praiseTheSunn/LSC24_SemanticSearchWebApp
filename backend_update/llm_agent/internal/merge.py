@@ -82,7 +82,6 @@ def incremental_merge(prev_merged_candidates: List[Candidate],
                 step_score = float(step_c.score) if step_c is not None else 0.0
                 if step_score >= th:
                     to_keep[rid] = prev_c
-                print(f"After checking, to_keep has {len(to_keep)} candidates")
             new_merged_map = to_keep
 
     else:

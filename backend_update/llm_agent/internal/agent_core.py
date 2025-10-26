@@ -280,6 +280,10 @@ class LangChainAgentCore:
             Please provide a structured plan with specific steps and tool usage. Format your response as a JSON object with a top-level key `plan` which is a list of steps. Each step should include: step (int), tool (one of the tool names), and parameters (mapping of parameter names to values). Use parameter names exactly as listed above when possible.
             """
 
+            print(f"Planning Prompt:\n{planning_prompt}")
+
+            return
+
             # Attempt the initial planning call
             result = await self.agent_node.ainvoke(
                 {"messages": [("user", planning_prompt)]},
