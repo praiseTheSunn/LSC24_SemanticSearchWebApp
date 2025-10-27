@@ -1,0 +1,26 @@
+# Use a lightweight Python base image
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy dependency list first to leverage Docker layer caching
+COPY requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy app source code
+COPY main/ /app/
+COPY dataset/ /app/dataset/
+
+# Environment variable for your config
+ENV SYSTEM_CONFIG="/home/hlmquan/LSC24_SemanticSearchWebApp/backend_update/configs/system_config.yaml"
+
+# Expose app port
+EXPOSE 20734
+
+# Run startup script
+COPY khang.sh .
+RUN chmod +x khang.sh
+CMD ["bash", "khang.sh"]

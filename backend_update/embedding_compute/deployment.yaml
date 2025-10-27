@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emb-compute-app
+  labels:
+    app: emb-compute-app
+spec:
+  replicas: 2  # High availability
+  selector:
+    matchLabels:
+      app: emb-compute-app
+  template:
+    metadata:
+      labels:
+        app: emb-compute-app
+    spec:
+      restartPolicy: Always  # Ensures self-healing if a pod fails
+      containers:
+        - name: emb-compute-app
+          image: your-dockerhub-username/emb-compute-app:latest  # ← change this
+          ports:
+            - containerPort: 20736
+          env:
+            - name: SYSTEM_CONFIG
+              value: "/app/configs/system_config.yaml"
+            - name: CUDA_VISIBLE_DEVICES
+              value: "0"
+          resources:
+            limits:
+              nvidia.com/gpu: 1         # Request 1 GPU per pod
+              cpu: "1"                  # Adjust CPU as needed
+              memory: "3Gi"
+            requests:
+              cpu: "500m"
+              memory: "1Gi"
+      nodeSelector:
+        kubernetes.io/hostname: gpu-node  # Optional: target node with GPU (change/remove as needed)
+      tolerations:
+        - key: "nvidia.com/gpu"
+          operator: "Exists"
+          effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emb-compute-service
+spec:
+  selector:
+    app: emb-compute-app
+  ports:
+    - protocol: TCP
+      port: 20736
+      targetPort: 20736
+  type: LoadBalancer  # or NodePort if your K3s cluster doesn't support LoadBalancer

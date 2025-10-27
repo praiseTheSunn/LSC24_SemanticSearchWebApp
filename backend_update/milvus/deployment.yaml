@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: milvus-backend
+  labels:
+    app: milvus-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: milvus-backend
+  template:
+    metadata:
+      labels:
+        app: milvus-backend
+    spec:
+      containers:
+        - name: milvus-backend
+          image: your-dockerhub-username/milvus-backend:latest
+          ports:
+            - containerPort: 20735
+          env:
+            - name: SYSTEM_CONFIG
+              value: "/app/configs/system_config.yaml"
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+            limits:
+              cpu: "500m"
+              memory: "1Gi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: khang-service
+spec:
+  selector:
+    app: khang-app
+  ports:
+    - protocol: TCP
+      port: 20735        # service port
+      targetPort: 20735  # container port
+  type: LoadBalancer      # for k3s this exposes it via external IP or NodePort

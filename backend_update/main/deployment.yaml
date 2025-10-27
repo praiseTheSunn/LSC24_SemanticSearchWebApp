@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: semantic-search-backend
+  labels:
+    app: semantic-search-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: semantic-search-backend
+  template:
+    metadata:
+      labels:
+        app: semantic-search-backend
+    spec:
+      containers:
+        - name: backend
+          image: your-dockerhub-username/semantic-search-backend:latest
+          ports:
+            - containerPort: 20734
+          env:
+            - name: SYSTEM_CONFIG
+              value: "/home/hlmquan/LSC24_SemanticSearchWebApp/backend_update/configs/system_config.yaml"
+          resources:
+            limits:
+              memory: "4048Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: semantic-search-service
+spec:
+  selector:
+    app: semantic-search-backend
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 20734
+  type: LoadBalancer

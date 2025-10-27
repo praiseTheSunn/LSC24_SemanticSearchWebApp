@@ -91,3 +91,8 @@ backend_update/main/logs/*
 *.db
 *.csv
 expr_eval/*
+
+
+k3d
+
+*/.env

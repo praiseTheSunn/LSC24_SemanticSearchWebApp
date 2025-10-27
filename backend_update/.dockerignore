@@ -3,3 +3,4 @@ database/
 logs/
 *.npy
 milvus/
+k3d/
