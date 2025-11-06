@@ -99,34 +99,8 @@ const AnImage: React.FC<AnImageProps> = ({
     AIC_addImages(src_data, triggerKIS)
   }
 
-  const [isSpacePressed, setIsSpacePressed] = useState(false)
-
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code === 'Space') setIsSpacePressed(true)
-    }
-    const onKeyUp = (e: KeyboardEvent) => {
-      if (e.code === 'Space') setIsSpacePressed(false)
-    }
-
-    window.addEventListener('keydown', onKeyDown)
-    window.addEventListener('keyup', onKeyUp)
-    return () => {
-      window.removeEventListener('keydown', onKeyDown)
-      window.removeEventListener('keyup', onKeyUp)
-    }
-  }, [])
-
-
   const addTrakeImages = (src: ImageRecord) => {
-    // const toastId = toast.loading(`Adding to Traked: ${src.img_link}`, {
-    //   position: 'bottom-right',
-    //   closeOnClick: true,
-    //   autoClose: 2000,
-    // })
     AIC_addTrakeImages(src, null, dispatch, trakeData)
-
-    console.log('trakeData', trakeData);
   }
 
   const like = (src_data: ImageRecord) => {
@@ -165,10 +139,9 @@ const AnImage: React.FC<AnImageProps> = ({
     if (e.altKey) {
       toggleSubmitData(data)
     }
-    if (e.button === 0 && isSpacePressed) {
+    if (e.shiftKey){
       addTrakeImages(data)
     }
-
   }
 
   const handleDoubleClick = (e: React.MouseEvent) => {
@@ -296,6 +269,7 @@ const AnImage: React.FC<AnImageProps> = ({
             e.preventDefault()
             toggleNeighborPopup(data)
             toggleSimilarPopup(null)
+            dispatch(appActions.setTrakedImages([]))
           }}
         />
         {videoSrc && (

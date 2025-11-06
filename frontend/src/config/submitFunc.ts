@@ -106,4 +106,5 @@ export const AIC_addTrakeImages = (src: ImageRecord, toastId: string | null ,dis
   );
   // console.log('updatedTrakeImages', updatedTrakeImages);
   dispatch(appActions.setTrakedImages(updatedTrakeImages));
+  console.log('updatedTrakeImages', updatedTrakeImages);
 }
