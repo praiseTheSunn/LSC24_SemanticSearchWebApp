@@ -4,6 +4,8 @@ import type { AppState } from '../types/app'
 import type { ImageRecord } from '../types/image'
 import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
 import { toast } from 'react-toastify'
+import { convertTimeToMs } from './transformResponse'
+import type { Id } from 'react-toastify'
 
 // const VBSAutoSubmit = async (
 //   username: string,
@@ -47,32 +49,35 @@ import { toast } from 'react-toastify'
 //   dispatch(appActions.setCSVImages(updatedCSVImages));
 // }
 
-// export const AIC_addImages = async (
-//   src_data: ImageRecord,
-//   triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
-// ) => {
-//   const evaluationId = localStorage.getItem('evaluationId')
-//   const sessionId = localStorage.getItem('sessionId')
 
-//   // const time = Number(src_data.timestamp) * 1000
-//   const time = Number(src_data.timestamp)
-//   const video = src_data.video_id
+export const AIC_addImages = async (
+  src_data: ImageRecord,
+  triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
+) => {
+  const evaluationId = localStorage.getItem('evaluationId')
+  const sessionId = localStorage.getItem('sessionId')
 
-//   if (!evaluationId || !sessionId || !video) {
-//     alert('Missing evaluationId, sessionId or video')
-//     return
-//   }
+  // const time = Number(src_data.timestamp) * 1000
+  const time = convertTimeToMs(src_data.time)
+  console.log('AIC_addImages time:', time)
+  const video = src_data.video_id
+  console.log('AIC_addImages video:', video)
 
-//   const resultKIS = await triggerKIS({
-//     session: sessionId,
-//     evaluation_id: evaluationId,
-//     mediaItemName: video,
-//     start: time,
-//     end: time,
-//   })
+  if (!evaluationId || !sessionId || !video) {
+    alert('Missing evaluationId, sessionId or video')
+    return
+  }
 
-//   displayResponseToast(resultKIS)
-// }
+  const resultKIS = await triggerKIS({
+    session: sessionId,
+    evaluation_id: evaluationId,
+    mediaItemName: video,
+    start: time,
+    end: time,
+  })
+
+  displayResponseToast(resultKIS)
+}
 
 export const AIC_addCSVImages = (src: ImageRecord, toastId: string | null ,dispatch: Dispatch, prevImages: ImageRecord[]) => {
   
@@ -87,4 +92,18 @@ export const AIC_addCSVImages = (src: ImageRecord, toastId: string | null ,dispa
   // console.log('updatedCSVImages', updatedCSVImages);
   
   dispatch(appActions.setCSVImages(updatedCSVImages));
+}
+
+export const AIC_addTrakeImages = (src: ImageRecord, toastId: string | null ,dispatch: Dispatch, prevImages: ImageRecord[]) => {
+  
+  // toast.update(toastId, { render: `Added: ${src.img_link}`,type: 'success', isLoading: false, closeOnClick: true, autoClose: 200, delay: 200 });
+  toast.success(`Added: ${src.img_link}`, { autoClose: 200, position: 'bottom-right' });
+
+  const updatedTrakeImages = [...prevImages, src].filter((value, index, self) =>
+    index === self.findIndex((t) => (
+      t.img_link === value.img_link
+    ))
+  );
+  // console.log('updatedTrakeImages', updatedTrakeImages);
+  dispatch(appActions.setTrakedImages(updatedTrakeImages));
 }

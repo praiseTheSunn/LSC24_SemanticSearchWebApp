@@ -36,6 +36,7 @@ export type AppState = {
   queryPayload: QueryPayload
 
   csvImages: ImageRecord[]
+  trakedImages: ImageRecord[]
   likedImages: ImageRecord[]
   dislikedImages: ImageRecord[]
   isCsvPreviewPopupOpen: boolean

@@ -1,6 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { defaultConfig, loadConfigFromLocalStorage } from '../components'
 import type { AppState } from '../types/app'
+import { set } from 'lodash'
 
 const initialState: AppState = {
   loadingPopUpMessage: '',
@@ -30,6 +31,7 @@ const initialState: AppState = {
   queryHistory: [],
 
   csvImages: [],
+  trakedImages: [],
   likedImages: [],
   dislikedImages: [],
   isCsvPreviewPopupOpen: false,
@@ -84,6 +86,9 @@ export const sliceApp = createSlice({
     },
     setCSVImages: (state, action) => {
       state.csvImages = action.payload
+    },
+    setTrakedImages: (state, action) => {
+      state.trakedImages = action.payload
     },
 
     setCSVPreviewPopup: (state, action) => {

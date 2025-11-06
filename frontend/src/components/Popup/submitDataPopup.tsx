@@ -12,6 +12,7 @@ import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
 import { useSubmitQuestionAnsweringMutation } from '../../AppState'
 import { ImageRecord } from '../../types/image'
 import { displayResponseToast } from '../../utils/evaluation/displayResponseToast'
+import { convertTimeToMs } from '../../config/transformResponse'
 
 // Định nghĩa props cho component nếu cần
 interface SubmitDataPopupProps {
@@ -37,7 +38,7 @@ const SubmitDataPopup: React.FC<SubmitDataPopupProps> = () => {
     console.log('Submitted:', answer)
     console.log('src', viewImage?.img_link)
 
-    const text = `${answer}-${viewImage?.video_id}-${Number(viewImage?.timestamp) * 1000}`
+    const text = `QA-${answer}-${viewImage?.video_id}-${convertTimeToMs(viewImage?.time)}`
 
     if (!evaluationId || !sessionId || answer === '') {
       toast.error('No EvaluationID or SessionID or Answer is null', {
@@ -99,7 +100,7 @@ const SubmitDataPopup: React.FC<SubmitDataPopupProps> = () => {
               <Typography variant="h6" component="h3">
                 {viewImage?.video_id}
                 &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-                {Number(viewImage?.timestamp) * 1000}
+                {convertTimeToMs(viewImage?.time)}
               </Typography>
             </Box>
 
