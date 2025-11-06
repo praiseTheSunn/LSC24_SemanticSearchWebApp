@@ -1,11 +1,16 @@
-import { Box } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
 import { AnImage } from '..'
-import { useAppSelector, useLazyGetNeighborsQuery } from '../../AppState'
+import { useAppSelector, useLazyGetNeighborsQuery, useAppDispatch } from '../../AppState'
 import closeIcon from '../../assets/close.png'
 import type { ImageRecord } from '../../types/image'
+import { Padding } from '@mui/icons-material'
+import { useSubmitQuestionAnsweringMutation } from '../../AppState'
+import { toast } from 'react-toastify'
+import { displayResponseToast } from '../../utils/evaluation/displayResponseToast'
+
 
 // Define the types for props
 interface NeighborPopupProps {
@@ -135,6 +140,43 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     onClose(true)
   }
 
+  const trakeData = useAppSelector((state) => state.app.trakedImages)
+  const hasTrake = trakeData && trakeData.length > 0
+  
+    const evaluationId = localStorage.getItem('evaluationId')
+    const sessionId = localStorage.getItem('sessionId')
+  
+    const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
+  
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter') {
+        handleSubmit()
+      }
+    }
+  
+    const handleSubmit = async () => {
+      const text = `TR-${trakeData[0]?.video_id}-${trakeData.map(item => item.image_id?.split('/').pop()).join(',')}`
+      console.log('Submitted TR:', text)
+  
+      if (!evaluationId || !sessionId) {
+        toast.error('No EvaluationID or SessionID or Answer is null', {
+          position: 'bottom-right',
+          autoClose: 5000,
+          closeOnClick: true,
+        })
+        return
+      }
+  
+      const resultQA = await triggerQA({
+        evaluation_id: evaluationId,
+        session: sessionId,
+        text: text,
+      })
+      displayResponseToast(resultQA)
+    }
+  
+    // const dispatch = useAppDispatch()
+
   return (
     <Box
       style={{
@@ -150,7 +192,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
         zIndex: 10000,
       }}
     >
-      <Box
+      {/* <Box
         sx={{
           display: 'flex',
           flexDirection: 'row',
@@ -161,8 +203,22 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
           position: 'relative',
           top: '10px',
         }}
+      > */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '95%',
+          height: hasTrake ? '80%' : '95%',  // ⬅ Shorten when trake exists
+          backgroundColor: 'white',
+          borderRadius: '20px',
+          position: 'relative',
+          top: '10px',
+          // overflow: 'hidden',
+        }}
       >
         <Box sx={{ flexDirection: 'column', flex: 1 }} ref={viewImageRef}>
+          {/* <Box sx={{ flex: 1, overflow: 'hidden' }} ref={viewImageRef}> */}
           <h2
             style={{
               paddingTop: '0.1rem',
@@ -196,7 +252,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
                       width={width}
                       overscanRowCount={5}
                       onScroll={({ scrollTop }) => handleScroll({ scrollTop })}
-                      // style={{ gap: `${columnGap}px` }}
+                    // style={{ gap: `${columnGap}px` }}
                     >
                       {Cell}
                     </Grid>
@@ -206,6 +262,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
             </Box>
           </Box>
         </Box>
+
         <Box
           sx={{
             display: 'flex',
@@ -239,8 +296,67 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
           />
         </Box>
       </Box>
+      {hasTrake && (
+        <Box
+          sx={{
+            width: '95%',
+            height: '15%',
+            borderTop: '2px solid #ccc',
+            overflowX: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            paddingTop: '20px',
+            gap: '8px',
+            backgroundColor: 'white',
+            borderRadius: '20px',
+            top: '10px',
+          }}
+        >
+          {/* ✅ Thumbnails section */}
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flex: 1,                  // Take available space & push button right
+              gap: '8px',
+              overflowX: 'auto',
+            }}
+          >
+            {trakeData.map((item, index) => (
+              <Box
+                key={index}
+                sx={{
+                  width: '10%',
+                  height: '100%',
+                  borderRadius: '10px',
+                  overflow: 'hidden',
+                  border: '1px solid #ddd',
+                  flexShrink: 0,
+                }}
+              >
+                <AnImage data={item} index={index} />
+              </Box>
+            ))}
+          </Box>
+          
+          <Button
+            variant="contained"
+            sx={buttonStyles}
+            onClick={handleSubmit}
+          >
+            Submit
+          </Button>
+        </Box>
+      )}
     </Box>
   )
+}
+
+const buttonStyles = {
+  padding: '10px',
+  fontSize: '16px',
+  backgroundColor: '#007bff',
+  color: 'white',
 }
 
 export default NeighborPopup
