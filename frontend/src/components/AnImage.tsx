@@ -10,8 +10,10 @@ import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { useSubmitKISAnsweringMutation } from '../AppState'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import { AddLikeAction } from '../config/likeResponse'
-import { AIC_addCSVImages } from '../config/submitFunc'
+import { AIC_addImages, AIC_addTrakeImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
+import { useState, useEffect } from 'react'
+
 
 interface AnImageProps {
   data: ImageRecord | null | undefined
@@ -80,6 +82,7 @@ const AnImage: React.FC<AnImageProps> = ({
   )
 
   const csvData = useAppSelector((state) => state.app.csvImages)
+  const trakeData = useAppSelector((state) => state.app.trakedImages)
   const likeImages = useAppSelector((state) => state.app.likedImages)
   const dislikeImages = useAppSelector((state) => state.app.dislikedImages)
 
@@ -92,8 +95,38 @@ const AnImage: React.FC<AnImageProps> = ({
     // })
 
     // REPLACE FOR EACH COMPETITION HERE
-    AIC_addCSVImages(src_data, null, dispatch, csvData)
-    // AIC_addImages(src_data, triggerKIS)
+    // AIC_addCSVImages(src_data, null, dispatch, csvData)
+    AIC_addImages(src_data, triggerKIS)
+  }
+
+  const [isSpacePressed, setIsSpacePressed] = useState(false)
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code === 'Space') setIsSpacePressed(true)
+    }
+    const onKeyUp = (e: KeyboardEvent) => {
+      if (e.code === 'Space') setIsSpacePressed(false)
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    window.addEventListener('keyup', onKeyUp)
+    return () => {
+      window.removeEventListener('keydown', onKeyDown)
+      window.removeEventListener('keyup', onKeyUp)
+    }
+  }, [])
+
+
+  const addTrakeImages = (src: ImageRecord) => {
+    // const toastId = toast.loading(`Adding to Traked: ${src.img_link}`, {
+    //   position: 'bottom-right',
+    //   closeOnClick: true,
+    //   autoClose: 2000,
+    // })
+    AIC_addTrakeImages(src, null, dispatch, trakeData)
+
+    console.log('trakeData', trakeData);
   }
 
   const like = (src_data: ImageRecord) => {
@@ -132,6 +165,10 @@ const AnImage: React.FC<AnImageProps> = ({
     if (e.altKey) {
       toggleSubmitData(data)
     }
+    if (e.button === 0 && isSpacePressed) {
+      addTrakeImages(data)
+    }
+
   }
 
   const handleDoubleClick = (e: React.MouseEvent) => {

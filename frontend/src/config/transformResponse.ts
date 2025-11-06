@@ -281,3 +281,14 @@ export const transformResponse_LSC = (response: ApiResponse) => {
   })
   return result
 }
+
+export const convertTimeToMs = (timeStr: string | undefined): number => {
+  if (!timeStr) return 0
+  const [mm, rest] = timeStr.split(':')
+  const [ss, ms] = rest.split('.')
+  return (
+    Number(mm) * 60 * 1000 +
+    Number(ss) * 1000 +
+    Number(ms || 0)
+  )
+}
