@@ -50,6 +50,7 @@ export const OpenAiApi = createApi({
           • Maintain the contextual meaning from the Vietnamese source.
           • Do not add or assume unrealistic or unrelated details beyond what is implied.
           • Enhance the translation to be more descriptive while preserving the original meaning.
+          • If there is a seperator mark |, translate and refine the text before and after seperately.
 
           Examples:
           Input: Cảnh quay các con động vật nối đuôi nhau. Con đi đầu lớn nhất, các con phía sau có kích thước lần lượt là nhỏ lớn nhỏ lớn.
@@ -60,6 +61,9 @@ export const OpenAiApi = createApi({
 
           Input: Múa rồng, những người biểu diễn múa rồng mặc trang phục của các vận động viên bóng đá.
           Output: A dragon dance performance where the performers are dressed like soccer players.
+
+          Input: Người đầu bếp khuấy một hỗn hợp nước sốt. Lấy khoảnh khắc người đầu bếp lấy muỗng chạm vào nước sốt lần đầu tiên | Người đầu bếp rưới nước sốt vào nồi. Trong nồi có một khoanh cá và phía trên là 1 quả ớt. 
+          Output: A chef stirs a sauce mixture, capturing the moment the spoon first touches the sauce. | The chef pours sauce into a pot containing a slice of fish topped with a chili pepper.
 
           Now translate the following input into a refined, descriptive English sentence: 
           "${textToTranslate}"
