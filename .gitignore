@@ -73,3 +73,7 @@ startFrontend.bat
 
 # main
 /backend/main/elastic_search/http_ca.crt
+
+/frontend/start-dev.bat
+/frontend/src/types/constants.ts
+/frontend/src/services/openAiApiKey.ts

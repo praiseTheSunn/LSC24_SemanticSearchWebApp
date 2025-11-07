@@ -13,6 +13,7 @@ import { GoogleApi } from './services/googleApi'
 import { ImageApi } from './services/imageApi'
 import { ObjectPosApi } from './services/objectApi'
 import { sliceApp } from './slice/sliceApp'
+import { OpenAiApi } from './services/openAiApi'
 
 const makeStore = () => {
   return configureStore({
@@ -22,6 +23,7 @@ const makeStore = () => {
       [ImageApi.reducerPath]: ImageApi.reducer,
       [GoogleApi.reducerPath]: GoogleApi.reducer,
       [EvalApi.reducerPath]: EvalApi.reducer,
+      [OpenAiApi.reducerPath]: OpenAiApi.reducer,
     }),
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
@@ -32,6 +34,7 @@ const makeStore = () => {
         ImageApi.middleware,
         GoogleApi.middleware,
         EvalApi.middleware,
+        OpenAiApi.middleware,
       ]),
   })
 }
@@ -64,6 +67,7 @@ export const {
 } = ImageApi
 
 export const { useLazyGetTranslatedTextQuery } = GoogleApi
+export const { useLazyGetLLMTextQuery } = OpenAiApi
 
 export const {
   useLazyGetEvalIDQuery,

@@ -47,4 +47,9 @@ export const GoogleTranslateQuery: QueryFn = fetchBaseQuery({
   prepareHeaders,
 })
 
+export const OpenAiQuery: QueryFn = fetchBaseQuery({
+  baseUrl: 'https://api.openai.com/',
+  prepareHeaders,
+})
+
 export const baseQueryWithRetry = retry(ImageQuery, { maxRetries: 3 })

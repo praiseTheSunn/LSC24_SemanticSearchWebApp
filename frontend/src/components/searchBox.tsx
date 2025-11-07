@@ -14,6 +14,7 @@ import {
   useAppSelector,
   useLazyGetImagesQuery,
   useLazyGetTranslatedTextQuery,
+  useLazyGetLLMTextQuery,
   useSubmitQuestionAnsweringMutation,
 } from '../AppState'
 import { HistoryIcon } from '../assets'
@@ -63,6 +64,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
 
     const [trigger, result] = useLazyGetImagesQuery()
     const [TriggerTranslate, TranslatedResult] = useLazyGetTranslatedTextQuery()
+    const [TriggerLLM, ResultLLM] = useLazyGetLLMTextQuery()
     const { data, error, isError, isFetching } = result
 
     const dispatch = useAppDispatch()
@@ -229,7 +231,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           const value = input
           if (isVietnameseEnabled) {
             // Translate to english
-            TriggerTranslate({ q: value, target: 'en' })
+            // TriggerTranslate({ q: value, target: 'en' })
+            TriggerLLM({ q: value })
             setTextareaValue('')
             setMessagePopup(true)
             return
@@ -280,17 +283,17 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
     }, [isFetching, isError, error, data])
 
     useEffect(() => {
-      if (TranslatedResult.isFetching) {
+      if (ResultLLM.isFetching) {
         setLoadingPopup('Translating...')
       }
 
-      if (TranslatedResult.isError) {
-        console.error('Error:', TranslatedResult.error)
+      if (ResultLLM.isError) {
+        console.error('Error:', ResultLLM.error)
         setLoadingPopup('Error: translating')
       }
 
-      if (TranslatedResult.data && !TranslatedResult.isFetching) {
-        const translatedText = TranslatedResult.data.translatedText
+      if (ResultLLM.data && !ResultLLM.isFetching) {
+        const translatedText = ResultLLM.data.translatedText
 
         const filter = { category: 'query', value: translatedText, status: 1 } // status 1 for success
         setQuery(translatedText)
@@ -318,7 +321,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           appActions.setQueryHistory({ time: timestamp, query: updatedQuery }),
         )
       }
-    }, [TranslatedResult])
+    }, [ResultLLM])
 
     return (
       <Box
