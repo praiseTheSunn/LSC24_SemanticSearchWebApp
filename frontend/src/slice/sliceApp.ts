@@ -27,6 +27,7 @@ const initialState: AppState = {
     temporal_window_size: 3,
     use_temporal_window: false,
     display_window_size: 0,
+    llm_model: 'gpt-4o',
   },
   queryHistory: [],
 

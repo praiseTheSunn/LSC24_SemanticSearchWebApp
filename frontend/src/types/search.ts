@@ -13,4 +13,5 @@ export type QueryPayload = {
   use_temporal_window: boolean
   display_window_size: number
   user_id: string
+  llm_model: string
 }

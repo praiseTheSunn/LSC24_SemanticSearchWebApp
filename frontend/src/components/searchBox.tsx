@@ -96,6 +96,15 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
       },
       [queryPayload, dispatch],
     )
+
+    const setLLMModel = useCallback(
+      (value: string) => {
+        const newPayload = { ...queryPayload, llm_model: value }
+        dispatch(appActions.setQueryPayload(newPayload))
+      },
+      [queryPayload, dispatch],
+    )
+
     const setLoadingPopup = useCallback(
       (value: string) => {
         dispatch(appActions.setLoadingPopUp(value))
@@ -232,7 +241,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           if (isVietnameseEnabled) {
             // Translate to english
             // TriggerTranslate({ q: value, target: 'en' })
-            TriggerLLM({ q: value })
+            TriggerLLM({ q: value, llm_model: queryPayload.llm_model })
             setTextareaValue('')
             setMessagePopup(true)
             return
@@ -430,6 +439,15 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             setData={setDataset}
           />
         </Box>
+        <Box sx={{ marginLeft: '12px' }}>
+          <Dropdown
+            label="LLM model"
+            displayItems={['gpt-4o', 'gpt-4o-mini', 'gpt-5']}
+            valueItems={['gpt-4o', 'gpt-4o-mini', 'gpt-5']}
+            setData={setLLMModel}
+          />
+        </Box>
+        
         {/* <Box sx={{ marginLeft: '12px', marginTop: '7px' }}>
           <Button 
             variant="contained" 
