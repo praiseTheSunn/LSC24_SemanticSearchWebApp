@@ -30,6 +30,7 @@ export const LSC_fieldToDisplay = {
   ocr: "OCR",
   location: "Location",
   score: "Score",
+  transcript: "Transcript"
 }
 
 export const FieldToDisplay = LSC_fieldToDisplay
