@@ -1,4 +1,4 @@
-import { Box, Button } from '@mui/material'
+import { Box, Button, TextField } from '@mui/material'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
@@ -142,40 +142,64 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
 
   const trakeData = useAppSelector((state) => state.app.trakedImages)
   const hasTrake = trakeData && trakeData.length > 0
-  
-    const evaluationId = localStorage.getItem('evaluationId')
-    const sessionId = localStorage.getItem('sessionId')
-  
-    const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
-  
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-      if (e.key === 'Enter') {
-        handleSubmit()
-      }
+  const [textValue, setTextValue] = useState<string>('')
+
+  useEffect(() => {
+  if (!trakeData || trakeData.length === 0) {
+    setTextValue("");
+    return;
+  }
+
+  const text = `TR-${trakeData[0]?.video_id}-${trakeData
+    .map(item => item.image_id?.split('/').pop())
+    .join(',')}`;
+
+  setTextValue(text);
+}, [trakeData]);
+
+
+  const evaluationId = localStorage.getItem('evaluationId')
+  const sessionId = localStorage.getItem('sessionId')
+
+  const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSubmit()
     }
-  
-    const handleSubmit = async () => {
-      const text = `TR-${trakeData[0]?.video_id}-${trakeData.map(item => item.image_id?.split('/').pop()).join(',')}`
-      console.log('Submitted TR:', text)
-  
-      if (!evaluationId || !sessionId) {
-        toast.error('No EvaluationID or SessionID or Answer is null', {
-          position: 'bottom-right',
-          autoClose: 5000,
-          closeOnClick: true,
-        })
-        return
-      }
-  
-      const resultQA = await triggerQA({
-        evaluation_id: evaluationId,
-        session: sessionId,
-        text: text,
+  }
+
+  const handleSubmit = async () => {
+    // const text = `TR-${trakeData[0]?.video_id}-${trakeData.map(item => item.image_id?.split('/').pop()).join(',')}`
+    console.log('Submitted TR:', textValue)
+
+    if (!evaluationId || !sessionId) {
+      toast.error('No EvaluationID or SessionID or Answer is null', {
+        position: 'bottom-right',
+        autoClose: 5000,
+        closeOnClick: true,
       })
-      displayResponseToast(resultQA)
+      return
     }
-  
-    // const dispatch = useAppDispatch()
+
+    if (textValue.trim() === '') {
+      toast.error('Submission text cannot be empty', {
+        position: 'bottom-right',
+        autoClose: 5000,
+        closeOnClick: true,
+      })
+      return
+    }
+
+    const resultQA = await triggerQA({
+      evaluation_id: evaluationId,
+      session: sessionId,
+      text: textValue,
+    })
+    displayResponseToast(resultQA)
+  }
+
+  // const dispatch = useAppDispatch()
 
   return (
     <Box
@@ -302,43 +326,60 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
             width: '95%',
             height: '15%',
             borderTop: '2px solid #ccc',
-            overflowX: 'auto',
+            overflowX: 'hidden',
             display: 'flex',
             alignItems: 'center',
-            paddingTop: '20px',
-            gap: '8px',
+            padding: '20px 10px 10px 10px',
+            gap: '12px',
             backgroundColor: 'white',
             borderRadius: '20px',
-            top: '10px',
+            flexDirection: 'row',
           }}
         >
-          {/* ✅ Thumbnails section */}
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              flex: 1,                  // Take available space & push button right
-              gap: '8px',
-              overflowX: 'auto',
-            }}
-          >
-            {trakeData.map((item, index) => (
-              <Box
-                key={index}
-                sx={{
-                  width: '10%',
-                  height: '100%',
-                  borderRadius: '10px',
-                  overflow: 'hidden',
-                  border: '1px solid #ddd',
-                  flexShrink: 0,
-                }}
-              >
-                <AnImage data={item} index={index} />
-              </Box>
-            ))}
+          {/* ✅ Left side: Textbox + Images */}
+          <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '10px' }}>
+
+            {/* ✅ Textbox */}
+            <TextField
+              placeholder="Enter submission message..."
+              size="small"
+              fullWidth
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: '#f7f7f7',
+              }}
+              value={textValue}
+              onChange={(e) => setTextValue(e.target.value)}
+            />
+
+            {/* ✅ Thumbnails section */}
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                overflowX: 'auto',
+              }}
+            >
+              {trakeData.map((item, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    width: '10%',
+                    height: '100%',
+                    borderRadius: '10px',
+                    overflow: 'hidden',
+                    border: '1px solid #ddd',
+                    flexShrink: 0,
+                  }}
+                >
+                  <AnImage data={item} index={index} isTrake={true} />
+                </Box>
+              ))}
+            </Box>
           </Box>
-          
+
+          {/* ✅ Submit Button */}
           <Button
             variant="contained"
             sx={buttonStyles}
@@ -348,6 +389,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
           </Button>
         </Box>
       )}
+
     </Box>
   )
 }

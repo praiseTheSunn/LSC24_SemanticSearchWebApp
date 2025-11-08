@@ -13,6 +13,8 @@ import { AddLikeAction } from '../config/likeResponse'
 import { AIC_addImages, AIC_addTrakeImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
 import { useState, useEffect } from 'react'
+import CloseIcon from '@mui/icons-material/Close'
+
 
 
 interface AnImageProps {
@@ -21,6 +23,7 @@ interface AnImageProps {
   isDisplayTooltip?: boolean
   isZoomOnHover?: boolean
   allowFeedback?: boolean
+  isTrake?: boolean
 }
 
 const AnImage: React.FC<AnImageProps> = ({
@@ -29,6 +32,7 @@ const AnImage: React.FC<AnImageProps> = ({
   isDisplayTooltip,
   isZoomOnHover,
   allowFeedback,
+  isTrake = false,
 }) => {
   if (isNil(data)) return null
   isDisplayTooltip = isDisplayTooltip !== undefined ? isDisplayTooltip : true
@@ -103,6 +107,12 @@ const AnImage: React.FC<AnImageProps> = ({
     AIC_addTrakeImages(src, null, dispatch, trakeData)
   }
 
+  const removeTrakeImage = (src: ImageRecord) => {
+    const updated = trakeData.filter((img) => img !== src)
+    dispatch(appActions.setTrakedImages(updated))
+  }
+
+
   const like = (src_data: ImageRecord) => {
     const toastId = toast.loading(`Like: ${src_data.img_link}`, {
       position: 'bottom-right',
@@ -139,7 +149,7 @@ const AnImage: React.FC<AnImageProps> = ({
     if (e.altKey) {
       toggleSubmitData(data)
     }
-    if (e.shiftKey){
+    if (e.shiftKey) {
       addTrakeImages(data)
     }
   }
@@ -216,6 +226,34 @@ const AnImage: React.FC<AnImageProps> = ({
           backgroundColor: 'white',
         }}
       />
+      {isTrake && (
+        <Box
+          sx={{
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            zIndex: 60,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            borderRadius: '50%',
+            backgroundColor: 'rgba(0,0,0,0.6)',
+            cursor: 'pointer',
+            '&:hover': {
+              backgroundColor: 'rgba(255,0,0,0.8)',
+            },
+          }}
+          onClick={(e) => {
+            e.stopPropagation() // prevent triggering other image events
+            removeTrakeImage(data)
+          }}
+        >
+          <CloseIcon sx={{ color: 'white', fontSize: '16px' }} />
+        </Box>
+      )}
+
       {allowFeedback && <Box
         sx={{
           position: 'absolute',
