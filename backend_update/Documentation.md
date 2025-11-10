@@ -271,16 +271,3 @@ conda deactivate
 conda activate milvus
 bash ./run.sh
 ```
-
-## Completion summary
-
-- I scanned the `backend_update` service sources, extracted the main APIs and data contracts, and documented the service interactions, principal classes, search modes, and internal flows.
-- The documentation file at `backend_update/Documentation.md` in this repository has been updated with the content above.
-
-If you want, I can:
-- produce a compact API reference table (CSV or OpenAPI snippets) for all endpoints and JSON shapes;
-- add small unit tests for `parse_raw_query`, scorer functions, and dataset loading;
-- generate an architecture diagram (ASCII or Mermaid) showing service interactions.
-
----
-
