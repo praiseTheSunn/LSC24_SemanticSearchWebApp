@@ -23,7 +23,7 @@ description = client.describe_collection("aic25_clips")
 print(description)
 
 r = client.get(
-    collection_name="lsc24_clips",
+    collection_name="aic25_clips",
     ids=[346132],
     output_fields=None
 )
