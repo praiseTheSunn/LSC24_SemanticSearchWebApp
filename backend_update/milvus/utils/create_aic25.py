@@ -189,8 +189,6 @@ if __name__ == "__main__":
     MODEL = "clips"
     FORCE = True  # WARNING: drops collection if exists
 
-    exit()
-
     print(f"Dataset: {DATASET_NAME}")
     print(f"Allowed prefixes: {ALLOWED_PREFIXES}")
     print(f"Model: {MODEL}")

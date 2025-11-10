@@ -1,7 +1,7 @@
 import numpy as np
-import pandas as pd
+from typing import List, Dict
 
-def get_standardized_scores(scores: list[float]) -> list[float]:    
+def get_standardized_scores(scores: List[float]) -> List[float]:    
     # Apply log transformation (shift scores to avoid log(0))
     min_score = np.min(scores)
     shifted_scores = [score - min_score + 1 for score in scores]  # shift by (min_score - 1)
@@ -24,7 +24,7 @@ def get_combine_score(scores) -> float:
     """
     return len(scores) / np.sum([1.0 / score for score in scores])
 
-def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:    
+def get_combined_scores(match_results: List[Dict], join_type='outer') -> Dict:    
 
     # Remove empty results
     match_results_nonnull_index = []
@@ -46,6 +46,9 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
     #     print(f"Min score: {np.min(match_results[i]['scores'])}")
 
     # Create a dataframe for each category (i dont know how many categories there are)
+    # pandas is only required here; import lazily to avoid heavy import at module load
+    import pandas as pd
+
     dataframes = []
     for i in match_results_nonnull_index:
         dataframes.append(pd.DataFrame({'record_ids': pd.Series(match_results[i]["record_ids"], dtype='int64'), 'scores': match_results[i]["scores"]}))
@@ -73,7 +76,7 @@ def get_combined_scores(match_results: list[dict], join_type='outer') -> dict:
         "scores": merged_df["combined_scores"].tolist(),
     }
 
-def get_combined_scores_datetime(match_results: list[dict], datetime_results = []) -> dict:    
+def get_combined_scores_datetime(match_results: List[Dict], datetime_results = []) -> Dict:    
 
     # Remove empty results
     match_results_nonnull_index = []
@@ -89,6 +92,8 @@ def get_combined_scores_datetime(match_results: list[dict], datetime_results = [
     #     print(f"Min score: {np.min(match_results[i]['scores'])}")
 
     # Create a dataframe for each category (i dont know how many categories there are)
+    import pandas as pd
+
     dataframes = []
     for i in match_results_nonnull_index:
         dataframes.append(pd.DataFrame({'record_ids': match_results[i]["record_ids"], 'scores': match_results[i]["scores"]}))

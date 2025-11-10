@@ -56,38 +56,33 @@ startFrontend.bat
 /results
 /index
 
-/objpos/image_data.db
-/objpos/metadata.db
-/objpos/joined_data.db
 
 # data
-/data/metadata/*
-/data/embeddings/*
-/data/*
-*.csv
-*.npy
-*.db
+data/*/embeddings/*
+data/*/metadata/*.csv
+data/*/metadata/*.pkl
+data/*/metadata/*.parquet
+data/**/*.json
 
 # elasticsearch
-/elasticsearch-8.17.0/*
+elasticsearch-8.17.0/*
 
 # embedding_compute
-/embedding_compute/model/
+embedding_compute/model/
 
 # milvus
-/milvus/volumes
-/milvus/volumes/*
-/milvus/utils/crawl_aic
+milvus/volumes
+milvus/volumes/*
+milvus/utils/crawl_aic
 
 # main
-/main/elastic_search/http_ca.crt
+main/old_logs/*
+main/logs/*
+main/elastic_search/http_ca.crt
 
 # configs (secret)
-backend_update/configs/*
-backend_update/data/lsc24/images.json
-backend_update/data/vbs25_v3c/metadata/V3C_metadata.json
-backend_update/main/old_logs/*
-backend_update/main/logs/*
+configs/*
 *.db
-*.csv
-expr_eval/*
+
+
+

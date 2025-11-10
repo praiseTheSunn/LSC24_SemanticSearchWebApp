@@ -27,13 +27,15 @@ async def search_with_image_query(payload: RequestSearchByImageQuery):
     # Extract the parameters from the payload  
     inputs = payload.model_dump()
     inputs["model"] = "clips"           # TEMPORARY FIX: Hardcoded model name for testing purposes
-    inputs["dataset"] = "lsc24"         # TEMPORARY FIX: Hardcoded dataset name for testing purposes
+    inputs["dataset"] = "aic25"         # TEMPORARY FIX: Hardcoded dataset name for testing purposes
 
     # Search for the image
     response_data, response_status = await search_by_image(image_base64=inputs["image_base64"], dataset=inputs["dataset"], model=inputs["model"])
 
     # DEBUG
-    print(inputs)
+    for k, v in inputs.items():
+        if k != "image_base64":
+            print(f"{k}: {v}")
     print(response_data)
 
     # Postprocess the response
@@ -62,7 +64,6 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
 
     # Extract the parameters from the payload  
     inputs = payload.model_dump()
-    print(inputs.keys())
     if inputs["filters"]:
         for k, v in inputs["filters"].items():
             if k == "location":
@@ -71,6 +72,8 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
                 k = "-d"
             elif k == "ocr":
                 k = "-ocr"
+            elif k == "transcript":
+                k = "-tr"
             if v is None or v == "":
                 continue
             inputs["text_query"] += f" {k} {v}"
@@ -92,6 +95,7 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
         return JSONResponse(content={"status": status.HTTP_400_BAD_REQUEST, "message": "Data retrieval failed", "error": "Excessive number of temporal clauses in the query."}, status_code=status.HTTP_400_BAD_REQUEST, headers={'Access-Control-Allow-Origin': '*'})
     
     # Search for each clause
+    print("Structured Query:", query_structured)
     response_data, response_status = await search_by_text(query_structured)
 
     # Postprocess the response

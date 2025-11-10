@@ -122,8 +122,9 @@ def search_milvus(collection_name: str, text_embedding: list, filters: dict, lim
     # )[0]
 
     
+    # Use the requested `limit` instead of a hard-coded value so callers' top_k/limit is respected
     first_results = setup.milvus_client.hybrid_search(
-        collection_name=collection_name, reqs=reqs, ranker=ranker, limit=500, output_fields=["record_id"]
+        collection_name=collection_name, reqs=reqs, ranker=ranker, limit=limit, output_fields=["record_id"]
     )[0]
 
     # second_results = setup.milvus_client.search(
