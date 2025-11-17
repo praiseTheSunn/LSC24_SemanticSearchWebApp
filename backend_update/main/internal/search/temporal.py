@@ -125,9 +125,9 @@ def aggregate_temporal(partial_results: list[dict], dataset: str, top_k: int):
     # Map combined scores back
     df['combined_score'] = df['unifying_category_id'].map(top_combined_scores)
 
-    # Keep flags for top 2 per clause within group
+    # Keep flags for top 1 per clause within group
     df['rank_within_clause'] = df.groupby(['unifying_category_id', 'clause_id'])['score'].rank(method='first', ascending=False)
-    df['keep'] = df['rank_within_clause'] <= 2
+    df['keep'] = df['rank_within_clause'] <= 1
 
     # Final dedup and sort
     df = df[df['keep']]
@@ -135,10 +135,11 @@ def aggregate_temporal(partial_results: list[dict], dataset: str, top_k: int):
     df.drop_duplicates(subset='record_id', inplace=True)
 
     # Group and reduce: mean record_id and max score
-    summary_df = df.groupby('unifying_category_id').agg({
-        'record_id': 'mean',
-        'combined_score': 'max'
-    }).astype({'record_id': int})
+    # summary_df = df.groupby('unifying_category_id').agg({
+    #     'record_id': 'mean',
+    #     'combined_score': 'max'
+    # }).astype({'record_id': int})
+    summary_df = df.copy()
 
     # Sort by combined_score descending
     summary_df.sort_values(by='combined_score', ascending=False, inplace=True)
