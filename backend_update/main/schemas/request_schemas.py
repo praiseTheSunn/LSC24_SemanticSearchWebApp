@@ -25,6 +25,7 @@ class RequestSearchByTextQuery(BaseModel):
         date: Optional[Union[str, None]] = ""
         location: Optional[Union[str, None]] = ""
         ocr: Optional[Union[str, None]] = ""
+        
     text_query: str
     dataset: options_schemas.DatasetOptions = options_schemas.DatasetOptions.option1
     model: options_schemas.ModelOptions

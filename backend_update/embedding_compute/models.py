@@ -33,11 +33,27 @@ class ClipSModel(ModelBase):
         text_embedding = F.normalize(text_embedding, dim=-1)
         return text_embedding
     
-    def calc_image_embedding(self, raw_image: torch.Tensor) -> Any:              
-        image = self.preprocess(raw_image).unsqueeze(0)
-        with torch.no_grad(), torch.amp.autocast('cuda'):
-            image_embedding = self.model.encode_image(image)
+    def calc_image_embedding(self, raw_image: torch.Tensor):
+        # Get model device + dtype automatically
+        param = next(self.model.parameters())
+        model_device = param.device
+        model_dtype = param.dtype
+
+        # Move + cast image to match model
+        image = self.preprocess(raw_image).unsqueeze(0).to(device=model_device, dtype=model_dtype)
+
+        # Use autocast only if model is in half precision
+        use_amp = model_dtype in (torch.float16, torch.bfloat16)
+
+        with torch.no_grad():
+            if use_amp:
+                with torch.amp.autocast(device_type=model_device.type, dtype=model_dtype):
+                    image_embedding = self.model.encode_image(image)
+            else:
+                image_embedding = self.model.encode_image(image)
+
             image_embedding = F.normalize(image_embedding, dim=-1)
+
         return image_embedding
     
 

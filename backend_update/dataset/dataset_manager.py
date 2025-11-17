@@ -53,3 +53,5 @@ DatasetManager.register("lsc24", LSC24Dataset)
 # DatasetManager.register("vbs25_v3c", V3CDataset)
 # DatasetManager.register("vbs25_mvk", MVKDataset)
 # DatasetManager.register("vbs25_lhe", LHEDataset)
+
+print("Initialized dataset manager successfully.\n")

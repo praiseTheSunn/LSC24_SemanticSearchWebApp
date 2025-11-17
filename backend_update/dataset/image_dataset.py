@@ -3,6 +3,11 @@ import re
 import sqlite3
 import yaml
 from abc import ABC, abstractmethod
+from pathlib import Path
+import threading
+import warnings
+import os
+import tempfile
 
 
 def load_config(config_path: str):
@@ -30,31 +35,103 @@ class ImageDataset(ABC):
         self.keyword_fields = self.config.get("keyword_fields", [])
         self.unifying_category = self.config.get("unifying_category", None)
 
-        # # DB
-        # self.db_path = f"../database/{self.dataset_name}.db"
-        # self.init_db()
-
-        # # Create a mapping from string image ID to integer image ID
-        # self.cursor.execute("SELECT image_id, record_id FROM images")
-        # rows = self.cursor.fetchall()
-        # self.image_id_to_record_id = {row[0]: row[1] for row in rows}
-        # self.record_id_to_image_id = {row[1]: row[0] for row in rows} 
-
-        # self.cursor.execute("SELECT record_id, video_id FROM images")
-        # self.record_id_to_video_id = {row[0]: row[1] for row in self.cursor.fetchall()}
-
         import time
         start_time = time.time()
         print(f"Creating image ID to record ID mapping for {self.dataset_name} dataset...")
 
         start_time = time.time()
 
-        # Load only required columns
-        self.df = pd.read_csv(self.metadata_file_path, usecols=self.column_mapping.keys())
-        if "lesson" in self.dataset_name:
-            self.df = self.df[self.df["video_id"].str.startswith("L25")]
-        elif "cooking" in self.dataset_name:
-            self.df = self.df[self.df["video_id"].str.startswith("L26")]
+        # Prefer fast preprocessed cache if available (parquet or pickle). This
+        # greatly reduces startup time vs parsing large CSVs.
+        metadata_path = Path(self.metadata_file_path)
+        parquet_path = metadata_path.with_suffix('.parquet')
+        pkl_path = metadata_path.with_suffix('.pkl')
+
+        def _load_from_csv():
+            # Load only required columns; explicit low_memory to False for speed/consistency
+            return pd.read_csv(self.metadata_file_path, usecols=self.column_mapping.keys(), low_memory=False)
+
+        df = None
+        # Try parquet/pickle caches only if they are up-to-date vs CSV (mtime check)
+        try:
+            csv_mtime = metadata_path.stat().st_mtime
+
+            def _safe_mtime(p: Path) -> float:
+                try:
+                    return p.stat().st_mtime
+                except OSError:
+                    return 0.0
+
+            df = None
+            parquet_m = _safe_mtime(parquet_path)
+            pkl_m = _safe_mtime(pkl_path)
+
+            # Prefer parquet if it's not older than CSV
+            if parquet_path.exists() and parquet_m >= csv_mtime:
+                try:
+                    df = pd.read_parquet(parquet_path)
+                    print(f"Loaded metadata for {self.dataset_name} from parquet cache: {parquet_path}")
+                except Exception as e:
+                    warnings.warn(f"Failed to read parquet cache {parquet_path}: {e}")
+
+            # Then try pickle if parquet not used
+            if df is None and pkl_path.exists() and pkl_m >= csv_mtime:
+                try:
+                    df = pd.read_pickle(pkl_path)
+                    print(f"Loaded metadata for {self.dataset_name} from pickle cache: {pkl_path}")
+                except Exception as e:
+                    warnings.warn(f"Failed to read pickle cache {pkl_path}: {e}")
+
+            # Fallback to CSV (or cache is stale)
+            if df is None:
+                df = _load_from_csv()
+
+                # Build caches asynchronously (atomic replace) so next startup is faster
+                def _write_caches_atomic(df_local):
+                    # Parquet: create temp file in same directory as target so os.replace
+                    # (which uses rename) works atomically even across filesystems.
+                    try:
+                        tf = tempfile.NamedTemporaryFile(dir=parquet_path.parent, prefix=parquet_path.name + '.tmp', delete=False)
+                        tmp_path = Path(tf.name)
+                        tf.close()
+                        try:
+                            df_local.to_parquet(tmp_path, index=False)
+                            os.replace(str(tmp_path), str(parquet_path))
+                            print(f"Atomically wrote parquet cache for {self.dataset_name} to {parquet_path}")
+                        finally:
+                            if tmp_path.exists():
+                                try:
+                                    tmp_path.unlink()
+                                except Exception:
+                                    pass
+                    except Exception as e:
+                        warnings.warn(f"Failed to write parquet cache {parquet_path}: {e}")
+
+                    # Pickle: same pattern
+                    try:
+                        tf = tempfile.NamedTemporaryFile(dir=pkl_path.parent, prefix=pkl_path.name + '.tmp', delete=False)
+                        tmp_path = Path(tf.name)
+                        tf.close()
+                        try:
+                            df_local.to_pickle(tmp_path)
+                            os.replace(str(tmp_path), str(pkl_path))
+                            print(f"Atomically wrote pickle cache for {self.dataset_name} to {pkl_path}")
+                        finally:
+                            if tmp_path.exists():
+                                try:
+                                    tmp_path.unlink()
+                                except Exception:
+                                    pass
+                    except Exception as e:
+                        warnings.warn(f"Failed to write pickle cache {pkl_path}: {e}")
+
+                threading.Thread(target=_write_caches_atomic, args=(df.copy(),), daemon=True).start()
+
+            # assign
+            self.df = df
+
+        except FileNotFoundError as e:
+            raise ValueError(f"Metadata file not found for dataset {self.dataset_name}: {e}")
 
         # Rename + reorder. Also keep only columns in the config file for indexing
         self.df.rename(columns=self.column_mapping, inplace=True)
@@ -81,11 +158,7 @@ class ImageDataset(ABC):
     
     @abstractmethod
     def get_dataset_name(self):
-        pass
-
-    # def init_db(self):
-    #     self.conn = sqlite3.connect(self.db_path)
-    #     self.cursor = self.conn.cursor()        
+        pass      
 
     def __len__(self):
         """Returns the total number of images."""
@@ -112,43 +185,7 @@ class ImageDataset(ABC):
         image_id = re.sub(r'\.\w+$', '', image_id)
         if self.dataset_name.startswith("aic25"):
             image_id = image_id[4:]
-        return image_id    
-    
-    # def get_unifying_category_ids(self, record_ids, unifying_category):
-    #     # Create temp table with an index to preserve input order and duplicates
-    #     self.cursor.execute("""
-    #         CREATE TEMP TABLE IF NOT EXISTS temp_record_ids (
-    #             idx INTEGER,
-    #             record_id INTEGER
-    #         )
-    #     """)
-
-    #     # Clear temp table
-    #     self.cursor.execute("DELETE FROM temp_record_ids")
-
-    #     # Insert with input order index
-    #     self.cursor.executemany(
-    #         "INSERT INTO temp_record_ids (idx, record_id) VALUES (?, ?)",
-    #         [(i, rid) for i, rid in enumerate(record_ids)]
-    #     )
-
-
-    #     # # how many distinct record_ids in record_ids
-    #     # # Get the count of distinct record_ids
-    #     # query = "SELECT COUNT(DISTINCT record_id) FROM images"
-    #     # self.cursor.execute(query)
-    #     # distinct_count = self.cursor.fetchone()[0]
-    #     # print(f"Distinct count of record_ids: {distinct_count}")
-
-    #     # Join and order by idx to preserve input order and allow duplicates
-    #     query = f"""
-    #         SELECT i.{unifying_category}
-    #         FROM temp_record_ids t
-    #         LEFT JOIN images i ON i.record_id = t.record_id
-    #         ORDER BY t.idx
-    #     """
-    #     self.cursor.execute(query)
-    #     return [row[0] for row in self.cursor.fetchall()]
+        return image_id
     
     def get_unifying_category_ids(self, record_ids):    
         temp_df = pd.DataFrame({"record_id": record_ids})
