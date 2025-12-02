@@ -6,6 +6,8 @@ from internal.agent_core import LangChainAgentCore
 from typing import Dict, Any
 from internal.tools_adapter import StepQuery, ExecutionContext, Candidate, run_step_via_main
 from internal.merge import incremental_merge
+from pprint import pprint
+import json
 # Prefer the milvus internal helpers (re-export shim)
 try:
     from backend_update.milvus.internal.search import (
@@ -22,6 +24,7 @@ except Exception:
 # Use the local ToolManager so we execute the concrete Tool classes when possible
 from tools import ToolManager
 from schemas import ToolExecutionContext, ToolResult
+from check_history import log_interaction
 
 tool_manager = ToolManager()
 
@@ -30,59 +33,11 @@ router = APIRouter(
     tags=["planning"],
 )
 
-# Initialize agent core
+# Initialize agent core (LangChainAgentCore is a singleton)
 agent_core = LangChainAgentCore()
 # Simple in-memory plan store (for demo/prototyping). Replace with Redis or DB for production.
 PLAN_STORE: Dict[str, Dict[str, Any]] = {}
 
-@router.post("/create_plan")
-async def create_execution_plan(payload: AgentPlanRequest):
-    """Create an execution plan for a user goal using LLM"""
-    try:
-        # Use LangChain agent to create intelligent plan
-        plan = await agent_core.create_plan(
-            goal=payload.goal,
-            session_id=payload.session_id,
-            constraints=payload.constraints
-        )
-        
-        return JSONResponse(
-            content={
-                "plan": {
-                    "plan_id": plan.id,
-                    "session_id": payload.session_id,
-                    "goal": plan.goal,
-                    "status": plan.status.value,
-                    "created_at": plan.created_at.isoformat(),
-                    "actions": [action.model_dump() for action in plan.actions],
-                    "estimated_steps": len(plan.actions)
-                },
-                "message": "Execution plan created successfully using LLM"
-            },
-            headers={'Access-Control-Allow-Origin': '*'}
-        )
-        
-    except Exception as e:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Plan creation failed: {str(e)}"
-        )
-
-@router.get("/plan/{plan_id}/status")
-async def get_plan_status(plan_id: str):
-    """Get the status of an execution plan"""
-    # TODO: Retrieve from memory/storage
-    return JSONResponse(
-        content={
-            "plan_id": plan_id,
-            "status": "pending",
-            "current_step": 0,
-            "total_steps": 3,
-            "progress_percentage": 0.0,
-            "actions": []
-        },
-        headers={'Access-Control-Allow-Origin': '*'}
-    )
 
 @router.post("/plan/{plan_id}/execute")
 async def execute_plan(plan_id: str, payload: ExecutePlanRequest):
@@ -217,6 +172,7 @@ async def execute_plan(plan_id: str, payload: ExecutePlanRequest):
     )
 
 
+
 @router.post("/create_and_execute")
 async def create_and_execute(payload: AgentPlanRequest):
     """Create a plan for the provided goal and execute it immediately, returning aggregated results."""
@@ -228,17 +184,17 @@ async def create_and_execute(payload: AgentPlanRequest):
         # create a dummy plan for testing
         # "Create and execute failed: 1 validation error for AgentPlan\ncreated_at\n  Input should be a valid datetime [type=datetime_type, input_value=None, input_type=NoneType]\n 
 
-        plan = AgentPlan(
-            id="plan-123",
-            goal=payload.goal,
-            status="pending",
-            created_at=datetime.datetime.now(),
-            actions=[]
-        )
 
-        # For now, plan.actions may be empty (LLM parsing not implemented). We'll create a simple default plan if empty.
         if not plan.actions:
-            # Example: simple retrieval plan with merge strategies per step
+            print("Plan actions is empty or None, creating default plan for testing.")
+            plan = AgentPlan(
+                id="plan-123",
+                goal=payload.goal,
+                status="pending",
+                created_at=datetime.datetime.now(),
+                actions=[]
+            )
+
             plan.actions = [
                 {
                     "id": "step-1",
@@ -275,8 +231,10 @@ async def create_and_execute(payload: AgentPlanRequest):
                 }
             ]
 
-        print(f"Final Plan: {plan}")
-        print()
+        else:
+            print("Plan actions found from LLM planning.")
+            pprint(plan.model_dump())
+            print()
 
         # Store plan
         PLAN_STORE[plan.id] = {
@@ -288,9 +246,36 @@ async def create_and_execute(payload: AgentPlanRequest):
             "created_at": plan.created_at.isoformat()
         }
 
+        # Best-effort: persist the plan into the agent's MemorySaver so it
+        # becomes part of the conversation history and can be retrieved later.
+        try:
+            agent_core.save_plan(payload.session_id, PLAN_STORE[plan.id])
+        except Exception:
+            # don't fail the request if memory saving isn't available
+            pass
+
+        # Also log the plan to disk (best-effort)
+        try:
+            log_interaction(payload.session_id, role="plan", content=json.dumps(PLAN_STORE[plan.id]), metadata={"plan_id": plan.id}, agent_core=agent_core)
+        except Exception:
+            pass
+
         # Execute immediately by calling execute_plan helper
         exec_payload = ExecutePlanRequest(plan_id=plan.id, session_id=payload.session_id)
         execute_response = await execute_plan(plan_id=plan.id, payload=exec_payload)
+
+        # If execution returned a status or updated actions, reflect that in
+        # the in-memory store and the memory checkpointer (best-effort).
+        try:
+            if isinstance(execute_response, dict):
+                new_status = execute_response.get("status") or execute_response.get("state")
+                if new_status:
+                    PLAN_STORE[plan.id]["status"] = new_status
+                # attach execution result
+                PLAN_STORE[plan.id]["last_execution"] = execute_response
+                agent_core.save_plan(payload.session_id, PLAN_STORE[plan.id])
+        except Exception:
+            pass
 
         return execute_response
     except Exception as e:

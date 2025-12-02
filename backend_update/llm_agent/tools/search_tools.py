@@ -8,7 +8,7 @@ class TextSemanticTool(BaseTool):
     def __init__(self):
         super().__init__(
             name="text_semantic",
-            description="Look for images using the semantic embddings of natural language text queries."
+            description="Look for images using the semantic embeddings of natural language text queries."
         )
         self.param_schema = {
             "query": {"type": "string", "example": "a woman wearing a hat with text 'happy new year'"},
