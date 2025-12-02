@@ -1,4 +1,5 @@
-from typing import Dict, Any, List, Optional, Tuple
+from typing import Dict, Any, List
+import threading
 
 # Core LangChain
 from langchain_core.prompts import PromptTemplate
@@ -11,13 +12,9 @@ from langchain_community.tools import Tool
 # Memory manager
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_google_genai import ChatGoogleGenerativeAI  # ⬅️ model swap
-from langchain_core.messages import trim_messages
 
 from tools import ToolManager
-from schemas import (
-    AgentAction, AgentPlan, ToolExecutionContext, ToolResult,
-    ConversationMessage, ActionStatus, ToolType
-)
+from schemas import AgentAction, AgentPlan, ToolExecutionContext, ActionStatus, ToolType
 from internal.llm_config import LLMManager
 import json
 import uuid
@@ -26,13 +23,21 @@ from datetime import datetime
 import json
 import re
 from langchain_core.messages import AIMessage
+from pprint import pprint
 
 FENCED_JSON_RE = re.compile(r"```(?:json)?\s*(\{.*?\})\s*```", re.DOTALL)
 
 class LangChainAgentCore:
     """Core LLM agent using LangChain with tool integration"""
+    # Singleton support
+    _instance = None
+    _instance_lock = threading.Lock()
     
     def __init__(self):
+        # Ensure initialization runs only once for the singleton instance
+        if getattr(self, "_singleton_initialized", False):
+            return
+
         self.llm_manager = LLMManager()
         self.tool_manager = ToolManager()
         # Use LangGraph's MemorySaver for persistent, efficient memory
@@ -40,6 +45,22 @@ class LangChainAgentCore:
         self.memory_limit = 20  # Maximum number of messages to keep in memory
         self._setup_langchain_tools()
         self._setup_agent()
+        # record creation time for diagnostics
+        try:
+            self.created_at = datetime.now().isoformat()
+        except Exception:
+            self.created_at = None
+        # mark initialized
+        self._singleton_initialized = True
+
+    def __new__(cls, *args, **kwargs):
+        # Thread-safe singleton creation
+        if cls._instance is None:
+            with cls._instance_lock:
+                if cls._instance is None:
+                    cls._instance = super(LangChainAgentCore, cls).__new__(cls)
+                    print(f"LANGCHAIN AGENT CORE INITIALIZED!!!")
+        return cls._instance
     
     def _setup_langchain_tools(self):
         """Convert our custom tools to LangChain tools"""
@@ -117,19 +138,87 @@ class LangChainAgentCore:
             tools=self.langchain_tools,
             checkpointer=self.memory,
         )
+
+
+    def _trim_messages(self, messages):
+        """Keep only the most recent `memory_limit` messages."""
+        try:
+            limit = getattr(self, "memory_limit", None)
+            if not limit or len(messages) <= limit:
+                return messages
+            return messages[-limit:]
+        except Exception:
+            # If anything weird happens, just return the original list
+            return messages
+        
+    
+    def _get_checkpoint(self, session_id: str) -> dict:
+        """Fetch the current checkpoint dict for a thread_id (session_id)."""
+        config = {"configurable": {"thread_id": session_id}}
+        checkpoint = self.memory.get(config)
+        return checkpoint or {}
+
+    def _get_channel_values(self, checkpoint: dict) -> dict:
+        """Return channel_values sub-dict from a checkpoint (never None)."""
+        return checkpoint.get("channel_values", {}) or {}
+
+    def _write_channels(self, session_id: str, **channels_to_update) -> None:
+        """
+        High-level writer: updates one or more channels in channel_values using put_writes.
+
+        Example:
+            self._write_channels(session_id, plans=new_plans_list)
+        """
+        config = {"configurable": {"thread_id": session_id}}
+
+        # Load current checkpoint to merge with existing channels
+        checkpoint = self.memory.get(config) or {}
+        print(checkpoint.keys())        
+        checkpoint_id = checkpoint.get("id")
+        print(checkpoint_id)
+        current_channels = checkpoint.get("channel_values", {}) or {}
+        print(current_channels.keys())
+
+        # Merge new channels
+        for name, value in channels_to_update.items():
+            current_channels[name] = value
+
+        writes = {
+            "channel_values": current_channels
+        }
+        print("current_channels plans", len(current_channels))
+
+        # Use put_writes (correct MemorySaver API)
+        task_id = session_id
+        self.memory.put_writes(config, writes, task_id, checkpoint_id)
+        
     
     async def process_message(self, message: str, session_id: str, user_id: str = None) -> Dict[str, Any]:
         """Process a user message and return agent response using LangGraph agent node"""
         try:
             contextualized_message = f"[Session: {session_id}] {message}"
             print(f"Contextualized Message: {contextualized_message}")
+            print()
+
             # Run the agent node (LangGraph)
             result = await self.agent_node.ainvoke(
                 {"messages": [("user", contextualized_message)]},
                 config={"configurable": {"thread_id": session_id}},
             )
-            print(f"Result: {result}")
-            agent_response = result.get("output", "I'm not sure how to help with that.")
+            print(f"Result:")
+            pprint(result)
+            print()
+
+            messages = result.get("messages", [])
+            if not messages:
+                agent_response = "I'm not sure how to help with that."
+            else:
+                last_ai_message = next(
+                    (m for m in reversed(messages) if isinstance(m, AIMessage)),
+                    messages[-1]
+                )
+                agent_response = getattr(last_ai_message, "content", "I'm not sure how to help with that.")
+
             # LangGraph's create_react_agent returns a dict with 'output' and 'intermediate_steps' (if available)
             intermediate_steps = result.get("intermediate_steps", [])
             actions_taken = self._parse_intermediate_steps(intermediate_steps)
@@ -182,12 +271,11 @@ class LangChainAgentCore:
         """
         messages = planning_result.get("messages", [])
         for message in messages:
-            print(isinstance(message, AIMessage))
+            print("Is AIMessage? ", isinstance(message, AIMessage))
             print()
         
         # 1) find the AIMessage (the model's reply with the plan)
         ai_msg = next((m for m in reversed(messages) if isinstance(m, AIMessage)), None)
-        print(f"AI Message: {ai_msg}")
         if ai_msg is None:
             raise ValueError("No AIMessage found in planning_result['messages'].")
 
@@ -255,34 +343,36 @@ class LangChainAgentCore:
             multi_step_instruction = "If you are not given an explicit number of steps, produce a clear multi-step plan (typically 2-3 steps) appropriate to the goal. If the task is simple, include at least 2 steps. Be granular: break down retrieval, filtering, verification, and summary where relevant."
 
             # Add merge-strategy documentation so the planner can include merge semantics per step
-            merge_doc = (
-                "Each step should optionally include a `merge` parameter dict to specify how its results "
-                "are combined with previous results. The `merge` dict may contain:\n"
-                "- strategy: one of 'search', 'rerank', 'filter'\n"
-                "  - 'search': the step is a full search (subset_record_ids=[]). Provide `weight` in [0,1] to indicate how much to trust this new search when combining with previous combined scores.\n"
-                "  - 'rerank': the step reorders a subset (subset_record_ids = previous result ids). Provide `weight` in [0,1] to indicate mixing between new ordering and previous combined scores (same ids).\n"
-                "  - 'filter': the step filters the existing combined list by inspecting only previous ids (subset_record_ids = previous result ids). Provide `threshold` (float) and items with score < threshold in this step are removed from the combined list.\n"
-                "Example merge: {\"strategy\": \"search\", \"weight\": 0.7} or {\"strategy\": \"filter\", \"threshold\": 0.4}.\n"
+            fusion_doc = (
+                "Each step should optionally include a `fusion` parameter dict to specify how its results "
+                "are combined with previous results. The `fusion` dict may contain:\n"
+                "- operator: one of 'search', 'rerank', 'filter'\n"
+                "    - 'search': the step is a full search (subset_record_ids=[]). Provide `weight` in [0,1] to indicate how much to trust this new search when combining with previous combined scores.\n"
+                "    - 'rerank': the step reorders a subset (subset_record_ids = previous result ids). Provide `weight` in [0,1] to indicate mixing between new ordering and previous combined scores (same ids).\n"
+                "    - 'filter': the step filters the existing combined list by inspecting only previous ids (subset_record_ids = previous result ids). Provide `threshold` (float) and items with score < threshold in this step are removed from the combined list.\n"
+                "Example fusion: {\"operator\": \"search\", \"weight\": 0.7} or {\"operator\": \"filter\", \"threshold\": 0.4}.\n"
             )
 
             planning_prompt = f"""
-            Create a step-by-step plan to accomplish this goal: {goal}
+                Create a step-by-step plan to accomplish this goal:
+                {goal}
 
-            Available tools and their parameters (name + types + examples):
-            {tools_text}
+                Available tools and their parameters (name + types + examples):
+                {tools_text}
 
-            Constraints (apply these defaults or include them in the step parameters): {json.dumps(constraints or {})}
+                Constraints (apply these defaults or include them in the step parameters):
+                {json.dumps(constraints or {})}
 
-            {multi_step_instruction}
+                {multi_step_instruction}
 
-            {merge_doc}
+                {fusion_doc}
 
-            Please provide a structured plan with specific steps and tool usage. Format your response as a JSON object with a top-level key `plan` which is a list of steps. Each step should include: step (int), tool (one of the tool names), and parameters (mapping of parameter names to values). Use parameter names exactly as listed above when possible.
+                Please provide a structured plan with specific steps and tool usage. Format your response as a JSON object with a top-level key `plan` which is a list of steps. Each step should include: step (int), tool (one of the tool names), and parameters (mapping of parameter names to values). Use parameter names exactly as listed above when possible.
             """
 
-            print(f"Planning Prompt:\n{planning_prompt}")
-
-            return
+            # print(f"Planning Prompt:")
+            # pprint(planning_prompt)
+            # print()
 
             # Attempt the initial planning call
             result = await self.agent_node.ainvoke(
@@ -291,7 +381,8 @@ class LangChainAgentCore:
             )
 
             parsed = self.extract_plan(result)
-            print(f"Extracted Plan: {parsed}")
+            print(f"Extracted Plan:")
+            pprint(parsed)
             print()
 
             # Normalize parsed plan to a list of steps
@@ -331,7 +422,8 @@ class LangChainAgentCore:
                     # If re-prompt fails, keep original steps
                     pass
 
-                print(f"Refined Plan: {steps}")
+                print(f"Refined Plan:")
+                pprint(steps)
                 print()
 
             # Merge constraints into each step parameters if provided
@@ -378,42 +470,147 @@ class LangChainAgentCore:
                 actions=[],
                 status=ActionStatus.FAILED
             )
-    
-    def get_conversation_summary(self) -> str:
-        """Get a summary of the current conversation, using trimmed memory."""
+
+
+    def get_conversation_summary(self, session_id: str) -> str:
+        """Generate a short summary of the recent conversation using LangGraph checkpoints."""
         try:
-            # Retrieve all messages from memory
-            all_messages = list(self.memory.values())
-            # Flatten and sort by timestamp if needed
-            messages = [m for m in all_messages if isinstance(m, dict) and 'content' in m]
-            # Use trim_messages to keep only the most recent N messages
-            trimmed = trim_messages(messages, self.memory_limit)
-            if not trimmed:
-                return "No conversation history"
-            message_count = len(trimmed)
-            recent_topics = []
-            for msg in trimmed[-5:]:
-                content = msg.get('content', '').lower()
-                if "search" in content:
-                    recent_topics.append("searching")
-                if "explore" in content:
-                    recent_topics.append("exploring")
-                if "image" in content:
-                    recent_topics.append("images")
-            return f"Conversation has {message_count} messages. Recent topics: {', '.join(set(recent_topics)) or 'general chat'}"
+            checkpoint = self._get_checkpoint(session_id)
+            channel_values = self._get_channel_values(checkpoint)
+            messages = channel_values.get("messages", [])
+
+            if not messages:
+                return "No conversation history."
+
+            # Trim to your memory_limit
+            trimmed = self._trim_messages(messages)
+
+            # Very lightweight topic extraction
+            recent_text = [
+                getattr(m, "content", "").lower()
+                for m in trimmed
+                if hasattr(m, "content")
+            ]
+
+            topics = []
+            for txt in recent_text[-5:]:
+                if "search" in txt:
+                    topics.append("searching")
+                if "explore" in txt:
+                    topics.append("exploring")
+                if "image" in txt or "visual" in txt:
+                    topics.append("vision")
+
+            unique_topics = ", ".join(sorted(set(topics))) or "general conversation"
+            return f"Conversation has {len(trimmed)} messages. Recent topics: {unique_topics}."
+
         except Exception as e:
             return f"Error getting summary: {str(e)}"
-    
-    def clear_memory(self):
-        """Clear conversation memory"""
-        self.memory.clear()
-    
-    def get_memory_messages(self) -> List[Dict[str, Any]]:
-        """Get conversation messages from memory, trimmed to memory_limit."""
+
+
+    def get_memory_messages(self, session_id: str) -> List[Any]:
+        """Get conversation messages from LangGraph's checkpoint for this session."""
         try:
-            all_messages = list(self.memory.values())
-            messages = [m for m in all_messages if isinstance(m, dict) and 'content' in m]
-            trimmed = trim_messages(messages, self.memory_limit)
-            return trimmed
+            checkpoint = self._get_checkpoint(session_id)
+            channel_values = self._get_channel_values(checkpoint)
+            messages = channel_values.get("messages", [])
+            return messages if isinstance(messages, list) else []
         except Exception as e:
+            print(f"[get_memory_messages] failed: {e}")
             return []
+
+
+    # ----- Generic KV storage per session (optional, but much cleaner) -----
+
+    def _memory_set(self, session_id: str, key: str, value: Any) -> None:
+        """
+        Store an arbitrary key/value under a session-specific 'session_kv' channel.
+        """
+        try:
+            checkpoint = self._get_checkpoint(session_id)
+            channel_values = self._get_channel_values(checkpoint)
+            kv = channel_values.get("session_kv", {}) or {}
+
+            if not isinstance(kv, dict):
+                kv = {}
+
+            kv[key] = value
+
+            self._write_channels(session_id, session_kv=kv)
+        except Exception as e:
+            print(f"[_memory_set] failed: {e}")
+
+    def _memory_delete(self, session_id: str, key: str) -> None:
+        """
+        Delete a key from the 'session_kv' channel for this session.
+        """
+        try:
+            checkpoint = self._get_checkpoint(session_id)
+            channel_values = self._get_channel_values(checkpoint)
+            kv = channel_values.get("session_kv", {}) or {}
+
+            if not isinstance(kv, dict):
+                return
+
+            if key in kv:
+                del kv[key]
+                self._write_channels(session_id, session_kv=kv)
+        except Exception as e:
+            print(f"[_memory_delete] failed: {e}")
+
+
+    # ----- Plan-specific helpers (stored in 'plans' channel) -----
+
+    def save_plan(self, session_id: str, plan_obj: Dict[str, Any]) -> None:
+        """
+        Save a plan into the MemorySaver checkpoint for a session.
+
+        All plans for the same session_id are stored in a 'plans' list under
+        channel_values['plans'].
+        """
+        try:
+            checkpoint = self._get_checkpoint(session_id)
+            channel_values = self._get_channel_values(checkpoint)
+            
+            plans = channel_values.get('plans', [])
+            last_ai_message = channel_values['messages']
+            plans.append(last_ai_message)
+            print(f"Currently there are {len(plans)} plans in the list")
+
+            # Write updated plans back to the checkpoint
+            self._write_channels(session_id, plans=plans)
+
+            print(f"[save_plan] Saved plan. Total plans now: {len(plans)}")
+        except Exception as e:
+            print(f"[save_plan] Failed: {e}")
+
+    def get_plans(self, session_id: str) -> List[Dict[str, Any]]:
+        """
+        Return all plan entries stored in MemorySaver for this session.
+        """
+        try:
+            checkpoint = self._get_checkpoint(session_id)
+            channel_values = self._get_channel_values(checkpoint)
+            plans = channel_values.get("plans", [])
+
+            if not isinstance(plans, list):
+                return []
+
+            return plans
+        except Exception as e:
+            print(f"[get_plans] Failed: {e}")
+            return []
+    
+
+    def clear_session(self, session_id: str) -> None:
+        """Delete all checkpoints and writes for this session/thread."""
+        try:
+            # Some versions take config, some take thread_id; try both patterns defensively
+            try:
+                config = {"configurable": {"thread_id": session_id}}
+                self.memory.delete_thread(config)
+            except TypeError:
+                # Fallback: older signature delete_thread(thread_id: str)
+                self.memory.delete_thread(session_id)
+        except Exception as e:
+            print(f"[clear_session] failed: {e}")
