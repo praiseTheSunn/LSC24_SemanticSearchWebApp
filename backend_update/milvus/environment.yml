@@ -136,6 +136,8 @@ dependencies:
   - pip:
       - charset-normalizer==3.4.2
       - coloredlogs==15.0.1
+      - elastic-transport==9.2.1
+      - elasticsearch==9.2.1
       - environs==9.5.0
       - filelock==3.18.0
       - flatbuffers==25.2.10

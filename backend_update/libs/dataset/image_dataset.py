@@ -1,6 +1,5 @@
 import pandas as pd
 import re
-import sqlite3
 import yaml
 from abc import ABC, abstractmethod
 from pathlib import Path
@@ -8,24 +7,48 @@ import threading
 import warnings
 import os
 import tempfile
+from dotenv import load_dotenv
+from pathlib import Path
 
 
-def load_config(config_path: str):
-    with open(config_path, 'r') as f:
+load_dotenv()
+
+
+def load_yaml(p: Path):
+    with p.open("r") as f:
         return yaml.safe_load(f)
+
+CONFIG_DIR = Path(os.environ.get("CONFIG_DIR", "./configs")).resolve()
+SYSTEM_CONFIG_NAME = os.environ.get("SYSTEM_CONFIG", "system_config.yaml")
+SYSTEM_CONFIG_PATH = (CONFIG_DIR / SYSTEM_CONFIG_NAME).resolve()
+
+SYSTEM_CONFIG = load_yaml(SYSTEM_CONFIG_PATH)
+DATASET_CFG_MAP = SYSTEM_CONFIG.get("dataset_configs", {})  # dict: name -> filename
+
+
+def dataset_config_path(dataset_name: str) -> Path:
+    fname = DATASET_CFG_MAP.get(dataset_name)
+    if not fname:
+        raise KeyError(f"Dataset '{dataset_name}' not found in {SYSTEM_CONFIG_PATH}")
+    p = (CONFIG_DIR / fname).resolve()
+    if not p.exists():
+        raise FileNotFoundError(f"Dataset config not found: {p}")
+    return p
 
 
 class ImageDataset(ABC):
     """Abstract class for image datasets."""
 
     def __init__(self):
-        self.dataset_name = self.get_dataset_name()  # Subclasses must implement this
+        self.dataset_name = self.get_dataset_name()
+        self.cfg_path = dataset_config_path(self.dataset_name)
+        self.config = load_yaml(self.cfg_path)
 
         # Load config (column mapping, metadata file path)
         try:
-            self.config = load_config(f"../configs/{self.dataset_name}_config.yaml")
+            print(f"config: {self.config}")
         except FileNotFoundError:
-            raise ValueError(f"Config file not found for dataset at path: ../configs/{self.dataset_name}_config.yaml")
+            raise ValueError(f"Config file not found for dataset at path: ./configs/{self.dataset_name}_config.yaml")
         self.metadata_file_path = self.config.get("metadata_file_path")
         self.embedding_dir = self.config.get("embedding_dir")
         self.image_server_url = self.config.get("image_server_url")

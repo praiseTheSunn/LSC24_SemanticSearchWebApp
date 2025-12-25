@@ -8,9 +8,7 @@ from pprint import pprint
 import pandas as pd
 import numpy as np
 import os
-import sys
 
-sys.path.append("..")
 from dataset.dataset_manager import DatasetManager
 
 

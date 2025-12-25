@@ -4,8 +4,6 @@ from internal.search.temporal import expand_temporal, aggregate_temporal
 from internal.api_handler import compute_image_embedding, compute_text_embedding, search_milvus
 from internal.postprocess import prepare_response
 
-import sys
-sys.path.append("..")
 from dataset.dataset_manager import DatasetManager
 
 

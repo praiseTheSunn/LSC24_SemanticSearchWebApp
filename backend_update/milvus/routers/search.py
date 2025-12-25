@@ -5,10 +5,8 @@ import setup
 from pprint import pprint
 from pymilvus import AnnSearchRequest, WeightedRanker
 
-import sys
-sys.path.append("..")
+from typing import List, Dict, Any
 from dataset.dataset_manager import DatasetManager
-from typing import List, Dict, Any, Optional
 
 
 router = APIRouter(prefix="/search", tags=["Search"])
