@@ -7,11 +7,7 @@ from internal.logger import save_log
 from schemas.request_schemas import RequestSearchByTextQuery, RequestSearchByImageQuery, QueryClause, QueryStructured
 from schemas.response_schemas import ResponseURLs
 
-import sys
-sys.path.append("..")
 from dataset.dataset_manager import DatasetManager
-
-import logging
 from datetime import datetime
 
 router = APIRouter(

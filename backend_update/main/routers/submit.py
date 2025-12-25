@@ -3,11 +3,9 @@ from fastapi.responses import JSONResponse
 from datetime import datetime
 from schemas.request_schemas import RequestLogSubmit
 from internal.logger import save_log
-import logging
-
-import sys
-sys.path.append("..")
 from dataset.dataset_manager import DatasetManager
+
+
 
 
 router = APIRouter(

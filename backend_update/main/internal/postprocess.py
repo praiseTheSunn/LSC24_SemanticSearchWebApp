@@ -1,16 +1,12 @@
 import numpy as np
-import setup
 import json
 import pandas as pd
 import itertools
 from pprint import pprint
-from internal.api_handler import fetch_metadata
+from setup import SYSTEM_CONFIG
 
-import sys
-sys.path.append('..')
-from dataset.dataset_manager import DatasetManager
 
-server_ip = setup.system_config['server_ip']
+server_ip = SYSTEM_CONFIG['server_ip']
 
 # # For explore_neighbor in the activity-filted case
 # # This is a temporary solution to get the metadata from the CSV file

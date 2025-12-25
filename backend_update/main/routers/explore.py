@@ -6,12 +6,9 @@ from internal.logger import save_log
 from schemas.request_schemas import RequestExploreSimilarImages, RequestExploreNeighborImages
 from schemas.response_schemas import ResponseURLs, ResponseEmbeddings
 from datetime import datetime
-import logging
-
-import sys
-sys.path.append("..")
-from dataset.dataset_manager import DatasetManager
 import pandas as pd
+
+from setup import SYSTEM_CONFIG
 
 
 router = APIRouter(

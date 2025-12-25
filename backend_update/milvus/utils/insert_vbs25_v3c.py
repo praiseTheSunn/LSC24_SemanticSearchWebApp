@@ -4,8 +4,6 @@ import pandas as pd
 import numpy as np
 from pprint import pprint
 
-import sys
-sys.path.append("..")
 from dataset.dataset_manager import DatasetManager
 
 
