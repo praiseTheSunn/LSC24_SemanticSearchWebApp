@@ -43,12 +43,6 @@ class ImageDataset(ABC):
         self.dataset_name = self.get_dataset_name()
         self.cfg_path = dataset_config_path(self.dataset_name)
         self.config = load_yaml(self.cfg_path)
-
-        # Load config (column mapping, metadata file path)
-        try:
-            print(f"config: {self.config}")
-        except FileNotFoundError:
-            raise ValueError(f"Config file not found for dataset at path: ./configs/{self.dataset_name}_config.yaml")
         self.metadata_file_path = self.config.get("metadata_file_path")
         self.embedding_dir = self.config.get("embedding_dir")
         self.image_server_url = self.config.get("image_server_url")
@@ -62,10 +56,7 @@ class ImageDataset(ABC):
         start_time = time.time()
         print(f"Creating image ID to record ID mapping for {self.dataset_name} dataset...")
 
-        start_time = time.time()
-
-        # Prefer fast preprocessed cache if available (parquet or pickle). This
-        # greatly reduces startup time vs parsing large CSVs.
+        # Prefer fast preprocessed cache if available (parquet or pickle). This greatly reduces startup time vs parsing large CSVs.
         metadata_path = Path(self.metadata_file_path)
         parquet_path = metadata_path.with_suffix('.parquet')
         pkl_path = metadata_path.with_suffix('.pkl')
@@ -74,8 +65,8 @@ class ImageDataset(ABC):
             # Load only required columns; explicit low_memory to False for speed/consistency
             return pd.read_csv(self.metadata_file_path, usecols=self.column_mapping.keys(), low_memory=False)
 
-        df = None
         # Try parquet/pickle caches only if they are up-to-date vs CSV (mtime check)
+        df = None
         try:
             csv_mtime = metadata_path.stat().st_mtime
 

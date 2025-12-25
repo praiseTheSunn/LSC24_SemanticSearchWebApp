@@ -5,13 +5,13 @@ import time
 from .base import BaseTool, ToolSpec, ToolExecutionContext, ToolResult
 
 
-class TextSemanticTool(BaseTool):
+class OCRTool(BaseTool):
     def __init__(self):
         super().__init__()
         
         self.spec = ToolSpec(
-            name="text_semantic",
-            description="Dense semantic retrieval using Milvus vector database",
+            name="ocr",
+            description="OCR text retrieval using Elasticsearch",
             supported_operations=["search", "rerank"],
             param_schema={
                 "top_k": {"type": "int", "default": 300},
@@ -38,9 +38,10 @@ class TextSemanticTool(BaseTool):
                 return error
             items = await self._make_request(
                 method="POST", 
-                url=f"{self.config['milvus_service_url']}/search/search_dense", 
+                url=f"{self.config['milvus_service_url']}/search/search_ocr", 
                 json=payload
             )
+            print(f"Search OCR items: {len(items)}")
             return ToolResult(True, items=items, meta={"elapsed_sec": time.time() - t0})
 
         if op == "rerank":
@@ -51,37 +52,12 @@ class TextSemanticTool(BaseTool):
             return ToolResult(True, items=items, meta={"elapsed_sec": time.time() - t0})
 
         return ToolResult(False, error=f"Unsupported operation: {op}")
+    
 
-
-    async def _prepare_search_payload_from_text(self, query, params):        
-        """Retrieve text embedding from the embedding service and construct the milvus search payload.
-
-        Returns (payload_dict, None) on success or (None, ToolResult) on failure.
-        """
-        try:
-            embedding_resp = await self._make_request(
-                method="POST",
-                url=f"{self.config['embedding_service_url']}/embedding/text",
-                json={
-                    "text_query": query,
-                    "model": params.get("model", "clips")
-                }
-            )
-
-            # Expect embedding_resp to contain the key 'text_embedding'
-            if not embedding_resp or "text_embedding" not in embedding_resp:
-                return None, ToolResult(success=False, error="Embedding service returned unexpected response")
-
-            vector = embedding_resp["text_embedding"]
-            payload = {
-                "dataset": params.get("dataset", "lsc24"),
-                "model": params.get("model", "clips"),
-                "embedding": vector,
+    async def _prepare_search_payload_from_text(self, query, params):
+        return {
+                "query": query,
                 "limit": params.get("top_k", 100),
-                "subset_record_ids": params.get("subset_record_ids", [])
-            }
-
-            return payload, None
-
-        except Exception as e:
-            return None, ToolResult(success=False, error=f"Failed to compute text embedding: {str(e)}")
+                "subset_record_ids": params.get("subset_record_ids", []),
+                "dataset": params.get("dataset", "lsc24")
+            }, None

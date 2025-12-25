@@ -1,7 +1,12 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Set up environment variables if needed
-export PYTHONPATH=/app:$PYTHONPATH
+# Resolve repo root (works even if script is symlinked)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"     # Edit here when you move the script to another place
+
+export PYTHONPATH="$REPO_ROOT/libs"
+
 
 # Start the LLM agent service
 echo "Starting LLM Agent Service..."
