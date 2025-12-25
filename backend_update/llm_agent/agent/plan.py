@@ -204,9 +204,9 @@ def default_fallback_plan(query: str, top_k_display: int = 10) -> Plan:
                 inputs=None,
                 save_as='initial_results'
             ),
-            ToolCall(tool='text_semantic',
-                     operation='rerank',
-                     query=None,
+            ToolCall(tool='ocr',
+                     operation='search',
+                     query="for sale",
                      params={'top_k': 300},
                      input='initial_results',
                      inputs=None,
@@ -280,7 +280,6 @@ Notes:
 
     try:
         assert 1==2
-        # Native JSON-schema structured output in LangChain Google GenAI integration
         llm_struct = llm.with_structured_output(
             schema=Plan,
             # method="function_calling",            # Not needed with OpenAI

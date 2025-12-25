@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from enum import Enum
-from typing import List, Literal, Tuple, Dict
+from typing import List, Literal, Tuple, Dict, Optional
 from setup import available_models, available_datasets
 
 
@@ -62,6 +62,16 @@ class MilvusSearchSparseRequest(BaseModel):
                 "subset_record_ids": [1, 2, 3]
             }
         }
+
+
+class ElasticsearchOCRSearchRequest(BaseModel):
+    query: str = Field(..., description="OCR/text query string")
+    limit: int = Field(50, ge=1, le=1000)
+    subset_record_ids: Optional[List[int]] = Field(default=None)
+    dataset: Optional[str] = None
+
+    # Optional: let caller pick index by dataset/model like your pipeline naming
+    model: Optional[str] = None
 
 
 class FetchMetadataRequest(BaseModel):

@@ -71,33 +71,7 @@ class BaseTool(ABC):
 
         Returns (payload_dict, None) on success or (None, ToolResult) on failure.
         """
-        try:
-            embedding_resp = await self._make_request(
-                method="POST",
-                url=f"{self.config['embedding_service_url']}/embedding/text",
-                json={
-                    "text_query": query,
-                    "model": params.get("model", "clips")
-                }
-            )
-
-            # Expect embedding_resp to contain the key 'text_embedding'
-            if not embedding_resp or "text_embedding" not in embedding_resp:
-                return None, ToolResult(success=False, error="Embedding service returned unexpected response")
-
-            vector = embedding_resp["text_embedding"]
-            payload = {
-                "dataset": params.get("dataset", "lsc24"),
-                "model": params.get("model", "clips"),
-                "embedding": vector,
-                "limit": params.get("top_k", 100),
-                "subset_record_ids": params.get("subset_record_ids", [])
-            }
-
-            return payload, None
-
-        except Exception as e:
-            return None, ToolResult(success=False, error=f"Failed to compute text embedding: {str(e)}")
+        raise NotImplementedError
         
     
     async def _make_request(self, method: str, url: str, **kwargs) -> Dict[str, Any]:

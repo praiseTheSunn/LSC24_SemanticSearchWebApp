@@ -31,6 +31,7 @@ class ToolManager:
             )
 
         try:
+            print(f"Executing tool {tool_name}...")
             return await tool.execute(ctx)
         except Exception as e:
             return ToolResult(success=False, error=f"Tool execution failed: {e}")

@@ -559,7 +559,7 @@ def main():
 
     # Keep names consistent, but ES gets a suffix to avoid collisions if you want
     milvus_collection = f"{dataset_name}_{model}"
-    es_index = f"{dataset_name}_{model}_text"
+    es_index = f"{dataset_name}_text"
 
     # Run in desired order (you can swap if you prefer)
     if do_milvus:
