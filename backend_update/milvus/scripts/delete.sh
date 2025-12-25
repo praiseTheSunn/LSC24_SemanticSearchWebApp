@@ -9,4 +9,4 @@ export PYTHONPATH="$REPO_ROOT/libs"
 
 cd "$REPO_ROOT"
 
-python -m milvus.utils.create_lsc24 --no-milvus
+python -m milvus.utils.delete
