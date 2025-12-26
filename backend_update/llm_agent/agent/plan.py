@@ -191,7 +191,7 @@ def extract_plan_meta(plan: Plan, tool_manager: ToolManager) -> PlanMeta:
 # Default plan
 # -----------------------
 
-def default_fallback_plan(query: str, top_k_display: int = 10) -> Plan:
+def default_fallback_plan(top_k_display: int = 10) -> Plan:
     return Plan(
         goal='Retrieve images/videos related to a visit to a house with a stone shed in Ireland on a sunny day.',
         top_k_display=top_k_display,
@@ -200,6 +200,7 @@ def default_fallback_plan(query: str, top_k_display: int = 10) -> Plan:
                 tool="text_semantic",
                 operation="search",
                 query='images or videos of a house with a stone shed in Ireland under green trees on a sunny day',
+                params={'top_k': 101},
                 input=None,
                 inputs=None,
                 save_as='initial_results'
@@ -207,7 +208,7 @@ def default_fallback_plan(query: str, top_k_display: int = 10) -> Plan:
             ToolCall(tool='ocr',
                      operation='search',
                      query="for sale",
-                     params={'top_k': 300},
+                     params={'top_k': 100},
                      input='initial_results',
                      inputs=None,
                      save_as='reranked_results'
@@ -328,7 +329,7 @@ Notes:
 
     except (ValidationError, Exception):
         # Keep your system robust: always return an executable plan.
-        plan = default_fallback_plan(query, top_k_display)
+        plan = default_fallback_plan(top_k_display)
         print(f"Planner fallback plan:")
         pprint(plan)
         return plan_to_dict(plan)

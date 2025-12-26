@@ -30,7 +30,7 @@ from elasticsearch import Elasticsearch, ApiError
 # HARD-CODE TARGETS HERE
 # -----------------------------
 MILVUS_COLLECTION_NAME = ""
-ELASTICSEARCH_INDEX_NAME = "lsc24_clips_text"
+ELASTICSEARCH_INDEX_NAME = "lsc24_text"
 
 
 # -----------------------------

@@ -49,29 +49,37 @@ def search_ocr(payload: ElasticsearchOCRSearchRequest) -> List[Dict[str, Any]]:
     """
     print(f"Payload limit: {payload.limit}")
     print(f"Length of subset_record_ids: {len(payload.subset_record_ids)}")
-
     index_name = f"{payload.dataset}_text" if payload.dataset else "aic25_text"
 
     # Build ES query
-    must_query: Dict[str, Any] = {
-        "multi_match": {
-            "query": payload.query,
-            "fields": ["ocr"],   # BM25 across all OCR/text fields
-            "type": "best_fields",
-            "operator": "or",
-        }
-    }
-
-    es_query: Dict[str, Any] = {
+    es_query = {
         "size": payload.limit,
-        "query": {"bool": {"must": [must_query]}},
-        "_source": False,  # we only need ids + scores (faster)
+        "_source": ["ocr"],
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "match": {
+                            "ocr": {
+                                "query": payload.query,
+                                "fuzziness": "AUTO",
+                                # optional tuning:
+                                # "operator": "and",
+                                # "prefix_length": 1,
+                                # "max_expansions": 50,
+                                # "fuzzy_transpositions": True,
+                            }
+                        }
+                    }
+                ]
+            }
+        },
     }
 
-    # Optional subset filtering like Milvus: record_id IN [...]
-    if payload.subset_record_ids:
+    # Only add filter when subset_record_ids is non-empty
+    if payload.subset_record_ids:  # [] / None -> False
         es_query["query"]["bool"]["filter"] = [
-            {"terms": {"record_id": payload.subset_record_ids}}
+            {"ids": {"values": [str(x) for x in payload.subset_record_ids]}}
         ]
 
     # Execute
@@ -79,10 +87,12 @@ def search_ocr(payload: ElasticsearchOCRSearchRequest) -> List[Dict[str, Any]]:
     hits = resp.get("hits", {}).get("hits", [])
 
     print(f"Number of results from Elasticsearch: {len(hits)}")
+    print(f"Top 20 results:")
 
     # Serialize like dense search does (record_id + score)
     serialized_results = []
-    for h in hits:
+    for h in hits[:20]:
+        print(h)
         # Prefer stored record_id if available, else ES _id
         record_id = None
         fields = h.get("fields")

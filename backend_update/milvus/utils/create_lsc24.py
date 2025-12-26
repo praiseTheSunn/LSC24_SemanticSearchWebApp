@@ -335,7 +335,7 @@ def infer_es_field_mapping(series: pd.Series) -> Dict[str, Any]:
 def build_es_index_body(
     df_sample: pd.DataFrame,
     column_mapping: Dict[str, str],
-    keyword_fields: Dict[str, Any],
+    text_fields: Dict[str, Any],
 ) -> Dict[str, Any]:
     properties: Dict[str, Any] = {}
 
@@ -346,7 +346,7 @@ def build_es_index_body(
         if mapped_col in ("record_id", "image_id"):
             continue
 
-        if mapped_col in keyword_fields:
+        if mapped_col in text_fields:
             properties[mapped_col] = {
                 "type": "text",
                 "fields": {
@@ -360,6 +360,8 @@ def build_es_index_body(
                 properties[mapped_col] = infer_es_field_mapping(df_sample[mapped_col])
             else:
                 properties[mapped_col] = {"type": "keyword", "ignore_above": 32766}
+
+    pprint(properties)
 
     return {
         "settings": {
@@ -497,7 +499,7 @@ def run_es(
     index_name: str,
     df_filtered: pd.DataFrame,
     column_mapping: Dict[str, str],
-    keyword_fields: Dict[str, Any],
+    text_fields: Dict[str, Any],
     force: bool,
     chunk_size: int = 2000,
 ) -> None:
@@ -508,7 +510,7 @@ def run_es(
     index_body = build_es_index_body(
         df_sample=df_filtered.head(200),
         column_mapping=column_mapping,
-        keyword_fields=keyword_fields,
+        text_fields=text_fields,
     )
     ensure_es_index(es, index_name=index_name, index_body=index_body, force=force)
 
@@ -551,7 +553,7 @@ def main():
     image_dataset = DatasetManager.get_dataset(dataset_name)
     embedding_dir = image_dataset.get_embedding_dir()
     column_mapping = image_dataset.get_column_mapping()
-    keyword_fields = image_dataset.get_keyword_fields()
+    text_fields = image_dataset.get_text_fields()
 
     df = image_dataset.df
     df = filter_df(df, activity_mode=activity)
@@ -569,7 +571,7 @@ def main():
             df_filtered=df,
             embedding_dir=embedding_dir,
             column_mapping=column_mapping,
-            keyword_fields=keyword_fields,
+            keyword_fields=text_fields,
             force=force,
             embedding_dim=args.embedding_dim,
         )
@@ -579,7 +581,7 @@ def main():
             index_name=es_index,
             df_filtered=df,
             column_mapping=column_mapping,
-            keyword_fields=keyword_fields,
+            text_fields=text_fields,
             force=force,
             chunk_size=args.es_chunk_size,
         )
