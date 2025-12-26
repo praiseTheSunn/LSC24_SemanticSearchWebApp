@@ -41,7 +41,6 @@ class OCRTool(BaseTool):
                 url=f"{self.config['milvus_service_url']}/search/search_ocr", 
                 json=payload
             )
-            print(f"Search OCR items: {len(items)}")
             return ToolResult(True, items=items, meta={"elapsed_sec": time.time() - t0})
 
         if op == "rerank":

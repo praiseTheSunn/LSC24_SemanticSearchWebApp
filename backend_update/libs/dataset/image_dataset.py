@@ -49,7 +49,7 @@ class ImageDataset(ABC):
         self.image_extension = self.config.get("image_extension")
         self.column_mapping = self.config.get("column_mapping")
         self.filters = self.config.get("filters", [])
-        self.keyword_fields = self.config.get("keyword_fields", [])
+        self.text_fields = self.config.get("text_fields", [])
         self.unifying_category = self.config.get("unifying_category", None)
 
         import time
@@ -224,8 +224,8 @@ class ImageDataset(ABC):
     def get_filters(self):
         return self.filters
     
-    def get_keyword_fields(self):
-        return self.keyword_fields
+    def get_text_fields(self):
+        return self.text_fields
     
     def get_unifying_category(self):
         return self.unifying_category

@@ -178,7 +178,7 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
         reply = "No results."
     else:
         lines = ["Top results:"]
-        for i, r in enumerate(results, start=1):
+        for i, r in enumerate(results[:10], start=1):
             doc_id = r.get("doc_id") or r.get("item_id")
             score = r.get("score", r.get("raw_score", 0.0))
             lines.append(f"{i}. {doc_id}  score={float(score):.4f}")
