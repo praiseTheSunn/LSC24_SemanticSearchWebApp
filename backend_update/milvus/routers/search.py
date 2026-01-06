@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse
-from schemas import MilvusSearchDenseRequest, MilvusSearchSparseRequest, ElasticsearchOCRSearchRequest
+from schemas import MilvusSearchDenseRequest, MilvusSearchSparseRequest, ElasticsearchTextSearchRequest
 import setup
 from pprint import pprint
 from pymilvus import AnnSearchRequest, WeightedRanker
@@ -41,7 +41,7 @@ def search_dense(payload: MilvusSearchDenseRequest) -> List[Dict[str, Any]]:
 
 
 @router.post("/search_ocr")
-def search_ocr(payload: ElasticsearchOCRSearchRequest) -> List[Dict[str, Any]]:
+def search_ocr(payload: ElasticsearchTextSearchRequest) -> List[Dict[str, Any]]:
     """
     Perform a BM25 text search against Elasticsearch over OCR/text fields.
 
@@ -91,8 +91,80 @@ def search_ocr(payload: ElasticsearchOCRSearchRequest) -> List[Dict[str, Any]]:
 
     # Serialize like dense search does (record_id + score)
     serialized_results = []
-    for h in hits[:20]:
-        print(h)
+    for h in hits:
+        # Prefer stored record_id if available, else ES _id
+        record_id = None
+        fields = h.get("fields")
+        if fields and "record_id" in fields:
+            # only if you used "fields" retrieval; we didn't
+            record_id = fields["record_id"][0]
+        if record_id is None:
+            # _id is record_id in our indexing script
+            try:
+                record_id = int(h.get("_id"))
+            except Exception:
+                record_id = h.get("_id")
+
+        serialized_results.append(
+            {"record_id": record_id, "score": h.get("_score", 0.0)}
+        )
+
+    print(f"OCR search completed for query <{payload.query[:50]}>. Number of results: {len(serialized_results)}")
+    return serialized_results
+
+
+@router.post("/search_object_tags")
+def search_object_tags(payload: ElasticsearchTextSearchRequest) -> List[Dict[str, Any]]:
+    """
+    Perform a BM25 text search against Elasticsearch over object_tags fields.
+
+    Returns a list of dicts: {record_id, score}
+    """
+    print(f"Payload limit: {payload.limit}")
+    print(f"Length of subset_record_ids: {len(payload.subset_record_ids)}")
+    index_name = f"{payload.dataset}_text" if payload.dataset else "aic25_text"
+
+    # Build ES query
+    es_query = {
+        "size": payload.limit,
+        "_source": ["object_tags"],
+        "query": {
+            "bool": {
+                "must": [
+                    {
+                        "match": {
+                            "object_tags": {
+                                "query": payload.query,
+                                "fuzziness": "AUTO",
+                                # optional tuning:
+                                # "operator": "and",
+                                # "prefix_length": 1,
+                                # "max_expansions": 50,
+                                # "fuzzy_transpositions": True,
+                            }
+                        }
+                    }
+                ]
+            }
+        },
+    }
+
+    # Only add filter when subset_record_ids is non-empty
+    if payload.subset_record_ids:  # [] / None -> False
+        es_query["query"]["bool"]["filter"] = [
+            {"ids": {"values": [str(x) for x in payload.subset_record_ids]}}
+        ]
+
+    # Execute
+    resp = setup.es_client.search(index=index_name, body=es_query)
+    hits = resp.get("hits", {}).get("hits", [])
+
+    print(f"Number of results from Elasticsearch: {len(hits)}")
+    print(f"Top 20 results:")
+
+    # Serialize like dense search does (record_id + score)
+    serialized_results = []
+    for h in hits:
         # Prefer stored record_id if available, else ES _id
         record_id = None
         fields = h.get("fields")

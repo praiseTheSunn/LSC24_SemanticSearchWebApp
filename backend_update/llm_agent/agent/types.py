@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, TypedDict
+from typing import Any, Dict, List, Literal, Optional, TypedDict
 
 class ChatState(TypedDict, total=False):
     messages: List[Dict[str, str]]

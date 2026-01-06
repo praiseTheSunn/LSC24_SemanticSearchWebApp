@@ -7,6 +7,7 @@ from .manager import ToolManager
 # Your concrete tools
 from .tool_text_semantic import TextSemanticTool
 from .tool_ocr import OCRTool
+from .tool_object_tags import ObjectTagsTool
 
 
 def build_tool_manager(*, milvus_client: Any = None, es_client: Any = None) -> ToolManager:
@@ -15,5 +16,6 @@ def build_tool_manager(*, milvus_client: Any = None, es_client: Any = None) -> T
     # Retrieval tools
     tm.register(TextSemanticTool())
     tm.register(OCRTool())
+    tm.register(ObjectTagsTool())
 
     return tm

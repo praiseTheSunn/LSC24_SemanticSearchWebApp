@@ -19,6 +19,7 @@ from dataclasses import dataclass
 from typing import Any, Dict, List, Tuple, Optional
 
 from pprint import pprint
+import math
 import numpy as np
 import pandas as pd
 
@@ -91,11 +92,39 @@ def ensure_record_id(df: pd.DataFrame, dataset_name: str) -> pd.DataFrame:
     return df
 
 
-def coerce_missing(value: Any) -> Any:
+def coerce_missing(value: Any, db: str) -> Any:
     # Prefer None over empty string/0 for ES (unless you have strict needs)
     if pd.isna(value):
-        return None
+        if db == "es":
+            return None
+        if db == "milvus":
+            return ""
     return value
+
+
+def to_float_or_none(x):
+    if x is None:
+        return None
+    # pandas NaN
+    if isinstance(x, float) and math.isnan(x):
+        return None
+    if isinstance(x, (int, float)):
+        return float(x)
+    if isinstance(x, str):
+        s = x.strip()
+        if s == "" or s.lower() in {"nan", "none", "null"}:
+            return None
+        # handle "10,123" kiểu dùng dấu phẩy
+        s = s.replace(",", ".")
+        try:
+            return float(s)
+        except ValueError:
+            return None
+    # kiểu lạ
+    try:
+        return float(x)
+    except Exception:
+        return None
 
 
 # -----------------------------
@@ -105,7 +134,7 @@ def coerce_missing(value: Any) -> Any:
 def build_milvus_schema_from_df(
     df_sample: pd.DataFrame,
     column_mapping: Dict[str, str],
-    keyword_fields: Dict[str, Any],
+    text_fields: List[str],
     embedding_dim: int = 768,
 ) -> Any:
     schema = MilvusClient.create_schema(auto_id=False, enable_dynamic_field=True)
@@ -119,18 +148,17 @@ def build_milvus_schema_from_df(
             schema.add_field(field_name="record_id", datatype=DataType.INT64, is_primary=True)
             continue
 
-        # Keyword fields: store raw text + sparse output field (even if you won't use it later)
-        if mapped_col in keyword_fields:
+        if mapped_col in text_fields:
             schema.add_field(
                 field_name=mapped_col,
                 datatype=DataType.VARCHAR,
                 max_length=32768,
                 enable_analyzer=True,
             )
-            schema.add_field(
-                field_name=f"{mapped_col}_sparse",
-                datatype=DataType.SPARSE_FLOAT_VECTOR,
-            )
+            # schema.add_field(
+            #     field_name=f"{mapped_col}_sparse",
+            #     datatype=DataType.SPARSE_FLOAT_VECTOR,
+            # )
             continue
 
         # Infer dtype from df_sample if present
@@ -155,21 +183,22 @@ def build_milvus_schema_from_df(
     return schema
 
 
-def build_milvus_functions(keyword_fields: Dict[str, Any]) -> List[Function]:
+def build_milvus_functions(text_fields: List[str]) -> List[Function]:
     functions: List[Function] = []
-    for col in keyword_fields.keys():
-        functions.append(
-            Function(
-                name=f"{col}_bm25_func",
-                function_type=FunctionType.BM25,
-                input_field_names=[col],
-                output_field_names=[f"{col}_sparse"],
-            )
-        )
+    for col in text_fields:
+        # functions.append(
+        #     Function(
+        #         name=f"{col}_bm25_func",
+        #         function_type=FunctionType.BM25,
+        #         input_field_names=[col],
+        #         output_field_names=[f"{col}_sparse"],
+        #     )
+        # )
+        pass
     return functions
 
 
-def build_milvus_index_params(keyword_fields: Dict[str, Any]) -> Any:
+def build_milvus_index_params(text_fields: List[str]) -> Any:
     index_params = MilvusClient.prepare_index_params()
 
     # Dense
@@ -181,14 +210,6 @@ def build_milvus_index_params(keyword_fields: Dict[str, Any]) -> Any:
         M=16,
         efConstruction=100,
     )
-
-    # Sparse BM25 (optional, but keep consistent with your schema/functions)
-    for col in keyword_fields.keys():
-        index_params.add_index(
-            field_name=f"{col}_sparse",
-            index_type="SPARSE_INVERTED_INDEX",
-            metric_type="BM25",
-        )
 
     return index_params
 
@@ -230,6 +251,7 @@ def milvus_insert_vectors_by_prefix(
     embedding_dir: str,
     dataset_name: str,
     column_mapping: Dict[str, str],
+    with_metadata: bool = True,
 ) -> None:
     """
     Inserts vectors in day-prefix batches like your original.
@@ -242,6 +264,9 @@ def milvus_insert_vectors_by_prefix(
     prefixes = sorted(df_filtered["prefix"].unique().tolist())
 
     for prefix in prefixes:
+        # if prefix <= "202001/15":
+        #     print(f"[Milvus] Skipping prefix {prefix} (before 2020-01-16)")
+        #     continue
         vectors_path = f"{embedding_dir}/{prefix}.npy"
         vectors = np.load(vectors_path)
 
@@ -287,9 +312,16 @@ def milvus_insert_vectors_by_prefix(
             for mapped_col in mapped_cols:
                 if mapped_col in ("record_id", "image_id", "embedding"):
                     continue
-                if mapped_col in row.index:
-                    rec[mapped_col] = coerce_missing(row[mapped_col])
-                # else: dynamic fields enabled, can skip if not present
+                if with_metadata:
+                    if mapped_col in ("new_lat", "new_lng"):
+                        val = coerce_missing(row[mapped_col], db="milvus")
+                        val = to_float_or_none(val)
+                        # nếu field trong schema KHÔNG nullable thì phải default (vd 0.0)
+                        if val is None:
+                            val = 0.0  # hoặc bỏ field nếu schema nullable=True
+                        rec[mapped_col] = val
+                    elif mapped_col in row.index:
+                        rec[mapped_col] = coerce_missing(row[mapped_col], db="milvus")
 
             data.append(rec)
 
@@ -361,8 +393,6 @@ def build_es_index_body(
             else:
                 properties[mapped_col] = {"type": "keyword", "ignore_above": 32766}
 
-    pprint(properties)
-
     return {
         "settings": {
             "number_of_shards": 1,
@@ -416,7 +446,7 @@ def bulk_index_es(
                 if mapped_col in ("record_id", "image_id", "embedding"):
                     continue
                 if mapped_col in r:
-                    doc[mapped_col] = coerce_missing(r[mapped_col])
+                    doc[mapped_col] = coerce_missing(r[mapped_col], db="es")
 
             yield {
                 "_op_type": "index",
@@ -460,9 +490,10 @@ def run_milvus(
     df_filtered: pd.DataFrame,
     embedding_dir: str,
     column_mapping: Dict[str, str],
-    keyword_fields: Dict[str, Any],
+    text_fields: Dict[str, Any],
     force: bool,
     embedding_dim: int = 768,
+    with_metadata: bool = True,
 ) -> None:
     client = MilvusClient(host=MILVUS_HOST, port=str(MILVUS_PORT))
     print("[Milvus] Connected.")
@@ -470,11 +501,11 @@ def run_milvus(
     schema = build_milvus_schema_from_df(
         df_sample=df_filtered.head(50),
         column_mapping=column_mapping,
-        keyword_fields=keyword_fields,
+        text_fields=text_fields,
         embedding_dim=embedding_dim,
     )
-    functions = build_milvus_functions(keyword_fields)
-    index_params = build_milvus_index_params(keyword_fields)
+    functions = build_milvus_functions(text_fields)
+    index_params = build_milvus_index_params(text_fields)
 
     ensure_milvus_collection(
         client=client,
@@ -492,6 +523,7 @@ def run_milvus(
         embedding_dir=embedding_dir,
         dataset_name=dataset_name,
         column_mapping=column_mapping,
+        with_metadata=with_metadata,
     )
 
 
@@ -571,9 +603,10 @@ def main():
             df_filtered=df,
             embedding_dir=embedding_dir,
             column_mapping=column_mapping,
-            keyword_fields=text_fields,
+            text_fields=text_fields,
             force=force,
             embedding_dim=args.embedding_dim,
+            with_metadata=True,
         )
 
     if do_es:

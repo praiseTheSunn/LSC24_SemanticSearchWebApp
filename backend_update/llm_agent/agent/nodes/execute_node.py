@@ -2,37 +2,41 @@ import time
 from tools.manager import ToolManager, ToolExecutionContext
 from agent.types import ChatState
 from agent.fusion import Fusion
-from typing import Any, List, Dict
+from typing import Any, Dict
+from pathlib import Path
+from datetime import datetime
+import json
+from pprint import pprint
+
+
+def save_dict_as_timestamped_json(
+    data: Dict[str, Any],
+    out_dir: str | Path = ".",
+    prefix: str = "data",
+    ensure_ascii: bool = False,
+) -> Path:
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    # e.g. 20260105_143012_123456 (YYYYMMDD_HHMMSS_microseconds)
+    ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+    out_path = out_dir / f"{prefix}_{ts}.json"
+
+    with out_path.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=ensure_ascii)
+
+    return out_path
+
 
 
 def _score_of(item: Dict[str, Any]) -> float:
-    return float(item.get("distance"), 0.0)
+    return float(item.get("distance", 0.0)) or float(item.get("score", 0.0))
+
+def _merged_score_of(item: Dict[str, Any]) -> float:
+    return float(item.get("merged_score", 0.0))
 
 def _id_of(item: Dict[str, Any]) -> int:
-    return int(item.get("record_id"), 0)
-
-
-def operation_search(prev_combined: List[Dict[str, Any]],
-               newest: List[Dict[str, Any]],
-               fusion_cfg: Dict[str, Any]) -> List[Dict[str, Any]]:
-    """
-    Search op:
-    - queries whole DB -> returns newest
-    - combine newest with prev_combined using CombSUM/CombMNZ/RRF
-    """
-    method = fusion_cfg.get("method", "rrf")
-
-    # TODO: implement properly; placeholder = concat + keep best score per id
-    best: Dict[str, Dict[str, Any]] = {}
-    for it in prev_combined + newest:
-        k = _id_of(it)
-        if not k:
-            continue
-        if k not in best or _score_of(it) > _score_of(best[k]):
-            best[k] = it
-    merged = list(best.values())
-    merged.sort(key=_score_of, reverse=True)
-    return merged
+    return int(item.get("record_id", 0))
 
 
 def slim(items, keep_meta=False):
@@ -58,13 +62,16 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
         
     # Ensure artifacts container exists
     state.setdefault("artifacts", {})
-    state["artifacts"].setdefault("combined", [])      # <-- single source of truth
-    state["artifacts"].setdefault("calls", [])         # <-- audit trail per call
-    state["artifacts"].setdefault("audit", {})         # <-- run-level audit
+    state["artifacts"].setdefault("calls", [])                  # <-- audit trail per call
+    state["artifacts"].setdefault("call_results", {})
+    state["artifacts"].setdefault("merged_results", {})
+    state["artifacts"].setdefault("audit", {})                  # <-- run-level audit
+    pprint(state["artifacts"])
 
     fusion_cfg = plan.get("fusion", {"method": "rrf", "rrf_c": 60.0})    
-    fusion = Fusion.from_params(fusion_cfg)
+    fusion = Fusion.from_plan_fusion(fusion_cfg)
     top_k_display = int(plan.get("top_k_display", 10))
+    print(f"Executing plan with fusion method: {fusion_cfg}")
 
     state["plan_status"] = "executing"
     started_ms = int(time.time() * 1000)
@@ -78,8 +85,7 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
         tool_name = call["tool"]
         op = call["operation"]
         query = call.get("query", goal_query)
-        params = call.get("params", {}) or {}
-        save_as = call.get("save_as") or f"call_{idx}"
+        params = call.get("params", {})
 
         # Paper constraint: rerank/filter cannot be first
         if idx == 1 and op in ("rerank", "filter"):
@@ -89,18 +95,10 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
             return state
 
         # Always read combined from state artifacts (no local variable)
-        combined_before = state["artifacts"]["combined"]
+        last_merged_results = state["artifacts"]["merged_results"][idx - 1] if idx > 1 else []
 
         # Pass combined into ctx.candidates for rerank/filter
-        candidates = combined_before if op in ("rerank", "filter") else None
-
-        # Multi-input convention if you still use it: params["inputs"] -> params["lists"]
-        # (optional; you can also switch plan schema to have call["inputs"])
-        if "inputs" in params:
-            input_lists = [state["artifacts"].get(k, []) for k in params["inputs"]]
-            params = dict(params)
-            params["lists"] = input_lists
-
+        candidates = last_merged_results if op in ("rerank", "filter") else None
         ctx = ToolExecutionContext(
             operation=op,
             query=query,
@@ -118,25 +116,28 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
             state["messages"].append({"role": "assistant", "content": state["reply"]})
             return state
 
-        newest = res.items
+        last_call_results = res.items
 
         # Store newest output under its artifact key
-        state["artifacts"][save_as] = newest
+        state["artifacts"]["call_results"][idx] = last_call_results
 
-        # Update combined *in state only*
+        # Update merged *in state only*
         if op == "search":
-            combined_after = newest if idx == 1 else fusion.merge(combined_before, newest)
+            if idx == 1:
+                last_merged_results = fusion.merge([], last_call_results, params=call.get("params", {}))
+            else:
+                last_merged_results = fusion.merge(last_merged_results, last_call_results, params=call.get("params", {}))
         elif op == "rerank":
-            combined_after = fusion.merge(combined_before, newest)
+            last_merged_results = fusion.merge(last_merged_results, last_call_results, params=call.get("params", {}))
         elif op == "filter":
-            combined_after = fusion.filter(combined_before, newest, constraint=params.get("constraint", {}))
+            last_merged_results = fusion.filter(last_merged_results, last_call_results, constraint=params.get("constraint", {}))
         else:
             state["plan_status"] = "draft"
             state["reply"] = f"Unknown operation: {op}"
             state["messages"].append({"role": "assistant", "content": state["reply"]})
             return state
 
-        state["artifacts"]["combined"] = combined_after
+        state["artifacts"]["merged_results"][idx] = last_merged_results
         
         # Append audit record
         state["artifacts"]["calls"].append({
@@ -145,31 +146,28 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
             "operation": op,
             "query": query,
             "params": params,
-            "save_as": save_as,
             "stats": {
                 "elapsed_ms": elapsed_ms,
-                "newest_n": len(newest),
-                "combined_before_n": len(combined_before) if combined_before else 0,
-                "combined_after_n": len(combined_after),
+                "last_call_results_n": len(last_call_results),
+                "last_merged_results_n": len(last_merged_results) if last_merged_results else 0,
                 "fusion": fusion_cfg,
             },
             # Store slim versions by default (avoid huge state); switch keep_meta=True for debugging
-            "newest": slim(newest, keep_meta=False),
-            "combined_before": slim(combined_before, keep_meta=False) if combined_before else [],
-            "combined_after": slim(combined_after, keep_meta=False),
+            "last_call_results": slim(last_call_results, keep_meta=False),
+            "last_merged_results": slim(last_merged_results, keep_meta=False) if last_merged_results else [],
         })
 
     ended_ms = int(time.time() * 1000)
     state["artifacts"]["audit"] = {
         "started_at_ms": started_ms,
         "ended_at_ms": ended_ms,
-        "total_elapsed_ms": ended_ms - started_ms,
+        "total_elapsed_seconds": (ended_ms - started_ms) / 1000.0,
         "fusion": fusion_cfg,
     }
 
-    # Final results: prefer explicit top_results artifact; else top_k from combined
-    combined_final = state["artifacts"]["combined"]
-    state["last_results"] = state["artifacts"].get("top_results") or combined_final[:top_k_display]
+    # Final results: prefer explicit top_results artifact; else top_k from merged_results
+    merged_final = state["artifacts"]["merged_results"]
+    state["last_results"] = state["artifacts"]["merged_results"][len(calls)] if len(calls) in merged_final else []
     state["plan_status"] = "done"
 
     # Render output
@@ -179,11 +177,13 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
     else:
         lines = ["Top results:"]
         for i, r in enumerate(results[:10], start=1):
-            doc_id = r.get("doc_id") or r.get("item_id")
-            score = r.get("score", r.get("raw_score", 0.0))
-            lines.append(f"{i}. {doc_id}  score={float(score):.4f}")
+            item_id = _id_of(r)
+            score = _merged_score_of(r)
+            lines.append(f"{i}. {item_id}  score={float(score):.8f}")
         reply = "\n".join(lines)
 
     state["reply"] = reply
     state.setdefault("messages", []).append({"role": "assistant", "content": reply})
+    path = save_dict_as_timestamped_json(state["artifacts"], prefix="result")
+
     return state

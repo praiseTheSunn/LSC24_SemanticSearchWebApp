@@ -64,7 +64,7 @@ class MilvusSearchSparseRequest(BaseModel):
         }
 
 
-class ElasticsearchOCRSearchRequest(BaseModel):
+class ElasticsearchTextSearchRequest(BaseModel):
     query: str = Field(..., description="OCR/text query string")
     limit: int = Field(50, ge=1, le=1000)
     subset_record_ids: Optional[List[int]] = Field(default=None)

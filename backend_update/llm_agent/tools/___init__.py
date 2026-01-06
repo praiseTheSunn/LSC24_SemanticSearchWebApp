@@ -41,10 +41,10 @@ class ToolManager:
     
     def _register_tools(self):
         """Register all available tools"""
-        from .search_tools import TextSemanticTool, OCRTool, ActivityTool, ObjectTool
+        from ._search_tools import TextSemanticTool, OCRTool, ActivityTool, ObjectTool
         from .explore_tools import ExploreSimilarTool, ExploreNeighborTool
         from .feedback_tools import ProvideFeedbackTool
-        from .metadata_tools import GetMetadataTool
+        from ._metadata_tools import GetMetadataTool
         
         tools = [
             TextSemanticTool(),
