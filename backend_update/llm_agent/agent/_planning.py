@@ -22,7 +22,7 @@ except Exception:
     apply_filter_only = None
 
 # Use the local ToolManager so we execute the concrete Tool classes when possible
-from tools import ToolManager
+from backend_update.llm_agent.tools.___init__ import ToolManager
 from schemas import ToolExecutionContext, ToolResult
 from check_history import log_interaction
 

@@ -80,7 +80,6 @@ class PlanStep(TypedDict, total=False):
     top_k: int
     weight: float
     params: Dict[str, Any]        # thresholds, fields, etc.
-    save_as: str                  # artifact key
 
 
 class Plan(TypedDict, total=False):
@@ -285,7 +284,6 @@ def execute_plan(plan: Plan, state: ChatState) -> List[Dict[str, Any]]:
         top_k = int(step.get("top_k", REGISTRY[tool_id].default_topk))
         weight = float(step.get("weight", REGISTRY[tool_id].default_weight))
         params = step.get("params", {}) or {}
-        save_as = step.get("save_as", f"step{t}")
 
         spec = REGISTRY[tool_id]
         if op not in spec.operations:
@@ -352,9 +350,6 @@ def execute_plan(plan: Plan, state: ChatState) -> List[Dict[str, Any]]:
             it2["norm_score"] = float(ns)
             normalized_list.append(it2)
 
-        artifacts[f"{save_as}_raw"] = standardized
-        artifacts[f"{save_as}_norm"] = normalized_list
-
         # ---- Fuse incrementally (Search/Rerank contribute; Filter just prunes) ----
         if op in ("search", "rerank"):
             incremental_fuse(
@@ -400,7 +395,6 @@ def execute_plan(plan: Plan, state: ChatState) -> List[Dict[str, Any]]:
             "top_k": top_k,
             "latency_cost": spec.latency_cost,
             "elapsed_sec": elapsed,
-            "artifact_keys": [f"{save_as}_raw", f"{save_as}_norm"],
         })
 
     audit["total_cost"] = total_cost
@@ -416,7 +410,6 @@ def execute_plan(plan: Plan, state: ChatState) -> List[Dict[str, Any]]:
         })
 
     state["artifacts"] = artifacts
-    state["audit_trail"] = audit
     return final_results
 
 

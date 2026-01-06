@@ -13,7 +13,7 @@ from langchain_community.tools import Tool
 from langgraph.checkpoint.memory import MemorySaver
 from langchain_google_genai import ChatGoogleGenerativeAI  # ⬅️ model swap
 
-from tools import ToolManager
+from backend_update.llm_agent.tools.___init__ import ToolManager
 from schemas import AgentAction, AgentPlan, ToolExecutionContext, ActionStatus, ToolType
 from internal.llm_config import LLMManager
 import json

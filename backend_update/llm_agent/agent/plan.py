@@ -22,17 +22,13 @@ from pprint import pprint
 @dataclass
 class ToolCall:
     """One invocation of a tool."""
+    step_id: int
     tool: str
     operation: Operation
 
     # How to run it
     query: Optional[str] = None
     params: Dict[str, Any] = field(default_factory=dict)
-
-    # Dataflow
-    input: Optional[str] = None              # single artifact key consumed
-    inputs: Optional[List[str]] = None       # multi-artifact consumed (merge/fuse)
-    save_as: str = ""                        # artifact key produced
 
 
 @dataclass
@@ -172,7 +168,6 @@ def extract_plan_meta(plan: Plan, tool_manager: ToolManager) -> PlanMeta:
             resolved_query=resolved_query,
             resolved_params=resolved_params,
             consumes=consumes,
-            produces=call.save_as,
             latency_cost=spec.latency_cost,
             default_weight=spec.default_weight,
             score_range=spec.score_range,
@@ -197,33 +192,31 @@ def default_fallback_plan(top_k_display: int = 10) -> Plan:
         top_k_display=top_k_display,
         calls=[
             ToolCall(
+                step_id=1,
                 tool="text_semantic",
                 operation="search",
                 query='images or videos of a house with a stone shed in Ireland under green trees on a sunny day',
-                params={'top_k': 101},
-                input=None,
-                inputs=None,
-                save_as='initial_results'
+                params={'top_k': 1001, 'weight': 0.6, 'norm': 'minmax'}
             ),
-            ToolCall(tool='ocr',
-                     operation='search',
-                     query="for sale",
-                     params={'top_k': 100},
-                     input='initial_results',
-                     inputs=None,
-                     save_as='reranked_results'
+            ToolCall(
+                step_id=2, 
+                tool='ocr',
+                operation='search',
+                query="for sale",
+                params={'top_k': 1000, 'weight': 0.3, 'norm': 'zscore'}
             ),
-            ToolCall(tool='text_semantic',
-                     operation='rerank',
-                     query=None,
-                     params={'top_k': 10},
-                     input='reranked_results',
-                     inputs=None,
-                     save_as='top_results'
-            )
+            ToolCall(
+                step_id=3,
+                tool='object_tags',
+                operation='search',
+                query="house",
+                # params={'top_k': 50, "subset_record_ids": list(range(8715))}
+                params={'top_k': 500, 'weight': 0.1}
+            ),
         ],
         rationale="Default plan: semantic search followed by two reranking steps to refine results.",
         fusion={"method": "rrf", "rrf_c": 60.0}
+        # fusion={"method": "combsum"}
     )        
 
 
@@ -252,7 +245,7 @@ Hard requirements:
 - You should create a plan with 3 tool calls. Among these calls, a tool can be called multiple times with different params. For example, with one tool, you can use different queries at each call.
 - You can paraphrase the query to feed to each tool based on the original user query.
 - Remember to specify the fusion operation at each tool call.
-- Each call.save_as must be unique.
+- Each call.input must be unique.
 - Use call.input for single-input operations (rerank/filter).
 - Use call.inputs (list of artifact keys) for multi-input operations (merge/fuse).
 - Ensure the final call produces 'top_results' (save_as == "top_results") which is what the UI will display.
@@ -300,22 +293,16 @@ Notes:
         print(f"Planner output plan:")
         pprint(plan)
 
-        # Ensure final save_as == top_results (guardrail)
-        if not calls or calls[-1].save_as != "top_results":
+        if not calls:
             # Add a final top_k call if available; else just rename last output
             if "top_k" in tool_manager.list_specs():
-                last_key = calls[-1].save_as if calls else "milvus_candidates"
                 calls.append(
                     ToolCall(
                         tool="top_k",
                         operation="filter",
-                        input=last_key,
-                        params={"k": plan.top_k_display},
-                        save_as="top_results",
+                        params={"k": plan.top_k_display}
                     )
                 )
-            else:
-                calls[-1].save_as = "top_results"
 
         plan = Plan(
             goal=plan.goal,
@@ -345,7 +332,7 @@ def edit_plan(plan: Dict[str, Any], refinement: str) -> Dict[str, Any]:
 def render_plan(plan: Dict[str, Any]) -> str:
     lines = [f"Proposed plan (draft):", f"- Goal: {plan.get('goal','')}", "- Calls:"]
     for i, s in enumerate(plan.get("calls", []), start=1):
-        lines.append(f"  {i}. {s.get('tool')} op={s.get('operation')} save_as={s.get('save_as')}")
+        lines.append(f"  {i}. {s.get('tool')} op={s.get('operation')}")
     lines.append("")
     lines.append("Reply **approve** to run, or send refinements. Reply **reject** to discard.")
     return "\n".join(lines)
