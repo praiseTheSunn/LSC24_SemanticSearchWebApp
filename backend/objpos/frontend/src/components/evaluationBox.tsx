@@ -1,0 +1,273 @@
+import { Box, Button, Paper, TextField } from '@mui/material'
+import { isNil, result, set } from 'lodash'
+import React, { useEffect, useState, useCallback } from 'react'
+import { useSelector } from 'react-redux'
+import { toast } from 'react-toastify'
+import { appActions, useAppDispatch } from '../AppState'
+import {
+  useLazyGetEvalIDQuery,
+  useLazyGetSessionIDQuery,
+  useSubmitKISAnsweringMutation,
+  useSubmitQuestionAnsweringMutation,
+} from '../AppState'
+import { displayResponseToast } from '../utils/evaluation/displayResponseToast'
+
+const VBSAutoSubmitVQA = async (
+  username: string,
+  password: string,
+  text: string,
+  // triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
+  triggerQA:  ReturnType<typeof useSubmitQuestionAnsweringMutation>[0],
+) => {
+  
+
+   const masterSessionID = localStorage.getItem('masterSessionID') ?? ''
+   const masterEvaluationID = localStorage.getItem('evaluationId') ?? ''
+  const masterResponse = await triggerQA({
+    evaluation_id: masterEvaluationID,
+    session: masterSessionID,
+    text: text,
+  })
+
+  if (masterResponse.data?.submission === 'CORRECT') {
+    console.log('Master response is correct')
+  } else {
+    console.log('Master response is wrong', masterResponse)
+  }
+}
+
+const EvaluationBox = () => {
+  const [text, setText] = useState('')
+
+  const [triggerSessionID, resultSessionID] = useLazyGetSessionIDQuery()
+  const [triggerEval, resultEval] = useLazyGetEvalIDQuery()
+  const [triggerQA, resultQA] = useSubmitQuestionAnsweringMutation()
+
+  const username = localStorage.getItem('username') ?? ''
+  const password = localStorage.getItem('password') ?? ''
+  const evaluationId = localStorage.getItem('evaluationId') ?? ''
+  const sessionId = localStorage.getItem('sessionId') ?? ''
+
+  const [loginState, setLoginState] = useState(
+    isNil(sessionId) ? 'Login' : 'Logout',
+  )
+
+  const [triggerKIS, resultKIS] = useSubmitKISAnsweringMutation()
+  const dispatch = useAppDispatch()
+
+  const setEvaluationId = useCallback((evaluationId: string) => {
+    localStorage.setItem('evaluationId', evaluationId)
+  }, [])
+
+  const setSessionId = useCallback((sessionId: string) => {
+    localStorage.setItem('sessionId', sessionId)
+  }, [])
+
+  const setUsername = useCallback((username: string) => {
+    localStorage.setItem('username', username)
+  }, [])
+
+  const setPassword = useCallback((password: string) => {
+    localStorage.setItem('password', password)
+  }, [])
+
+  useEffect(() => {
+    const session = localStorage.getItem('session')
+    const username = localStorage.getItem('username')
+    const password = localStorage.getItem('password')
+    if (username) {
+      setUsername(username)
+    }
+    if (password) {
+      setPassword(password)
+    }
+  }, [setPassword, setUsername])
+
+  const GetSessionID = async () => {
+    if (loginState === 'Login') {
+      console.log('This is', username, password)
+      const response = await triggerSessionID({
+        username: username,
+        password: password,
+      })
+      if (!response.data) {
+        toast.error('Invalid username or password', {
+          position: 'bottom-right',
+          autoClose: 3000,
+          closeOnClick: true,
+        })
+        return
+      }
+
+      setSessionId(response.data)
+
+      const reponseEval = await triggerEval({ session: response.data })
+      if (!reponseEval.data) {
+        toast.error('Invalid session id', {
+          position: 'bottom-right',
+          autoClose: 3000,
+          closeOnClick: true,
+        })
+        return
+      }
+
+      // DE SAI O DAY
+      setEvaluationId(reponseEval.data[0])
+
+      console.log('Evaluation ID', reponseEval.data[0])
+
+      setLoginState('Logout')
+
+      toast.success('Login successfully', {
+        position: 'bottom-right',
+        autoClose: 2000,
+        closeOnClick: true,
+      })
+
+      // if(username !== '17snapseek1'){
+      //   const responseMaster = await triggerSessionID({
+      //     username: '17snapseek1',
+      //     password: 'rN7wvHEkYp9X',
+      //   })
+
+      //   if (!responseMaster.data) {
+      //     toast.error('Invalid username or password for master', {
+      //       position: 'bottom-right',
+      //       autoClose: 3000,
+      //       closeOnClick: true,
+      //     })
+      //     return
+      //   }
+
+      //   localStorage.setItem('masterSessionID', responseMaster.data)
+      //   toast.success('Master session ID retrieved')
+      // }
+    } else {
+      setLoginState('Login')
+    }
+  }
+
+  const SubmitText = async () => {
+    if (!evaluationId || !sessionId) {
+      return
+    }
+
+    // // Kiểm tra text có dạng "answer-Lxx_Vxxx-ms" không với answer khác chuỗi rỗng, x có dạng số, ms có dạng số
+    // const regex = /^[^\s]+-L\d{2}_V\d{3}-\d+$/
+
+    // if (!regex.test(text)) {
+    //   toast.error(
+    //     'Text is not in the correct format, must be answer-Lxx_Vxxx-ms',
+    //     {
+    //       position: 'bottom-right',
+    //       autoClose: 2000,
+    //       closeOnClick: true,
+    //     },
+    //   )
+    //   return
+    // }
+
+    // triggerQA({ evaluation_id: evaluationId[0], session: result.data, text: text })
+    const resultQA = await triggerQA({
+      evaluation_id: evaluationId,
+      session: sessionId,
+      text: text,
+    })
+    displayResponseToast(resultQA)
+
+  }
+
+  const submitKIS = async () => {
+    const resultKIS = await triggerKIS({
+      session: sessionId,
+      evaluation_id: evaluationId,
+      mediaItemName: '00001',
+      start: 1,
+      end: 2,
+    })
+    displayResponseToast(resultKIS)
+  }
+
+  return (
+    <Paper
+      elevation={4}
+      sx={{
+        // width: '100%',
+        width: '500px',
+        position: 'relative',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: 2,
+        p: 2,
+        backgroundColor: 'white',
+        borderRadius: 2,
+      }}
+      // style={{ position: 'absolute', top: '90px', right: '0px' }}
+    >
+      <TextField
+        label="Username"
+        variant="outlined"
+        defaultValue={username}
+        onChange={(e) => setUsername(e.target.value)}
+        sx={{ gridColumn: 'span 1' }}
+        size="small"
+      />
+      <TextField
+        label="Password"
+        type="password"
+        variant="outlined"
+        defaultValue={password}
+        onChange={(e) => setPassword(e.target.value)}
+        sx={{ gridColumn: 'span 1' }}
+        size="small"
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ gridColumn: 'span 1' }}
+        size="small"
+        onClick={GetSessionID}
+      >
+        {loginState}
+      </Button>
+      <TextField
+        label="Evaluation ID"
+        variant="outlined"
+        defaultValue={evaluationId ?? 'NONE'}
+        onChange={(e) => setEvaluationId(e.target.value)}
+        sx={{ gridColumn: 'span 3' }}
+        size="small"
+      />
+      <TextField
+        label="Session ID"
+        variant="outlined"
+        value={sessionId ?? 'NONE'}
+        // onChange={(e) => setEvaluationId(e.target.value)}
+        sx={{ gridColumn: 'span 3' }}
+        size="small"
+        InputProps={{
+          readOnly: true,
+        }}
+      />
+      <TextField
+        label="Text"
+        variant="outlined"
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        sx={{ gridColumn: 'span 2' }}
+        size="small"
+      />
+      <Button
+        variant="contained"
+        color="primary"
+        sx={{ gridColumn: 'span 1' }}
+        size="small"
+        onClick={SubmitText}
+      >
+        Submit Text
+      </Button>
+    </Paper>
+  )
+}
+
+export default EvaluationBox
