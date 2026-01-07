@@ -2,6 +2,7 @@
 import requests
 import asyncio
 from constants import API_TEXT_EMBEDDING, API_IMAGE_EMBEDDING, API_SEARCH_MILVUS, API_FETCH_EMBEDDINGS, API_FETCH_METADATA
+from pprint import pprint
 
 
 async def compute_text_embedding(text_query, model):
@@ -51,8 +52,12 @@ async def search_milvus(embedding, dataset, filters, model, limit=500, subset_re
         return None
     else:
         raw_results = resp.json()
-        record_ids = [entity.get('record_id') for entity in raw_results.get('response', [])]
-        scores = [entity.get('distance') for entity in raw_results.get('response', [])]
+        pprint(raw_results)
+        # TEMP
+        # record_ids = [entity.get('record_id') for entity in raw_results.get('response', [])]
+        # scores = [entity.get('distance') for entity in raw_results.get('response', [])]
+        record_ids = [entity.get('record_id') for entity in raw_results]
+        scores = [entity.get('distance') for entity in raw_results]
         return {
             "record_ids": record_ids,
             "scores": scores

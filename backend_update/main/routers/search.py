@@ -23,7 +23,7 @@ async def search_with_image_query(payload: RequestSearchByImageQuery):
     # Extract the parameters from the payload  
     inputs = payload.model_dump()
     inputs["model"] = "clips"           # TEMPORARY FIX: Hardcoded model name for testing purposes
-    inputs["dataset"] = "aic25"         # TEMPORARY FIX: Hardcoded dataset name for testing purposes
+    inputs["dataset"] = "lsc24"         # TEMPORARY FIX: Hardcoded dataset name for testing purposes
 
     # Search for the image
     response_data, response_status = await search_by_image(image_base64=inputs["image_base64"], dataset=inputs["dataset"], model=inputs["model"])
@@ -76,7 +76,11 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
 
     # Preprocess the query
     filters = DatasetManager.get_dataset(inputs["dataset"]).get_filters()
-    parsed = parse_raw_query(inputs["text_query"], filters)
+    # parsed = parse_raw_query(inputs["text_query"], filters)
+    parsed = [{
+        "text": inputs["text_query"],
+        "filters": {}
+    }]
     query_structured = QueryStructured(
         clauses=[QueryClause(**q) for q in parsed],
         dataset=inputs["dataset"],
