@@ -4,6 +4,7 @@ import pandas as pd
 import itertools
 from pprint import pprint
 from setup import SYSTEM_CONFIG
+from dataset.dataset_manager import DatasetManager
 
 
 server_ip = SYSTEM_CONFIG['server_ip']

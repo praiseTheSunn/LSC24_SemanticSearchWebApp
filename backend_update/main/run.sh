@@ -14,4 +14,4 @@ REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"                    # Edit here when yo
 export PYTHONPATH="$REPO_ROOT/libs"
 
 
-python3 -m uvicorn main:app --host 0.0.0.0 --port 20721
+python3 -m uvicorn main:app --host 0.0.0.0 --port 20721 --reload
