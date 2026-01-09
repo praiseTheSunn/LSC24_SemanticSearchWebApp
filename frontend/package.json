@@ -49,7 +49,7 @@
   },
   "scripts": {
     "start": "rsbuild dev",
-    "dev": "./start-dev.sh",
+    "dev": "start-dev.sh",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "lint": "biome check ./",
