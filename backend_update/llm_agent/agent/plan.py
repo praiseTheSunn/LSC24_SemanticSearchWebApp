@@ -318,7 +318,6 @@ Notes:
         # Keep your system robust: always return an executable plan.
         plan = default_fallback_plan(top_k_display)
         print(f"Planner fallback plan:")
-        pprint(plan)
         return plan_to_dict(plan)
     
 
