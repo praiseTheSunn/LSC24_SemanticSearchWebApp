@@ -1,0 +1,11 @@
+.vertical-timeline::before {
+    background: black; /* Line color, already set via props but can also be set here */
+    width: 4px; /* Line thickness */
+    left: 0.8%; /* Adjust this value to move the line left or right */
+    top: 10px,
+}
+
+.vertical-timeline{
+    max-width: 100%;
+    width: 98%;
+}

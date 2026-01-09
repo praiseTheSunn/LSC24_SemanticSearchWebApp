@@ -1,0 +1,25 @@
+name: llm_agent
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.12
+  - fastapi
+  - uvicorn
+  - pydantic
+  - httpx
+  - redis-py
+  - python-multipart
+  - websockets
+  - python-dotenv
+  - pip
+  - pip:
+      - langchain
+      - langchain-core
+      - langchain-openai
+      - langchain-anthropic
+      - langchain-google-genai
+      - langchain-community
+      - openai
+      - google-generativeai

@@ -1,27 +1,27 @@
 from schemas.request_schemas import RequestExploreSimilarImages, RequestExploreNeighborImages
-from internal.explore.helper import *
+from internal.helper import *
 import setup
 from internal.prepare_response import prepare_response
 
-def explore_similar_images(data: RequestExploreSimilarImages):
 
+async def explore_similar_images(data: RequestExploreSimilarImages):
     model = data.model
-
-    input_embeddings = fetch_embeddings(data)
-    # input_embeddings = None
+    dataset = data.dataset
+    input_embeddings = await fetch_embeddings(data)
     if not input_embeddings:
         return None
     
     mean_embedding = compute_mean_embedding(input_embeddings)
     mean_embedding = [mean_embedding.tolist()]
-    results = explore_similar_embeddings(model, mean_embedding)
+    results = explore_similar_embeddings(model, dataset, mean_embedding)
 
-    return prepare_response(results["urls"], results["scores"])
+    return prepare_response(dataset, results["record_ids"], results["scores"])
+
 
 def explore_neighbor_images(data: RequestExploreNeighborImages):
-    image_url = data.image_url
+    record_id = data.record_id
     span = data.span
-    url_position = setup.image_urls.index(image_url)
-    left_bound = max(0, url_position - span)
-    right_bound = min(len(setup.image_urls), url_position + span + 1)
-    return prepare_response(setup.image_urls[left_bound : right_bound])
+    dataset = data.dataset
+    neighbor_ids = list(range(int(record_id) - span, int(record_id) + span + 1))
+    print("Neighbor ids:", neighbor_ids)
+    return prepare_response(dataset, neighbor_ids)
