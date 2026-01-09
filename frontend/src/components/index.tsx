@@ -1,6 +1,7 @@
 import type { ConfigType } from '../types/app'
 
 export { default as SearchBox } from './searchBox'
+export { default as ConversationBox } from './conversationBox'
 
 export { default as MessagePopup } from './Popup/messagePopup'
 
