@@ -16,7 +16,7 @@ import {
   TrapoziedBgGray5,
   TrapoziedBgGrayLeft,
 } from '../../assets'
-import { ObjectDetail, SearchBox } from '../../components'
+import { ObjectDetail, SearchBox, ConversationBox } from '../../components'
 import MapTab from '../../containers/location/mapTab'
 import MetadataTab from '../../containers/metadata/metadataTab'
 import ImageGrid from '../../containers/similarity/image-grid'
@@ -69,6 +69,8 @@ const Home = () => {
   }
   const [searchTerms, setSearchTerms] = useState<SearchTermType[]>([])
   const [submitFilename, setSubmitFilename] = useState('')
+
+  const [result, setResult] = useState<ImageRecord[]>([])
 
   const neighborPopupData: ImageRecord | null | undefined = useAppSelector(
     (state) => state.app.neighborPopUpData,
@@ -272,6 +274,8 @@ const Home = () => {
         setSearchTerms={setSearchTerms}
         setSubmitFilename={setSubmitFilename}
       />
+      
+      <ConversationBox wsUrl={`ws://localhost:20726/ws/agent`} setResult={setResult} />
 
       <Box
         style={{
