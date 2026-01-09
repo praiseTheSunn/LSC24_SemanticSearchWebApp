@@ -1,0 +1,56 @@
+[
+  {
+    "id": "46ff387d1ef248f29e61611e345d460c",
+    "timestamp": "2025-11-17T08:18:25.697382Z",
+    "session_id": "23.19",
+    "role": "user",
+    "content": "Hi who are you",
+    "metadata": {
+      "user_id": "quan"
+    }
+  },
+  {
+    "id": "32c0a7b25fae4c4488626195aa8e6cc1",
+    "timestamp": "2025-11-17T08:18:26.949680Z",
+    "session_id": "23.19",
+    "role": "assistant",
+    "content": "I am a large language model, trained by Google.",
+    "metadata": {
+      "llm_provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "tool_calls": 0,
+      "timestamp": "2025-11-17T08:18:26.949634"
+    }
+  },
+  {
+    "id": "99dd59bd8e5a41c191e98650ea77e0d6",
+    "timestamp": "2025-11-17T08:25:05.651805Z",
+    "session_id": "23.19",
+    "role": "user",
+    "content": "ok i know",
+    "metadata": {
+      "user_id": "quan"
+    }
+  },
+  {
+    "id": "b3201aa01a644c7e9b0847155b0aa674",
+    "timestamp": "2025-11-17T08:25:07.280868Z",
+    "session_id": "23.19",
+    "role": "assistant",
+    "content": [
+      {
+        "type": "text",
+        "text": "Is there anything else I can help you with?",
+        "extras": {
+          "signature": "CuQBAdHtim8TFRhfOqoZevQhY+sScSavBDv1xc2zm4GBh8L8jkKr13oOxjLVCKnpHqRX52SrNZiaH3MiwbL5CAz8wO05yEQJUp2RqA0AG93TNWugiZnOuEbakcU7dEOepphzDOM/IWcBNomh4QH8zEuIJrN6iPNC6yMZHYRCCZR0v8CRlnpwXoMIljFWCDec7I/aPEE5cPS/Bou9JK7sbwprNX1ZQgUAM1WASxDKtXjiA2FSSx8yPYqHbl+IiLZWbAa8BPxDyZlUPdX4G3/2LzLUzGhbNPXnrd8j85zl4pNOYFe9SoK9"
+        }
+      }
+    ],
+    "metadata": {
+      "llm_provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "tool_calls": 0,
+      "timestamp": "2025-11-17T08:25:07.280823"
+    }
+  }
+]

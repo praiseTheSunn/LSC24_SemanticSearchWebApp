@@ -25,3 +25,4 @@ yarn-error.log*
 .env 
 
 src/services/googleApiKey.ts
+src/services/openAiApiKey.ts

@@ -434,8 +434,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={['All', 'Lesson', 'Cooking']}
-            valueItems={['aic25', 'aic25_lesson', 'aic25_cooking']}
+            displayItems={['LSC24', 'All', 'Lesson', 'Cooking']}
+            valueItems={['lsc24', 'aic25', 'aic25_lesson', 'aic25_cooking']}
             setData={setDataset}
           />
         </Box>
