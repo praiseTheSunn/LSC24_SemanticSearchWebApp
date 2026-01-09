@@ -1,6 +1,8 @@
 import React, { useMemo, useRef, useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useAgentSocket } from "./useAgentSocket";
+import { transformResponse_LSC } from "../config/transformResponse";
+import type { ApiResponse } from "../types/api";
 
 interface ConversationBoxProps<TItem = unknown> {
   setResult?: React.Dispatch<React.SetStateAction<TItem[]>>;
@@ -25,7 +27,23 @@ function ConversationBox<TItem = unknown>({
 
   const { connected, messages, sendUser, sendDecision } = useAgentSocket({
     wsUrl,
-    onImages: (payload) => setResult?.(payload.items as TItem[]),
+    onImages: (payload) => {
+      if (!setResult) return;
+
+      // The agent returns ImageItem[] (similar to ObjPosResponse/ImageRecord).
+      // For LSC UI we run the same normalization used for API results.
+      const safeItems = (payload.items ?? []).filter(
+        (img) => typeof (img as any)?.img_link === "string",
+      );
+
+      const resp = {
+        data: safeItems as any,
+        status: 200,
+      } satisfies ApiResponse;
+
+      const transformed = transformResponse_LSC(resp);
+      setResult(transformed as unknown as TItem[]);
+    },
   });
 
   const statusText = connected ? "connected" : "disconnected";
