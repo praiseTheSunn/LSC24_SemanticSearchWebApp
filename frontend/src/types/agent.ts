@@ -32,9 +32,33 @@ export type Plan = {
 /** ---------- Images payload ---------- */
 
 export type ImageItem = {
-  id: number | string;
+  record_id: number | string;
   score?: number | null;
-  // allow extra fields if you decide to attach more
+  img_link?: string;
+  date?: string;
+  time?: string;
+  ocr?: string;
+  caption?: string;
+  location?: string;
+  activity?: string;
+  new_lat?: number;
+  new_lng?: number;
+  activity_id?: number;
+  event_id?: number;
+  location_id?: number;
+  object_tags?: string;
+  day_of_week?: string;
+  location_displayed?: string;
+  video_url?: string;
+  timestamp?: number;
+  video_id?: string;
+  frame_id?: string;
+  context_id_coarse?: string;
+  image_id?: string;
+  neighbors?: ImageItem[];
+  // Legacy support for 'id' field
+  id?: number | string;
+  // allow other extra fields if needed
   [k: string]: unknown;
 };
 

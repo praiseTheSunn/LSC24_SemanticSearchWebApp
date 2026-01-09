@@ -126,6 +126,14 @@ const Home = () => {
   }
 
   const [imageAfterFilter, setImageAfterFilter] = useState<ImageRecord[]>([])
+  
+  // Sync agent results with Redux store
+  useEffect(() => {
+    if (result && result.length > 0) {
+      dispatch(appActions.setAppImageData(result))
+    }
+  }, [result, dispatch])
+  
   useEffect(() => {
     if (
       imageDatas !== null &&
