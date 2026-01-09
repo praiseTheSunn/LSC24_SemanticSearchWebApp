@@ -11,6 +11,7 @@ async def plan_node(state: ChatState, tool_manager: ToolManager) -> ChatState:
     )
     state["active_plan"] = plan_dict
     state["plan_status"] = "draft"
+    state["last_results"] = []  # Clear previous results
     state["reply"] = render_plan(plan_dict)
     state["messages"].append({"role": "assistant", "content": state["reply"]})
     return state

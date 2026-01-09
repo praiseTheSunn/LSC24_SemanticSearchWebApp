@@ -7,6 +7,7 @@ from pathlib import Path
 from datetime import datetime
 import json
 from pprint import pprint
+from internal.postprocess import prepare_response
 
 
 def save_dict_as_timestamped_json(
@@ -167,8 +168,31 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
 
     # Final results: prefer explicit top_results artifact; else top_k from merged_results
     merged_final = state["artifacts"]["merged_results"]
-    state["last_results"] = state["artifacts"]["merged_results"][len(calls)] if len(calls) in merged_final else []
+    raw_results = state["artifacts"]["merged_results"][len(calls)] if len(calls) in merged_final else []
     state["plan_status"] = "done"
+
+    # Extract dataset and model from the first call's params or use defaults
+    first_call_params = plan.get("calls", [{}])[0].get("params", {})
+    dataset = first_call_params.get("dataset", "lsc24")
+    model = first_call_params.get("model", "default")
+    display_window_size = int(plan.get("display_window_size", 3))
+    
+    # Prepare formatted response with metadata
+    if raw_results:
+        record_ids = [_id_of(r) for r in raw_results[:top_k_display]]
+        scores = [_merged_score_of(r) for r in raw_results[:top_k_display]]
+        
+        # Call prepare_response to get full metadata
+        state["last_results"] = await prepare_response(
+            dataset=dataset,
+            model=model,
+            record_ids=record_ids,
+            scores=scores,
+            display_window_size=display_window_size,
+            top_k=top_k_display
+        )
+    else:
+        state["last_results"] = []
 
     # Render output
     results = state["last_results"]
@@ -177,9 +201,9 @@ async def execute_node(state: ChatState, tool_manager: ToolManager) -> ChatState
     else:
         lines = ["Top results:"]
         for i, r in enumerate(results[:10], start=1):
-            item_id = _id_of(r)
-            score = _merged_score_of(r)
-            lines.append(f"{i}. {item_id}  score={float(score):.8f}")
+            record_id = r.get("record_id", _id_of(r))
+            score = r.get("score", _merged_score_of(r))
+            lines.append(f"{i}. {record_id}  score={float(score):.8f}")
         reply = "\n".join(lines)
 
     state["reply"] = reply

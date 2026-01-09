@@ -175,30 +175,11 @@ async def ws_agent(ws: WebSocket):
                 # 3) After approve, results appear in last_results
                 last_results = out.get("last_results") or []
 
-                def results_to_items(results):
-                    items = []
-                    for r in results:
-                        if not isinstance(r, dict):
-                            continue
-                        rid = r.get("record_id", r.get("id"))
-                        if rid is None:
-                            continue
-
-                        # prefer merged_score, else score, else invert distance if you want
-                        score = r.get("merged_score")
-                        if score is None:
-                            score = r.get("score")
-                        # optional: distance exists but isn't a "score"; keep it separate if you want
-                        items.append({
-                            "id": int(rid) if str(rid).isdigit() else str(rid),
-                            "score": float(score) if score is not None else None,
-                        })
-                    return items
-
-                items = results_to_items(last_results)
-                if items:
-                    await ws.send_text(evt("images", {"items": items}))
-                    await ws.send_text(evt("assistant_message", {"text": f"Sent {len(items)} results to the image grid."}))
+                # Results are now fully formatted with metadata from prepare_response
+                # Just send them directly
+                if last_results:
+                    await ws.send_text(evt("images", {"items": last_results}))
+                    await ws.send_text(evt("assistant_message", {"text": f"Sent {len(last_results)} results to the image grid."}))
 
 
     except WebSocketDisconnect:

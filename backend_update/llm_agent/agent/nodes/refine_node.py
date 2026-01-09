@@ -7,6 +7,7 @@ def refine_node(state: ChatState) -> ChatState:
     plan2 = edit_plan(plan, ref)
     state["active_plan"] = plan2
     state["plan_status"] = "draft"
+    state["last_results"] = []  # Clear previous results
     state["reply"] = render_plan(plan2)
     state["messages"].append({"role": "assistant", "content": state["reply"]})
     return state
