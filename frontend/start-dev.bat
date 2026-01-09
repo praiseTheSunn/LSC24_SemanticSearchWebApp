@@ -3,5 +3,7 @@ REM Load environment variables from .env file
 for /f "delims=" %%x in (.env) do set %%x
 
 REM Run both commands
-start pnpm serve dist
-@REM python -m http.server --bind 127.0.0.1 8000 --directory %WEBP_DIR%
+@REM start pnpm serve dist
+set WEBP_DIR=E:/LSCDATA/compressed_keyframes
+start rsbuild dev &
+python -m http.server --bind 127.0.0.1 8080 --directory %WEBP_DIR%
