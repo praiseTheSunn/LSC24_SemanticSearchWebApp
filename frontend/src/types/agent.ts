@@ -4,9 +4,12 @@
 
 export type Decision = "approve" | "reject";
 
+export type AssistAction = "run_step" | "apply_preview" | "discard_preview";
+
 export type ClientEvent =
   | { type: "user_message"; payload: { text: string } }
-  | { type: "plan_decision"; payload: { decision: Decision } };
+  | { type: "plan_decision"; payload: { decision: Decision } }
+  | { type: "assist_action"; payload: { action: AssistAction; step_id: number } };
 
 /** ---------- Plan / Tools ---------- */
 
@@ -105,6 +108,21 @@ export type ToolEndEvent = AgentEventBase<
 
 export type ImagesEvent = AgentEventBase<"images", ImagesPayload>;
 
+export type ImagesPreviewEvent = AgentEventBase<
+  "images_preview",
+  ImagesPayload & { step_id?: number }
+>;
+
+export type AssistStepEvent = AgentEventBase<
+  "assist_step",
+  { step_id: number; call: ToolCall }
+>;
+
+export type AssistStepResultEvent = AgentEventBase<
+  "assist_step_result",
+  { step_id: number; ok: boolean; requires_apply?: boolean; summary?: string; [k: string]: unknown }
+>;
+
 export type AssistantTokenEvent = AgentEventBase<
   "assistant_token",
   { text: string }
@@ -129,6 +147,9 @@ export type AgentEvent =
   | ToolStartEvent
   | ToolEndEvent
   | ImagesEvent
+  | ImagesPreviewEvent
+  | AssistStepEvent
+  | AssistStepResultEvent
   | AssistantTokenEvent
   | AssistantMessageEvent
   | ErrorEvent;
@@ -142,4 +163,10 @@ export type ChatMessage =
   | { role: Role; kind: "text_stream"; content: string }
   | { role: Role; kind: "debug"; content: string }
   | { role: Role; kind: "error"; content: string }
-  | { role: "assistant"; kind: "plan_draft"; content: Plan };
+  | { role: "assistant"; kind: "plan_draft"; content: Plan }
+  | { role: "assistant"; kind: "assist_step"; content: { step_id: number; call: ToolCall } }
+  | {
+      role: "assistant";
+      kind: "assist_step_result";
+      content: { step_id: number; ok: boolean; requires_apply?: boolean; summary?: string };
+    };
