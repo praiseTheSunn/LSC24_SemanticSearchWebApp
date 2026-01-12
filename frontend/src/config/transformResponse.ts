@@ -274,8 +274,14 @@ export const transformResponse_LSC = (response: ApiResponse) => {
     img.date = img.video_id ? img.video_id : img.date
     img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
-    img.img_link = `${img.img_link.substring(0, 22)}/${img.img_link.substring(22)}`
     img.img_link = img.img_link.replace('jpg', 'webp')
+    
+    if (img.neighbors) {
+        for (const neighbor of img.neighbors) {
+          neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+          neighbor.img_link = neighbor.img_link.replace('jpg', 'webp')
+        }
+      }
 
     return img
   })

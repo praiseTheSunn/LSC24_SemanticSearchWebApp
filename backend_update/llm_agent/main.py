@@ -187,6 +187,15 @@ async def ws_agent(ws: WebSocket):
                             "error",
                             {"message": f"Step {step_id} failed: tool={tool_name} op={op} error={res.error}"},
                         )
+                        await send_event(
+                            "assist_step_result",
+                            {
+                                "step_id": step_id,
+                                "ok": False,
+                                "requires_apply": False,
+                                "summary": f"Step {step_id} failed: {tool_name}.{op}",
+                            },
+                        )
                         continue
 
                     fusion_cfg = assist.active_plan.get("fusion", {"method": "rrf", "rrf_c": 60.0})

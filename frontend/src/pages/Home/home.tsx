@@ -308,7 +308,7 @@ const Home = () => {
           }}
         >
           <ConversationBox
-            wsUrl={`ws://10.0.1.21:20726/ws/agent`}
+            wsUrl={`ws://10.0.1.21:20726/ws/agent?mode=assist`}
             setResult={setResult}
           />
         </Box>

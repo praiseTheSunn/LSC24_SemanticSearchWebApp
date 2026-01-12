@@ -4,6 +4,132 @@ import { useAgentSocket } from "./useAgentSocket";
 import { transformResponse_LSC } from "../config/transformResponse";
 import type { ApiResponse } from "../types/api";
 
+function isProbablyJsonString(s: string): boolean {
+  const t = s.trim();
+  if (!t) return false;
+  if (!(t.startsWith("{") || t.startsWith("["))) return false;
+  try {
+    JSON.parse(t);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+type InlineToken =
+  | { kind: "text"; text: string }
+  | { kind: "bold"; text: string }
+  | { kind: "italic"; text: string }
+  | { kind: "code"; text: string };
+
+function tokenizeMarkdownLite(line: string): InlineToken[] {
+  // Minimal inline markdown:
+  // - `code`
+  // - **bold**
+  // - *italic*
+  // No nesting, no links, no HTML.
+  const tokens: InlineToken[] = [];
+  let i = 0;
+
+  const pushText = (text: string) => {
+    if (!text) return;
+    tokens.push({ kind: "text", text });
+  };
+
+  while (i < line.length) {
+    // code
+    if (line[i] === "`") {
+      const j = line.indexOf("`", i + 1);
+      if (j !== -1) {
+        const content = line.slice(i + 1, j);
+        tokens.push({ kind: "code", text: content });
+        i = j + 1;
+        continue;
+      }
+    }
+
+    // bold
+    if (line.startsWith("**", i)) {
+      const j = line.indexOf("**", i + 2);
+      if (j !== -1) {
+        const content = line.slice(i + 2, j);
+        tokens.push({ kind: "bold", text: content });
+        i = j + 2;
+        continue;
+      }
+    }
+
+    // italic
+    if (line[i] === "*") {
+      const j = line.indexOf("*", i + 1);
+      if (j !== -1) {
+        const content = line.slice(i + 1, j);
+        tokens.push({ kind: "italic", text: content });
+        i = j + 1;
+        continue;
+      }
+    }
+
+    // plain text run until next special marker
+    const nextCandidates = [
+      line.indexOf("`", i),
+      line.indexOf("**", i),
+      line.indexOf("*", i),
+    ].filter((x) => x !== -1) as number[];
+
+    const next = nextCandidates.length ? Math.min(...nextCandidates) : -1;
+    if (next === -1) {
+      pushText(line.slice(i));
+      break;
+    }
+    pushText(line.slice(i, next));
+    i = next;
+  }
+
+  return tokens;
+}
+
+function renderMarkdownLite(text: string): React.ReactNode {
+  const lines = text.split("\n");
+  return (
+    <>
+      {lines.map((line, lineIdx) => {
+        const parts = tokenizeMarkdownLite(line);
+        return (
+          <React.Fragment key={lineIdx}>
+            {parts.map((tok, tokIdx) => {
+              const key = `${lineIdx}-${tokIdx}`;
+              if (tok.kind === "bold") return <strong key={key}>{tok.text}</strong>;
+              if (tok.kind === "italic") return <em key={key}>{tok.text}</em>;
+              if (tok.kind === "code") {
+                return (
+                  <Box
+                    key={key}
+                    component="code"
+                    sx={{
+                      fontFamily: "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                      fontSize: "0.9em",
+                      px: 0.5,
+                      py: 0.15,
+                      borderRadius: 1,
+                      bgcolor: "rgba(0,0,0,0.06)",
+                      border: "1px solid rgba(0,0,0,0.10)",
+                    }}
+                  >
+                    {tok.text}
+                  </Box>
+                );
+              }
+              return <React.Fragment key={key}>{tok.text}</React.Fragment>;
+            })}
+            {lineIdx < lines.length - 1 ? <br /> : null}
+          </React.Fragment>
+        );
+      })}
+    </>
+  );
+}
+
 interface ConversationBoxProps<TItem = unknown> {
   setResult?: React.Dispatch<React.SetStateAction<TItem[]>>;
   wsUrl?: string;
@@ -17,6 +143,9 @@ function ConversationBox<TItem = unknown>({
 }: ConversationBoxProps<TItem>) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const committedRef = useRef<TItem[] | null>(null);
+  const [pendingPreviewStepId, setPendingPreviewStepId] = useState<number | null>(null);
+  const [runningPreviewStepId, setRunningPreviewStepId] = useState<number | null>(null);
 
   const handleSend = () => {
     const trimmed = input.trim();
@@ -25,28 +154,48 @@ function ConversationBox<TItem = unknown>({
     setInput("");
   };
 
-  const { connected, messages, sendUser, sendDecision } = useAgentSocket({
+  const { connected, messages, sendUser, sendDecision, sendAssistAction } = useAgentSocket({
     wsUrl,
-    onImages: (payload) => {
+    onImages: (payload, meta) => {
       if (!setResult) return;
 
       // The agent returns ImageItem[] (similar to ObjPosResponse/ImageRecord).
       // For LSC UI we run the same normalization used for API results.
       const safeItems = (payload.items ?? []).filter(
         (img) => typeof (img as any)?.img_link === "string",
-      );
-
+      );      
       const resp = {
         data: safeItems as any,
         status: 200,
       } satisfies ApiResponse;
 
       const transformed = transformResponse_LSC(resp);
-      setResult(transformed as unknown as TItem[]);
+      const next = transformed as unknown as TItem[];
+      setResult(next);
+
+      if (!meta?.preview) {
+        committedRef.current = next;
+        setPendingPreviewStepId(null);
+        setRunningPreviewStepId(null);
+      } else {
+        setPendingPreviewStepId(meta.step_id ?? null);
+        setRunningPreviewStepId(null);
+      }
     },
   });
 
-  const statusText = connected ? "connected" : "disconnected";
+  const isAssist = useMemo(() => {
+    if (!wsUrl) return false;
+    try {
+      const u = new URL(wsUrl);
+      return (u.searchParams.get("mode") || "").toLowerCase() === "assist";
+    } catch {
+      // if wsUrl is relative or invalid for URL(), fallback to substring
+      return /[?&]mode=assist(\b|&|$)/i.test(wsUrl);
+    }
+  }, [wsUrl]);
+
+  const statusText = connected ? "connectedddddddd" : "disconnected";
   const statusColor = connected ? "success.main" : "error.main";
 
   const containerSx = useMemo(
@@ -155,19 +304,128 @@ function ConversationBox<TItem = unknown>({
                 </Box>
 
                 <Box display="flex" gap={1} mt={1}>
-                  <Button
-                    size="small"
-                    variant="outlined"
-                    onClick={() => sendDecision("approve")}
-                  >
-                    Approve
-                  </Button>
+                  {!isAssist ? (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => sendDecision("approve")}
+                    >
+                      Approve
+                    </Button>
+                  ) : (
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => sendAssistAction("run_step", 1)}
+                    >
+                      Start Preview (Step 1)
+                    </Button>
+                  )}
                   <Button
                     size="small"
                     variant="outlined"
                     onClick={() => sendDecision("reject")}
                   >
                     Reject
+                  </Button>
+                </Box>
+              </Box>
+            );
+          }
+
+          if (m.kind === "assist_step") {
+            const isBusy = runningPreviewStepId !== null;
+            const isThisStepBusy = runningPreviewStepId === m.content.step_id;
+            return (
+              <Box
+                key={i}
+                mb={1.5}
+                p={1.25}
+                border="1px solid rgba(0,0,0,0.16)"
+                borderRadius={2}
+                bgcolor="#fff"
+              >
+                <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                  assistant • step {m.content.step_id}
+                </Typography>
+
+                <Box
+                  component="pre"
+                  sx={{
+                    whiteSpace: "pre-wrap",
+                    fontSize: 12,
+                    m: 0,
+                    mt: 1,
+                    p: 1,
+                    borderRadius: 1,
+                    bgcolor: "rgba(0,0,0,0.04)",
+                    border: "1px solid rgba(0,0,0,0.08)",
+                    overflowX: "auto",
+                  }}
+                >
+                  {JSON.stringify(m.content.call, null, 2)}
+                </Box>
+
+                <Box display="flex" gap={1} mt={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={isBusy && !isThisStepBusy}
+                    onClick={() => {
+                      setRunningPreviewStepId(m.content.step_id);
+                      sendAssistAction("run_step", m.content.step_id);
+                    }}
+                  >
+                    {isThisStepBusy ? "Running…" : "Run Preview"}
+                  </Button>
+                </Box>
+              </Box>
+            );
+          }
+
+          if (m.kind === "assist_step_result") {
+            const stepId = m.content.step_id;
+            const canApply = pendingPreviewStepId === stepId;
+            return (
+              <Box
+                key={i}
+                mb={1.5}
+                p={1.25}
+                border="1px solid rgba(0,0,0,0.16)"
+                borderRadius={2}
+                bgcolor="#fff"
+              >
+                <Typography variant="caption" sx={{ opacity: 0.75 }}>
+                  assistant • step {stepId} result
+                </Typography>
+
+                <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", mt: 1 }}>
+                  {m.content.summary || (m.content.ok ? "Preview ready." : "Step failed.")}
+                </Typography>
+
+                <Box display="flex" gap={1} mt={1}>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={!canApply}
+                    onClick={() => sendAssistAction("apply_preview", stepId)}
+                  >
+                    Apply to Grid
+                  </Button>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={!canApply}
+                    onClick={() => {
+                      // revert local grid immediately
+                      if (setResult && committedRef.current) {
+                        setResult(committedRef.current);
+                      }
+                      setPendingPreviewStepId(null);
+                      sendAssistAction("discard_preview", stepId);
+                    }}
+                  >
+                    Discard
                   </Button>
                 </Box>
               </Box>
@@ -214,11 +472,32 @@ function ConversationBox<TItem = unknown>({
                     borderRadius: 2,
                     bgcolor: bubbleBg,
                     border: bubbleBorder,
+                    maxWidth: "100%",
+                    overflowX: "auto",
+                    overflowWrap: "anywhere",
+                    wordBreak: "break-word",
                   }}
                 >
-                  <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
-                    {m.content}
-                  </Typography>
+                  {m.kind === "debug" && isProbablyJsonString(m.content) ? (
+                    <Box
+                      component="pre"
+                      sx={{
+                        m: 0,
+                        whiteSpace: "pre-wrap",
+                        overflowWrap: "anywhere",
+                        wordBreak: "break-word",
+                        fontSize: 12,
+                        fontFamily:
+                          "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
+                      }}
+                    >
+                      {m.content}
+                    </Box>
+                  ) : (
+                    <Typography variant="body2" sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+                      {m.kind === "text" || m.kind === "text_stream" ? renderMarkdownLite(m.content) : m.content}
+                    </Typography>
+                  )}
                 </Box>
               </Box>
             </Box>

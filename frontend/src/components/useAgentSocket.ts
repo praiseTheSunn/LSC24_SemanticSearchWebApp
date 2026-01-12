@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { ImagesPayload, ChatMessage, ClientEvent, AgentEvent, Decision } from "../types/agent"; // or keep your local types
+import type {
+  ImagesPayload,
+  ChatMessage,
+  ClientEvent,
+  AgentEvent,
+  Decision,
+  AssistAction,
+} from "../types/agent"; // or keep your local types
 
 function newId(): string {
   return (globalThis.crypto?.randomUUID?.() ??
@@ -7,7 +14,7 @@ function newId(): string {
 }
 
 export function useAgentSocket(opts: {
-  onImages?: (payload: ImagesPayload) => void;
+  onImages?: (payload: ImagesPayload, meta?: { preview?: boolean; step_id?: number }) => void;
   wsUrl?: string;
 }) {
   const { wsUrl } = opts;
@@ -25,9 +32,26 @@ export function useAgentSocket(opts: {
   ]);
 
   useEffect(() => {
-    const url = wsUrl ?? `/ws/agent?session_id=${encodeURIComponent(sessionId)}`;
+    const url = (() => {
+      if (!wsUrl) {
+        return `/ws/agent?session_id=${encodeURIComponent(sessionId)}`;
+      }
+
+      // If a wsUrl is provided, keep it but ensure we pass a stable session_id.
+      // This makes backend logs and thread state consistent.
+      if (/[?&]session_id=/.test(wsUrl)) {
+        return wsUrl;
+      }
+
+      const sep = wsUrl.includes("?") ? "&" : "?";
+      return `${wsUrl}${sep}session_id=${encodeURIComponent(sessionId)}`;
+    })();
 
     console.log("[WS] connecting to:", url);
+    setMessages((prev) => [
+      ...prev,
+      { role: "system", kind: "debug", content: `ws: connecting to ${url}` },
+    ]);
 
     const ws = new WebSocket(url);
     wsRef.current = ws;
@@ -35,15 +59,31 @@ export function useAgentSocket(opts: {
     ws.onopen = () => {
       console.log("[WS] open:", ws.url, "readyState=", ws.readyState);
       setConnected(true);
+      setMessages((prev) => [
+        ...prev,
+        { role: "system", kind: "debug", content: `ws: open (${ws.url})` },
+      ]);
     };
 
     ws.onclose = (ev) => {
       console.log("[WS] close:", ws.url, "code=", ev.code, "reason=", ev.reason);
       setConnected(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "system",
+          kind: "debug",
+          content: `ws: close code=${ev.code} reason=${ev.reason || "(none)"}`,
+        },
+      ]);
     };
 
     ws.onerror = (err) => {
       console.log("[WS] error:", err);
+      setMessages((prev) => [
+        ...prev,
+        { role: "system", kind: "error", content: "ws: error (see DevTools console)" },
+      ]);
     };
 
     ws.onmessage = (e: MessageEvent<string>) => {
@@ -111,7 +151,19 @@ export function useAgentSocket(opts: {
 
         case "images":
           // route to image grid
-          onImagesRef.current?.(evt.payload);
+          try {
+            onImagesRef.current?.(evt.payload, { preview: false });
+          } catch (err) {
+            console.error("[onImages] handler threw:", err);
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "system",
+                kind: "error",
+                content: `images: onImages handler error: ${String(err)}`,
+              },
+            ]);
+          }
 
           // also add a short chat line so user knows something happened
           setMessages((prev) => [
@@ -120,6 +172,61 @@ export function useAgentSocket(opts: {
               role: "system",
               kind: "debug",
               content: `images: received ${evt.payload.items?.length ?? 0} items`,
+            },
+          ]);
+          return;
+
+        case "images_preview":
+          try {
+            onImagesRef.current?.(evt.payload, {
+              preview: true,
+              step_id: (evt.payload as any)?.step_id,
+            });
+          } catch (err) {
+            console.error("[onImages] handler threw (preview):", err);
+            setMessages((prev) => [
+              ...prev,
+              {
+                role: "system",
+                kind: "error",
+                content: `images_preview: onImages handler error: ${String(err)}`,
+              },
+            ]);
+          }
+
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "system",
+              kind: "debug",
+              content: `images_preview: received ${(evt.payload as any)?.items?.length ?? 0} items (step ${(evt.payload as any)?.step_id ?? "?"})`,
+            },
+          ]);
+          return;
+
+        case "assist_step":
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              kind: "assist_step",
+              content: { step_id: (evt.payload as any).step_id, call: (evt.payload as any).call },
+            },
+          ]);
+          return;
+
+        case "assist_step_result":
+          setMessages((prev) => [
+            ...prev,
+            {
+              role: "assistant",
+              kind: "assist_step_result",
+              content: {
+                step_id: (evt.payload as any).step_id,
+                ok: Boolean((evt.payload as any).ok),
+                requires_apply: Boolean((evt.payload as any).requires_apply),
+                summary: (evt.payload as any).summary,
+              },
             },
           ]);
           return;
@@ -210,5 +317,9 @@ export function useAgentSocket(opts: {
     send({ type: "plan_decision", payload: { decision } });
   };
 
-  return { sessionId, connected, messages, sendUser, sendDecision };
+  const sendAssistAction = (action: AssistAction, step_id: number) => {
+    send({ type: "assist_action", payload: { action, step_id } });
+  };
+
+  return { sessionId, connected, messages, sendUser, sendDecision, sendAssistAction };
 }
