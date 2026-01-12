@@ -1,5 +1,6 @@
 import json
 import uuid
+import os
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional
 
@@ -116,6 +117,11 @@ async def ws_agent(ws: WebSocket):
     print(f"📤 Sent meta event to session {session_id}")
 
     assist = AssistState()
+    # Optional override (keeps code defaults intact)
+    try:
+        assist.top_k_display = max(1, int(os.getenv("TOP_K_DISPLAY", str(assist.top_k_display))))
+    except Exception:
+        pass
     if mode == "assist":
         await send_event(
             "assistant_message",
@@ -195,7 +201,10 @@ async def ws_agent(ws: WebSocket):
 
                     prev_merged = assist.applied_merged_results
                     if op == "search":
+                        print(f"First 5 in prev_merged: {prev_merged[:5]}")
+                        print(f"First 5 in res.items: {res.items[:5]}")
                         preview_merged = assist.fusion.merge(prev_merged, res.items, params=params)
+                        print(f"First 5 in preview_merged: {preview_merged[:5]}")
                     elif op == "rerank":
                         preview_merged = assist.fusion.merge(prev_merged, res.items, params=params)
                     elif op == "filter":

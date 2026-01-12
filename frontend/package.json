@@ -48,8 +48,8 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "start-dev.bat",
-    "dev": "start-dev.bat",
+    "start": "./start-dev.sh",
+    "dev": "./start-dev.sh",
     "build": "rsbuild build",
     "preview": "rsbuild preview",
     "lint": "biome check ./",

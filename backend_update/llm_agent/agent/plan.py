@@ -196,7 +196,8 @@ def default_fallback_plan(top_k_display: int = 10) -> Plan:
                 tool="text_semantic",
                 operation="search",
                 query='images or videos of a house with a stone shed in Ireland under green trees on a sunny day',
-                params={'top_k': 1001, 'weight': 0.6, 'norm': 'minmax'}
+                # query='house in Ireland',
+                params={'top_k': 1000, 'weight': 0.6, 'norm': 'minmax'}
             ),
             ToolCall(
                 step_id=2, 
@@ -211,12 +212,12 @@ def default_fallback_plan(top_k_display: int = 10) -> Plan:
                 operation='search',
                 query="house",
                 # params={'top_k': 50, "subset_record_ids": list(range(8715))}
-                params={'top_k': 500, 'weight': 0.1}
+                params={'top_k': 1000, 'weight': 0.1}
             ),
         ],
         rationale="Default plan: semantic search followed by two reranking steps to refine results.",
-        fusion={"method": "rrf", "rrf_c": 60.0}
-        # fusion={"method": "combsum"}
+        # fusion={"method": "rrf", "rrf_c": 60.0}
+        fusion={"method": "combsum"}
     )        
 
 
