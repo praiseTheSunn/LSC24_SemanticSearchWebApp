@@ -317,8 +317,8 @@ export function useAgentSocket(opts: {
     send({ type: "plan_decision", payload: { decision } });
   };
 
-  const sendAssistAction = (action: AssistAction, step_id: number) => {
-    send({ type: "assist_action", payload: { action, step_id } });
+  const sendAssistAction = (action: AssistAction, step_id: number, text?: string) => {
+    send({ type: "assist_action", payload: { action, step_id, text } });
   };
 
   return { sessionId, connected, messages, sendUser, sendDecision, sendAssistAction };

@@ -4,12 +4,20 @@
 
 export type Decision = "approve" | "reject";
 
-export type AssistAction = "run_step" | "apply_preview" | "discard_preview";
+export type AssistAction =
+  | "run_step"
+  | "apply_preview"
+  | "discard_preview"
+  | "skip_step"
+  | "refine_step";
 
 export type ClientEvent =
   | { type: "user_message"; payload: { text: string } }
   | { type: "plan_decision"; payload: { decision: Decision } }
-  | { type: "assist_action"; payload: { action: AssistAction; step_id: number } };
+  | {
+      type: "assist_action";
+      payload: { action: AssistAction; step_id: number; text?: string };
+    };
 
 /** ---------- Plan / Tools ---------- */
 

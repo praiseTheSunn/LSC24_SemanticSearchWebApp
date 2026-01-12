@@ -146,6 +146,7 @@ function ConversationBox<TItem = unknown>({
   const committedRef = useRef<TItem[] | null>(null);
   const [pendingPreviewStepId, setPendingPreviewStepId] = useState<number | null>(null);
   const [runningPreviewStepId, setRunningPreviewStepId] = useState<number | null>(null);
+  const [refineDraftByStepId, setRefineDraftByStepId] = useState<Record<number, string>>({});
 
   const handleSend = () => {
     const trimmed = input.trim();
@@ -336,6 +337,8 @@ function ConversationBox<TItem = unknown>({
           if (m.kind === "assist_step") {
             const isBusy = runningPreviewStepId !== null;
             const isThisStepBusy = runningPreviewStepId === m.content.step_id;
+            const stepId = m.content.step_id;
+            const refineText = refineDraftByStepId[stepId] ?? "";
             return (
               <Box
                 key={i}
@@ -346,7 +349,7 @@ function ConversationBox<TItem = unknown>({
                 bgcolor="#fff"
               >
                 <Typography variant="caption" sx={{ opacity: 0.75 }}>
-                  assistant • step {m.content.step_id}
+                  assistant • step {stepId}
                 </Typography>
 
                 <Box
@@ -366,18 +369,74 @@ function ConversationBox<TItem = unknown>({
                   {JSON.stringify(m.content.call, null, 2)}
                 </Box>
 
-                <Box display="flex" gap={1} mt={1}>
+                <Box mt={1} display="flex" gap={1} flexWrap="wrap">
                   <Button
                     size="small"
                     variant="outlined"
                     disabled={isBusy && !isThisStepBusy}
                     onClick={() => {
-                      setRunningPreviewStepId(m.content.step_id);
-                      sendAssistAction("run_step", m.content.step_id);
+                      setRunningPreviewStepId(stepId);
+                      sendAssistAction("run_step", stepId);
                     }}
                   >
                     {isThisStepBusy ? "Running…" : "Run Preview"}
                   </Button>
+
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={isBusy}
+                    onClick={() => {
+                      // user chooses to not run preview and also not change the grid
+                      setRunningPreviewStepId(null);
+                      setPendingPreviewStepId(null);
+                      sendAssistAction("skip_step", stepId);
+                    }}
+                  >
+                    Skip Step
+                  </Button>
+                </Box>
+
+                <Box mt={1} display="flex" gap={1} alignItems="center">
+                  <TextField
+                    size="small"
+                    fullWidth
+                    value={refineText}
+                    disabled={isBusy}
+                    placeholder="Refine this step (e.g. less trees)"
+                    onChange={(e) => {
+                      const v = e.target.value;
+                      setRefineDraftByStepId((prev) => ({ ...prev, [stepId]: v }));
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        const t = refineText.trim();
+                        if (!t) return;
+                        setRunningPreviewStepId(null);
+                        setPendingPreviewStepId(null);
+                        sendAssistAction("refine_step", stepId, t);
+                      }
+                    }}
+                  />
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={isBusy || !refineText.trim()}
+                    onClick={() => {
+                      const t = refineText.trim();
+                      if (!t) return;
+                      setRunningPreviewStepId(null);
+                      setPendingPreviewStepId(null);
+                      sendAssistAction("refine_step", stepId, t);
+                    }}
+                  >
+                    Refine
+                  </Button>
+                </Box>
+
+                <Box display="flex" gap={1} mt={1}>
+                  {/* buttons moved above */}
                 </Box>
               </Box>
             );
