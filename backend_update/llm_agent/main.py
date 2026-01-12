@@ -376,7 +376,22 @@ async def ws_agent(ws: WebSocket):
                     assist.preview_step_id = None
                     assist.preview_merged_results = None
                     assist.preview_items = None
-                    await send_event("assistant_message", {"text": f"Discarded preview for step {step_id}."})
+                    # Discard means: do not apply to grid, but move on to the next step.
+                    # We advance the pointer while keeping applied_merged_results unchanged.
+                    assist.applied_step_id = max(assist.applied_step_id, step_id)
+
+                    await send_event(
+                        "assistant_message",
+                        {"text": f"Discarded preview for step {step_id}. Moving to the next step."},
+                    )
+
+                    if step_id < len(calls):
+                        await send_event(
+                            "assist_step",
+                            {"step_id": step_id + 1, "call": calls[step_id]},
+                        )
+                    else:
+                        await send_event("assistant_message", {"text": "All steps completed."})
                     continue
 
                 await send_event("error", {"message": f"Unknown assist_action '{action}'"})
