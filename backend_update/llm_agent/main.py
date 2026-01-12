@@ -61,6 +61,42 @@ def _id_of(item: Dict[str, Any]) -> int:
         return 0
 
 
+def _refine_call(call: Dict[str, Any], refinement: str, *, goal_query: str) -> Dict[str, Any]:
+    """Heuristic call refinement (no external LLM calls).
+
+    We keep tool/operation stable and adjust query/params to reflect user intent.
+    """
+    c = dict(call)
+    r = (refinement or "").strip()
+    if not r:
+        return c
+
+    base_query = (c.get("query") or goal_query or "").strip()
+    low = r.lower()
+
+    # Very small set of natural-language rewrites that tends to work across tools.
+    if low.startswith("less "):
+        # "less trees" -> "without trees" (more natural for semantic models)
+        target = r[5:].strip()
+        if target:
+            c["query"] = f"{base_query} without {target}".strip()
+        else:
+            c["query"] = f"{base_query} ({r})".strip()
+    elif low.startswith("no "):
+        target = r[3:].strip()
+        if target:
+            c["query"] = f"{base_query} without {target}".strip()
+        else:
+            c["query"] = f"{base_query} ({r})".strip()
+    elif low.startswith("without "):
+        c["query"] = f"{base_query} {r}".strip()
+    else:
+        # generic refinement: append as a constraint/hint
+        c["query"] = f"{base_query}. {r}".strip()
+
+    return c
+
+
 @dataclass
 class AssistState:
     active_plan: Optional[Dict[str, Any]] = None
@@ -140,6 +176,7 @@ async def ws_agent(ws: WebSocket):
             if mode == "assist" and msg_type == "assist_action":
                 action = (payload.get("action") or "").strip()
                 step_id = int(payload.get("step_id") or 0)
+                refine_text = (payload.get("text") or "").strip()
                 if not assist.active_plan:
                     await send_event("error", {"message": "No active plan. Send a query first."})
                     continue
@@ -149,9 +186,65 @@ async def ws_agent(ws: WebSocket):
                     await send_event("error", {"message": f"Invalid step_id={step_id}."})
                     continue
 
+                expected = assist.applied_step_id + 1
+
+                if action == "skip_step":
+                    # Allow user to skip a proposed step without running preview.
+                    if step_id != expected:
+                        await send_event(
+                            "error",
+                            {"message": f"Can only skip next step ({expected}). Received step_id={step_id}."},
+                        )
+                        continue
+
+                    # Mark it as advanced, but keep results unchanged.
+                    assist.applied_step_id = step_id
+                    assist.preview_step_id = None
+                    assist.preview_merged_results = None
+                    assist.preview_items = None
+
+                    await send_event("assistant_message", {"text": f"Skipped step {step_id}."})
+                    if step_id < len(calls):
+                        await send_event("assist_step", {"step_id": step_id + 1, "call": calls[step_id]})
+                    else:
+                        await send_event("assistant_message", {"text": "All steps completed."})
+                    continue
+
+                if action == "refine_step":
+                    # User can refine current proposed step as long as it is not applied.
+                    # Allow refining the next step or an already-previewed (but not applied) step.
+                    if step_id != expected and step_id != assist.preview_step_id:
+                        await send_event(
+                            "error",
+                            {
+                                "message": "Can only refine the currently proposed step (or the previewed-but-not-applied step).",
+                            },
+                        )
+                        continue
+                    if not refine_text:
+                        await send_event("error", {"message": "Refinement text is empty."})
+                        continue
+
+                    goal_query = assist.active_plan.get("goal", "")
+                    old_call = calls[step_id - 1]
+                    new_call = _refine_call(old_call, refine_text, goal_query=goal_query)
+                    calls[step_id - 1] = new_call
+                    assist.active_plan["calls"] = calls
+
+                    # Clear any preview because the call changed.
+                    assist.preview_step_id = None
+                    assist.preview_merged_results = None
+                    assist.preview_items = None
+
+                    await send_event(
+                        "assistant_message",
+                        {"text": f"Updated step {step_id} based on refinement: {refine_text}"},
+                    )
+                    await send_event("assist_step", {"step_id": step_id, "call": new_call})
+                    continue
+
                 if action == "run_step":
                     # enforce sequential for now
-                    expected = assist.applied_step_id + 1
                     if step_id != expected:
                         await send_event(
                             "error",
