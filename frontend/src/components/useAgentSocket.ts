@@ -31,6 +31,28 @@ export function useAgentSocket(opts: {
     { role: "assistant", kind: "text", content: "Chatbot ready. Type 'help'." },
   ]);
 
+  const upsertStepMessage = (nextMsg: ChatMessage, stepId: number) => {
+    setMessages((prev) => {
+      // Replace the last message of the same kind+stepId, else append.
+      const copy = [...prev];
+      for (let i = copy.length - 1; i >= 0; i--) {
+        const m = copy[i];
+        if (m.kind === nextMsg.kind) {
+          if (m.kind === "assist_step" && (m as any).content?.step_id === stepId) {
+            copy[i] = nextMsg;
+            return copy;
+          }
+          if (m.kind === "assist_step_result" && (m as any).content?.step_id === stepId) {
+            copy[i] = nextMsg;
+            return copy;
+          }
+        }
+      }
+      copy.push(nextMsg);
+      return copy;
+    });
+  };
+
   useEffect(() => {
     const url = (() => {
       if (!wsUrl) {
@@ -205,19 +227,18 @@ export function useAgentSocket(opts: {
           return;
 
         case "assist_step":
-          setMessages((prev) => [
-            ...prev,
+          upsertStepMessage(
             {
               role: "assistant",
               kind: "assist_step",
               content: { step_id: (evt.payload as any).step_id, call: (evt.payload as any).call },
             },
-          ]);
+            Number((evt.payload as any).step_id),
+          );
           return;
 
         case "assist_step_result":
-          setMessages((prev) => [
-            ...prev,
+          upsertStepMessage(
             {
               role: "assistant",
               kind: "assist_step_result",
@@ -228,7 +249,8 @@ export function useAgentSocket(opts: {
                 summary: (evt.payload as any).summary,
               },
             },
-          ]);
+            Number((evt.payload as any).step_id),
+          );
           return;
 
         case "assistant_token": {

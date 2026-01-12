@@ -377,9 +377,6 @@ async def ws_agent(ws: WebSocket):
                     assist.preview_merged_results = None
                     assist.preview_items = None
                     await send_event("assistant_message", {"text": f"Discarded preview for step {step_id}."})
-                    # re-send current step prompt
-                    call = calls[step_id - 1]
-                    await send_event("assist_step", {"step_id": step_id, "call": call})
                     continue
 
                 await send_event("error", {"message": f"Unknown assist_action '{action}'"})
