@@ -172,9 +172,13 @@ export type ChatMessage =
   | { role: Role; kind: "debug"; content: string }
   | { role: Role; kind: "error"; content: string }
   | { role: "assistant"; kind: "plan_draft"; content: Plan }
-  | { role: "assistant"; kind: "assist_step"; content: { step_id: number; call: ToolCall } }
+  | {
+      role: "assistant";
+      kind: "assist_step";
+      content: { plan_id?: string; step_id: number; call: ToolCall };
+    }
   | {
       role: "assistant";
       kind: "assist_step_result";
-      content: { step_id: number; ok: boolean; requires_apply?: boolean; summary?: string };
+      content: { plan_id?: string; step_id: number; ok: boolean; requires_apply?: boolean; summary?: string };
     };
