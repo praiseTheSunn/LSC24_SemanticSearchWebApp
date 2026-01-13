@@ -10,12 +10,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from agent.fusion import Fusion
 from agent.graph import build_graph
 from internal.postprocess import prepare_response
+from internal.audit_log import AUDIT_LOGGER
+from internal.history_api import router as history_router
 from tools.base import ToolExecutionContext
 from tools.bootstrap import build_tool_manager
 
 USE_STREAM = False
 
 app = FastAPI()
+
+# Durable session history endpoints
+app.include_router(history_router)
 
 # Add CORS middleware to allow websocket connections from frontend
 app.add_middleware(
@@ -146,11 +151,50 @@ async def ws_agent(ws: WebSocket):
     print(f"🔗 Session {session_id} connected")
 
     async def send_event(type_: str, payload: Dict[str, Any]):
-        await ws.send_text(json.dumps(mk_event(type_, session_id, payload), ensure_ascii=False))
+        ev = mk_event(type_, session_id, payload)
+        # Durable audit trail (best-effort).
+        try:
+            plan_id = None
+            step_id = None
+            if isinstance(payload, dict):
+                if isinstance(payload.get("step_id"), int):
+                    step_id = payload.get("step_id")
+
+                if type_ == "plan_draft" and isinstance(payload.get("plan"), dict):
+                    plan_id = AUDIT_LOGGER.snapshot_plan(session_id, payload["plan"])
+                elif type_ in {"plan_status", "plan_result"} and isinstance(payload.get("plan"), dict):
+                    plan_id = AUDIT_LOGGER.snapshot_plan(session_id, payload["plan"])
+                elif isinstance(payload.get("plan_id"), str):
+                    plan_id = payload.get("plan_id")
+
+            AUDIT_LOGGER.append_event(
+                session_id,
+                event_type=type_,
+                payload=payload,
+                direction="out",
+                message_id=ev.get("message_id"),
+                plan_id=plan_id,
+                step_id=step_id,
+            )
+        except Exception:
+            pass
+
+        await ws.send_text(json.dumps(ev, ensure_ascii=False))
 
     # send hello/meta
     await send_event("meta", {"ok": True, "mode": mode})
     print(f"📤 Sent meta event to session {session_id}")
+
+    # Persist session start marker
+    try:
+        AUDIT_LOGGER.append_event(
+            session_id,
+            event_type="session_start",
+            payload={"mode": mode},
+            direction="system",
+        )
+    except Exception:
+        pass
 
     assist = AssistState()
     # Optional override (keeps code defaults intact)
@@ -169,6 +213,17 @@ async def ws_agent(ws: WebSocket):
             raw = await ws.receive_text()
             msg = json.loads(raw)
 
+            # Persist incoming client messages (best-effort)
+            try:
+                AUDIT_LOGGER.append_event(
+                    session_id,
+                    event_type="client_message",
+                    payload={"raw": msg},
+                    direction="in",
+                )
+            except Exception:
+                pass
+
             msg_type = msg.get("type")
             payload = msg.get("payload", {})
 
@@ -177,6 +232,17 @@ async def ws_agent(ws: WebSocket):
                 action = (payload.get("action") or "").strip()
                 step_id = int(payload.get("step_id") or 0)
                 refine_text = (payload.get("text") or "").strip()
+
+                try:
+                    AUDIT_LOGGER.append_event(
+                        session_id,
+                        event_type="assist_action",
+                        payload={"action": action, "step_id": step_id, "text": refine_text},
+                        direction="in",
+                        step_id=step_id or None,
+                    )
+                except Exception:
+                    pass
                 if not assist.active_plan:
                     await send_event("error", {"message": "No active plan. Send a query first."})
                     continue
@@ -426,45 +492,29 @@ async def ws_agent(ws: WebSocket):
                     kind = ev.get("kind")
 
                     if kind == "routing_intent":
-                        await ws.send_text(json.dumps(mk_event(
-                            "routing_intent", session_id, ev["payload"]
-                        )))
+                        await send_event("routing_intent", ev["payload"])
 
                     elif kind == "plan_draft":
-                        await ws.send_text(json.dumps(mk_event(
-                            "plan_draft", session_id, {"plan": ev["payload"]["plan"]}
-                        )))
+                        await send_event("plan_draft", {"plan": ev["payload"]["plan"]})
 
                     elif kind == "plan_status":
-                        await ws.send_text(json.dumps(mk_event(
-                            "plan_status", session_id, ev["payload"]
-                        )))
+                        await send_event("plan_status", ev["payload"])
 
                     elif kind == "tool_start":
-                        await ws.send_text(json.dumps(mk_event(
-                            "tool_start", session_id, ev["payload"]
-                        )))
+                        await send_event("tool_start", ev["payload"])
 
                     elif kind == "tool_end":
-                        await ws.send_text(json.dumps(mk_event(
-                            "tool_end", session_id, ev["payload"]
-                        )))
+                        await send_event("tool_end", ev["payload"])
 
                     elif kind == "images":
                         # send ONLY ids+scores; UI fetches thumbnails/details via imageService
-                        await ws.send_text(json.dumps(mk_event(
-                            "images", session_id, ev["payload"]
-                        )))
+                        await send_event("images", ev["payload"])
 
                     elif kind == "assistant_token":
-                        await ws.send_text(json.dumps(mk_event(
-                            "assistant_token", session_id, {"text": ev["payload"]["text"]}
-                        )))
+                        await send_event("assistant_token", {"text": ev["payload"]["text"]})
 
                     elif kind == "assistant_message":
-                        await ws.send_text(json.dumps(mk_event(
-                            "assistant_message", session_id, {"text": ev["payload"]["text"]}
-                        )))
+                        await send_event("assistant_message", {"text": ev["payload"]["text"]})
 
             else:
                 # --- Fallback: non-streaming ---
@@ -520,6 +570,15 @@ async def ws_agent(ws: WebSocket):
 
     except WebSocketDisconnect:
         print(f"🔌 Session {session_id} disconnected (client)")
+        try:
+            AUDIT_LOGGER.append_event(
+                session_id,
+                event_type="session_end",
+                payload={"reason": "disconnect"},
+                direction="system",
+            )
+        except Exception:
+            pass
         return
     except Exception as e:
         print(f"❌ Error in session {session_id}: {e}")
@@ -528,4 +587,14 @@ async def ws_agent(ws: WebSocket):
         try:
             await ws.send_text(json.dumps(mk_event("error", session_id, {"message": str(e)})))
         except:
+            pass
+
+        try:
+            AUDIT_LOGGER.append_event(
+                session_id,
+                event_type="session_end",
+                payload={"reason": "error", "error": str(e)},
+                direction="system",
+            )
+        except Exception:
             pass
