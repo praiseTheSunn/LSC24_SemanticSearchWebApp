@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import { useAgentSocket } from "./useAgentSocket";
 import { transformResponse_LSC } from "../config/transformResponse";
@@ -144,9 +144,11 @@ function ConversationBox<TItem = unknown>({
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const committedRef = useRef<TItem[] | null>(null);
+  const previewRef = useRef<TItem[] | null>(null);
   const [pendingPreviewStepId, setPendingPreviewStepId] = useState<number | null>(null);
   const [runningPreviewStepId, setRunningPreviewStepId] = useState<number | null>(null);
   const [refineDraftByStepId, setRefineDraftByStepId] = useState<Record<number, string>>({});
+  const [view, setView] = useState<"applied" | "preview">("applied");
 
   const handleSend = () => {
     const trimmed = input.trim();
@@ -176,10 +178,14 @@ function ConversationBox<TItem = unknown>({
 
       if (!meta?.preview) {
         committedRef.current = next;
+        previewRef.current = null;
+        setView("applied");
         setPendingPreviewStepId(null);
         setRunningPreviewStepId(null);
       } else {
         setPendingPreviewStepId(meta.step_id ?? null);
+        previewRef.current = next;
+        setView("preview");
         setRunningPreviewStepId(null);
       }
     },
@@ -195,6 +201,47 @@ function ConversationBox<TItem = unknown>({
       return /[?&]mode=assist(\b|&|$)/i.test(wsUrl);
     }
   }, [wsUrl]);
+
+  // Ctrl+` toggles between the latest preview list and the last applied list.
+  // Preview is shown instantly on arrival; this just lets users switch views later.
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (!e.ctrlKey) return;
+
+      // Avoid hijacking typing in inputs/textareas.
+      const target = e.target as HTMLElement | null;
+      const tag = target?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea" || target?.isContentEditable) return;
+
+      // Backquote ( ` ) is 'Backquote' key on most keyboards.
+      if (e.key !== "`") return;
+      e.preventDefault();
+
+      if (!setResult) return;
+
+      setView((cur) => {
+        const nextView = cur === "preview" ? "applied" : "preview";
+        if (nextView === "preview") {
+          const p = previewRef.current;
+          if (p && p.length) {
+            setResult(p);
+            return "preview";
+          }
+          // No preview available; keep current view.
+          return cur;
+        }
+        const a = committedRef.current;
+        if (a && a.length) {
+          setResult(a);
+          return "applied";
+        }
+        return cur;
+      });
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [setResult]);
 
   const statusText = connected ? "connectedddddddd" : "disconnected";
   const statusColor = connected ? "success.main" : "error.main";
@@ -266,9 +313,14 @@ function ConversationBox<TItem = unknown>({
             {statusText}
           </Typography>
         </Box>
-        <Typography variant="caption" sx={{ opacity: 0.65 }}>
-          {messages.length} msg
-        </Typography>
+        <Box display="flex" alignItems="center" gap={1}>
+          <Typography variant="caption" sx={{ opacity: 0.65 }}>
+            {isAssist ? `view: ${view} (Ctrl+\` )` : ""}
+          </Typography>
+          <Typography variant="caption" sx={{ opacity: 0.65 }}>
+            {messages.length} msg
+          </Typography>
+        </Box>
       </Box>
 
       <Box sx={listSx}>
@@ -480,6 +532,8 @@ function ConversationBox<TItem = unknown>({
                       if (setResult && committedRef.current) {
                         setResult(committedRef.current);
                       }
+                      previewRef.current = null;
+                      setView("applied");
                       setPendingPreviewStepId(null);
                       sendAssistAction("discard_preview", stepId);
                     }}
