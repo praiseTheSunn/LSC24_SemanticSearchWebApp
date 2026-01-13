@@ -9,6 +9,7 @@ from pydantic import ConfigDict, ValidationError
 from tools.base import Operation, ToolSpec
 from tools.manager import ToolManager
 from agent.fusion import Fusion
+from internal.audit_log import _utc_now_iso
 
 from langchain_openai import ChatOpenAI
 
@@ -34,6 +35,7 @@ class ToolCall:
 
 @dataclass
 class Plan:
+    id: str
     model_config = ConfigDict(extra="forbid")
     goal: str
     calls: List[ToolCall]
@@ -85,6 +87,7 @@ def plan_to_dict(plan: Plan) -> Dict[str, Any]:
 def plan_from_dict(d: Dict[str, Any]) -> Plan:
     calls = [ToolCall(**c) for c in d.get("calls", [])]
     return Plan(
+        id=d.get("id", ""),
         goal=d["goal"],
         calls=calls,
         top_k_display=int(d.get("top_k_display", 10)),
@@ -189,6 +192,7 @@ def extract_plan_meta(plan: Plan, tool_manager: ToolManager) -> PlanMeta:
 
 def default_fallback_plan(top_k_display: int = 10) -> Plan:
     return Plan(
+        id=_utc_now_iso(),
         goal='Retrieve images/videos related to a visit to a house with a stone shed in Ireland on a sunny day.',
         top_k_display=top_k_display,
         calls=[
@@ -285,15 +289,9 @@ Notes:
                 ("human", "REQUEST:\n" + json.dumps(user_payload, ensure_ascii=False)),
             ]
         )
-
-        print(f"Type of plan_dict: {type(plan_dict)}")
-
+        plan_dict["id"] = _utc_now_iso()
         plan = plan_from_dict(plan_dict)
-        print(f"Type of plan: {type(plan)}")
         calls = plan.calls 
-
-        print(f"Planner output plan:")
-        pprint(plan)
 
         if not calls:
             # Add a final top_k call if available; else just rename last output
@@ -307,6 +305,7 @@ Notes:
                 )
 
         plan = Plan(
+            id=plan.id,
             goal=plan.goal,
             calls=calls,
             top_k_display=plan.top_k_display,
