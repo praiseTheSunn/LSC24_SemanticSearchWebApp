@@ -208,6 +208,43 @@ async def ws_agent(ws: WebSocket):
             {"text": "Assist mode enabled (preview-first). I will run one step at a time and ask you to apply/discard."},
         )
 
+    async def finish_assist_plan(reason: str, *, step_id: int | None = None) -> None:
+        """Mark the current assist plan finished and reset server state for the next query.
+
+        In assist mode we execute steps outside the LangGraph state machine, so the
+        graph can remain stuck with a draft plan. Resetting it prevents the next
+        user query from being treated as a refinement of the old plan.
+        """
+        try:
+            plan_id = None
+            if isinstance(assist.active_plan, dict):
+                plan_id = assist.active_plan.get("id")
+            AUDIT_LOGGER.append_event(
+                session_id,
+                event_type="assist_plan_end",
+                payload={"reason": reason, "plan_id": plan_id, "step_id": step_id},
+                direction="system",
+                plan_id=plan_id,
+                step_id=step_id,
+            )
+        except Exception:
+            pass
+
+        # Reset assist runtime state.
+        assist.active_plan = None
+        assist.fusion = None
+        assist.applied_step_id = 0
+        assist.applied_merged_results = []
+        assist.preview_step_id = None
+        assist.preview_merged_results = None
+        assist.preview_items = None
+
+        # Reset LangGraph draft plan state for this session (best-effort).
+        try:
+            await graph.ainvoke({"user_text": "reject"}, config=config)
+        except Exception:
+            pass
+
     try:
         while True:
             raw = await ws.receive_text()
@@ -274,6 +311,7 @@ async def ws_agent(ws: WebSocket):
                         await send_event("assist_step", {"step_id": step_id + 1, "call": calls[step_id]})
                     else:
                         await send_event("assistant_message", {"text": "All steps completed."})
+                        await finish_assist_plan("skipped_to_end", step_id=step_id)
                     continue
 
                 if action == "refine_step":
@@ -433,6 +471,7 @@ async def ws_agent(ws: WebSocket):
                         )
                     else:
                         await send_event("assistant_message", {"text": "All steps completed."})
+                        await finish_assist_plan("applied_last_step", step_id=step_id)
                     continue
 
                 if action == "discard_preview":
@@ -458,6 +497,7 @@ async def ws_agent(ws: WebSocket):
                         )
                     else:
                         await send_event("assistant_message", {"text": "All steps completed."})
+                        await finish_assist_plan("discarded_last_step", step_id=step_id)
                     continue
 
                 await send_event("error", {"message": f"Unknown assist_action '{action}'"})
