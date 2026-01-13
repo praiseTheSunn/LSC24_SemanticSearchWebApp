@@ -191,6 +191,18 @@ function ConversationBox<TItem = unknown>({
     },
   });
 
+  // Auto-scroll to the latest message.
+  useEffect(() => {
+    // Wait for React to paint the newly appended message.
+    const id = window.requestAnimationFrame(() => {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [messages.length]);
+
   const isAssist = useMemo(() => {
     if (!wsUrl) return false;
     try {
