@@ -1,5 +1,6 @@
 import json
 import os
+from pathlib import Path
 import threading
 import uuid
 from dataclasses import dataclass
@@ -70,9 +71,30 @@ class SessionAuditLogger:
         self._paths = AuditPaths(base_dir=base_dir)
         self._lock = threading.Lock()
 
+
     @property
     def base_dir(self) -> str:
         return self._paths.base_dir
+
+
+    def _get_session_plan_id(self, session_id: str) -> Optional[str]:
+        try:
+            state_path = Path(__file__).parent.parent / "logs" / "sessions" / session_id / "state.json"
+            if not state_path.exists():
+                return None
+            data = json.loads(state_path.read_text(encoding="utf-8"))
+            # try common shapes where a plan id might be stored
+            for key in ("latest_plan_id", "plan_id", "current_plan_id", "plan", "active_plan"):
+                if key in data:
+                    val = data[key]
+                    if isinstance(val, str) and val:
+                        return val
+                    if isinstance(val, dict) and "id" in val:
+                        return val["id"]
+        except Exception:
+            return None
+        return None
+
 
     def ensure_session(self, session_id: str) -> None:
         _ensure_dir(self._paths.session_dir(session_id))
@@ -82,6 +104,7 @@ class SessionAuditLogger:
         if not os.path.exists(events_path):
             _ensure_dir(os.path.dirname(events_path))
             open(events_path, "a", encoding="utf-8").close()
+
 
     def append_event(
         self,
@@ -95,7 +118,13 @@ class SessionAuditLogger:
         step_id: Optional[int] = None,
     ) -> Dict[str, Any]:
         """Append one event (JSON line) to the per-session log."""
+            
+        # Ensure session directory and files exist
         self.ensure_session(session_id)
+
+        # Preserve explicit plan_id if provided, otherwise try to read from session state
+        if not plan_id:
+            plan_id = self._get_session_plan_id(session_id)
         entry = {
             "id": str(uuid.uuid4()),
             "ts": _utc_now_iso(),
@@ -107,7 +136,9 @@ class SessionAuditLogger:
             "step_id": step_id,
             "payload": payload,
         }
+        print(f"Appending event: session_id={session_id}, event_type={event_type}, plan_id={plan_id}, step_id={step_id}")
 
+        # Serialize and append to events.jsonl
         line = json.dumps(entry, ensure_ascii=False)
         events_path = self._paths.session_events_jsonl(session_id)
 
@@ -117,6 +148,7 @@ class SessionAuditLogger:
                 f.write(line + "\n")
 
         return entry
+
 
     def snapshot_plan(self, session_id: str, plan: Dict[str, Any]) -> Optional[str]:
         """Write/overwrite the latest plan snapshot for this plan_id."""
@@ -136,7 +168,9 @@ class SessionAuditLogger:
         self._update_state(session_id, {"latest_plan_id": plan_id, "updated_at": _utc_now_iso()})
         return plan_id
 
+
     def _update_state(self, session_id: str, patch: Dict[str, Any]) -> None:
+        """ Patch the session state JSON with the given key-values."""
         self.ensure_session(session_id)
         state_path = self._paths.session_state_json(session_id)
 
