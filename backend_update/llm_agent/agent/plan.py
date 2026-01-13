@@ -8,6 +8,7 @@ from pydantic import ConfigDict, ValidationError
 
 from tools.base import Operation, ToolSpec
 from tools.manager import ToolManager
+from agent.fusion import Fusion
 
 from langchain_openai import ChatOpenAI
 
@@ -38,9 +39,9 @@ class Plan:
     calls: List[ToolCall]
 
     top_k_display: int = 10
+    fusion: Fusion = None
     rationale: Optional[str] = None
     budget: Optional[Dict[str, Any]] = None
-    fusion: Optional[Dict[str, Any]] = None
 
 
 # -----------------------
@@ -243,13 +244,10 @@ You MUST produce a plan that can be executed step-by-step with tools.
 Hard requirements:
 - Output must match the JSON schema exactly (no markdown).
 - Only use tools that exist in TOOL_CATALOG.
-- You should create a plan with 3 tool calls. Among these calls, a tool can be called multiple times with different params. For example, with one tool, you can use different queries at each call.
+- You should create a plan with at most 3 tool calls. Among these calls, a tool can be called multiple times with different params. For example, with one tool, you can use different queries at each call.
 - You can paraphrase the query to feed to each tool based on the original user query.
 - Remember to specify the fusion operation at each tool call.
-- Each call.input must be unique.
-- Use call.input for single-input operations (rerank/filter).
-- Use call.inputs (list of artifact keys) for multi-input operations (merge/fuse).
-- Ensure the final call produces 'top_results' (save_as == "top_results") which is what the UI will display.
+- Each call.query must be unique.
 - Prefer: semantic search for recall, then attribute/keyword filtering/rerank if relevant, then fusion/top-k.
 
 Notes:
@@ -274,7 +272,7 @@ Notes:
     )
 
     try:
-        assert 1==2
+        # assert 1==2
         llm_struct = llm.with_structured_output(
             schema=Plan,
             # method="function_calling",            # Not needed with OpenAI
@@ -283,12 +281,15 @@ Notes:
         plan_dict: Plan = await llm_struct.ainvoke(
             [
                 ("system", system_prompt),
-                ("human", "TOOL_CATALOG:\n" + json.dumps(catalog, ensure_ascii=False)),
+                # ("human", "TOOL_CATALOG:\n" + json.dumps(catalog, ensure_ascii=False)),
                 ("human", "REQUEST:\n" + json.dumps(user_payload, ensure_ascii=False)),
             ]
         )
 
+        print(f"Type of plan_dict: {type(plan_dict)}")
+
         plan = plan_from_dict(plan_dict)
+        print(f"Type of plan: {type(plan)}")
         calls = plan.calls 
 
         print(f"Planner output plan:")

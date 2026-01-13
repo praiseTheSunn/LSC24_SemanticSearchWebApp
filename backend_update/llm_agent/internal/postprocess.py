@@ -2,13 +2,68 @@ import numpy as np
 import json
 import pandas as pd
 import itertools
-import httpx
-import os
 from typing import List, Dict, Any, Optional
 from dataset.dataset_manager import DatasetManager
 
-# Use environment variable or default
-MAIN_SERVICE_URL = os.getenv("MAIN_SERVICE_URL", "http://localhost:8000")
+
+def json_safe_impute(
+    df: pd.DataFrame,
+    *,
+    latlng_cols=("new_lat", "new_lng"),
+    numeric_strategy="median",   # "median" | "mean" | "zero"
+    string_strategy="empty",     # "empty" | "none"
+    bool_strategy="mode",        # "mode" | "false"
+) -> pd.DataFrame:
+    df = df.copy()
+
+    # 1) inf -> NaN
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+
+    # 2) Datetime: NaT -> None
+    dt_cols = df.select_dtypes(include=["datetime64[ns]", "datetimetz"]).columns
+    for c in dt_cols:
+        df[c] = df[c].where(df[c].notna(), None)
+
+    # 3) Bool
+    bool_cols = df.select_dtypes(include=["bool"]).columns
+    for c in bool_cols:
+        if bool_strategy == "false":
+            df[c] = df[c].fillna(False)
+        else:  # mode
+            mode = df[c].mode(dropna=True)
+            fill = bool(mode.iloc[0]) if not mode.empty else False
+            df[c] = df[c].fillna(fill)
+
+    # 4) Numeric
+    num_cols = df.select_dtypes(include=["number"]).columns
+    for c in num_cols:
+        if c in latlng_cols:
+            # lat/lng thường nên để None (unknown) thay vì bịa ra median
+            df[c] = df[c].astype(object).where(df[c].notna(), None)
+            continue
+
+        if numeric_strategy == "zero":
+            df[c] = df[c].fillna(0)
+        elif numeric_strategy == "mean":
+            m = df[c].mean(skipna=True)
+            df[c] = df[c].fillna(0 if pd.isna(m) else m)
+        else:  # median
+            m = df[c].median(skipna=True)
+            df[c] = df[c].fillna(0 if pd.isna(m) else m)
+
+    # 5) Strings / objects
+    obj_cols = df.select_dtypes(include=["object", "string"]).columns
+    if string_strategy == "none":
+        df[obj_cols] = df[obj_cols].where(df[obj_cols].notna(), None)
+    else:  # empty
+        df[obj_cols] = df[obj_cols].fillna("")
+
+    # 6) Ensure JSON-safe: any remaining missing -> None
+    # (Need object dtype so None won't turn back into NaN)
+    df = df.astype(object).where(pd.notnull(df), None)
+
+    return df
+
 
 
 async def prepare_response(dataset, model, record_ids=[], scores=None, display_window_size=3, all_neighbor_ids=None, top_k=100):
@@ -159,31 +214,37 @@ async def prepare_response(
     
 
     print(f"[prepare_response] Validating record ids for dataset: {dataset_name}")
+    print(f"[prepare_response] Model: {model}")
     print(f"[prepare_response] Number of record ids: {len(record_ids)}")
     print(f"[prepare_response] Number of neighbor ids (unique): {len(all_neighbor_ids_flat)}")
-    print(f"[prepare_response] List of record ids: {record_ids}")
-    print(f"Model: {model}")
+    print()
 
 
-    # Activity and non-activity both
-    # Temporary use of CSV file for metadata
+    # Step 2: Retrieve metadata
+    # 2.0. Get metadata from dataset dataframe
     records_df = dataset.df.loc[record_ids].copy()
+    # 2.1. Add record_id column
     records_df['record_id'] = records_df.index
-    records_df = records_df.replace([np.inf, -np.inf], np.nan).dropna()   
-    records = records_df.to_dict(orient='records')
+    # 2.2. Handle inf and NaN values
+    records_df = records_df.replace([np.inf, -np.inf], np.nan)
+    # 2.3. Impute missing values for JSON safety
+    records_df = json_safe_impute(records_df, numeric_strategy="median", string_strategy="empty")
+    # 2.4. Convert to list of dicts
+    records = records_df.to_dict(orient="records")
 
-    # For neighbors
+    # For neighbors: the same steps
     neighbors_df = dataset.df.loc[all_neighbor_ids_flat].copy()
     neighbors_df['record_id'] = neighbors_df.index
-    neighbors_df = neighbors_df.replace([np.inf, -np.inf], np.nan).dropna()
+    neighbors_df = neighbors_df.replace([np.inf, -np.inf], np.nan)
+    neighbors_df = json_safe_impute(neighbors_df, numeric_strategy="median", string_strategy="empty")
     neighbors = neighbors_df.to_dict(orient='records')
 
 
-    # DEBUG
-    print(f"[prepare_response] Record IDs before mapping: {record_ids[:10]}")
-    print(f"[prepare_response] Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
-    for rec in records[:10]:
-        print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
+    # # DEBUG
+    # print(f"[prepare_response] Record IDs before mapping: {record_ids[:10]}")
+    # print(f"[prepare_response] Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
+    # for rec in records[:10]:
+    #     print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
     
     
     # Step 2.5: Add img_link to records
