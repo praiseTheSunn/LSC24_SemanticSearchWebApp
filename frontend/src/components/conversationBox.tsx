@@ -149,6 +149,7 @@ function ConversationBox<TItem = unknown>({
   const [runningPreviewStepId, setRunningPreviewStepId] = useState<number | null>(null);
   const [refineDraftByStepId, setRefineDraftByStepId] = useState<Record<number, string>>({});
   const [view, setView] = useState<"applied" | "preview">("applied");
+  const lastPlanIdRef = useRef<string | null>(null);
 
   const handleSend = () => {
     const trimmed = input.trim();
@@ -191,17 +192,51 @@ function ConversationBox<TItem = unknown>({
     },
   });
 
-  // Auto-scroll to the latest message.
+  // Auto-scroll to the latest message (also when a message is updated in-place).
   useEffect(() => {
-    // Wait for React to paint the newly appended message.
     const id = window.requestAnimationFrame(() => {
-      messagesEndRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "end",
-      });
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
     });
     return () => window.cancelAnimationFrame(id);
-  }, [messages.length]);
+  }, [messages]);
+
+  // When a NEW plan draft arrives (plan id changes), reset per-plan UI state.
+  // Important: don't reset on every message update, otherwise Apply/Discard gets disabled.
+  useEffect(() => {
+    let latestPlanId: string | null = null;
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.kind === "plan_draft") {
+        const pid = (m.content as any)?.id;
+        latestPlanId = typeof pid === "string" ? pid : null;
+        break;
+      }
+    }
+
+    if (!latestPlanId) return;
+    if (lastPlanIdRef.current === latestPlanId) return;
+
+    lastPlanIdRef.current = latestPlanId;
+    setRunningPreviewStepId(null);
+    setPendingPreviewStepId(null);
+    setRefineDraftByStepId({});
+  }, [messages]);
+
+  // If a step finishes (success or failure), ensure we clear the "Running…" busy state.
+  // Some failures don't emit images_preview/images, so relying on onImages() isn't enough.
+  useEffect(() => {
+    if (runningPreviewStepId == null) return;
+
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m = messages[i];
+      if (m.kind !== "assist_step_result") continue;
+      const finishedStepId = (m as any)?.content?.step_id;
+      if (finishedStepId === runningPreviewStepId) {
+        setRunningPreviewStepId(null);
+      }
+      break;
+    }
+  }, [messages, runningPreviewStepId]);
 
   const isAssist = useMemo(() => {
     if (!wsUrl) return false;

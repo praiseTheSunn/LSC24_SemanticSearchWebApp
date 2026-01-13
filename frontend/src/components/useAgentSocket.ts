@@ -21,6 +21,7 @@ export function useAgentSocket(opts: {
 
   const sessionId = useMemo(() => newId(), []);
   const wsRef = useRef<WebSocket | null>(null);
+  const currentPlanIdRef = useRef<string | undefined>(undefined);
 
   // ✅ keep latest onImages without re-connecting
   const onImagesRef = useRef<typeof opts.onImages>(opts.onImages);
@@ -31,18 +32,26 @@ export function useAgentSocket(opts: {
     { role: "assistant", kind: "text", content: "Chatbot ready. Type 'help'." },
   ]);
 
-  const upsertStepMessage = (nextMsg: ChatMessage, stepId: number) => {
+  const upsertStepMessage = (nextMsg: ChatMessage, stepId: number, planId?: string) => {
     setMessages((prev) => {
       // Replace the last message of the same kind+stepId, else append.
       const copy = [...prev];
       for (let i = copy.length - 1; i >= 0; i--) {
         const m = copy[i];
         if (m.kind === nextMsg.kind) {
-          if (m.kind === "assist_step" && (m as any).content?.step_id === stepId) {
+          if (
+            m.kind === "assist_step" &&
+            (m as any).content?.step_id === stepId &&
+            ((m as any).content?.plan_id ?? undefined) === (planId ?? undefined)
+          ) {
             copy[i] = nextMsg;
             return copy;
           }
-          if (m.kind === "assist_step_result" && (m as any).content?.step_id === stepId) {
+          if (
+            m.kind === "assist_step_result" &&
+            (m as any).content?.step_id === stepId &&
+            ((m as any).content?.plan_id ?? undefined) === (planId ?? undefined)
+          ) {
             copy[i] = nextMsg;
             return copy;
           }
@@ -164,6 +173,7 @@ export function useAgentSocket(opts: {
           return;
 
         case "plan_draft":
+          currentPlanIdRef.current = (evt.payload?.plan as any)?.id as string | undefined;
           // render as special plan card (your ConversationBox already does this)
           setMessages((prev) => [
             ...prev,
@@ -227,22 +237,33 @@ export function useAgentSocket(opts: {
           return;
 
         case "assist_step":
+          {
+            const planId = currentPlanIdRef.current;
           upsertStepMessage(
             {
               role: "assistant",
               kind: "assist_step",
-              content: { step_id: (evt.payload as any).step_id, call: (evt.payload as any).call },
+              content: {
+                plan_id: planId,
+                step_id: (evt.payload as any).step_id,
+                call: (evt.payload as any).call,
+              },
             },
             Number((evt.payload as any).step_id),
+            planId,
           );
           return;
+          }
 
         case "assist_step_result":
+          {
+            const planId = currentPlanIdRef.current;
           upsertStepMessage(
             {
               role: "assistant",
               kind: "assist_step_result",
               content: {
+                plan_id: planId,
                 step_id: (evt.payload as any).step_id,
                 ok: Boolean((evt.payload as any).ok),
                 requires_apply: Boolean((evt.payload as any).requires_apply),
@@ -250,8 +271,10 @@ export function useAgentSocket(opts: {
               },
             },
             Number((evt.payload as any).step_id),
+            planId,
           );
           return;
+          }
 
         case "assistant_token": {
           const delta = evt.payload.text || "";
