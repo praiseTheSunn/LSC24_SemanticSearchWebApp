@@ -1,7 +1,9 @@
 name: milvus
 channels:
-  - conda-forge
   - defaults
+  - conda-forge
+  - https://repo.anaconda.com/pkgs/main
+  - https://repo.anaconda.com/pkgs/r
 dependencies:
   - _libgcc_mutex=0.1=conda_forge
   - _openmp_mutex=4.5=2_gnu
@@ -59,6 +61,7 @@ dependencies:
   - pydantic-core=2.14.6=py310hb02cf49_0
   - pygments=2.18.0=pyhd8ed1ab_0
   - python=3.10.14=h955ad1f_1
+  - python-dateutil=2.9.0.post0=pyhff2d567_1
   - python_abi=3.10=2_cp310
   - pyzmq=25.1.2=py310h6a678d5_0
   - readline=8.2=h5eee18b_0
@@ -89,9 +92,9 @@ dependencies:
       - pandas==2.2.2
       - protobuf==5.27.2
       - pymilvus==2.4.4
-      - python-dateutil==2.9.0.post0
       - python-dotenv==1.0.1
       - pytz==2024.1
+      - pyyaml==6.0.2
       - tzdata==2024.1
       - ujson==5.10.0
 prefix: /home/pc/miniconda3/envs/milvus

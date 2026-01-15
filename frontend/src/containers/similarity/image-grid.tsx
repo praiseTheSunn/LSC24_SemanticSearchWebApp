@@ -1,31 +1,53 @@
+import { Box } from '@mui/material'
+import type { CSSProperties } from 'react'
 import AutoSizer from 'react-virtualized-auto-sizer'
 import { FixedSizeGrid as Grid } from 'react-window'
+import { useAppSelector } from '../../AppState'
 import { AnImage } from '../../components'
+import type { ImageRecord } from '../../types/image'
 
-const ImageGrid = ({ simData, cellHeight, cell } : {
-  simData: any[],
-  cellHeight?: number,
+const ImageGrid = ({
+  cellHeight,
+  cell,
+  data,
+  style,
+}: {
+  cellHeight?: number
   cell?: any
+  data: ImageRecord[]
+  style: CSSProperties
 }) => {
-  cellHeight = cellHeight ? cellHeight : 125 // Default cell height
+  const Config = useAppSelector((state) => state.app.config)
+  cellHeight = cellHeight ? cellHeight : Config.ImageGridCellHeight
 
-  const columnCount = 9 // Number of columns in the grid
+  const simData = data
+  const columnCount = Config.ImageGridColumnCount
 
-  const Cell = ({ columnIndex, rowIndex, style } : {
-    columnIndex: number,
-    rowIndex: number,
+  const Cell = ({
+    columnIndex,
+    rowIndex,
+    style,
+  }: {
+    columnIndex: number
+    rowIndex: number
     style: React.CSSProperties
   }) => {
     const index = rowIndex * columnCount + columnIndex
     if (index >= simData.length) return null // Ensure not to exceed simData length
 
     const data = simData[index]
-
     return (
       <div style={style}>
-        <div className="h-full overflow-hidden p-0.5">
+        <Box
+          sx={{
+            height: `calc(${style.height}px - 2 * ${Config.gridRowGap})`,
+            position: 'relative',
+            overflow: 'hidden',
+            padding: Config.gridRowGap,
+          }}
+        >
           <AnImage key={index} data={data} index={index} />
-        </div>
+        </Box>
       </div>
     )
   }
@@ -33,11 +55,11 @@ const ImageGrid = ({ simData, cellHeight, cell } : {
   cell = cell ? cell : Cell
 
   return (
-    <div className="h-full w-full">
+    <Box sx={style}>
       <AutoSizer>
         {({ height, width }) => {
           const columnWidth = width / columnCount - 1.5
-          const rowHeight = cellHeight // Making rows square by setting row height equal to column width
+          const rowHeight = cellHeight + 2 // Making rows square by setting row height equal to column width
           const rowCount = Math.ceil(simData.length / columnCount)
 
           return (
@@ -48,13 +70,14 @@ const ImageGrid = ({ simData, cellHeight, cell } : {
               rowCount={rowCount}
               rowHeight={rowHeight}
               width={width}
+              overscanRowCount={7}
             >
               {cell}
             </Grid>
           )
         }}
       </AutoSizer>
-    </div>
+    </Box>
   )
 }
 

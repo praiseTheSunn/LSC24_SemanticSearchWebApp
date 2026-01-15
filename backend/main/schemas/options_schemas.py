@@ -1,12 +1,19 @@
 from enum import Enum
 
 class ModelOptions(str, Enum):
-    option1 = "clip"
-    option2 = "blip2"
-    option3 = "beit3"
-    option4 = "stfm"
+    option1 = "clips"
+    option2 = "appleclip"
 
 class ModeOptions(str, Enum):
-    option1 = "smt"
-    option2 = "smt-mm-dtin"
-    option3 = "smt-3m-dtin"
+    option1 = "vec"
+    option2 = "vec_kw"
+    option3 = "kw"
+
+class DatasetOptions(str, Enum):
+    option1 = "vbs25_v3c"
+    option2 = "vbs25_mvk"
+    option3 = "vbs25_lhe"
+    option4 = "aic24"
+    option5 = "aic24_lesson"
+    option6 = "aic24_cooking"
+    option7 = "lsc"
