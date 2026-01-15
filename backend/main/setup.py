@@ -1,53 +1,59 @@
-import config
+import os
+import yaml
 
-# # MILVUS
-# from pymilvus import connections, utility, MilvusException, Collection
-# connections.connect(host="localhost", port="19530")
+def load_config(config_path: str):
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
 
-# try:
-#     collection_names = utility.list_collections()
-#     print("List of collections: ", collection_names)
-#     for collection_name in collection_names:
-        
-#         collection = Collection(collection_name)
-#         print("collection.num_entities", collection.num_entities)
-#         break
-#     #     collection.load()
-#     #     print("Collection info: ", collection)
-# except MilvusException as e:
-#     print(e)
+dataset_config_file = os.getenv('DATASET_CONFIG', '../configs/aic24_config.yaml')   # Default to aic24_config.yaml
+dataset_config = load_config(dataset_config_file)
+system_config_file = os.getenv('SYSTEM_CONFIG', '../configs/system_config.yaml')   # Default to system_config.yaml
+system_config = load_config(system_config_file)
 
-# from pymilvus import MilvusClient, DataType
-# CLUSTER_ENDPOINT = "http://localhost:19530"
-# TOKEN = "root:Milvus"
-# milvus_client = MilvusClient(uri=CLUSTER_ENDPOINT, token=TOKEN)
 
 # ELASTICSEARCH
 import urllib3
 urllib3.disable_warnings()
 
 from elasticsearch import Elasticsearch
-es_client = Elasticsearch(f"https://elastic:{config.PASSWORD_ELASTICSEARCH}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
-es_client.info()
+password_elasticsearch = system_config['elasticsearch']['password_elasticsearch']
+es_client = Elasticsearch(f"https://elastic:{password_elasticsearch}@localhost:9200", verify_certs=False)       # else u'll receive a TLS error
 
 # SPACY
 import spacy
 # nlp = spacy.load(config.NLP_MODEL_PATH)
 nlp = spacy.load('en_core_web_sm')
 
+
 # PARSER
 from internal.search.parser import constants
 from internal.search.parser import time_helpers
 from internal.search.parser import all_parsers
 
-# EXPLORE: list of image urls
+# metadata_caption = pd.read_csv(dataset_config['metadata_caption_file_path'])
+# image_urls = sorted(metadata_caption['id'].tolist())
+# print(f"Length of image_urls: {len(image_urls)}")
+
+# metadata_rows = pd.read_csv(dataset_config['metadata_file_path'])
+# metadata_rows = pd.DataFrame(columns=['image_link', 'caption'])
+# metadata_rows = metadata_rows[['video_id', 'frame_id', 'video_url', 'timestamp', 'image_link']]
+# metadata_rows.set_index('image_link', inplace=True)
+# metadata_rows_context_id_coarse = metadata_rows['context_id_coarse']
+# image_names = sorted(metadata_rows.index.tolist())
+# print(f"Length of metadata_rows: {len(metadata_rows)}")
+
+# Database
+import sys
+sys.path.append('..')
+
+# ID mapping
 import pandas as pd
-print("Waiting to count total number of images...")
+import numpy as np
+id_mappings = {
+    "vbs25_v3c": pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/v3c/keyframes.csv", index_col=0),
+    "vbs25_mvk": pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/mvk/keyframes.csv", index_col=0),
+    "vbs25_lhe": pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/id_mapping/lhe/keyframes.csv", index_col=0)
+}
 
-metadata_caption = pd.read_csv(config.METADATA_CAPTION_PATH)
-image_urls = sorted(metadata_caption['id'].tolist())
-print(f"Length of image_urls: {len(image_urls)}")
-
-metadata_rows = pd.read_csv(config.METADATA_PATH)
-metadata_rows.set_index('image_link', inplace=True)
-print(f"Length of metadata_rows: {len(metadata_rows)}")
+metadata_df = pd.read_csv("/home/pc/LSC24_SemanticSearchWebApp/backend/data/metadata/metadata_v3.csv", index_col=0)
+print(metadata_df.head())

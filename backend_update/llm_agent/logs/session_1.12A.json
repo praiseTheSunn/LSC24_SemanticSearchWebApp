@@ -1,0 +1,22 @@
+[
+  {
+    "id": "3adbd6e653c3431caa00e2c76a4eebae",
+    "timestamp": "2025-12-01T10:04:48.099576Z",
+    "session_id": "1.12A",
+    "role": "plan",
+    "content": "{\"plan_id\": \"plan-123\", \"session_id\": \"1.12A\", \"goal\": \"string\", \"status\": \"executing\", \"actions\": [{\"id\": \"step-1\", \"tool\": \"text_semantic\", \"parameters\": {\"query\": \"picture of me taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"search\", \"weight\": 0.7}}, \"status\": \"pending\"}, {\"id\": \"step-2\", \"tool\": \"text_semantic\", \"parameters\": {\"query\": \"taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"rerank\", \"weight\": 0.7}}, \"status\": \"pending\"}, {\"id\": \"step-3\", \"tool\": \"activity\", \"parameters\": {\"query\": \"taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"filter\", \"threshold\": 0.0}}, \"status\": \"pending\"}], \"created_at\": \"2025-12-01T10:04:48.098802\"}",
+    "metadata": {
+      "plan_id": "plan-123"
+    }
+  },
+  {
+    "id": "dad7fb71b86445baa505aaec79bf1541",
+    "timestamp": "2025-12-01T10:05:25.942721Z",
+    "session_id": "1.12A",
+    "role": "plan",
+    "content": "{\"plan_id\": \"plan-123\", \"session_id\": \"1.12A\", \"goal\": \"string\", \"status\": \"executing\", \"actions\": [{\"id\": \"step-1\", \"tool\": \"text_semantic\", \"parameters\": {\"query\": \"picture of me taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"search\", \"weight\": 0.7}}, \"status\": \"pending\"}, {\"id\": \"step-2\", \"tool\": \"text_semantic\", \"parameters\": {\"query\": \"taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"rerank\", \"weight\": 0.7}}, \"status\": \"pending\"}, {\"id\": \"step-3\", \"tool\": \"activity\", \"parameters\": {\"query\": \"taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"filter\", \"threshold\": 0.0}}, \"status\": \"pending\"}], \"created_at\": \"2025-12-01T10:05:25.941794\"}",
+    "metadata": {
+      "plan_id": "plan-123"
+    }
+  }
+]

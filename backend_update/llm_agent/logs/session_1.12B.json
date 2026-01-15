@@ -1,0 +1,12 @@
+[
+  {
+    "id": "d531769fe94a459e9de1f088d0f17dfe",
+    "timestamp": "2025-12-01T10:22:35.637574Z",
+    "session_id": "1.12B",
+    "role": "plan",
+    "content": "{\"plan_id\": \"plan-123\", \"session_id\": \"1.12B\", \"goal\": \"string\", \"status\": \"executing\", \"actions\": [{\"id\": \"step-1\", \"tool\": \"text_semantic\", \"parameters\": {\"query\": \"picture of me taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"search\", \"weight\": 0.7}}, \"status\": \"pending\"}, {\"id\": \"step-2\", \"tool\": \"text_semantic\", \"parameters\": {\"query\": \"taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"rerank\", \"weight\": 0.7}}, \"status\": \"pending\"}, {\"id\": \"step-3\", \"tool\": \"activity\", \"parameters\": {\"query\": \"taking a photo\", \"top_k\": 50, \"dataset\": \"lsc24\", \"merge\": {\"strategy\": \"filter\", \"threshold\": 0.0}}, \"status\": \"pending\"}], \"created_at\": \"2025-12-01T10:22:35.636776\"}",
+    "metadata": {
+      "plan_id": "plan-123"
+    }
+  }
+]

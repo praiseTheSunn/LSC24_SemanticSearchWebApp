@@ -20,6 +20,7 @@ site_build
 venv
 docs.zip
 archive.zip
+*.env
 
 # vim temporary files
 *~
@@ -54,7 +55,6 @@ startFrontend.bat
 
 /backend/csv
 /backend/results
-*.ipynb
 /index
 
 /backend/objpos/image_data.db
@@ -62,14 +62,29 @@ startFrontend.bat
 /backend/objpos/joined_data.db
 
 # data
-/backend/data
-/backend/garbage
+/backend/data/metadata/*
+/backend/data/embeddings/*
+/backend/data/*
+*.csv
+*.npy
+*.db
+
+# elasticsearch
+/backend/elasticsearch-8.17.0/*
 
 # embedding_compute
 /backend/embedding_compute/model/
 
 # milvus
 /backend/milvus/volumes
+/backend_update/milvus/volumes/*
+/backend/milvus/utils/crawl_aic
 
 # main
 /backend/main/elastic_search/http_ca.crt
+
+
+
+
+expr_eval/*
+volumes

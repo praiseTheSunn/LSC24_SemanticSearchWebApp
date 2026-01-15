@@ -1,0 +1,90 @@
+.idea
+.ipynb_checkpoints
+.mypy_cache
+.vscode
+__pycache__
+.pytest_cache
+htmlcov
+dist
+site
+.coverage
+coverage.xml
+.netlify
+test.db
+log.txt
+Pipfile.lock
+env3.*
+env
+docs_build
+site_build
+venv
+docs.zip
+archive.zip
+
+# vim temporary files
+*~
+.*.sw?
+.cache
+
+# macOS
+.DS_Store
+
+#obj detection 
+merged_obj_detect.csv
+/obj
+
+# settings file
+count_files.py
+backend/settings.py
+
+# storybook
+.storybook
+frontend/src/stories/*
+
+# package-lock.json
+object_list.txt
+obj_class.txt
+/metadata
+location_category_list.csv
+
+/test_sys
+settings.py
+startBackend.bat
+startFrontend.bat
+
+/csv
+/results
+/index
+
+
+# data
+data/*/embeddings/*
+data/*/metadata/*.csv
+data/*/metadata/*.pkl
+data/*/metadata/*.parquet
+data/**/*.json
+
+# elasticsearch
+elasticsearch-8.17.0/*
+
+# embedding_compute
+embedding_compute/model/
+
+# milvus
+milvus/volumes
+milvus/volumes/*
+milvus/utils/crawl_aic
+
+# main
+main/old_logs/*
+main/logs/*
+main/elastic_search/http_ca.crt
+
+# configs (secret)
+configs/*
+*.db
+*.csv
+expr_eval/*
+
+**/.env
+llm_agent/logs/*

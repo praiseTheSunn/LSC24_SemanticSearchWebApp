@@ -1,6 +1,8 @@
-import Fuse from 'fuse.js'
-import React, { useEffect, useState, useContext } from 'react'
-import { ToastContainer, toast } from 'react-toastify'
+import Fuse, { FuseResult } from 'fuse.js'
+import React, { useEffect, useState, useContext, useCallback } from 'react'
+import { Id, toast } from 'react-toastify'
+// import imageService from '../../services/imageService'
+import { Tooltip } from 'react-tooltip'
 import {
   LocationIcon,
   LocationIconActive,
@@ -10,32 +12,39 @@ import {
   TimelineIconActive,
   TrapoziedBgGray2,
   TrapoziedBgGray3,
+  TrapoziedBgGray4,
+  TrapoziedBgGray5,
   TrapoziedBgGrayLeft,
 } from '../../assets'
-import { ObjectDetail, SearchBox } from '../../components'
-import LoadingPopup from '../../components/Popup/loadingPopup'
-import { SimialrityAdvancedGrid } from '../../containers'
+import { ObjectDetail, SearchBox, ConversationBox } from '../../components'
 import MapTab from '../../containers/location/mapTab'
+import MetadataTab from '../../containers/metadata/metadataTab'
 import ImageGrid from '../../containers/similarity/image-grid'
 import TimelineTab from '../../containers/timeline/timelineTab'
-import imageService from '../../services/imageService'
-import 'react-toastify/dist/ReactToastify.css'
-import { Tooltip } from 'react-tooltip'
-import MetadataTab from '../../containers/metadata/metadataTab'
 import 'react-tooltip/dist/react-tooltip.css'
-import evalService from '../../services/evalService'
+// import evalService from '../../services/evalService'
 
+import { Box, ClickAwayListener } from '@mui/material'
+import { appActions, useAppDispatch, useAppSelector } from '../../AppState'
+import VideoPopup from '../../components/Popup/VideoPopup'
+import ImagePreviewPopup from '../../components/Popup/imagePreview'
+import LoadingPopup from '../../components/Popup/loadingPopup'
 // import { usePopUp } from '../contexts/popUpContext';
-import { createPortal } from 'react-dom'
 // Popup
 import NeighborPopup from '../../components/Popup/neighborPopup'
 import SinglePopup from '../../components/Popup/singlePopup'
+import SubmitDataPopup from '../../components/Popup/submitDataPopup'
+import NeighborClusterTab from '../../containers/neighborCluster/NeighborClusterTab'
+import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
+import type { ImageRecord } from '../../types/image'
+import type { SearchTermType } from '../../types/search'
 
 const LevelList = [
-  { level: 'Similarity', bg: TrapoziedBgGrayLeft },
-  { level: 'Timeline', bg: TrapoziedBgGray2 },
-  { level: 'Location', bg: TrapoziedBgGray3 },
-  { level: 'VQA', bg: TrapoziedBgGray3 },
+  { level: 'Neighbor', bg: TrapoziedBgGrayLeft },
+  { level: 'Similarity', bg: TrapoziedBgGray3 },
+  // { level: 'Timeline', bg: TrapoziedBgGray2 },
+  // { level: 'Location', bg: TrapoziedBgGray4 },
+  // { level: 'VQA', bg: TrapoziedBgGrayLeft },
 ]
 
 const Mode = [
@@ -44,140 +53,130 @@ const Mode = [
   { mode: 'Location', bg: LocationIcon, bgat: LocationIconActive },
 ]
 
-// create a list of image data (10 images needed)
-
 const Home = () => {
   const sesId = localStorage.getItem('session')
-  const { evaluationId } = useContext(EvaluationContext)
+  // const { evaluationId } = useContext(EvaluationContext)
+  const evaluationId = 0
   // console.log('selectedFilters in home', selectedFilters);
 
-  const [displayedFilters, setDisplayedFilters] = useState([])
-  const [query, setQuery] = useState('')
-  const [model, setModel] = useState('clip')
-  const [mode, setMode] = useState('smt-3m-dtin')
-  const { loadingPopUp, setLoadingPopUp } = usePopUp()
+  const [displayedFilters, setDisplayedFilters] = useState<SearchTermType[]>([])
   const [selectedTabIndex, setSelectedTabIndex] = useState(0)
   const [selectedModeIndex, setSelectedModeIndex] = useState(0)
   const [isCtrlPressed, setIsCtrlPressed] = useState(false)
-  const [windowHeigt, setWindowHeight] = useState(window.innerHeight)
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth)
-  const handleTabClick = (index) => {
+  const windowWidth = window.innerWidth
+  const handleTabClick = (index: number) => {
     setSelectedTabIndex(index)
   }
-  const { displayedImages } = useSelectedImages()
-  const [result, setResult] = useState([])
-  const [cacheResult, setCacheResult] = useState([])
-  const [searchTerms, setSearchTerms] = useState([])
-  const [submitText, setSubmitText] = useState('')
+  const [searchTerms, setSearchTerms] = useState<SearchTermType[]>([])
   const [submitFilename, setSubmitFilename] = useState('')
-  // const [fuzzyKeys, setFuzzyKeys] = useState(['activity', 'caption', 'date', 'location', 'time', 'ocr']);
 
-  const { neighborPopUp, setNeighborPopUp } = usePopUp()
-  const { similarPopUp, setSimilarPopUp } = usePopUp()
-  const { currentImage, setCurrentImage } = usePopUp()
+  const [result, setResult] = useState<ImageRecord[]>([])
 
-  // Handle input changes for each key
-  const handleFilterChange = (key, value) => {
-    console.log('key', key, value)
+  const neighborPopupData: ImageRecord | null | undefined = useAppSelector(
+    (state) => state.app.neighborPopUpData,
+  )
+  const similarPopupData: ImageRecord | null | undefined = useAppSelector(
+    (state) => state.app.similarPopUpData,
+  )
+  const imagePreviewData: ImageRecord | null | undefined = useAppSelector(
+    (state) => state.app.imagePreviewData,
+  )
+
+  const submitData: ImageRecord | null | undefined = useAppSelector(
+    (state) => state.app.SubmitData,
+  )
+
+  const loadingPopUpMessage: string = useAppSelector(
+    (state) => state.app.loadingPopUpMessage,
+  )
+  const imageDatas: ImageRecord[] = useAppSelector((state) => state.app.data)
+  const videoPopupSource: string | undefined = useAppSelector(
+    (state) => state.app.videoDataForPopup?.source,
+  )
+
+  const dispatch = useAppDispatch()
+
+  const toggleNeighborPopup = React.useCallback(
+    (data: ImageRecord | null | undefined) => {
+      dispatch(appActions.setNeighborPopupData(data))
+    },
+    [dispatch],
+  )
+
+  const toggleSimilarPopup = React.useCallback(
+    (data: ImageRecord | null | undefined) => {
+      dispatch(appActions.setSimilarPopupData(data))
+    },
+    [dispatch],
+  )
+
+  const toggleSubmitData = React.useCallback(
+    (data: ImageRecord | null | undefined) => {
+      dispatch(appActions.setSubmitData(data))
+    },
+    [dispatch],
+  )
+
+  const handleFilterChange = (key: string, value: string) => {
     setSearchTerms((prevTerms) => {
-      const updatedTerms = [...prevTerms]
+      const updatedTerms: { category: string; value: string }[] = [...prevTerms]
       updatedTerms.push({ category: key, value })
       return updatedTerms
     })
   }
 
+  const [imageAfterFilter, setImageAfterFilter] = useState<ImageRecord[]>([])
+  
+  // Sync agent results with Redux store
   useEffect(() => {
-    // console.log('searchTerms', searchTerms);
-    if (searchTerms.length > 0 && cacheResult.length > 0) {
-      let fuseResults = cacheResult
-      // console.log('fuseResults', fuseResults.length, fuseResults);
+    if (result && result.length > 0) {
+      dispatch(appActions.setAppImageData(result))
+    }
+  }, [result, dispatch])
+  
+  useEffect(() => {
+    if (
+      imageDatas !== null &&
+      imageDatas !== undefined &&
+      (imageDatas as ImageRecord[]).length > 0
+    ) {
+      setImageAfterFilter(imageDatas)
+    }
+  }, [imageDatas])
 
-      searchTerms.forEach((term) => {
-        if (term.value !== '') {
-          // console.log('term', term.category, term.value);
+  useEffect(() => {
+    if (searchTerms.length > 0) {
+      let fuseResults: ImageRecord[] = imageDatas
+
+      for (let i = 0; i < searchTerms.length; i++) {
+        if (searchTerms[i].value !== '') {
           const fuse = new Fuse(fuseResults, {
-            keys: [term.category],
+            keys: [searchTerms[i].category],
             includeScore: true,
             threshold: 0.6,
             distance: 10000,
           })
-          fuseResults = fuse.search(term.value).map((result) => {
+          fuseResults = fuse.search(searchTerms[i].value).map((result) => {
             return { ...result.item, score: result.score }
           })
         }
-      })
+      }
 
       if (fuseResults.length === 0) {
         toast.error('No fuzzy results found')
       }
 
-      setResult(fuseResults)
-      console.log('filteredResults', fuseResults.length)
+      setImageAfterFilter(fuseResults)
     } else if (searchTerms.length === 0) {
-      setResult(cacheResult)
+      setImageAfterFilter(imageDatas)
     }
-  }, [searchTerms, cacheResult])
+  }, [searchTerms])
+
+  // const appState = useAppSelector((state) => state.app)
+  // const csvData = useAppSelector((state) => state.app.csvImages)
 
   useEffect(() => {
-    if (!displayedImages) {
-      setDisplayedFilters([])
-      setQuery('')
-      setResult([])
-      setCacheResult([])
-      setSearchTerms([])
-    }
-  }, [displayedImages])
-
-  const submit = (src) => {
-    const evalId = evaluationId
-
-    // Parse the filename from the file path
-    let filename = src.split('/').pop()
-    // Remove the file extension
-    filename = src.split('/').pop().split('.')[0]
-    console.log('filename', filename)
-    toast.info(`Submitting: ${filename}`)
-
-    evalService
-      .submitFile(evalId, sesId, filename)
-      .then((response) => {
-        console.log('response', response)
-        toast.success(
-          `Submit: ${filename} ${response.data.submission ? response.data.submission : ''}`,
-        )
-        if (
-          response?.data?.submission &&
-          response?.data?.submission === 'CORRECT'
-        ) {
-          evalService
-            .submitFile(
-              evalId,
-              localStorage.getItem('sessionCentral'),
-              filename,
-            )
-            .then((response) => {
-              console.log('response', response)
-              toast.success(
-                `Submit FOR CENTRAL: ${filename} ${response.data.submission ? response.data.submission : ''}`,
-              )
-            })
-            .catch((error) => {
-              console.log('error', error)
-              toast.error(`ERROR FOR CENTRAL: ${`${filename}: ${error}`}`)
-            })
-        }
-      })
-      .catch((error) => {
-        console.log('error', error)
-        toast.error(`ERROR: ${`${filename}: ${error}`}`)
-      })
-  }
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Control') {
-        setIsCtrlPressed(true)
-      }
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.altKey) {
         switch (e.key) {
           case '1':
@@ -201,266 +200,257 @@ const Home = () => {
         }
       }
       if (e.key === 'Escape') {
-        setNeighborPopUp(false)
-        setSimilarPopUp(false)
+        dispatch(appActions.setSimilarPopupData(null))
+        dispatch(appActions.setNeighborPopupData(null))
+        dispatch(appActions.setVideoDataForPopup(null))
+        dispatch(appActions.setSubmitData(null))
       }
     }
 
-    const handleKeyUp = (e) => {
+    const handleKeyUp = (e: KeyboardEvent) => {
       if (e.key === 'Control') {
         setIsCtrlPressed(false)
       }
     }
-
-    const handleClick = (e) => {
-      if (isCtrlPressed && e.target.classList.contains('submissible')) {
-        const src = e.target.getAttribute('src')
-        submit(src)
-      }
-    }
-    // console.log('isCtrlPressed', isCtrlPressed);
-
     document.addEventListener('keydown', handleKeyDown)
     document.addEventListener('keyup', handleKeyUp)
-    document.addEventListener('click', handleClick)
 
     return () => {
       document.removeEventListener('keydown', handleKeyDown)
       document.removeEventListener('keyup', handleKeyUp)
-      document.removeEventListener('click', handleClick)
     }
-  }, [isCtrlPressed, setNeighborPopUp, setSimilarPopUp])
+  }, [isCtrlPressed, toggleNeighborPopup, toggleSimilarPopup])
 
-  useEffect(() => {
-    if (query !== '') {
-      console.log('query', query, model, mode)
-      imageService
-        .getImages(query, model, mode)
-        .then((response) => {
-          console.log(
-            'response.data',
-            query,
-            model,
-            mode,
-            response.data.response[0],
-          )
-          setResult(response.data.response)
-          setCacheResult(response.data.response)
-          setLoadingPopUp(false)
-        })
-        .catch((error) => {
-          console.log('error', error)
-        })
-    }
-  }, [query, model, mode])
-
-  useEffect(() => {
-    if (submitText !== '') {
-      evalService
-        .submitText(evaluationId, localStorage.getItem('session'), submitText)
-        .then((response) => {
-          toast.success(
-            `Text submitted: ${response.data.submission}`
-              ? response.data.submission
-              : '',
-          )
-          setSubmitText('')
-          console.log('response', response)
-          if (response?.data && response?.data?.submission === 'CORRECT') {
-            evalService
-              .submitText(
-                evaluationId,
-                localStorage.getItem('sessionCentral'),
-                submitText,
-              )
-              .then((response) => {
-                toast.success(
-                  `Text submitted: ${response.data.submission}`
-                    ? response.data.submission
-                    : '',
-                )
-                setSubmitText('')
-                console.log('response', response)
-              })
-              .catch((error) => {
-                toast.error(`Error submit TEXT: ${error.message}`)
-                console.log('error', error)
-              })
-          }
-        })
-        .catch((error) => {
-          toast.error(`Error submit TEXT: ${error.message}`)
-          console.log('error', error)
-        })
-    }
-  }, [submitText])
-
-  useEffect(() => {
-    if (submitFilename !== '') {
-      submit(submitFilename)
-      setSubmitFilename('')
-    }
-  }, [submitFilename])
+  // useEffect(() => {
+  //   if (submitFilename !== '') {
+  //     // submit(submitFilename)
+  //   }
+  // }, [submitFilename])
 
   // console.log('result');
 
   return (
     <div
       className="home-main-container flex flex-col h-[100%] w-[100%] min-h-[200px] overflow-hidden relative"
-      style={{ backgroundColor: '#F5F5F5' }}
+      style={{ 
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        width: '100%',
+        minHeight: '200px',
+        overflow: 'hidden',
+        position: 'relative',
+        backgroundColor: '#F5F5F5', 
+      }}
     >
-      <ToastContainer
-        style={{ zIndex: '99999999' }}
-        autoClose={2000}
-        limit={3}
-      />
-      {loadingPopUp && <LoadingPopup />}
+      {loadingPopUpMessage ? <LoadingPopup /> : null}
+      {videoPopupSource ? <VideoPopup /> : null}
 
       <Tooltip
         id="tooltip_img"
-        style={{ zIndex: '9999999', position: 'fixed', top: '0', right: '0' }}
+        style={{
+          zIndex: '9999999',
+          position: 'fixed',
+          top: '0',
+          right: '0',
+          maxWidth: '500px',
+          maxHeight: '150px',
+          overflow: 'auto',
+        }}
         positionStrategy="fixed"
-        // anchorSelect='.tooltip-display'
         place="bottom"
-        // clickable={true}
-        // position={{x: 0, y: 0}}
         position={{ x: windowWidth, y: 0 }}
         render={(content) => {
-          // console.log('content', content.content);
           const tooltipData = content.content
             ? JSON.parse(content.content)
             : null
-          // console.log('tooltipData', tooltipData);
-          return (
-            tooltipData && (
-              <ObjectDetail
-                viewImage={tooltipData}
-                className={'w-full h-full p-2'}
-              />
-            )
-          )
+          return tooltipData && <ObjectDetail viewImage={tooltipData} />
         }}
       />
-      {neighborPopUp && (
-        <NeighborPopup
-          viewImage={neighborPopUp.img_link}
-          onClose={() => setNeighborPopUp(null)}
-        />
+      {neighborPopupData && (
+        <NeighborPopup onClose={() => toggleNeighborPopup(null)} />
       )}
-      {similarPopUp && (
-        <SinglePopup
-          viewImage={similarPopUp}
-          onClose={() => setSimilarPopUp(null)}
-        />
+      {similarPopupData && (
+        <SinglePopup onClose={() => toggleSimilarPopup(null)} />
       )}
+      {imagePreviewData && <ImagePreviewPopup />}
+      {submitData && <SubmitDataPopup onClose={() => toggleSubmitData(null)} />}
       <SearchBox
         displayedFilters={displayedFilters}
         setDisplayedFilters={setDisplayedFilters}
-        setQuery={setQuery}
-        setResult={setResult}
-        setModel={setModel}
-        setMode={setMode}
         handleFilterChange={handleFilterChange}
         setSearchTerms={setSearchTerms}
-        setCacheResult={setCacheResult}
-        setSubmitText={setSubmitText}
         setSubmitFilename={setSubmitFilename}
       />
-      <div
-        className="flex w-full justify-start relative"
-        style={{
-          marginBottom: '-1.5px',
-          paddingTop: '15px',
-          paddingLeft: '15px',
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'row',
+          flexWrap: 'nowrap',
+          gap: 2,
+          px: 2,
+          pb: 2,
+          width: '100%',
+          flex: 1,
+          minHeight: 0,
+          overflow: 'hidden',
         }}
       >
-        {LevelList.map((item, index) => (
-          <button
-            key={index}
-            className={`font-base font-bold py-1.5 grid-tab text-gray border-white ${index === selectedTabIndex ? 'active' : ''}`}
-            style={{
-              width: '197px',
-              backgroundImage: `url(${item.bg})`,
-              zIndex: 999 - index * 10,
-              border: 'none',
-              backgroundColor: 'transparent',
-              marginLeft: `${index !== 0 && '-20px'}`,
-              position: 'relative',
-              height: '30px',
-            }}
-            onClick={() => handleTabClick(index)}
-          >
-            {item.level}
-          </button>
-        ))}
-      </div>
-
-      <div
-        className="bg-white w-full"
-        style={{
-          height: 'calc(100dvh - 120px)',
-          borderRadius: '5px',
-          padding: '0 0 0 10px',
-        }}
-      >
-        {selectedTabIndex === 0 && (
-          <div className="flex flex-col w-full h-full">
-            <div
-              className="flex justify-start items-center"
-              style={{ paddingTop: '10px' }}
-            >
-              {Mode.map((item, index) => (
-                <button
-                  key={index}
-                  className={`font-base font-bold text-gray border-white ${
-                    index === selectedModeIndex ? 'active' : ''
-                  }`}
-                  style={{
-                    width: '30px',
-                    height: '30px',
-                    borderRadius: '50%', // Hình tròn
-                    border: '1px solid #ccc', // Viền
-                    margin: '0 10px', // Khoảng cách giữa các nú
-                    backgroundImage: `url(${selectedModeIndex === index ? item.bgat : item.bg})`,
-                    backgroundSize: 'cover',
-                  }}
-                  onClick={() => setSelectedModeIndex(index)}
-                />
-              ))}
-            </div>
-            {selectedModeIndex === 0 && (
-              <div
-                className="flex flex-row h-full overflow-y-auto"
-                style={{ marginTop: '2px', width: 'calc(100dvw - 10px)' }}
-              >
-                <ImageGrid simData={result} />
-              </div>
-            )}
-            {selectedModeIndex !== 0 && (
-              <div
-                className="flex flex-row w-full h-full overflow-y-auto"
-                style={{ marginTop: '2px' }}
-              >
-                <SimialrityAdvancedGrid
-                  tabindex={selectedModeIndex}
-                  data={result}
-                />
-              </div>
-            )}
-          </div>
-        )}
-
-        {selectedTabIndex === 1 && <TimelineTab data={result} />}
-        {selectedTabIndex === 2 && (
-          // <ImageCluster data={timelineData} />
-          <MapTab
-            className="flex flex-row"
-            style={{ marginTop: '12px' }}
-            data={result}
+        <Box
+          sx={{
+            width: 420,
+            minWidth: 360,
+            flexShrink: 0,
+            minHeight: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <ConversationBox
+            wsUrl={`ws://10.0.1.21:20726/ws/agent?mode=assist`}
+            setResult={setResult}
           />
-        )}
-        {selectedTabIndex === 3 && <MetadataTab data={result} />}
-      </div>
+        </Box>
+
+        <Box
+          sx={{
+            flex: 1,
+            minWidth: 0,
+            minHeight: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <Box
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-start',
+              position: 'relative',
+              marginBottom: '-1.5px',
+              paddingTop: '15px',
+              paddingLeft: '15px',
+              flexShrink: 0,
+            }}
+          >
+            {LevelList.map((item, index) => (
+              <button
+                key={item.level}
+                type="button"
+                className={`font-base grid-tab text-gray ${index === selectedTabIndex ? 'active' : ''}`}
+                style={{
+                  paddingTop: '0.375rem',
+                  paddingBottom: '0.375rem',
+                  width: '197px',
+                  backgroundImage: `url(${item.bg})`,
+                  zIndex: 90 - index * 10,
+                  border: 'none',
+                  backgroundColor: 'transparent',
+                  marginLeft: `${index !== 0 && '-20px'}`,
+                  position: 'relative',
+                  height: '30px',
+                }}
+                onClick={() => handleTabClick(index)}
+              >
+                {item.level}
+              </button>
+            ))}
+          </Box>
+
+          <Box
+            sx={{
+              flex: 1,
+              minHeight: 0,
+              borderRadius: '5px',
+              padding: '0 0 0 10px',
+              backgroundColor: '#fff',
+              width: '100%',
+              overflow: 'hidden',
+            }}
+          >
+            {selectedTabIndex === 0 && <NeighborClusterTab />}
+            {selectedTabIndex === 1 && (
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  width: '100%',
+                  height: '100%',
+                  minHeight: 0,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'flex-start',
+                    alignItems: 'center',
+                    paddingTop: '10px',
+                    flexShrink: 0,
+                  }}
+                >
+                  {Mode.map((item, index) => (
+                    <button
+                      key={item.mode}
+                      type="button"
+                      className={`font-base font-bold text-gray border-white ${
+                        index === selectedModeIndex ? 'active' : ''
+                      }`}
+                      style={{
+                        width: '30px',
+                        height: '30px',
+                        borderRadius: '50%', // Hình tròn
+                        border: '1px solid #ccc', // Viền
+                        margin: '0 10px', // Khoảng cách giữa các nú
+                        backgroundImage: `url(${selectedModeIndex === index ? item.bgat : item.bg})`,
+                        backgroundSize: 'cover',
+                      }}
+                      onClick={() => setSelectedModeIndex(index)}
+                    />
+                  ))}
+                </Box>
+                {selectedModeIndex === 0 && (
+                  <Box
+                    sx={{
+                      marginTop: '2px',
+                      width: '100%',
+                      display: 'flex',
+                      flexDirection: 'row',
+                      flex: 1,
+                      minHeight: 0,
+                    }}
+                  >
+                    <ImageGrid style={{ width: '100%' }} data={imageAfterFilter} />
+                  </Box>
+                )}
+                {selectedModeIndex !== 0 && (
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      width: '100%',
+                      flex: 1,
+                      minHeight: 0,
+                      overflowY: 'auto',
+                    }}
+                  >
+                    <SimialrityAdvancedGrid tabindex={selectedModeIndex} />
+                  </div>
+                )}
+              </Box>
+            )}
+
+            {/* {selectedTabIndex === 2 && <TimelineTab />}
+            {selectedTabIndex === 3 && (
+              // <ImageCluster data={timelineData} />
+              <MapTab
+              // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
+              />
+            )} */}
+            {/* {selectedTabIndex === 2 && <MetadataTab />} */}
+          </Box>
+        </Box>
+      </Box>
     </div>
   )
 }

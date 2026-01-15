@@ -1,0 +1,93 @@
+from pydantic import BaseModel, Field
+from enum import Enum
+from typing import List, Literal, Tuple, Dict, Optional
+from setup import available_models, available_datasets
+
+
+class DatasetOptions(str, Enum):
+    option1 = "vbs25_v3c"
+    option2 = "vbs25_mvk"
+    option3 = "vbs25_lhe"
+    option4 = "aic25"
+    option5 = "aic25_lesson"
+    option6 = "aic25_cooking"
+    option7 = "lsc24"
+    option8 = "lsc24a"
+
+
+class ModelOptions(str, Enum):
+    option1 = "clips"
+    option2 = "appleclip"
+
+
+class MilvusSearchDenseRequest(BaseModel):
+    dataset: DatasetOptions
+    model: ModelOptions
+    embedding: List[List[float]]
+    filters: Dict[str, str] = {}
+    limit: int
+    subset_record_ids: List[int] = []
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "dataset": "lsc24",
+                "model": "clips",
+                "embedding": [[0.1, 0.2, 0.3]],
+                "filters": {"location": "kitchen", "activity": "preparing some food"},
+                "limit": 5,
+                "subset_record_ids": [1, 2, 3]
+            }
+        }
+
+
+class MilvusSearchSparseRequest(BaseModel):
+    dataset: DatasetOptions
+    model: ModelOptions
+    query: str
+    anns_field: str
+    filters: Dict[str, str] = {}
+    limit: int
+    subset_record_ids: List[int] = []
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "dataset": "lsc24",
+                "model": "clips",
+                "query": "rhym",
+                "anns_field": "tags_sparse",
+                "filters": {"location": "kitchen"},
+                "limit": 5,
+                "subset_record_ids": [1, 2, 3]
+            }
+        }
+
+
+class ElasticsearchTextSearchRequest(BaseModel):
+    query: str = Field(..., description="OCR/text query string")
+    limit: int = Field(50, ge=1, le=1000)
+    subset_record_ids: Optional[List[int]] = Field(default=None)
+    dataset: Optional[str] = None
+
+    # Optional: let caller pick index by dataset/model like your pipeline naming
+    model: Optional[str] = None
+
+
+class FetchMetadataRequest(BaseModel):
+    dataset: DatasetOptions
+    model: ModelOptions
+    record_ids: List[int]
+
+
+class FetchRequest(BaseModel):
+    collection_name: str
+    record_ids: List[int] = []
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "collection_name": "lsc24_clips",
+                "record_ids": [1, 2, 3]
+            }
+        }
