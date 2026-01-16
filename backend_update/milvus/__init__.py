@@ -1,1 +1,1 @@
-import setup
+import milvus.setup

@@ -359,7 +359,6 @@ def milvus_insert_vectors_directly(
     - df_filtered must already have: image_id, record_id
     - embeddings are loaded from {embedding_dir}/{image_id}.npy
     """
-    data: List[Dict[str, Any]] = []
     mapped_cols = list(column_mapping.values())
 
     for _, row in df_filtered.iterrows():
@@ -390,13 +389,12 @@ def milvus_insert_vectors_directly(
                 elif mapped_col in row.index:
                     rec[mapped_col] = coerce_missing(row[mapped_col], db="milvus")
 
-        data.append(rec)
-
-    print(f"[Milvus] Inserting {len(data)} vectors directly...")
-    client.insert(collection_name=collection_name, data=data)
-    print(f"[Milvus] Inserted {len(data)} vectors.")
-    print(client.get_collection_stats(collection_name))
-    print()
+        print(f"[Milvus] Inserting record_id={record_id}, image_id={image_id} ...")
+        client.insert(collection_name=collection_name, data=[rec])
+        
+        if _ % 1000 == 0:
+            print(client.get_collection_stats(collection_name))
+            print()
     
 
 # -----------------------------
