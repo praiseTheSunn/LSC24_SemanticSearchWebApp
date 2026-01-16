@@ -1,4 +1,3 @@
-import setup
 from fastapi import status
 from schemas.request_schemas import RequestExploreSimilarImages, RequestExploreNeighborImages
 from internal.api_handler import fetch_embeddings

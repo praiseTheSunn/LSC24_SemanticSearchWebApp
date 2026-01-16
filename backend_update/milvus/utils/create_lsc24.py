@@ -51,7 +51,7 @@ def print_config(dataset: str, model: str, force: bool, activity: str, do_milvus
     print(f"Do Elasticsearch: {do_es}")
 
 
-def filter_df(df: pd.DataFrame, activity_mode: str) -> pd.DataFrame:
+def filter_df(df: pd.DataFrame, dataset_name: str, activity_mode: str) -> pd.DataFrame:
     df = df.copy()
 
     if "image_available" in df.columns:
@@ -69,7 +69,11 @@ def filter_df(df: pd.DataFrame, activity_mode: str) -> pd.DataFrame:
     if "image_id" not in df.columns:
         raise ValueError("dataset.df must contain 'image_id' column")
 
-    df["prefix"] = df["image_id"].astype(str).apply(lambda x: x[:9])
+    if dataset_name == "lsc24":
+        df["prefix"] = df["image_id"].astype(str).apply(lambda x: x[:9])
+    elif dataset_name == "vbs25_v3c":
+        df["prefix"] = df["image_id"].astype(str).apply(lambda x: x.split('/')[0])
+
     return df
 
 
@@ -340,6 +344,61 @@ def milvus_insert_vectors_by_prefix(
         print()
 
 
+
+def milvus_insert_vectors_directly(
+    client: MilvusClient,
+    collection_name: str,
+    df_filtered: pd.DataFrame,
+    embedding_dir: str,
+    dataset_name: str,
+    column_mapping: Dict[str, str],
+    with_metadata: bool = True,
+) -> None:
+    """
+    Inserts vectors, each vector is for one image.
+    - df_filtered must already have: image_id, record_id
+    - embeddings are loaded from {embedding_dir}/{image_id}.npy
+    """
+    data: List[Dict[str, Any]] = []
+    mapped_cols = list(column_mapping.values())
+
+    for _, row in df_filtered.iterrows():
+        image_id = row["image_id"]
+        record_id = int(row["record_id"])
+
+        vector_path = f"{embedding_dir}/{image_id}.npy"
+        vec = np.load(vector_path)
+
+        rec: Dict[str, Any] = {
+            "record_id": record_id,
+            "image_id": image_id,
+            "embedding": vec.tolist(),
+        }
+
+        # Add metadata fields (excluding embedding)
+        for mapped_col in mapped_cols:
+            if mapped_col in ("record_id", "image_id", "embedding"):
+                continue
+            if with_metadata:
+                if mapped_col in ("new_lat", "new_lng"):
+                    val = coerce_missing(row[mapped_col], db="milvus")
+                    val = to_float_or_none(val)
+                    # nếu field trong schema KHÔNG nullable thì phải default (vd 0.0)
+                    if val is None:
+                        val = 0.0  # hoặc bỏ field nếu schema nullable=True
+                    rec[mapped_col] = val
+                elif mapped_col in row.index:
+                    rec[mapped_col] = coerce_missing(row[mapped_col], db="milvus")
+
+        data.append(rec)
+
+    print(f"[Milvus] Inserting {len(data)} vectors directly...")
+    client.insert(collection_name=collection_name, data=data)
+    print(f"[Milvus] Inserted {len(data)} vectors.")
+    print(client.get_collection_stats(collection_name))
+    print()
+    
+
 # -----------------------------
 # Elasticsearch: build index body + ensure index + bulk index
 # -----------------------------
@@ -516,15 +575,26 @@ def run_milvus(
         force=force,
     )
 
-    milvus_insert_vectors_by_prefix(
-        client=client,
-        collection_name=collection_name,
-        df_filtered=df_filtered,
-        embedding_dir=embedding_dir,
-        dataset_name=dataset_name,
-        column_mapping=column_mapping,
-        with_metadata=with_metadata,
-    )
+    if dataset_name == "lsc24":
+        milvus_insert_vectors_by_prefix(
+            client=client,
+            collection_name=collection_name,
+            df_filtered=df_filtered,
+            embedding_dir=embedding_dir,
+            dataset_name=dataset_name,
+            column_mapping=column_mapping,
+            with_metadata=with_metadata,
+        )
+    elif dataset_name == "vbs25_v3c":
+        milvus_insert_vectors_directly(
+            client=client,
+            collection_name=collection_name,
+            df_filtered=df_filtered,
+            embedding_dir=embedding_dir,
+            dataset_name=dataset_name,
+            column_mapping=column_mapping,
+            with_metadata=with_metadata,
+        )
 
 
 def run_es(
@@ -588,7 +658,7 @@ def main():
     text_fields = image_dataset.get_text_fields()
 
     df = image_dataset.df
-    df = filter_df(df, activity_mode=activity)
+    df = filter_df(df, dataset_name=dataset_name,activity_mode=activity)
     df = ensure_record_id(df, dataset_name=dataset_name)
 
     # Keep names consistent, but ES gets a suffix to avoid collisions if you want
