@@ -1,29 +1,52 @@
 import type { ApiResponse, FeedbackResponse } from '../types/api'
 import type { ImageRecord } from '../types/image'
+import { BASE_API_URL } from '../types/constants'
 
-// export const transformResponse_Feedback_LSC2024 = (response: ApiResponse) => {
+export const transformResponse_Feedback_LSC = (response: ApiResponse) => {
 
-//   const data = response.response || response.data
-//   console.log('Transformed feedback data:', data);
+  const data = response.response || response.data
+  console.log('Transformed feedback data:', data);
 
-//   const likes = data.like.map((img: ImageRecord) => {
-//     img.img_link = img.img_link.replace('8000', '8080')
-//     return img
-//   })
+  const likes = data.like.map((img: ImageRecord) => {
+    img.date = img.video_id ? img.video_id : img.date
+    img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
+    if (BASE_API_URL.includes('158.39.201.121')) {
+      img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+    }
+    if (img.neighbors) {
+      for (const neighbor of img.neighbors) {
+        if (BASE_API_URL.includes('158.39.201.121')) {
+          neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+        }
+      }
+    }
+    return img
+  })
 
-//   const dislikes = data.dislike.map((img: ImageRecord) => {
-//     img.img_link = img.img_link.replace('8000', '8080')
-//     return img
-//   })
+  const dislikes = data.dislike.map((img: ImageRecord) => {
+    img.date = img.video_id ? img.video_id : img.date
+    img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
+    if (BASE_API_URL.includes('158.39.201.121')) {
+      img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+    }
+    if (img.neighbors) {
+      for (const neighbor of img.neighbors) {
+        if (BASE_API_URL.includes('158.39.201.121')) {
+          neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+        }
+      }
+    }
+    return img
+  })
 
-//   const result = {
-//     like: likes,
-//     dislike: dislikes,
-//   }
-//   console.log('Transformed feedback response:', result);
+  const result = {
+    like: likes,
+    dislike: dislikes,
+  }
+  console.log('Transformed feedback response:', result);
 
-//   return result
-// }
+  return result
+}
 
 export const transformResponse_Feedback_AIC2025 = (response: ApiResponse) => {
 
@@ -253,12 +276,21 @@ export const transformResponse_LSC = (response: ApiResponse) => {
     img.date = img.video_id ? img.video_id : img.date
     img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     // nếu ở ngoài lab thì comment dòng dưới lại
-    img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '10.0.1.21:20716')
+    // img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '10.0.1.21:20716')
+    // bergen
+    // if IP of BASE_API_URL is 158.39.201.121 then replace with that IP
+    if (BASE_API_URL.includes('158.39.201.121')) {
+      img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+    }
     
     if (img.neighbors) {
         for (const neighbor of img.neighbors) {
           // nếu ở ngoài lab thì comment dòng dưới lại
-          neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '10.0.1.21:20716')
+          // neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '10.0.1.21:20716')
+          // bergen
+          if (BASE_API_URL.includes('158.39.201.121')) {
+            neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+          }
         }
       }
 
@@ -330,7 +362,7 @@ export const transformResponseByDataset = (
 
 /**
  * Get the appropriate feedback transform function based on dataset
- * Defaults to AIC2025 feedback format for unknown datasets
+ * Defaults to LSC feedback format for unknown datasets
  */
 export const getTransformFeedbackFunction = (
   dataset: string | undefined,
@@ -338,10 +370,12 @@ export const getTransformFeedbackFunction = (
   switch (dataset?.toLowerCase()) {
     case 'aic2025':
     case 'aic25':
+      return transformResponse_Feedback_AIC2025
     case 'vbs25_v3c':
+      // return transformResponse_VBS25V3C
     case 'lsc24':
     case 'lsc':
     default:
-      return transformResponse_Feedback_AIC2025
+      return transformResponse_Feedback_LSC
   }
 }
