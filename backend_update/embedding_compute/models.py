@@ -1,11 +1,15 @@
 from abc import ABC, abstractmethod
 from typing import Any
+import os
 import time
 import torch
 import torch.nn.functional as F
 from torch import hub
 import open_clip
 from transformers import AutoModel, CLIPImageProcessor
+from dotenv import load_dotenv
+
+load_dotenv()
 
 # Base class with a virtual method
 class ModelBase(ABC):
@@ -20,8 +24,8 @@ class ClipSModel(ModelBase):
     def __init__(self):
         print("Loading CLIPS model...")
         start_time = time.time()
-        self.model, self.preprocess = open_clip.create_model_from_pretrained('hf-hub:UCSC-VLAA/ViT-L-14-CLIPS-Recap-DataComp-1B')
-        self.tokenizer = open_clip.get_tokenizer('hf-hub:UCSC-VLAA/ViT-L-14-CLIPS-Recap-DataComp-1B')
+        self.model, self.preprocess = open_clip.create_model_from_pretrained('hf-hub:UCSC-VLAA/ViT-L-14-CLIPS-Recap-DataComp-1B', cache_dir=os.environ.get("CHECKPOINT_DIR", None))
+        self.tokenizer = open_clip.get_tokenizer('hf-hub:UCSC-VLAA/ViT-L-14-CLIPS-Recap-DataComp-1B', cache_dir=os.environ.get("CHECKPOINT_DIR", None))
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         torch.cuda.empty_cache()
         self.model = self.model.to(self.device)
