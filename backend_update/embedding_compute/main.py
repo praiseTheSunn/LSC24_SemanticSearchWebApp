@@ -3,8 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import embedding
 from fastapi.middleware.cors import CORSMiddleware
 
-import setup
-
 app = FastAPI(
     name = "SnapSeek (Embedding)", 
     docs_url = "/docs", 

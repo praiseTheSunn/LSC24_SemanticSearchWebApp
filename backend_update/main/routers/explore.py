@@ -16,10 +16,6 @@ router = APIRouter(
     tags = ['explore'],
 )
 
-df = pd.read_csv("/home/hlmquan/LSC24_SemanticSearchWebApp/backend_update/data/lsc24/metadata/metadata_v6.csv") 
-df.set_index("id", inplace=True)
-
-
 
 @router.post("/explore_similar_images", response_model=ResponseURLs)
 async def explore_similar_images(payload: RequestExploreSimilarImages):
