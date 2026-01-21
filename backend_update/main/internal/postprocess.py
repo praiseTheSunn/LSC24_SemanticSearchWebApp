@@ -118,7 +118,7 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     print(f"Validating record ids for dataset: {dataset_name}")
     print(f"Number of record ids: {len(record_ids)}")
     print(f"Number of neighbor ids (unique): {len(all_neighbor_ids_flat)}")
-    print(f"List of record ids: {record_ids}")
+    print(f"List of record ids: {record_ids[:20]}...")
     print(f"Model: {model}")
 
     # Step 2: Retrieve metadata
