@@ -21,17 +21,17 @@ async def get_feedback(payload: RequestFeedback):
     inputs = payload.model_dump()
 
     data_like = {
-        "record_ids": payload.like.ids,
-        "prior_scores": payload.like.prior_scores,
-        "limit": payload.like.limit,
-        "model": payload.model,
-        "dataset": payload.dataset
+        "record_ids": inputs["like"]["ids"],
+        "prior_scores": inputs["like"]["prior_scores"],
+        "limit": inputs["like"]["limit"],
+        "model": inputs["model"].value if hasattr(inputs["model"], "value") else inputs["model"],
+        "dataset": inputs["dataset"].value if hasattr(inputs["dataset"], "value") else inputs["dataset"]
     }
     data_dislike = {
-        "record_ids": payload.dislike.ids,
-        "limit": payload.dislike.limit,
-        "model": payload.model,
-        "dataset": payload.dataset
+        "record_ids": inputs["dislike"]["ids"],
+        "limit": inputs["dislike"]["limit"],
+        "model": inputs["model"].value if hasattr(inputs["model"], "value") else inputs["model"],
+        "dataset": inputs["dataset"].value if hasattr(inputs["dataset"], "value") else inputs["dataset"]
     }
     response_relevant = await feedback.get_relevant_images(**data_like)
     response_irrelevant = await feedback.get_irrelevant_images(**data_dislike)

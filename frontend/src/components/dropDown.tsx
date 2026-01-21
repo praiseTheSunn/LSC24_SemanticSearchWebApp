@@ -5,13 +5,14 @@ import {
   Select,
   type SelectChangeEvent,
 } from '@mui/material'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 interface DropdownProps {
   label: string
   displayItems: string[]
   valueItems: string[]
   setData: (value: string) => void
+  value?: string
 }
 
 const Dropdown = ({
@@ -19,8 +20,19 @@ const Dropdown = ({
   displayItems,
   valueItems,
   setData,
+  value,
 }: DropdownProps) => {
-  const [currentValue, setCurrentValue] = useState<string>(valueItems[0])
+  const getInitialValue = () => {
+    if (value && valueItems.includes(value)) return value
+    return valueItems[0]
+  }
+
+  const [currentValue, setCurrentValue] = useState<string>(getInitialValue())
+
+  useEffect(() => {
+    const nextValue = getInitialValue()
+    if (nextValue !== currentValue) setCurrentValue(nextValue)
+  }, [value, valueItems, currentValue])
 
   const handleChange = (event: SelectChangeEvent<string>) => {
     const selectedValue = event.target.value as string

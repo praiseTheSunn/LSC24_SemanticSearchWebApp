@@ -43,7 +43,7 @@ export type ObjPosResponse = {
   location_displayed: string
   video_url?: string
   timestamp?: number
-  video_id?: string
+  video_id: string
   frame_id?: string
   context_id_coarse?: string
   like?: any 

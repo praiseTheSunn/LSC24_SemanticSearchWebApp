@@ -1,8 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Box, Button, LinearProgress, TextField, Typography } from "@mui/material";
 import { useAgentSocket } from "./useAgentSocket";
-import { transformResponse_LSC } from "../config/transformResponse";
+import { transformResponseByDataset } from "../config/transformResponse";
 import type { ApiResponse } from "../types/api";
+import { useAppSelector } from "../AppState";
 
 function isProbablyJsonString(s: string): boolean {
   const t = s.trim();
@@ -151,6 +152,8 @@ function ConversationBox<TItem = unknown>({
   const [view, setView] = useState<"applied" | "preview">("applied");
   const lastPlanIdRef = useRef<string | null>(null);
 
+  const dataset = useAppSelector((state) => state.app.queryPayload.dataset);
+
   const handleSend = () => {
     const trimmed = input.trim();
     if (!trimmed) return;
@@ -158,8 +161,11 @@ function ConversationBox<TItem = unknown>({
     setInput("");
   };
 
-  const { connected, messages, sendUser, sendDecision, sendAssistAction } = useAgentSocket({
+  const socketParams = useMemo(() => ({ dataset }), [dataset]);
+
+  const { connected, messages, sendUser, sendDecision, sendAssistAction, isLoading, loadingText } = useAgentSocket({
     wsUrl,
+    params: socketParams,
     onImages: (payload, meta) => {
       if (!setResult) return;
 
@@ -173,7 +179,7 @@ function ConversationBox<TItem = unknown>({
         status: 200,
       } satisfies ApiResponse;
 
-      const transformed = transformResponse_LSC(resp);
+      const transformed = transformResponseByDataset(dataset, resp);
       const next = transformed as unknown as TItem[];
       setResult(next);
 
@@ -191,6 +197,18 @@ function ConversationBox<TItem = unknown>({
       }
     },
   });
+
+  // Latest plan_id (used to disable old plan actions).
+  const activePlanId = useMemo(() => {
+    for (let i = messages.length - 1; i >= 0; i--) {
+      const m: any = messages[i];
+      if (m?.kind === "plan_draft") {
+        const pid = m?.content?.id;
+        return typeof pid === "string" ? pid : null;
+      }
+    }
+    return null;
+  }, [messages]);
 
   // Auto-scroll to the latest message (also when a message is updated in-place).
   useEffect(() => {
@@ -364,15 +382,24 @@ function ConversationBox<TItem = unknown>({
           <Typography variant="caption" sx={{ opacity: 0.65 }}>
             {isAssist ? `view: ${view} (Ctrl+\` )` : ""}
           </Typography>
+          {isLoading ? (
+            <Typography variant="caption" sx={{ opacity: 0.65 }}>
+              {loadingText || "Working..."}
+            </Typography>
+          ) : null}
           <Typography variant="caption" sx={{ opacity: 0.65 }}>
             {messages.length} msg
           </Typography>
         </Box>
       </Box>
 
+      {isLoading ? <LinearProgress sx={{ height: 2 }} /> : null}
+
       <Box sx={listSx}>
         {messages.map((m, i) => {
           if (m.kind === "plan_draft") {
+            const planId = (m.content as any)?.id as string | undefined;
+            const isOldPlan = Boolean(activePlanId && planId && planId !== activePlanId);
             return (
               <Box
                 key={i}
@@ -408,6 +435,7 @@ function ConversationBox<TItem = unknown>({
                     <Button
                       size="small"
                       variant="outlined"
+                      disabled={isOldPlan}
                       onClick={() => sendDecision("approve")}
                     >
                       Approve
@@ -416,6 +444,7 @@ function ConversationBox<TItem = unknown>({
                     <Button
                       size="small"
                       variant="outlined"
+                      disabled={isOldPlan}
                       onClick={() => sendAssistAction("run_step", 1)}
                     >
                       Start Preview (Step 1)
@@ -424,6 +453,7 @@ function ConversationBox<TItem = unknown>({
                   <Button
                     size="small"
                     variant="outlined"
+                    disabled={isOldPlan}
                     onClick={() => sendDecision("reject")}
                   >
                     Reject
@@ -438,6 +468,8 @@ function ConversationBox<TItem = unknown>({
             const isThisStepBusy = runningPreviewStepId === m.content.step_id;
             const stepId = m.content.step_id;
             const refineText = refineDraftByStepId[stepId] ?? "";
+            const msgPlanId = (m.content as any)?.plan_id as string | undefined;
+            const isOldPlan = Boolean(activePlanId && msgPlanId && msgPlanId !== activePlanId);
             return (
               <Box
                 key={i}
@@ -472,7 +504,7 @@ function ConversationBox<TItem = unknown>({
                   <Button
                     size="small"
                     variant="outlined"
-                    disabled={isBusy && !isThisStepBusy}
+                    disabled={isOldPlan || (isBusy && !isThisStepBusy)}
                     onClick={() => {
                       setRunningPreviewStepId(stepId);
                       sendAssistAction("run_step", stepId);
@@ -484,7 +516,7 @@ function ConversationBox<TItem = unknown>({
                   <Button
                     size="small"
                     variant="outlined"
-                    disabled={isBusy}
+                    disabled={isOldPlan || isBusy}
                     onClick={() => {
                       // user chooses to not run preview and also not change the grid
                       setRunningPreviewStepId(null);
@@ -501,7 +533,7 @@ function ConversationBox<TItem = unknown>({
                     size="small"
                     fullWidth
                     value={refineText}
-                    disabled={isBusy}
+                    disabled={isOldPlan || isBusy}
                     placeholder="Refine this step (e.g. less trees)"
                     onChange={(e) => {
                       const v = e.target.value;
@@ -521,7 +553,7 @@ function ConversationBox<TItem = unknown>({
                   <Button
                     size="small"
                     variant="outlined"
-                    disabled={isBusy || !refineText.trim()}
+                    disabled={isOldPlan || isBusy || !refineText.trim()}
                     onClick={() => {
                       const t = refineText.trim();
                       if (!t) return;
@@ -544,6 +576,8 @@ function ConversationBox<TItem = unknown>({
           if (m.kind === "assist_step_result") {
             const stepId = m.content.step_id;
             const canApply = pendingPreviewStepId === stepId;
+            const msgPlanId = (m.content as any)?.plan_id as string | undefined;
+            const isOldPlan = Boolean(activePlanId && msgPlanId && msgPlanId !== activePlanId);
             return (
               <Box
                 key={i}
@@ -565,7 +599,7 @@ function ConversationBox<TItem = unknown>({
                   <Button
                     size="small"
                     variant="outlined"
-                    disabled={!canApply}
+                    disabled={isOldPlan || !canApply}
                     onClick={() => sendAssistAction("apply_preview", stepId)}
                   >
                     Apply to Grid
@@ -573,7 +607,7 @@ function ConversationBox<TItem = unknown>({
                   <Button
                     size="small"
                     variant="outlined"
-                    disabled={!canApply}
+                    disabled={isOldPlan || !canApply}
                     onClick={() => {
                       // revert local grid immediately
                       if (setResult && committedRef.current) {

@@ -16,8 +16,9 @@ function newId(): string {
 export function useAgentSocket(opts: {
   onImages?: (payload: ImagesPayload, meta?: { preview?: boolean; step_id?: number }) => void;
   wsUrl?: string;
+  params?: Record<string, string | undefined | null>;
 }) {
-  const { wsUrl } = opts;
+  const { wsUrl, params } = opts;
 
   const sessionId = useMemo(() => newId(), []);
   const wsRef = useRef<WebSocket | null>(null);
@@ -28,6 +29,9 @@ export function useAgentSocket(opts: {
   onImagesRef.current = opts.onImages;
 
   const [connected, setConnected] = useState(false);
+  const [pendingRequest, setPendingRequest] = useState(false);
+  const [inFlightTools, setInFlightTools] = useState(0);
+  const [loadingText, setLoadingText] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "assistant", kind: "text", content: "Chatbot ready. Type 'help'." },
   ]);
@@ -62,21 +66,68 @@ export function useAgentSocket(opts: {
     });
   };
 
+  const paramsKey = useMemo(() => JSON.stringify(params ?? {}), [params]);
+
   useEffect(() => {
-    const url = (() => {
-      if (!wsUrl) {
-        return `/ws/agent?session_id=${encodeURIComponent(sessionId)}`;
-      }
+    const toWsOrigin = (origin: string) => {
+      if (origin.startsWith("https://")) return origin.replace("https://", "wss://");
+      if (origin.startsWith("http://")) return origin.replace("http://", "ws://");
+      return origin;
+    };
 
-      // If a wsUrl is provided, keep it but ensure we pass a stable session_id.
-      // This makes backend logs and thread state consistent.
-      if (/[?&]session_id=/.test(wsUrl)) {
-        return wsUrl;
-      }
+    const buildUrl = () => {
+      const base = wsUrl ?? "/ws/agent";
 
-      const sep = wsUrl.includes("?") ? "&" : "?";
-      return `${wsUrl}${sep}session_id=${encodeURIComponent(sessionId)}`;
-    })();
+      // Prefer URL() for correctness. For relative URLs, provide a ws/wss base.
+      try {
+        const baseForRelative =
+          typeof window !== "undefined" && window.location?.origin
+            ? toWsOrigin(window.location.origin)
+            : "ws://localhost";
+
+        const u = new URL(base, baseForRelative);
+
+        // Always include a stable session_id.
+        u.searchParams.set("session_id", sessionId);
+
+        // Add caller-provided params (e.g., dataset). Ignore null/undefined/empty.
+        if (params) {
+          for (const [k, v] of Object.entries(params)) {
+            if (!k) continue;
+            if (v == null) continue;
+            const vv = String(v);
+            if (!vv) continue;
+            if (k === "session_id") continue;
+            u.searchParams.set(k, vv);
+          }
+        }
+
+        return u.toString();
+      } catch {
+        // Fallback: string append (best-effort)
+        let url = base;
+        const add = (k: string, v: string) => {
+          const re = new RegExp(`[?&]${k}=`);
+          if (re.test(url)) return;
+          url += (url.includes("?") ? "&" : "?") + `${encodeURIComponent(k)}=${encodeURIComponent(v)}`;
+        };
+
+        add("session_id", sessionId);
+        if (params) {
+          for (const [k, v] of Object.entries(params)) {
+            if (!k) continue;
+            if (v == null) continue;
+            const vv = String(v);
+            if (!vv) continue;
+            if (k === "session_id") continue;
+            add(k, vv);
+          }
+        }
+        return url;
+      }
+    };
+
+    const url = buildUrl();
 
     console.log("[WS] connecting to:", url);
     setMessages((prev) => [
@@ -159,6 +210,10 @@ export function useAgentSocket(opts: {
           return;
 
         case "tool_start":
+          setInFlightTools((n) => n + 1);
+          setLoadingText(
+            `Running ${String((evt.payload as any)?.tool ?? "tool")}...`
+          );
           setMessages((prev) => [
             ...prev,
             { role: "system", kind: "debug", content: `tool_start: ${JSON.stringify(evt.payload)}` },
@@ -166,6 +221,7 @@ export function useAgentSocket(opts: {
           return;
 
         case "tool_end":
+          setInFlightTools((n) => Math.max(0, n - 1));
           setMessages((prev) => [
             ...prev,
             { role: "system", kind: "debug", content: `tool_end: ${JSON.stringify(evt.payload)}` },
@@ -173,6 +229,8 @@ export function useAgentSocket(opts: {
           return;
 
         case "plan_draft":
+          setPendingRequest(false);
+          setLoadingText(null);
           currentPlanIdRef.current = (evt.payload?.plan as any)?.id as string | undefined;
           // render as special plan card (your ConversationBox already does this)
           setMessages((prev) => [
@@ -182,6 +240,8 @@ export function useAgentSocket(opts: {
           return;
 
         case "images":
+          setPendingRequest(false);
+          setLoadingText(null);
           // route to image grid
           try {
             onImagesRef.current?.(evt.payload, { preview: false });
@@ -209,6 +269,8 @@ export function useAgentSocket(opts: {
           return;
 
         case "images_preview":
+          setPendingRequest(false);
+          setLoadingText(null);
           try {
             onImagesRef.current?.(evt.payload, {
               preview: true,
@@ -237,6 +299,8 @@ export function useAgentSocket(opts: {
           return;
 
         case "assist_step":
+          setPendingRequest(false);
+          setLoadingText(null);
           {
             const planId = currentPlanIdRef.current;
           upsertStepMessage(
@@ -256,6 +320,8 @@ export function useAgentSocket(opts: {
           }
 
         case "assist_step_result":
+          setPendingRequest(false);
+          setLoadingText(null);
           {
             const planId = currentPlanIdRef.current;
           upsertStepMessage(
@@ -295,6 +361,8 @@ export function useAgentSocket(opts: {
         }
 
         case "assistant_message":
+          setPendingRequest(false);
+          setLoadingText(null);
           setMessages((prev) => [
             ...prev,
             { role: "assistant", kind: "text", content: evt.payload.text },
@@ -302,6 +370,8 @@ export function useAgentSocket(opts: {
           return;
 
         case "error":
+          setPendingRequest(false);
+          setLoadingText(null);
           setMessages((prev) => [
             ...prev,
             { role: "system", kind: "error", content: evt.payload.message },
@@ -323,7 +393,7 @@ export function useAgentSocket(opts: {
       ws.close();
       wsRef.current = null;
     };
-  }, [sessionId, wsUrl]);
+  }, [sessionId, wsUrl, paramsKey]);
 
 
   const send = (msg: ClientEvent) => {
@@ -354,17 +424,37 @@ export function useAgentSocket(opts: {
   const sendUser = (text: string) => {
     const t = text.trim();
     if (!t) return;
+    setPendingRequest(true);
+    setLoadingText("Thinking...");
     setMessages((prev) => [...prev, { role: "user", kind: "text", content: t }]);
     send({ type: "user_message", payload: { text: t } });
   };
 
   const sendDecision = (decision: Decision) => {
+    setPendingRequest(true);
+    setLoadingText(decision === "approve" ? "Executing plan..." : "Updating..." );
     send({ type: "plan_decision", payload: { decision } });
   };
 
   const sendAssistAction = (action: AssistAction, step_id: number, text?: string) => {
+    setPendingRequest(true);
+    if (action === "run_step") setLoadingText(`Running step ${step_id}...`);
+    else if (action === "apply_preview") setLoadingText(`Applying step ${step_id}...`);
+    else if (action === "discard_preview") setLoadingText(`Discarding step ${step_id}...`);
+    else if (action === "skip_step") setLoadingText(`Skipping step ${step_id}...`);
+    else if (action === "refine_step") setLoadingText(`Refining step ${step_id}...`);
     send({ type: "assist_action", payload: { action, step_id, text } });
   };
 
-  return { sessionId, connected, messages, sendUser, sendDecision, sendAssistAction };
+  const isLoading = pendingRequest || inFlightTools > 0;
+  return {
+    sessionId,
+    connected,
+    messages,
+    sendUser,
+    sendDecision,
+    sendAssistAction,
+    isLoading,
+    loadingText: loadingText ?? (inFlightTools > 0 ? "Working..." : null),
+  };
 }

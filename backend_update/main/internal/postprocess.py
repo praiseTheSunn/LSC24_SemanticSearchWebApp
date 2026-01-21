@@ -96,7 +96,6 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     # remove invalid numbers from record_ids
     print(f"Before masking: {len(record_ids)} record ids")
     record_ids = [rid for rid in record_ids if rid >= 0 and rid < len(dataset.df)]
-    print(f"Masked out record ids: {record_ids}")
 
     # Step 1:
     # If neighbor IDs is not provided, get all neighbor IDs for the window around each record_id

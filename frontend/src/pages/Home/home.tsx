@@ -51,6 +51,7 @@ const Mode = [
   { mode: 'Similarity', bg: SimilarityIcon, bgat: SimilarityIconActive },
   { mode: 'Timeline', bg: TimelineIcon, bgat: TimelineIconActive },
   { mode: 'Location', bg: LocationIcon, bgat: LocationIconActive },
+  { mode: 'Video', emoji: '🎥' },
 ]
 
 const Home = () => {
@@ -402,11 +403,22 @@ const Home = () => {
                         borderRadius: '50%', // Hình tròn
                         border: '1px solid #ccc', // Viền
                         margin: '0 10px', // Khoảng cách giữa các nú
-                        backgroundImage: `url(${selectedModeIndex === index ? item.bgat : item.bg})`,
-                        backgroundSize: 'cover',
+                        ...(item.bg && item.bgat ? {
+                          backgroundImage: `url(${selectedModeIndex === index ? item.bgat : item.bg})`,
+                          backgroundSize: 'cover',
+                        } : {
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '18px',
+                          backgroundColor: selectedModeIndex === index ? '#e0e0e0' : '#fff',
+                        }),
                       }}
                       onClick={() => setSelectedModeIndex(index)}
-                    />
+                      title={item.mode}
+                    >
+                      {(item as any).emoji || ''}
+                    </button>
                   ))}
                 </Box>
                 {selectedModeIndex === 0 && (

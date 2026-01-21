@@ -420,6 +420,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             label="Model"
             displayItems={['CLIPS', 'BLIP2', 'BEiT-3', 'STFM']}
             valueItems={['clips', 'blip2', 'beit3', 'stfm']}
+            value={queryPayload.model}
             setData={setModel}
           />
         </Box>
@@ -428,14 +429,16 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             label="Mode"
             displayItems={['Vector', 'Vector + Keyword', 'Keyword']}
             valueItems={['vec', 'vec_kw', 'kw']}
+            value={queryPayload.mode}
             setData={setMode}
           />
         </Box>
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={['LSC24', 'All', 'Lesson', 'Cooking']}
-            valueItems={['lsc24', 'aic25', 'aic25_lesson', 'aic25_cooking']}
+            displayItems={['LSC24', 'V3C', 'All', 'Lesson', 'Cooking']}
+            valueItems={['lsc24', 'vbs25_v3c', 'aic25', 'aic25_lesson', 'aic25_cooking']}
+            value={queryPayload.dataset}
             setData={setDataset}
           />
         </Box>
@@ -444,6 +447,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             label="LLM model"
             displayItems={['gpt-4o', 'gpt-4o-mini', 'gpt-5']}
             valueItems={['gpt-4o', 'gpt-4o-mini', 'gpt-5']}
+            value={queryPayload.llm_model}
             setData={setLLMModel}
           />
         </Box>
