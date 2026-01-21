@@ -87,3 +87,5 @@ configs/*
 expr_eval/*
 
 **/.env
+llm_agent/logs/*
+checkpoints/*

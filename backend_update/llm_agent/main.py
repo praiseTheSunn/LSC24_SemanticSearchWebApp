@@ -14,6 +14,7 @@ from internal.audit_log import AUDIT_LOGGER
 from internal.history_api import router as history_router
 from tools.base import ToolExecutionContext
 from tools.bootstrap import build_tool_manager
+from setup import SYSTEM_CONFIG
 
 USE_STREAM = False
 
@@ -108,7 +109,7 @@ class AssistState:
     fusion: Optional[Fusion] = None
     top_k_display: int = 10
     display_window_size: int = 3
-    dataset: str = "lsc24"
+    dataset: str = "vbs25_v3c"
     model: str = "default"
 
     applied_step_id: int = 0
@@ -138,6 +139,10 @@ async def ws_agent(ws: WebSocket):
     mode = (ws.query_params.get("mode") or "auto").strip().lower()
     if mode not in {"auto", "assist"}:
         mode = "auto"
+
+    dataset = (ws.query_params.get("dataset") or "vbs25_v3c").strip().lower()
+    if dataset not in SYSTEM_CONFIG.get("available_datasets", []):
+        dataset = "vbs25_v3c"
     
     if not hasattr(app.state, "graph"):
         error_msg = "Graph not initialized"

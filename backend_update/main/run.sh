@@ -1,7 +1,6 @@
 source /root/miniconda3/etc/profile.d/conda.sh
 conda init
 conda activate main
-conda env export > environment.yml
 
 
 #!/usr/bin/env bash

@@ -1,7 +1,7 @@
 # conda init 
 source /root/miniconda3/etc/profile.d/conda.sh
 conda activate ebd
-conda env export > environment.yml
+# conda env export > environment.yml
 
 #!/usr/bin/env bash
 set -euo pipefail
