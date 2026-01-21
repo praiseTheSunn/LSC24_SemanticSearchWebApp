@@ -6,6 +6,7 @@ from internal.logger import save_log
 from schemas.request_schemas import RequestExploreSimilarImages, RequestExploreNeighborImages
 from schemas.response_schemas import ResponseURLs, ResponseEmbeddings
 from datetime import datetime
+from dataset.dataset_manager import DatasetManager
 import pandas as pd
 
 from setup import SYSTEM_CONFIG
@@ -21,7 +22,8 @@ router = APIRouter(
 async def explore_similar_images(payload: RequestExploreSimilarImages):
     
     inputs = payload.model_dump()
-
+    dataset = inputs["dataset"].value if hasattr(inputs["dataset"], "value") else inputs["dataset"]
+    model = inputs["model"].value if hasattr(inputs["model"], "value") else inputs["model"]
     
     if 'image_ids' in inputs.keys() and inputs["image_ids"] is not None:
         # If image_ids are provided, use them directly
@@ -31,8 +33,18 @@ async def explore_similar_images(payload: RequestExploreSimilarImages):
         image_ids = [DatasetManager.get_dataset(inputs["dataset"]).standardize_image_id(url) for url in inputs["image_urls"]]
         record_ids = [DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id] for image_id in image_ids]
 
-    response_data, response_status = await explore.explore_similar_images(record_ids=record_ids, dataset=inputs["dataset"], model=inputs["model"])
-    response_data = await prepare_response(inputs["dataset"], inputs["model"], response_data["record_ids"], scores=response_data["scores"], display_window_size=inputs["display_window_size"])
+    response_data, response_status = await explore.explore_similar_images(
+        record_ids=record_ids, 
+        dataset=dataset,
+        model=model
+    )
+    response_data = await prepare_response(
+        dataset, 
+        model, 
+        response_data["record_ids"], 
+        scores=response_data["scores"], 
+        display_window_size=inputs["display_window_size"]
+    )
 
     save_log(
         log_path=f"./logs/{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.json",
