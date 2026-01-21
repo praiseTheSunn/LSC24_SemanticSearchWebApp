@@ -119,7 +119,7 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     print(f"Validating record ids for dataset: {dataset_name}")
     print(f"Number of record ids: {len(record_ids)}")
     print(f"Number of neighbor ids (unique): {len(all_neighbor_ids_flat)}")
-    print(f"List of record ids: {record_ids}")
+    print(f"List of record ids: {record_ids[:20]}...")
     print(f"Model: {model}")
 
     # Step 2: Retrieve metadata
@@ -167,10 +167,16 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     # print(f"Retrieved {len(all_neighbor_ids_flat)} neighbor records")
 
     # Step 2.5: Add img_link to records
+    def add_img_link(dataset_name: str, record):
+        if "vbs25" in dataset_name:
+            return f"{image_server_url}/{dataset_name.split('_')[1].upper()}/{record['image_id']}{image_extension}"
+        else:
+            return f"{image_server_url}/{record['image_id']}{image_extension}"
+        
     for record in records:
-        record['img_link'] = f"{image_server_url}/{record['image_id']}{image_extension}"
+        record['img_link'] = add_img_link(dataset_name, record)
     for record in neighbors:
-        record['img_link'] = f"{image_server_url}/{record['image_id']}{image_extension}"
+        record['img_link'] = add_img_link(dataset_name, record)
 
     # Step 3: Build a mapping for fast access
     neighbor_metadata = {rec['record_id']: rec for rec in neighbors}

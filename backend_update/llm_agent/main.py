@@ -141,7 +141,8 @@ async def ws_agent(ws: WebSocket):
         mode = "auto"
 
     dataset = (ws.query_params.get("dataset") or "vbs25_v3c").strip().lower()
-    if dataset not in SYSTEM_CONFIG.get("available_datasets", []):
+    print(f"🌐 Session {session_id} mode={mode} dataset={dataset}")
+    if dataset not in SYSTEM_CONFIG.get("available_datasets"):
         dataset = "vbs25_v3c"
     
     if not hasattr(app.state, "graph"):
@@ -269,6 +270,8 @@ async def ws_agent(ws: WebSocket):
             msg_type = msg.get("type")
             payload = msg.get("payload", {})
 
+            from pprint import pprint
+
             # Assist-mode: handle step actions without going through the LangGraph router
             if mode == "assist" and msg_type == "assist_action":
                 action = (payload.get("action") or "").strip()
@@ -289,7 +292,12 @@ async def ws_agent(ws: WebSocket):
                     await send_event("error", {"message": "No active plan. Send a query first."})
                     continue
 
-                calls = assist.active_plan.get("calls") or []
+                n_calls = len(assist.active_plan.get("calls", []))
+                if n_calls > 0:
+                    for i in range(n_calls):
+                        assist.active_plan["calls"][i]["params"]["dataset"] = dataset
+
+                calls = assist.active_plan.get("calls", [])
                 if step_id < 1 or step_id > len(calls):
                     await send_event("error", {"message": f"Invalid step_id={step_id}."})
                     continue
@@ -430,7 +438,7 @@ async def ws_agent(ws: WebSocket):
                     preview_items: List[Dict[str, Any]] = []
                     if record_ids:
                         preview_items = await prepare_response(
-                            dataset=assist.dataset,
+                            dataset=dataset,
                             model=assist.model,
                             record_ids=record_ids,
                             scores=scores,

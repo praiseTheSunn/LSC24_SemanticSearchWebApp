@@ -248,10 +248,16 @@ async def prepare_response(
     
     
     # Step 2.5: Add img_link to records
+    def add_img_link(dataset_name: str, record):
+        if "vbs25" in dataset_name:
+            return f"{image_server_url}/{dataset_name.split('_')[1].upper()}/{record['image_id']}{image_extension}"
+        else:
+            return f"{image_server_url}/{record['image_id']}{image_extension}"
+        
     for record in records:
-        record['img_link'] = f"{image_server_url}/{record['image_id']}{image_extension}"
+        record['img_link'] = add_img_link(dataset_name, record)
     for record in neighbors:
-        record['img_link'] = f"{image_server_url}/{record['image_id']}{image_extension}"
+        record['img_link'] = add_img_link(dataset_name, record)
 
     # Step 3: Build a mapping for fast access
     neighbor_metadata = {rec['record_id']: rec for rec in neighbors}
@@ -271,5 +277,10 @@ async def prepare_response(
 
         if len(result) >= top_k:
             break
+
+    # print 10 first image_id for debugging
+    print(f"[prepare_response] First 10 image_ids in result:")
+    for rec in result[:10]:
+        print(f"  Image ID: {rec['image_id']}, Record ID: {rec['record_id']}, Score: {rec['score']}")
 
     return result
