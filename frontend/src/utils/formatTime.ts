@@ -6,8 +6,8 @@
  * Format time for LSC24 dataset
  * Extracts timestamp from image link
  */
-export const formatTimeLSC24 = (src: string, time: string): string => {
-  return `${(src ?? "").substring(20, 34) + (src ?? "").substring(34).replace('.webp', '')}-${time ? time : ''}`
+export const formatTimeLSC24 = (date: string, time: string): string => {
+  return `${date ? date : ''}-${time ? time : ''}`
 }
 
 /**
@@ -35,7 +35,7 @@ export const getFormattedTimeFunction = (
       return (src?: string, date?: string, time?: string) => formatTimeVBS25V3C(src ?? '')
     case 'lsc24':
     default:
-      return (src?: string, date?: string, time?: string) => formatTimeLSC24(src ?? '', time ?? '')
+      return (src?: string, date?: string, time?: string) => formatTimeLSC24(date ?? '', time ?? '')
   }
 }
 
