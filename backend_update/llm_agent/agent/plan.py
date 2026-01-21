@@ -12,8 +12,10 @@ from agent.fusion import Fusion
 from internal.audit_log import _utc_now_iso
 
 from langchain_openai import ChatOpenAI
+from langchain_google_genai  import ChatGoogleGenerativeAI
 
 import json
+import os
 from pprint import pprint
 
 # -----------------------
@@ -265,9 +267,9 @@ Notes:
     }
 
     # llm = ChatGoogleGenerativeAI(
-    #     model="gemini-2.5-pro",
-    #     google_api_key="AIzaSyCJnvsu-XwFRsPmE30ldk_UkUs0ojSyOz4",
-    #     temperature=0.2,
+    #     model="gemini-3-pro-preview",
+    #     google_api_key=os.getenv("GOOGLE_API_KEY"),
+    #     temperature=0,
     # )   
 
     llm = ChatOpenAI(
