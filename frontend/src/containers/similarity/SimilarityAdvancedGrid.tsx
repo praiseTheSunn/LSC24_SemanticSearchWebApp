@@ -14,9 +14,10 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
 }) => {
   const data = useAppSelector((state) => state.app.data)
 
-  const { locationBasedData, timeBasedData } = useMemo(() => {
+  const { locationBasedData, timeBasedData, videoBasedData } = useMemo(() => {
     const locationDataMap = new Map<string, ImageRecord[]>()
     const timeDataMap = new Map<string, ImageRecord[]>()
+    const videoDataMap = new Map<string, ImageRecord[]>()
 
     for (const item of data) {
       const location = item.location
@@ -36,6 +37,15 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
       if (timeArray) {
         timeArray.push(item)
       }
+
+      const videoId = item.video_id
+      if (videoId && !videoDataMap.has(videoId)) {
+        videoDataMap.set(videoId, [])
+      }
+      const videoArray = videoDataMap.get(videoId)
+      if (videoArray) {
+        videoArray.push(item)
+      }
     }
 
     // Sort the arrays
@@ -45,10 +55,14 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
     for (const value of timeDataMap.values()) {
       value.sort((a: ImageRecord, b: ImageRecord) => (b?.score ?? 0) - (a?.score ?? 0))
     }
+    for (const value of videoDataMap.values()) {
+      value.sort((a: ImageRecord, b: ImageRecord) => (b?.score ?? 0) - (a?.score ?? 0))
+    }
 
     return {
       locationBasedData: Array.from(locationDataMap.values()),
-      timeBasedData: Array.from(timeDataMap.values())
+      timeBasedData: Array.from(timeDataMap.values()),
+      videoBasedData: Array.from(videoDataMap.values())
     }
   }, [data])
 
@@ -57,8 +71,10 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
   const glob_columnCount: number = 9
 
   const displayData = useMemo(() => {
-    return tabindex === 2 ? locationBasedData : timeBasedData
-  }, [tabindex, locationBasedData, timeBasedData])
+    if (tabindex === 2) return locationBasedData
+    if (tabindex === 3) return videoBasedData
+    return timeBasedData
+  }, [tabindex, locationBasedData, timeBasedData, videoBasedData])
 
   const cellRenderer = ({
     columnIndex,
@@ -75,7 +91,13 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
           {/* Thêm margin vào bên trong */}
           <ImageGroup
             images={item}
-            title={tabindex === 2 ? item[0]?.location : item[0]?.date}
+            title={
+              tabindex === 2
+                ? item[0]?.location
+                : tabindex === 3
+                  ? item[0]?.video_id
+                  : item[0]?.date
+            }
           />
         </div>
       </div>
@@ -96,7 +118,8 @@ const SimialrityAdvancedGrid: React.FC<SimialrityAdvancedGridProps> = ({
           const cellWidth: number = width / columnCount - 1.5
           const cellHeight: number = 240
 
-          const displayData = tabindex === 2 ? locationBasedData : timeBasedData
+          const displayData =
+            tabindex === 2 ? locationBasedData : tabindex === 3 ? videoBasedData : timeBasedData
           const rowCount: number = Math.ceil(displayData.length / columnCount)
           return (
             <Grid

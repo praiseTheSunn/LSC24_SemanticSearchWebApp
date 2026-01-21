@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Box, Button, LinearProgress, TextField, Typography } from "@mui/material";
 import { useAgentSocket } from "./useAgentSocket";
-import { transformResponse_LSC } from "../config/transformResponse";
+import { transformResponseByDataset } from "../config/transformResponse";
 import type { ApiResponse } from "../types/api";
 import { useAppSelector } from "../AppState";
 
@@ -179,7 +179,7 @@ function ConversationBox<TItem = unknown>({
         status: 200,
       } satisfies ApiResponse;
 
-      const transformed = transformResponse_LSC(resp);
+      const transformed = transformResponseByDataset(dataset, resp);
       const next = transformed as unknown as TItem[];
       setResult(next);
 

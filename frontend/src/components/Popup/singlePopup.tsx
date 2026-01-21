@@ -10,6 +10,7 @@ import {
   useGetSimilarsQuery,
 } from '../../AppState'
 import closeIcon from '../../assets/close.png'
+import { formatTimeByDataset } from '../../utils/formatTime'
 
 const SinglePopup = ({
   onClose,
@@ -64,7 +65,7 @@ const SinglePopup = ({
     if (!imageData) return null
 
     const { img_link, date, time } = imageData
-    const formattedTime = `${date} ${time}`
+    const formattedTime = formatTimeByDataset(queryPayload.dataset, img_link ?? '', date ?? '', time ?? '')
     const isHighlighted = img_link === viewImage?.img_link
 
     return (

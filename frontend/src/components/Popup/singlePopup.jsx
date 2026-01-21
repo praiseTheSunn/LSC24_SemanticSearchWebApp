@@ -5,9 +5,12 @@ import { FixedSizeGrid as Grid } from 'react-window'
 import closeIcon from '../../assets/close.png'
 import { AnImage, ObjectDetail } from '../../components'
 import imageService from '../../services/imageService'
+import { useAppSelector } from '../../AppState'
+import { formatTimeByDataset } from '../../utils/formatTime'
 
 const SinglePopup = ({ viewImage, onClose }) => {
   const [singlePopupData, setsinglePopupData] = useState([])
+  const dataset = useAppSelector((state) => state.app.queryPayload.dataset)
   const [isLoading, setIsLoading] = useState(false)
   const viewImageRef = useRef(null)
   const gridRef = useRef(null)
@@ -37,7 +40,7 @@ const SinglePopup = ({ viewImage, onClose }) => {
     if (!data) return null
 
     const { img_link, date, time } = data
-    const formattedTime = `${date} ${time}`
+    const formattedTime = formatTimeByDataset(dataset, img_link ?? '', date ?? '', time ?? '')
     const isHighlighted = img_link === viewImage.img_link
 
     return (

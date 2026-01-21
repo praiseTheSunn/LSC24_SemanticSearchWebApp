@@ -14,6 +14,7 @@ import { AIC_addImages, AIC_addTrakeImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
 import { useState, useEffect } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
+import { formatTimeByDataset } from '../utils/formatTime'
 
 
 
@@ -50,7 +51,12 @@ const AnImage: React.FC<AnImageProps> = ({
   // const timestamp = time.substring(1, 2) + time.substring(3, 5)
   // const formattedTime: string = `${date ? date.slice(0, date.length - 4) : ''}-${timestamp ? timestamp : ''}-${time ? time : ''}`
   // const formattedTime: string = `${date ? date : ''}-${time ? time : ''}`
-  const formattedTime: string = `${(src ?? ("")).substring(26, 34) + (src ?? ("")).substring(34).replace('.webp', '')}-${time ? time : ''}`
+  
+  // Get dataset from app state
+  const dataset = useAppSelector((state) => state.app.queryPayload.dataset)
+  
+  // Get the correct formattedTime function based on dataset
+  const formattedTime: string = formatTimeByDataset(dataset, src ?? '', date ?? '', time)
   const json_data: string | null = isDisplayTooltip
     ? JSON.stringify(data)
     : null

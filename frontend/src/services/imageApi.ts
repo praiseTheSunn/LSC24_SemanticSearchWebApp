@@ -4,6 +4,8 @@ import {
   transformResponse_Feedback_AIC2025,
   transformResponse_AIC2025,
   transformResponse_LSC,
+  transformResponseByDataset,
+  getTransformFeedbackFunction,
 } from '../config/transformResponse'
 import type {
   ApiResponse,
@@ -31,8 +33,8 @@ export const ImageApi = createApi({
             body: tempParams,
           }
         },
-        transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC(response),
+        transformResponse: (response: ApiResponse, meta, arg) =>
+          transformResponseByDataset(arg.dataset, response),
         providesTags: (result) =>
           result
             ? [
@@ -52,8 +54,8 @@ export const ImageApi = createApi({
           method: 'POST',
           body: tempParams,
         }},
-        transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC(response),
+        transformResponse: (response: ApiResponse, meta, arg) =>
+          transformResponseByDataset(arg.dataset, response),
         providesTags: (result) =>
           result
             ? [
@@ -74,8 +76,8 @@ export const ImageApi = createApi({
           method: 'POST',
           body: tempParams,
         }},
-        transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC(response),
+        transformResponse: (response: ApiResponse, meta, arg) =>
+          transformResponseByDataset(arg.dataset, response),
         providesTags: (result) =>
           result
             ? [
@@ -96,8 +98,8 @@ export const ImageApi = createApi({
           method: 'POST',
           body: tempParams,
         }},
-        transformResponse: (response: ApiResponse) =>
-          transformResponse_LSC(response),
+        transformResponse: (response: ApiResponse, meta, arg) =>
+          transformResponseByDataset(arg.dataset, response),
         providesTags: [{ type: 'Image', id: 'LIST' }],
       }),
 
@@ -113,8 +115,10 @@ export const ImageApi = createApi({
             body: tempParams,
           }
         },
-        transformResponse: (response: ApiResponse) =>
-          transformResponse_Feedback_AIC2025(response),
+        transformResponse: (response: ApiResponse, meta, arg) => {
+          const transformFunc = getTransformFeedbackFunction(arg?.dataset)
+          return transformFunc(response)
+        },
       }),
     }
   },
