@@ -436,8 +436,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={['LSC24', 'V3C', 'All', 'Lesson', 'Cooking']}
-            valueItems={['lsc24', 'vbs25_v3c', 'aic25', 'aic25_lesson', 'aic25_cooking']}
+            displayItems={['LSC24', 'V3C', 'MVK', 'LHE', 'All', 'Lesson', 'Cooking']}
+            valueItems={['lsc24', 'vbs25_v3c', 'vbs25_mvk', 'vbs25_lhe', 'all', 'lesson', 'cooking']}
             value={queryPayload.dataset}
             setData={setDataset}
           />
