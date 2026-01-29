@@ -2,7 +2,7 @@ import type { ApiResponse, FeedbackResponse } from '../types/api'
 import type { ImageRecord } from '../types/image'
 import { BASE_API_URL } from '../types/constants'
 
-export const transformResponse_Feedback_LSC = (response: ApiResponse) => {
+export const transformResponse_Feedback_LSC = (response: FeedbackResponse) => {
 
   const data = response.response || response.data
   console.log('Transformed feedback data:', data);
@@ -48,7 +48,7 @@ export const transformResponse_Feedback_LSC = (response: ApiResponse) => {
   return result
 }
 
-export const transformResponse_Feedback_AIC2025 = (response: ApiResponse) => {
+export const transformResponse_Feedback_AIC2025 = (response: FeedbackResponse) => {
 
   const data = response.response || response.data
   console.log('Transformed feedback data:', data);
@@ -91,7 +91,47 @@ export const transformResponse_Feedback_AIC2025 = (response: ApiResponse) => {
 }
 
 
+export const transformResponse_Feedback_VBS25V3C = (response: FeedbackResponse) => {
 
+  const data = response.response || response.data
+  console.log('Transformed feedback data:', data);
+  
+  const likes = (data as any).like.map((img: ImageRecord) => {
+    // nếu ở ngoài lab thì comment dòng dưới lại
+    // img.img_link = img.img_link.replace('image.snapseek.org', '10.0.1.11:20501')
+    
+    if (img.neighbors) {
+        for (const neighbor of img.neighbors) {
+          // nếu ở ngoài lab thì comment dòng dưới lại
+          // neighbor.img_link = neighbor.img_link.replace('image.snapseek.org', '10.0.1.11:20501')
+        }
+      }
+
+    return img
+  })
+
+  const dislikes = (data as any).dislike.map((img: ImageRecord) => {
+    // // nếu ở ngoài lab thì comment dòng dưới lại
+    // img.img_link = img.img_link.replace('image.snapseek.org', '10.0.1.11:20501')
+    
+    if (img.neighbors) {
+        for (const neighbor of img.neighbors) {
+          // nếu ở ngoài lab thì comment dòng dưới lại
+          // neighbor.img_link = neighbor.img_link.replace('image.snapseek.org', '10.0.1.11:20501')
+        }
+      }
+
+    return img
+  })
+
+  const result = {
+    like: likes,
+    dislike: dislikes,
+  }
+  console.log('Transformed feedback response:', result);
+
+  return result
+}
 
 // export const transformResponse_AIC2024 = (response: ApiResponse) => {
 //   // console.log('Response:', response);
@@ -303,12 +343,12 @@ export const transformResponse_VBS25V3C = (response: ApiResponse) => {
   const data = response.response || response.data
   const result = data.map((img: ImageRecord) => {
     // nếu ở ngoài lab thì comment dòng dưới lại
-    img.img_link = img.img_link.replace('server.selab.edu.vn:20717', '10.0.1.21:20717')
+    // img.img_link = img.img_link.replace('image.snapseek.org', '10.0.1.11:20501')
     
     if (img.neighbors) {
         for (const neighbor of img.neighbors) {
           // nếu ở ngoài lab thì comment dòng dưới lại
-          neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20717', '10.0.1.21:20717')
+          // neighbor.img_link = neighbor.img_link.replace('image.snapseek.org', '10.0.1.11:20501')
         }
       }
 
@@ -337,6 +377,8 @@ export const getTransformResponseFunction = (
 ): ((response: ApiResponse) => ImageRecord[]) => {
   switch (dataset?.toLowerCase()) {
     case 'vbs25_v3c':
+    case 'vbs25_lhe':
+    case 'vbs25_mvk':
       return transformResponse_VBS25V3C
     case 'aic2025':
     case 'aic25':
@@ -366,13 +408,15 @@ export const transformResponseByDataset = (
  */
 export const getTransformFeedbackFunction = (
   dataset: string | undefined,
-): ((response: ApiResponse) => { like: ImageRecord[]; dislike: ImageRecord[] }) => {
+): ((response: FeedbackResponse) => { like: ImageRecord[]; dislike: ImageRecord[] }) => {
   switch (dataset?.toLowerCase()) {
     case 'aic2025':
     case 'aic25':
       return transformResponse_Feedback_AIC2025
     case 'vbs25_v3c':
-      // return transformResponse_VBS25V3C
+    case 'vbs25_lhe':
+    case 'vbs25_mvk':
+      return transformResponse_Feedback_VBS25V3C
     case 'lsc24':
     case 'lsc':
     default:
