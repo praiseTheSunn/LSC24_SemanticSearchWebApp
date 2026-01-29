@@ -115,7 +115,7 @@ export const ImageApi = createApi({
             body: tempParams,
           }
         },
-        transformResponse: (response: ApiResponse, meta, arg) => {
+        transformResponse: (response: FeedbackResponse, meta, arg) => {
           const transformFunc = getTransformFeedbackFunction(arg?.dataset)
           return transformFunc(response)
         },
