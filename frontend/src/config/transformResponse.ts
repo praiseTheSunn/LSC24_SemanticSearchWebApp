@@ -11,12 +11,12 @@ export const transformResponse_Feedback_LSC = (response: ApiResponse) => {
     img.date = img.video_id ? img.video_id : img.date
     img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     if (BASE_API_URL.includes('158.39.201.121')) {
-      img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+      img.img_link = img.img_link.replace('if-wan4.selab.edu.vn:20717', '158.39.201.121:20723')
     }
     if (img.neighbors) {
       for (const neighbor of img.neighbors) {
         if (BASE_API_URL.includes('158.39.201.121')) {
-          neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+          neighbor.img_link = neighbor.img_link.replace('if-wan4.selab.edu.vn:20717', '158.39.201.121:20723')
         }
       }
     }
@@ -27,12 +27,12 @@ export const transformResponse_Feedback_LSC = (response: ApiResponse) => {
     img.date = img.video_id ? img.video_id : img.date
     img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     if (BASE_API_URL.includes('158.39.201.121')) {
-      img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+      img.img_link = img.img_link.replace('if-wan4.selab.edu.vn:20717', '158.39.201.121:20723')
     }
     if (img.neighbors) {
       for (const neighbor of img.neighbors) {
         if (BASE_API_URL.includes('158.39.201.121')) {
-          neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+          neighbor.img_link = neighbor.img_link.replace('if-wan4.selab.edu.vn:20717', '158.39.201.121:20723')
         }
       }
     }
@@ -54,12 +54,12 @@ export const transformResponse_Feedback_AIC2025 = (response: ApiResponse) => {
   console.log('Transformed feedback data:', data);
 
   const likes = (data as any).like.map((img: ImageRecord) => {
-    img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+    img.img_link = img.img_link.replace('if-wan4.selab.edu.vn:20717', '127.0.0.1:8080')
     img.img_link = `${img.img_link.substring(0, 22) + img.img_link.substring(22, 25)}/${img.img_link.substring(22)}`
     img.img_link = img.img_link.replace('jpg', 'webp')
    if (img.neighbors) {
       for (const neighbor of img.neighbors) {
-        neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+        neighbor.img_link = neighbor.img_link.replace('if-wan4.selab.edu.vn:20717', '127.0.0.1:8080')
         neighbor.img_link = `${neighbor.img_link.substring(0, 22) + neighbor.img_link.substring(22, 25)}/${neighbor.img_link.substring(22)}`
         neighbor.img_link = neighbor.img_link.replace('jpg', 'webp')
       }
@@ -68,12 +68,12 @@ export const transformResponse_Feedback_AIC2025 = (response: ApiResponse) => {
   })
 
   const dislikes = (data as any).dislike.map((img: ImageRecord) => {
-    img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+    img.img_link = img.img_link.replace('if-wan4.selab.edu.vn:20717', '127.0.0.1:8080')
     img.img_link = `${img.img_link.substring(0, 22) + img.img_link.substring(22, 25)}/${img.img_link.substring(22)}`
     img.img_link = img.img_link.replace('jpg', 'webp')
     if (img.neighbors) {
       for (const neighbor of img.neighbors) {
-        neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+        neighbor.img_link = neighbor.img_link.replace('if-wan4.selab.edu.vn:20717', '127.0.0.1:8080')
         neighbor.img_link = `${neighbor.img_link.substring(0, 22) + neighbor.img_link.substring(22, 25)}/${neighbor.img_link.substring(22)}`
         neighbor.img_link = neighbor.img_link.replace('jpg', 'webp')
       }
@@ -162,12 +162,12 @@ export const transformResponse_AIC2025 = (response: ApiResponse) => {
   const result = data.map((img: ImageRecord) => {
     img.date = img.video_id ? img.video_id : img.date
     img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
-    img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+    img.img_link = img.img_link.replace('if-wan4.selab.edu.vn:20717', '127.0.0.1:8080')
     img.img_link = `${img.img_link.substring(0, 22) + img.img_link.substring(22, 25)}/${img.img_link.substring(22)}`
     img.img_link = img.img_link.replace('jpg', 'webp')
     if (img.neighbors) {
       for (const neighbor of img.neighbors) {
-        neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '127.0.0.1:8080')
+        neighbor.img_link = neighbor.img_link.replace('if-wan4.selab.edu.vn:20717', '127.0.0.1:8080')
         neighbor.img_link = `${neighbor.img_link.substring(0, 22) + neighbor.img_link.substring(22, 25)}/${neighbor.img_link.substring(22)}`
         neighbor.img_link = neighbor.img_link.replace('jpg', 'webp')
       }
@@ -276,20 +276,20 @@ export const transformResponse_LSC = (response: ApiResponse) => {
     img.date = img.video_id ? img.video_id : img.date
     img.time = img.timestamp ? String(Number(img.timestamp) * 1000) : img.time
     // nếu ở ngoài lab thì comment dòng dưới lại
-    // img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '10.0.1.21:20716')
+    // img.img_link = img.img_link.replace('if-wan4.selab.edu.vn:20717', '10.0.1.21:20716')
     // bergen
     // if IP of BASE_API_URL is 158.39.201.121 then replace with that IP
     if (BASE_API_URL.includes('158.39.201.121')) {
-      img.img_link = img.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+      img.img_link = img.img_link.replace('if-wan4.selab.edu.vn:20717', '158.39.201.121:20723')
     }
     
     if (img.neighbors) {
         for (const neighbor of img.neighbors) {
           // nếu ở ngoài lab thì comment dòng dưới lại
-          // neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '10.0.1.21:20716')
+          // neighbor.img_link = neighbor.img_link.replace('if-wan4.selab.edu.vn:20717', '10.0.1.21:20716')
           // bergen
           if (BASE_API_URL.includes('158.39.201.121')) {
-            neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20716', '158.39.201.121:20723')
+            neighbor.img_link = neighbor.img_link.replace('if-wan4.selab.edu.vn:20717', '158.39.201.121:20723')
           }
         }
       }
@@ -303,12 +303,12 @@ export const transformResponse_VBS25V3C = (response: ApiResponse) => {
   const data = response.response || response.data
   const result = data.map((img: ImageRecord) => {
     // nếu ở ngoài lab thì comment dòng dưới lại
-    img.img_link = img.img_link.replace('server.selab.edu.vn:20717', '10.0.1.21:20717')
+    img.img_link = img.img_link.replace('if-wan4.selab.edu.vn:20717', '10.0.1.21:20717')
     
     if (img.neighbors) {
         for (const neighbor of img.neighbors) {
           // nếu ở ngoài lab thì comment dòng dưới lại
-          neighbor.img_link = neighbor.img_link.replace('server.selab.edu.vn:20717', '10.0.1.21:20717')
+          neighbor.img_link = neighbor.img_link.replace('if-wan4.selab.edu.vn:20717', '10.0.1.21:20717')
         }
       }
 
@@ -337,6 +337,8 @@ export const getTransformResponseFunction = (
 ): ((response: ApiResponse) => ImageRecord[]) => {
   switch (dataset?.toLowerCase()) {
     case 'vbs25_v3c':
+    case 'vbs25_mvk':
+    case 'vbs25_lhe':
       return transformResponse_VBS25V3C
     case 'aic2025':
     case 'aic25':
