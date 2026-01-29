@@ -50,6 +50,43 @@ import type { Id } from 'react-toastify'
 // }
 
 
+export const VBS_addImages = async (
+  src_data: ImageRecord,
+  triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
+) => {
+  const evaluationId = localStorage.getItem('evaluationId')
+  const sessionId = localStorage.getItem('sessionId')
+
+  const video = src_data.video_id
+  if (!evaluationId || !sessionId || !video) {
+    alert('Missing evaluationId, sessionId or video')
+    return
+  }
+
+  const pad5 = (s: string) => ("00000" + s).slice(-5)
+  const videoStr = String(video)
+  const mediaItemName = /^\d+$/.test(videoStr) ? pad5(videoStr) : videoStr
+  
+  const parts = src_data.img_link.split('/')
+  const time_str = parts[parts.length - 1].split('.')[0] || ''
+  const time = Number(time_str)
+
+  // mediaItemName: video as string (with :05d padding if it's a number) else just string
+  console.log('mediaItemName:', mediaItemName)
+  console.log('time:', time)
+
+  const resultKIS = await triggerKIS({
+    session: sessionId,
+    evaluation_id: evaluationId,
+    mediaItemName: mediaItemName,
+    start: time,
+    end: time,
+  })
+
+  displayResponseToast(resultKIS)
+}
+
+
 export const AIC_addImages = async (
   src_data: ImageRecord,
   triggerKIS: ReturnType<typeof useSubmitKISAnsweringMutation>[0],
@@ -57,27 +94,35 @@ export const AIC_addImages = async (
   const evaluationId = localStorage.getItem('evaluationId')
   const sessionId = localStorage.getItem('sessionId')
 
-  // const time = Number(src_data.timestamp) * 1000
-  const time = convertTimeToMs(src_data.time)
-  console.log('AIC_addImages time:', time)
   const video = src_data.video_id
-  console.log('AIC_addImages video:', video)
-
   if (!evaluationId || !sessionId || !video) {
     alert('Missing evaluationId, sessionId or video')
     return
   }
 
+  const pad5 = (s: string) => ("00000" + s).slice(-5)
+  const videoStr = String(video)
+  const mediaItemName = /^\d+$/.test(videoStr) ? pad5(videoStr) : videoStr
+  
+  const parts = src_data.img_link.split('/')
+  const time_str = parts[parts.length - 1].split('.')[0] || ''
+  const time = Number(time_str)
+
+  // mediaItemName: video as string (with :05d padding if it's a number) else just string
+  console.log('mediaItemName:', mediaItemName)
+  console.log('time:', time)
+
   const resultKIS = await triggerKIS({
     session: sessionId,
     evaluation_id: evaluationId,
-    mediaItemName: video,
+    mediaItemName: mediaItemName,
     start: time,
     end: time,
   })
 
   displayResponseToast(resultKIS)
 }
+
 
 export const AIC_addCSVImages = (src: ImageRecord, toastId: string | null ,dispatch: Dispatch, prevImages: ImageRecord[]) => {
   
