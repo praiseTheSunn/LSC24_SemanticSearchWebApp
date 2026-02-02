@@ -17,8 +17,8 @@ RUN conda env update -n base -f environment.yml && \
 SHELL ["/bin/bash", "-c"]
 
 # Copy service code
-COPY embedding_compute/main.py /app/main.py
-COPY embedding_compute/run.sh /app/run.sh
+COPY milvus/main.py /app/main.py
+COPY milvus/run.sh /app/run.sh
 
 # Make script executable
 RUN chmod +x /app/run.sh
@@ -27,7 +27,7 @@ RUN chmod +x /app/run.sh
 ENV PYTHONPATH=/app/libs
 
 # Expose internal port (documentation only)
-EXPOSE 20724
+EXPOSE 20725
 
 # Start service
 CMD ["/app/run.sh"]
