@@ -103,8 +103,7 @@ class QueryStructured(BaseModel):
 
 
 class RequestExploreSimilarImages(BaseModel):
-    image_urls: Optional[list[str]] = None
-    image_ids: Optional[list[int]] = None
+    image_ids: List[int]
     dataset: options_schemas.DatasetOptions
     model: options_schemas.ModelOptions
     display_window_size: int = 0
@@ -114,52 +113,55 @@ class RequestExploreSimilarImages(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def only_one_of_media_or_text(cls, data: dict):
-        has_media = bool(data.get("image_urls"))
-        has_text = bool(data.get("image_ids"))
-        if has_media == has_text:  # both True or both False → invalid
-            raise ValueError("Exactly one of 'image_urls' or 'image_ids' must be provided.")
+    def validate_image_ids(cls, data: dict):
+        image_ids = data.get("image_ids")
+
+        if not image_ids:
+            raise ValueError("'image_ids' must be provided and cannot be empty.")
+
         return data
 
     class Config:
         json_schema_extra = {
             "example": {
-                    "image_urls": [
-                        "http://10.0.1.21:20716/201910/31/20191031_065919_000.jpg",
-                        "http://10.0.1.21:20716/201910/31/20191031_070027_000.jpg"
-                    ],
-                    "dataset": "lsc24",
-                    "model": "clips",
-                    "user_id": "rhymastic",
-                    "query_id": "LSC25-xxx",
-                    "evaluation_id": "abcd-..."
+                "image_ids": [
+                    20191031065919000,
+                    20191031070027000
+                ],
+                "dataset": "lsc24",
+                "model": "clips",
+                "user_id": "rhymastic",
+                "query_id": "LSC25-xxx",
+                "evaluation_id": "abcd-..."
             }
         }
 
 
 class RequestExploreNeighborImages(BaseModel):
-    image_url: Optional[str] = None
-    image_id: Optional[int] = None
+    image_id: int
     dataset: options_schemas.DatasetOptions
     span: int
     display_window_size: int = 0
     user_id: Optional[str] = "default"
     query_id: Optional[str] = "default"
     evaluation_id: Optional[str] = "default"
+    
+
 
     @model_validator(mode="before")
     @classmethod
-    def only_one_of_media_or_text(cls, data: dict):
-        has_media = bool(data.get("image_url"))
-        has_text = bool(data.get("image_id"))
-        if has_media == has_text:  # both True or both False → invalid
-            raise ValueError("Exactly one of 'image_url' or 'image_id' must be provided.")
+    def validate_image_ids(cls, data: dict):
+        image_id = data.get("image_id")
+
+        if image_id is None:
+            raise ValueError("'image_id' must be provided and cannot be empty.")
+
         return data
 
     class Config:
         json_schema_extra = {
             "example": {
-                    "image_url": "http://10.0.1.21:20716/201910/31/20191031_070027_000.jpg",
+                    "image_id": 101,
                     "dataset": "lsc24",
                     "span": 30,
                     "user_id": "rhymastic",
