@@ -1,13 +1,33 @@
-FROM continuumio/miniconda3
+FROM continuumio/miniconda3:latest
 
+# Prevent conda from asking questions
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set working directory
 WORKDIR /app
-COPY main/ /app
-COPY dataset/ /app/dataset
 
-# Create the conda environment
-RUN conda env create -f /app/environment.yml
+# Copy environment file
+COPY environment.yml /app/environment.yml
 
-# Make sure the environment is activated:
-SHELL ["conda", "run", "-n", "main", "/bin/bash", "-c"]
+# Update base environment (since name=base)
+RUN conda env update -n base -f environment.yml && \
+    conda clean -afy
 
-CMD ["bash", "run.sh"]
+# Use conda base by default
+SHELL ["/bin/bash", "-c"]
+
+# Copy service code
+COPY main/main.py /app/main.py
+COPY main/run.sh /app/run.sh
+
+# Make script executable
+RUN chmod +x /app/run.sh
+
+# Python path
+ENV PYTHONPATH=/app/libs
+
+# Expose internal port (documentation only)
+EXPOSE 20721
+
+# Start service
+CMD ["/app/run.sh"]
