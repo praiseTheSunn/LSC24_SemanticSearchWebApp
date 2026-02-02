@@ -157,7 +157,7 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     print(f"Record IDs before mapping: {record_ids[:10]}")
     print(f"Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
     for rec in records[:10]:
-        print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
+        print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}")
 
 
 
@@ -167,10 +167,7 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
 
     # Step 2.5: Add img_link to records
     def add_img_link(dataset_name: str, record):
-        if "vbs25" in dataset_name:
-            return f"{image_server_url}/{dataset_name.split('_')[1].upper()}/{record['image_id']}{image_extension}"
-        else:
-            return f"{image_server_url}/{record['image_id']}{image_extension}"
+        return f"{image_server_url}/{record['image_id']}{image_extension}"            
         
     for record in records:
         record['img_link'] = add_img_link(dataset_name, record)

@@ -58,10 +58,36 @@ export const AIC_addImages = async (
   const sessionId = localStorage.getItem('sessionId')
 
   // const time = Number(src_data.timestamp) * 1000
-  const time = convertTimeToMs(src_data.time)
-  console.log('AIC_addImages time:', time)
   const video = src_data.video_id
-  console.log('AIC_addImages video:', video)
+
+  const pad5 = (s: string) => ("00000" + s).slice(-5)
+  const videoStr = String(video)
+  const mediaItemName = /^\d+$/.test(videoStr) ? pad5(videoStr) : videoStr
+
+  // console.log('AIC_addImages video:', video)
+  console.log('AIC_addImages src_data', src_data)
+
+  // const parts = src_data.img_link.split('/')
+  // console.log('AIC_addImages parts:', parts)
+  // const time = Math.floor((src_data.start_time + src_data.end_time) / 2 * 1000)
+  // console.log('AIC_addImages time:', time)
+
+  const parts = src_data.img_link.split('/')
+  console.log('AIC_addImages parts:', parts)
+
+  let time
+
+  if (src_data.start_time != null && src_data.end_time != null) {
+    // normal case: use mid timestamp
+    time = Math.floor((src_data.start_time + src_data.end_time) / 2 * 1000)
+  } else {
+    // fallback: get filename (without extension) and multiply by 1001
+    const filename = parts[parts.length - 1]          // e.g. "12345.png"
+    const basename = filename.split('.')[0]           // "12345"
+    time = Math.floor(Number(basename) * 1001)
+  }
+
+  console.log("mediaItemName:", mediaItemName, "time:", time)
 
   if (!evaluationId || !sessionId || !video) {
     alert('Missing evaluationId, sessionId or video')
@@ -71,7 +97,7 @@ export const AIC_addImages = async (
   const resultKIS = await triggerKIS({
     session: sessionId,
     evaluation_id: evaluationId,
-    mediaItemName: video,
+    mediaItemName: mediaItemName,
     start: time,
     end: time,
   })

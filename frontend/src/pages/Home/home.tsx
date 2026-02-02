@@ -299,23 +299,6 @@ const Home = () => {
       >
         <Box
           sx={{
-            width: 420,
-            minWidth: 360,
-            flexShrink: 0,
-            minHeight: 0,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <ConversationBox
-            wsUrl={`ws://10.0.1.21:20726/ws/agent?mode=assist`}
-            setResult={setResult}
-          />
-        </Box>
-
-        <Box
-          sx={{
             flex: 1,
             minWidth: 0,
             minHeight: 0,

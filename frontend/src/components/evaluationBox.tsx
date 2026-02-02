@@ -102,8 +102,11 @@ const EvaluationBox = () => {
       setSessionId(response.data)
 
       const reponseEval = await triggerEval({ session: response.data })
-      if (!reponseEval.data) {
-        toast.error('Invalid session id', {
+      
+      console.log('Evaluation response:', reponseEval)
+      
+      if (!reponseEval.data || reponseEval.data.length === 0) {
+        toast.error('No evaluation found for this session', {
           position: 'bottom-right',
           autoClose: 3000,
           closeOnClick: true,
