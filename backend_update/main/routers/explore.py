@@ -26,12 +26,7 @@ async def explore_similar_images(payload: RequestExploreSimilarImages):
     model = inputs["model"].value if hasattr(inputs["model"], "value") else inputs["model"]
     
     if 'image_ids' in inputs.keys() and inputs["image_ids"] is not None:
-        # If image_ids are provided, use them directly
-        image_ids = inputs["image_ids"]
-        record_ids = [int(image_id) for image_id in image_ids]
-    elif 'image_urls' in inputs.keys() and inputs["image_urls"] is not None:
-        image_ids = [DatasetManager.get_dataset(inputs["dataset"]).standardize_image_id(url) for url in inputs["image_urls"]]
-        record_ids = [DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id] for image_id in image_ids]
+        record_ids = inputs["image_ids"]
 
     response_data, response_status = await explore.explore_similar_images(
         record_ids=record_ids, 
@@ -60,21 +55,7 @@ async def explore_similar_images(payload: RequestExploreSimilarImages):
 async def explore_neighbor_images(payload: RequestExploreNeighborImages):
 
     inputs = payload.model_dump()
-    print(inputs)
-
-    if 'image_id' in inputs.keys() and inputs["image_id"] is not None:
-        print("Using image_id directly")
-        # If image_id is provided, use it directly
-        image_id = inputs["image_id"]
-        record_id = int(image_id)
-    elif 'image_url' in inputs.keys() and inputs["image_url"] is not None:
-        print("Standardizing image_url to image_id")
-        image_id = DatasetManager.get_dataset(inputs["dataset"]).standardize_image_id(inputs["image_url"])
-        record_id = DatasetManager.get_dataset(inputs["dataset"]).image_id_to_record_id[image_id]
-        print(f"Standardized image_id: {image_id}")
-
-    # DEBUG
-    print(f"Exploring neighbors for image ID: {image_id}, Record ID: {record_id}, Dataset: {inputs['dataset']}, Span: {inputs['span']}")
+    record_id = inputs["image_id"]
     
     response_data, response_status = await explore.explore_neighbor_images(record_id=record_id, span=inputs["span"], dataset=inputs["dataset"])
     response_data = await prepare_response(inputs["dataset"], "default", response_data["record_ids"], display_window_size=inputs["display_window_size"])      # model=default for not retrieving data from Milvus

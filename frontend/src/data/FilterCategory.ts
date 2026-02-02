@@ -28,12 +28,12 @@ const FilterCategories_VBS2025 = {
 }
 
 const FilterCategories_LSC2024 = {
-  '-a ': { category: 'activity', startIndex: 3, display: '-a ... : Activity' },
+  // '-a ': { category: 'activity', startIndex: 3, display: '-a ... : Activity' },
   '-ocr ': { category: 'ocr', startIndex: 5, display: '-ocr ... : OCR text' },
-  '-l ': { category: 'location', startIndex: 3, display: '-l ... : Location' },
-  '-d ': {category: 'date', startIndex: 3, display: '-d ... : date (e.g., 2024-01-30)'},
+  // '-l ': { category: 'location', startIndex: 3, display: '-l ... : Location' },
+  // '-d ': {category: 'date', startIndex: 3, display: '-d ... : date (e.g., 2024-01-30)'},
   // '-t ': {category: 'time', startIndex: 3, display: '-t ... : time (only frontend filter)'},
-  '-tr ': { category: 'transcript', startIndex: 4, display: '-tr ... : Transcript' },
+  // '-tr ': { category: 'transcript', startIndex: 4, display: '-tr ... : Transcript' },
   '-textasdasdsa ': {category: 'SUBMIT TEXT', startIndex: 6, display: '-text ... : Submit text'},
 }
 

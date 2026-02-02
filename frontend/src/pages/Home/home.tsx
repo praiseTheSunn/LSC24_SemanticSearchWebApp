@@ -38,6 +38,7 @@ import NeighborClusterTab from '../../containers/neighborCluster/NeighborCluster
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
 import type { ImageRecord } from '../../types/image'
 import type { SearchTermType } from '../../types/search'
+import { AGENT_URL } from '../../types/constants'
 
 const LevelList = [
   { level: 'Neighbor', bg: TrapoziedBgGrayLeft },
@@ -309,7 +310,7 @@ const Home = () => {
           }}
         >
           <ConversationBox
-            wsUrl={`ws://10.0.1.21:20726/ws/agent?mode=assist`}
+            wsUrl={`${AGENT_URL}ws/agent?mode=assist`}
             setResult={setResult}
           />
         </Box>

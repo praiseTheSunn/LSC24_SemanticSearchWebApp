@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  main:
+    build:
+      context: .
+      dockerfile: main/Dockerfile
+    container_name: main
+    ports:
+      - "20721:20721"
+    restart: unless-stopped
+
+  embedding_compute:
+    build:
+      context: .
+      dockerfile: embedding_compute/Dockerfile
+    container_name: embedding_compute
+    ports:
+      - "20724:20724"
+    restart: unless-stopped
+
+  milvus:
+    build:
+      context: .
+      dockerfile: milvus/Dockerfile
+    container_name: milvus
+    ports:
+      - "20725:20725"
+    restart: unless-stopped
+
+volumes:
+  - ./libs:/app/libs
+  - ./data:/app/data
