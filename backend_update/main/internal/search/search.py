@@ -1,41 +1,161 @@
 from fastapi import status, HTTPException
 from schemas.request_schemas import QueryClause, QueryStructured
 from internal.search.temporal import expand_temporal, aggregate_temporal
-from internal.api_handler import compute_image_embedding, compute_text_embedding, search_milvus
+from internal.api_handler import compute_image_embedding, compute_text_embedding, search_dense, search_ocr
 from internal.postprocess import prepare_response
 
 from dataset.dataset_manager import DatasetManager
 
 
-async def search_structure(query_clause: QueryClause, dataset: str, model: str, subset_record_ids: list[str] = []):
+from fastapi import HTTPException, status
+from typing import Any, Optional
 
-    text = query_clause.text
-    filters = query_clause.filters
+async def search_structure(
+    query_clause: QueryClause,
+    dataset: str,
+    model: str,
+    subset_record_ids: Optional[list[str]] = None,
+):
+    """
+    - Allow blank text query OR blank OCR query, but not both.
+    - If both result lists exist, merge by record_id:
+        combined = 0.5 * dense_norm + 0.5 * ocr_norm
+      where each score list is min-max normalized to [0, 1].
+    """
+    if subset_record_ids is None:
+        subset_record_ids = []
 
-    text_embedding = await compute_text_embedding(text, model)
-    if text_embedding is None:
+    text = (query_clause.text or "").strip()
+    filters = query_clause.filters or {}
+    ocr_query = (filters.get("ocr") or "").strip()
+
+    # allow blank text OR blank ocr, but not both
+    if not text and not ocr_query:
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to compute text embedding.",
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Either text query or OCR query must be provided (at least one non-blank).",
         )
-    else:
-        result = await search_milvus(
-            embedding=text_embedding, 
-            dataset=dataset, 
-            model=model, 
+
+    # ---------- helpers ----------
+    def _get_record_id(item: Any) -> str:
+        if isinstance(item, dict):
+            return item["record_id"]
+        return getattr(item, "record_id")
+
+    def _get_score(item: Any) -> float:
+        if isinstance(item, dict):
+            return float(item["score"])
+        return float(getattr(item, "score"))
+
+    def _set_score(item: Any, value: float) -> Any:
+        if isinstance(item, dict):
+            item["score"] = float(value)
+            return item
+        setattr(item, "score", float(value))
+        return item
+
+    def _normalize_map(record_ids: list[str], scores: list[float]) -> dict[str, float]:
+        """Min-max normalize to [0,1]. If all equal -> all 1.0. Returns {record_id: norm_score}."""
+        if not record_ids:
+            return {}
+        if len(record_ids) != len(scores):
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Search result format error: record_ids and scores length mismatch.",
+            )
+        mn, mx = min(scores), max(scores)
+        if mx == mn:
+            return {rid: 1.0 for rid in record_ids}
+        denom = mx - mn
+        return {rid: (float(s) - mn) / denom for rid, s in zip(record_ids, scores)}
+
+    # ---------- run searches conditionally ----------
+    result_dense = {"record_ids": [], "scores": []}
+    result_ocr = {"record_ids": [], "scores": []}
+
+    if text:
+        text_embedding = await compute_text_embedding(text, model)
+        if text_embedding is None:
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Failed to compute text embedding.",
+            )
+        result_dense = await search_dense(
+            embedding=text_embedding,
+            dataset=dataset,
+            model=model,
             filters=filters,
-            subset_record_ids=subset_record_ids
+            subset_record_ids=subset_record_ids,
         )
-        if result is None:
+        if result_dense is None:
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Failed to search in Milvus.",
             )
-        else:
-            return result
-        
-    # TODO: more filters
 
+    if ocr_query:
+        result_ocr = await search_ocr(
+            ocr_query=ocr_query,
+            dataset=dataset,
+            top_k=500,
+        ) or {"record_ids": [], "scores": []}
+
+    dense_ids = result_dense.get("record_ids", []) or []
+    dense_scores = result_dense.get("scores", []) or []
+    ocr_ids = result_ocr.get("record_ids", []) or []
+    ocr_scores = result_ocr.get("scores", []) or []
+    print("\n[main] Search results:")
+    print(f"Dense: {len(dense_ids)} records")
+    print(f"OCR: {len(ocr_ids)} records")
+    print(f"Top 5 dense IDs: {dense_ids[:5]}")
+    print(f"Top 5 OCR IDs: {ocr_ids[:5]}")
+    print()
+    
+    # ---------- merge ----------
+    # Only one source available -> return normalized scores in the same structure
+    if dense_ids and not ocr_ids:
+        dense_norm = _normalize_map(dense_ids, dense_scores)
+        out_ids = list(dense_ids)
+        out_scores = [dense_norm[rid] for rid in out_ids]
+        return {"record_ids": out_ids, "scores": out_scores}
+
+    if ocr_ids and not dense_ids:
+        ocr_norm = _normalize_map(ocr_ids, ocr_scores)
+        out_ids = list(ocr_ids)
+        out_scores = [ocr_norm[rid] for rid in out_ids]
+        return {"record_ids": out_ids, "scores": out_scores}
+
+    # Both lists exist -> merge on record_id with 0.5/0.5 weights
+    dense_norm = _normalize_map(dense_ids, dense_scores)
+    print(ocr_scores)
+    ocr_norm = _normalize_map(ocr_ids, ocr_scores)
+    print(ocr_norm)
+
+    # preserve some ordering signal: start from dense order, then append ocr-only ids
+    union_ids: list[str] = []
+    seen = set()
+    for rid in dense_ids:
+        if rid not in seen:
+            union_ids.append(rid)
+            seen.add(rid)
+    for rid in ocr_ids:
+        if rid not in seen:
+            union_ids.append(rid)
+            seen.add(rid)
+
+    merged_pairs = []
+    for rid in union_ids:
+        d = dense_norm.get(rid, 0.0)
+        o = ocr_norm.get(rid, 0.0)
+        merged_pairs.append((rid, 0.5 * d + 0.5 * o))
+
+    # sort by combined score desc
+    merged_pairs.sort(key=lambda x: x[1], reverse=True)
+
+    return {
+        "record_ids": [rid for rid, _ in merged_pairs],
+        "scores": [score for _, score in merged_pairs],
+    }
 
 
 async def search_by_image(image_base64: str, dataset: str, model: str, subset_record_ids: list[str] = []):
@@ -43,7 +163,7 @@ async def search_by_image(image_base64: str, dataset: str, model: str, subset_re
     if image_embedding is None:
         return "Failed to compute image embedding.", status.HTTP_500_INTERNAL_SERVER_ERROR
     else:
-        result = await search_milvus(
+        result = await search_dense(
             embedding=image_embedding, 
             dataset=dataset,
             filters={},

@@ -1,7 +1,13 @@
-
 import requests
 import asyncio
-from constants import API_TEXT_EMBEDDING, API_IMAGE_EMBEDDING, API_SEARCH_MILVUS, API_FETCH_EMBEDDINGS, API_FETCH_METADATA
+from constants import (
+    API_TEXT_EMBEDDING, 
+    API_IMAGE_EMBEDDING, 
+    API_SEARCH_DENSE,
+    API_SEARCH_OCR,
+    API_FETCH_EMBEDDINGS, 
+    API_FETCH_METADATA
+)
 from pprint import pprint
 
 
@@ -37,7 +43,7 @@ async def compute_image_embedding(image_base64, model):
 
 
 
-async def search_milvus(embedding, dataset, filters, model, limit=500, subset_record_ids=[]):
+async def search_dense(embedding, dataset, filters, model, limit=500, subset_record_ids=[]):
     data = {
         "embedding": embedding,
         "filters": filters,
@@ -47,15 +53,11 @@ async def search_milvus(embedding, dataset, filters, model, limit=500, subset_re
         "subset_record_ids": subset_record_ids
     }
 
-    resp = await asyncio.to_thread(requests.post, API_SEARCH_MILVUS, json=data, headers={"Content-Type": "application/json"})
+    resp = await asyncio.to_thread(requests.post, API_SEARCH_DENSE, json=data, headers={"Content-Type": "application/json"})
     if resp.status_code != 200:
         return None
     else:
         raw_results = resp.json()
-        pprint(raw_results)
-        # TEMP
-        # record_ids = [entity.get('record_id') for entity in raw_results.get('response', [])]
-        # scores = [entity.get('distance') for entity in raw_results.get('response', [])]
         record_ids = [entity.get('record_id') for entity in raw_results]
         scores = [entity.get('distance') for entity in raw_results]
         return {
@@ -63,6 +65,26 @@ async def search_milvus(embedding, dataset, filters, model, limit=500, subset_re
             "scores": scores
         }
 
+
+async def search_ocr(ocr_query, dataset, top_k=100, subset_record_ids=[]):
+    data = {
+        "query": ocr_query,
+        "limit": top_k,
+        "dataset": dataset,
+        "subset_record_ids": subset_record_ids
+    }
+
+    resp = await asyncio.to_thread(requests.post, API_SEARCH_OCR, json=data)
+    if resp.status_code != 200:
+        return None
+    else:
+        raw_results = resp.json()
+        record_ids = [entity.get('record_id') for entity in raw_results]
+        scores = [entity.get('score') for entity in raw_results]
+        return {
+            "record_ids": record_ids,
+            "scores": scores
+        }
 
 async def fetch_metadata(record_ids, dataset, model):
     data = {

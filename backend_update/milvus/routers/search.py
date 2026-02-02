@@ -110,6 +110,7 @@ def search_ocr(payload: ElasticsearchTextSearchRequest) -> List[Dict[str, Any]]:
         )
 
     print(f"OCR search completed for query <{payload.query[:50]}>. Number of results: {len(serialized_results)}")
+    print(f"Top 5 results: {serialized_results[:5]}")
     return serialized_results
 
 
@@ -256,8 +257,8 @@ def apply_filter_only(collection_name: str, filters: Dict[str, Any], limit: int 
         return []
 
 
-# @router.post("/search_milvus")
-# async def search_milvus(payload: SearchRequest):
+# @router.post("/search_dense")
+# async def search_dense(payload: SearchRequest):
 #     collection_name = payload.dataset + "_" + payload.model
 #     # simple dense search wrapper
 #     try:

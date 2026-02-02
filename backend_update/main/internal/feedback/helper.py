@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.cluster import KMeans
-from internal.api_handler import search_milvus
+from internal.api_handler import search_dense
 
 
 def get_average_embedding(embeddings: list[list[float]]) -> list[float]:
@@ -28,7 +28,7 @@ async def search_by_embedding(mean_embedding: list[float], dataset: str, model: 
     if mean_embedding is None:
         return None
     else:
-        result = await search_milvus(
+        result = await search_dense(
             embedding=[mean_embedding], 
             dataset=dataset,
             filters={},

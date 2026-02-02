@@ -1,6 +1,6 @@
 import numpy as np
 from fastapi import status
-from internal.api_handler import search_milvus
+from internal.api_handler import search_dense
 
 
 def compute_mean_embedding(embeddings: list[list[float]]):
@@ -13,7 +13,7 @@ async def search_by_embedding(mean_embedding: list[float], dataset: str, model: 
     if mean_embedding is None:
         return None
     else:
-        result = await search_milvus(
+        result = await search_dense(
             embedding=mean_embedding, 
             dataset=dataset, 
             filters={}, 

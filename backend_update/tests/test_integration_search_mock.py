@@ -27,7 +27,7 @@ def test_search_with_text_query_monkeypatched():
 
     # Monkeypatch async functions to avoid external services
     api_handler.compute_text_embedding = async_stub([0.1, 0.2, 0.3])
-    api_handler.search_milvus = async_stub({"record_ids": [0, 1], "scores": [0.9, 0.8]})
+    api_handler.search_dense = async_stub({"record_ids": [0, 1], "scores": [0.9, 0.8]})
     # postprocess.prepare_response is async; return a minimal response list
     postprocess.prepare_response = async_stub([
         {"img_link": "http://example.com/0.jpg", "score": 0.9},

@@ -149,6 +149,7 @@ class ImageDataset(ABC):
 
         # Rename + reorder. Also keep only columns in the config file for indexing
         self.df.rename(columns=self.column_mapping, inplace=True)
+        print(f"Columns of df: {self.df.columns.tolist()}")
         self.df = self.df[list(self.column_mapping.values())]
 
         # Reset record_id to count from 0

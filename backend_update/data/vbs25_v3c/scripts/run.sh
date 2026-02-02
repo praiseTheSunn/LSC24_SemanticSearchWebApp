@@ -1,0 +1,5 @@
+# python batch_ocr_v3c.py --start_subfolder "11001" --end_subfolder "14000" --cuda_visible_devices "0"
+# python batch_ocr_v3c.py --start_subfolder "14001" --end_subfolder "16500" --cuda_visible_devices "0"
+# python batch_ocr_v3c.py --start_subfolder "16501" --end_subfolder "19000" --cuda_visible_devices "0"
+# python batch_ocr_v3c.py --start_subfolder "20001" --end_subfolder "21856" --cuda_visible_devices "0"
+python batch_ocr_v3c.py --start_subfolder "21301" --end_subfolder "21856" --cuda_visible_devices "0"

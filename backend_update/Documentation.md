@@ -42,7 +42,7 @@ Because dataset YAMLs define the metadata schema and the `filters` map (includin
 
 - how queries are parsed and mapped to database / Milvus filters;
 - what metadata fields are returned and renamed by the API (column mapping);
-- how the `search_milvus` routine constructs expressions and whether sparse-vector BM25 components are searched.
+- how the `search_dense` routine constructs expressions and whether sparse-vector BM25 components are searched.
 
 ## How services interact (main first, then others)
 
@@ -57,8 +57,8 @@ High-level call flow for a user request (text or image search):
 3. Embedding step: when a text or image needs embedding, `internal.api_handler` forwards a POST to the embedding service:
 	 - `embedding_compute` exposes `/embedding/text` and `/embedding/image`.
 	 - The embedding service uses a `ModelManager` (singleton) that loads model(s) (e.g., `clips`) and returns vectors.
-4. Vector search: once embeddings are available, `internal.api_handler.search_milvus` posts to Milvus service:
-	 - `milvus` exposes `/search/search_milvus` (and `/fetch/*` for metadata/embeddings).
+4. Vector search: once embeddings are available, `internal.api_handler.search_dense` posts to Milvus service:
+	 - `milvus` exposes `/search/search_dense` (and `/fetch/*` for metadata/embeddings).
 	 - The Milvus service performs dense or hybrid searches using its `internal` implementation and the `pymilvus` client.
 5. Metadata & embeddings: `main/internal/postprocess.prepare_response` uses dataset metadata (via `DatasetManager.get_dataset(...)`) to build the final, human-friendly response. When needed, it calls Milvus fetch endpoints for metadata and embeddings.
 
@@ -117,10 +117,10 @@ All endpoints described below are implemented as FastAPI routes in the `backend_
 
 3) Milvus service — `backend_update/milvus`
 
-- POST /search/search_milvus
+- POST /search/search_dense
 	- Input (SearchRequest): { dataset: Enum, model: Enum, embedding: List[List[float]], filters: Dict[str,str], limit: int, subset_record_ids: List[int] }
 	- Output: { response: [ { record_id: int, distance: float }, ... ] }
-	- Implementation: calls `internal.search.search_milvus`, constructs hybrid/dense+BM25 requests and returns serialized hits.
+	- Implementation: calls `internal.search.search_dense`, constructs hybrid/dense+BM25 requests and returns serialized hits.
 
 - POST /fetch/fetch_metadata
 	- Input (FetchMetadataRequest): { dataset: Enum, model: Enum, record_ids: [int] }

@@ -76,11 +76,11 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
 
     # Preprocess the query
     filters = DatasetManager.get_dataset(inputs["dataset"]).get_filters()
-    # parsed = parse_raw_query(inputs["text_query"], filters)
-    parsed = [{
-        "text": inputs["text_query"],
-        "filters": {}
-    }]
+    parsed = parse_raw_query(inputs["text_query"], filters)
+    # parsed = [{
+    #     "text": inputs["text_query"],
+    #     "filters": {}
+    # }]
     query_structured = QueryStructured(
         clauses=[QueryClause(**q) for q in parsed],
         dataset=inputs["dataset"],
@@ -96,9 +96,10 @@ async def search_with_text_query(payload: RequestSearchByTextQuery):
         return JSONResponse(content={"status": status.HTTP_400_BAD_REQUEST, "message": "Data retrieval failed", "error": "Excessive number of temporal clauses in the query."}, status_code=status.HTTP_400_BAD_REQUEST, headers={'Access-Control-Allow-Origin': '*'})
     
     # Search for each clause
-    print(f"N_RESULTS: {query_structured.top_k}")
-    print("Structured Query:", query_structured)
+    print(f"[main] N_RESULTS: {query_structured.top_k}")
     response_data, response_status = await search_by_text(query_structured)
+    print("----")
+    print()
 
     # Postprocess the response
     if inputs["use_temporal_window"]:

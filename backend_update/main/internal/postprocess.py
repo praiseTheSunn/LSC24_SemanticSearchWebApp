@@ -84,6 +84,65 @@ def mapping_metadata(records, dataset='vbs25_v3c', scores=None, local_image_serv
     return records
 
 
+def json_safe_impute(
+    df: pd.DataFrame,
+    *,
+    latlng_cols=("new_lat", "new_lng"),
+    numeric_strategy="median",   # "median" | "mean" | "zero"
+    string_strategy="empty",     # "empty" | "none"
+    bool_strategy="mode",        # "mode" | "false"
+) -> pd.DataFrame:
+    df = df.copy()
+
+    # 1) inf -> NaN
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+
+    # 2) Datetime: NaT -> None
+    dt_cols = df.select_dtypes(include=["datetime64[ns]", "datetimetz"]).columns
+    for c in dt_cols:
+        df[c] = df[c].where(df[c].notna(), None)
+
+    # 3) Bool
+    bool_cols = df.select_dtypes(include=["bool"]).columns
+    for c in bool_cols:
+        if bool_strategy == "false":
+            df[c] = df[c].fillna(False)
+        else:  # mode
+            mode = df[c].mode(dropna=True)
+            fill = bool(mode.iloc[0]) if not mode.empty else False
+            df[c] = df[c].fillna(fill)
+
+    # 4) Numeric
+    num_cols = df.select_dtypes(include=["number"]).columns
+    for c in num_cols:
+        if c in latlng_cols:
+            # lat/lng thường nên để None (unknown) thay vì bịa ra median
+            df[c] = df[c].astype(object).where(df[c].notna(), None)
+            continue
+
+        if numeric_strategy == "zero":
+            df[c] = df[c].fillna(0)
+        elif numeric_strategy == "mean":
+            m = df[c].mean(skipna=True)
+            df[c] = df[c].fillna(0 if pd.isna(m) else m)
+        else:  # median
+            m = df[c].median(skipna=True)
+            df[c] = df[c].fillna(0 if pd.isna(m) else m)
+
+    # 5) Strings / objects
+    obj_cols = df.select_dtypes(include=["object", "string"]).columns
+    if string_strategy == "none":
+        df[obj_cols] = df[obj_cols].where(df[obj_cols].notna(), None)
+    else:  # empty
+        df[obj_cols] = df[obj_cols].fillna("")
+
+    # 6) Ensure JSON-safe: any remaining missing -> None
+    # (Need object dtype so None won't turn back into NaN)
+    df = df.astype(object).where(pd.notnull(df), None)
+
+    return df
+
+
 async def prepare_response(dataset, model, record_ids=[], scores=None, display_window_size=3, all_neighbor_ids=None, top_k=100):
     dataset_name = dataset.lower()
     dataset = DatasetManager.get_dataset(dataset_name)
@@ -94,7 +153,6 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
         return []
     
     # remove invalid numbers from record_ids
-    print(f"Before masking: {len(record_ids)} record ids")
     record_ids = [rid for rid in record_ids if rid >= 0 and rid < len(dataset.df)]
 
     # Step 1:
@@ -118,8 +176,6 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     print(f"Validating record ids for dataset: {dataset_name}")
     print(f"Number of record ids: {len(record_ids)}")
     print(f"Number of neighbor ids (unique): {len(all_neighbor_ids_flat)}")
-    print(f"List of record ids: {record_ids[:20]}...")
-    print(f"Model: {model}")
 
     # Step 2: Retrieve metadata
 
@@ -144,35 +200,38 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     # Temporary use of CSV file for metadata
     records_df = dataset.df.loc[record_ids].copy()
     records_df['record_id'] = records_df.index
-    records_df = records_df.replace([np.inf, -np.inf], np.nan).dropna()   
+    records_df = records_df.replace([np.inf, -np.inf], np.nan)
+    records_df = json_safe_impute(records_df, numeric_strategy="median", string_strategy="empty")
     records = records_df.to_dict(orient='records')
 
     # For neighbors
     neighbors_df = dataset.df.loc[all_neighbor_ids_flat].copy()
     neighbors_df['record_id'] = neighbors_df.index
-    neighbors_df = neighbors_df.replace([np.inf, -np.inf], np.nan).dropna()
+    neighbors_df = neighbors_df.replace([np.inf, -np.inf], np.nan)
+    neighbors_df = json_safe_impute(neighbors_df, numeric_strategy="median", string_strategy="empty")
     neighbors = neighbors_df.to_dict(orient='records')
 
     # DEBUG
-    print(f"Record IDs before mapping: {record_ids[:10]}")
-    print(f"Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
-    for rec in records[:10]:
-        print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}")
-
-
-
-    # print(f"Prepare response - Retrieving metadata for {dataset} dataset:")
-    # print(f"Retrieved {len(records)} main records")
-    # print(f"Retrieved {len(all_neighbor_ids_flat)} neighbor records")
+    before = record_ids[:10]
+    after = [rec['record_id'] for rec in records[:10]]
+    print(f"Record IDs before mapping: {before}")
+    print(f"Record IDs after mapping: {after}")
+    assert before == after, "Record IDs do not match after metadata retrieval!"
 
     # Step 2.5: Add img_link to records
     def add_img_link(dataset_name: str, record):
-        return f"{image_server_url}/{record['image_id']}{image_extension}"            
+        # if dataset_name.startswith("vbs25_"):
+        #     new_image_id = '/'.join(record['image_id'].split('/')[:-1] + [str(record['filename'])])
+        #     return f"{image_server_url}/{new_image_id}{image_extension}"
+        return f"{image_server_url}/{record['image_id']}{image_extension}"
         
     for record in records:
         record['img_link'] = add_img_link(dataset_name, record)
     for record in neighbors:
         record['img_link'] = add_img_link(dataset_name, record)
+
+    for i, rec in enumerate(records[:20]):
+        print(f"Record ID: {rec['record_id']}\tURL: {rec['img_link']}\tStart: {rec.get('start_time', 'N/A')}\tEnd: {rec.get('end_time', 'N/A')}\tScore: {scores[i] if scores else 'N/A'}\tOCR: {rec.get('ocr_text', 'N/A')[:30]}...")
 
     # Step 3: Build a mapping for fast access
     neighbor_metadata = {rec['record_id']: rec for rec in neighbors}

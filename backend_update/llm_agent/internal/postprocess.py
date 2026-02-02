@@ -238,25 +238,27 @@ async def prepare_response(
     neighbors_df = json_safe_impute(neighbors_df, numeric_strategy="median", string_strategy="empty")
     neighbors = neighbors_df.to_dict(orient='records')
 
+    # DEBUG
+    before = record_ids[:10]
+    after = [rec['record_id'] for rec in records[:10]]
+    print(f"Record IDs before mapping: {before}")
+    print(f"Record IDs after mapping: {after}")
+    assert before == after, "Record IDs do not match after metadata retrieval!"    
 
-    # # DEBUG
-    # print(f"[prepare_response] Record IDs before mapping: {record_ids[:10]}")
-    # print(f"[prepare_response] Record IDs after mapping: {[rec['record_id'] for rec in records[:10]]}")
-    # for rec in records[:10]:
-    #     print(f"Record ID: {rec['record_id']}, Image ID: {rec['image_id']}, Time: {rec['time']}")
-    
-    
     # Step 2.5: Add img_link to records
     def add_img_link(dataset_name: str, record):
-        if "vbs25" in dataset_name:
-            return f"{image_server_url}/{dataset_name.split('_')[1].upper()}/{record['image_id']}{image_extension}"
-        else:
-            return f"{image_server_url}/{record['image_id']}{image_extension}"
+        # if dataset_name.startswith("vbs25_"):
+        #     new_image_id = '/'.join(record['image_id'].split('/')[:-1] + [str(record['filename'])])
+        #     return f"{image_server_url}/{new_image_id}{image_extension}"            
+        return f"{image_server_url}/{record['image_id']}{image_extension}"
         
     for record in records:
         record['img_link'] = add_img_link(dataset_name, record)
     for record in neighbors:
         record['img_link'] = add_img_link(dataset_name, record)
+
+    for i, rec in enumerate(records[:20]):
+        print(f"Record ID: {rec['record_id']}\tURL: {rec['img_link']}\tStart: {rec.get('start_time', 'N/A')}\tEnd: {rec.get('end_time', 'N/A')}\tScore: {scores[i] if scores else 'N/A'}\tOCR: {rec.get('ocr_text', 'N/A')[:30]}...")
 
     # Step 3: Build a mapping for fast access
     neighbor_metadata = {rec['record_id']: rec for rec in neighbors}
@@ -276,10 +278,5 @@ async def prepare_response(
 
         if len(result) >= top_k:
             break
-
-    # print 10 first image_id for debugging
-    print(f"[prepare_response] First 10 image_ids in result:")
-    for rec in result[:10]:
-        print(f"  Image ID: {rec['image_id']}, Record ID: {rec['record_id']}, Score: {rec['score']}")
 
     return result

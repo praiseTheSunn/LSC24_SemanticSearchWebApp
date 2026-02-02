@@ -202,16 +202,16 @@ def default_fallback_plan(top_k_display: int = 10) -> Plan:
                 step_id=1,
                 tool="text_semantic",
                 operation="search",
-                query='images or videos of a house with a stone shed in Ireland under green trees on a sunny day',
+                query='scene of an airport',
                 # query='house in Ireland',
-                params={'top_k': 1000, 'weight': 0.6, 'norm': 'minmax'}
+                params={'top_k': 1000, 'weight': 0.5, 'norm': 'minmax'}
             ),
             ToolCall(
                 step_id=2, 
-                tool='ocr',
+                tool='text_semantic',
                 operation='search',
-                query="for sale",
-                params={'top_k': 1000, 'weight': 0.3, 'norm': 'zscore'}
+                query="the text 'arrivals' on a LED display board",
+                params={'top_k': 1000, 'weight': 0.5, 'norm': 'minmax'}
             ),
             ToolCall(
                 step_id=3,
@@ -279,11 +279,13 @@ Notes:
 
     try:
         # assert 1==2
+        print(1)
         llm_struct = llm.with_structured_output(
             schema=Plan,
             # method="function_calling",            # Not needed with OpenAI
         )
 
+        print(2)
         plan_dict: Plan = await llm_struct.ainvoke(
             [
                 ("system", system_prompt),
@@ -291,10 +293,14 @@ Notes:
                 ("human", "REQUEST:\n" + json.dumps(user_payload, ensure_ascii=False)),
             ]
         )
+
+        print(3)
         plan_dict["id"] = _utc_now_iso()
+        print(4)
         plan = plan_from_dict(plan_dict)
         calls = plan.calls 
 
+        print(5)
         if not calls:
             # Add a final top_k call if available; else just rename last output
             if "top_k" in tool_manager.list_specs():
@@ -306,6 +312,7 @@ Notes:
                     )
                 )
 
+        print(6)
         plan = Plan(
             id=plan.id,
             goal=plan.goal,
@@ -317,7 +324,8 @@ Notes:
         )
         return plan_to_dict(plan)
 
-    except (ValidationError, Exception):
+    except Exception as e:
+        print(f"Error: {e}")     
         # Keep your system robust: always return an executable plan.
         plan = default_fallback_plan(top_k_display)
         print(f"Planner fallback plan:")

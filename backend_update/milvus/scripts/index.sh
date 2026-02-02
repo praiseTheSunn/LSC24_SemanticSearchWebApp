@@ -9,7 +9,11 @@ export PYTHONPATH="$REPO_ROOT/libs"
 
 cd "$REPO_ROOT"
 
-python -m milvus.utils.create_lsc24 --dataset vbs25_v3c --no-es --force
+# python -m milvus.utils.create_lsc24 --dataset vbs25_v3c --no-milvus --force
+
+# python -m milvus.utils.create_lsc24 --dataset vbs25_mvk --no-es --force
+
+python -m milvus.utils.create_lsc24 --dataset vbs25_lhe --no-es --force
 
 # python -m milvus.utils.create_lsc24 --no-es --force
 

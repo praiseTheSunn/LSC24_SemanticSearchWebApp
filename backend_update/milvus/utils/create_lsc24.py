@@ -16,6 +16,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 from typing import Any, Dict, List, Tuple, Optional
 
 from pprint import pprint
@@ -36,7 +37,7 @@ from milvus.setup import (
 from pymilvus import MilvusClient, DataType, Function, FunctionType
 from elasticsearch import Elasticsearch, helpers
 
-
+logging.basicConfig(filename='/home/hlmquan/LSC24_SemanticSearchWebApp/index.log', level=logging.INFO)
 
 # -----------------------------
 # Common helpers
@@ -71,7 +72,7 @@ def filter_df(df: pd.DataFrame, dataset_name: str, activity_mode: str) -> pd.Dat
 
     if dataset_name == "lsc24":
         df["prefix"] = df["image_id"].astype(str).apply(lambda x: x[:9])
-    elif dataset_name == "vbs25_v3c":
+    elif dataset_name.startswith("vbs25_"):
         df["prefix"] = df["image_id"].astype(str).apply(lambda x: x.split('/')[0])
 
     return df
@@ -360,13 +361,22 @@ def milvus_insert_vectors_directly(
     - embeddings are loaded from {embedding_dir}/{image_id}.npy
     """
     mapped_cols = list(column_mapping.values())
+    print(f"[Milvus] mapped cols: {mapped_cols}")
+    print(f"[Milvus] len of df_filtered: {len(df_filtered)}")
 
     for _, row in df_filtered.iterrows():
-        image_id = row["image_id"]
+        image_id = row["image_id"].replace("V3C/", "").replace("MVK/", "").replace("LHE/", "")
         record_id = int(row["record_id"])
 
         vector_path = f"{embedding_dir}/{image_id}.npy"
-        vec = np.load(vector_path)
+        try:
+            vec = np.load(vector_path)
+        except FileNotFoundError:
+            print(f"[Milvus] Warning: Embedding file not found for image_id={image_id}, skipping.")
+            continue
+        except Exception as e:
+            print(f"[Milvus] Error loading embedding for image_id={image_id}: {e}, skipping.")
+            continue
 
         rec: Dict[str, Any] = {
             "record_id": record_id,
@@ -484,6 +494,10 @@ def bulk_index_es(
 ) -> Tuple[int, int]:
     mapped_cols = list(column_mapping.values())
 
+    # check 'ocr' column has how many missing values
+    missing_ocr = pd.isna(df_filtered['ocr']).sum()
+    logging.info(f"[ES] 'ocr' column has {missing_ocr} missing values out of {len(df_filtered)} rows.")
+
     def gen_actions():
         # Iterate rows directly from df_filtered (already filtered once)
         for row in df_filtered.itertuples(index=False):
@@ -504,6 +518,8 @@ def bulk_index_es(
                     continue
                 if mapped_col in r:
                     doc[mapped_col] = coerce_missing(r[mapped_col], db="es")
+
+            logging.info(f"[ES] Indexing record_id={record_id}, image_id={image_id}, ocr={doc.get('ocr', None)}")
 
             yield {
                 "_op_type": "index",
@@ -529,11 +545,11 @@ def bulk_index_es(
             try:
                 action = list(item.keys())[0]
                 err = item[action].get("error")
-                print("[ES] Bulk error:", err)
+                logging.info("[ES] Bulk error:", err)
             except Exception:
-                print("[ES] Bulk error (unparsed):", item)
+                logging.info("[ES] Bulk error (unparsed):", item)
 
-    print(f"[ES] Done. success={success}, failed={failed}")
+    logging.info(f"[ES] Done. success={success}, failed={failed}")
     return success, failed
 
 
@@ -583,7 +599,7 @@ def run_milvus(
             column_mapping=column_mapping,
             with_metadata=with_metadata,
         )
-    elif dataset_name == "vbs25_v3c":
+    elif dataset_name.startswith("vbs25_"):
         milvus_insert_vectors_directly(
             client=client,
             collection_name=collection_name,
@@ -658,6 +674,7 @@ def main():
     df = image_dataset.df
     df = filter_df(df, dataset_name=dataset_name,activity_mode=activity)
     df = ensure_record_id(df, dataset_name=dataset_name)
+    print(f"Columns: {df.columns.tolist()}")
 
     # Keep names consistent, but ES gets a suffix to avoid collisions if you want
     milvus_collection = f"{dataset_name}_{model}"
