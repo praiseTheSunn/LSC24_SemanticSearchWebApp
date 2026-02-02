@@ -30,16 +30,18 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
   const previousScrollTop = useRef(0)
   const viewImageRef = useRef<HTMLDivElement | null>(null)
   const viewImage = useAppSelector(
-    (state) => state.app.neighborPopUpData?.img_link,
+    (state) => state.app.neighborPopUpData,
   )
+  const viewImageId = viewImage?.record_id
+  const viewImageLink = viewImage?.img_link
   const Config = useAppSelector((state) => state.app.config)
   const queryPayload = useAppSelector((state) => state.app.queryPayload)
 
   const fetchNeighbors = useCallback(
-    async (imageId: string, position: 'start' | 'end') => {
+    async (imageId: number, position: 'start' | 'end') => {
       try {
         const exploreParams = {
-          image_url: imageId.replace("http://127.0.0.1:8080/", "").replace(".jpg", ""),
+          image_id: imageId,
           span: Config.NeighborPopupSpan,
           dataset: queryPayload.dataset,
         }
@@ -51,7 +53,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
         const backNeighbors = newNeighbors.slice(middleIndex)
 
         setNeighborsData((prev) => {
-          if (imageId === viewImage) return newNeighbors
+          if (imageId === viewImageId) return newNeighbors
           if (position === 'start') {
             return [...frontNeighbors, ...prev]
           }
@@ -65,10 +67,10 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
   )
 
   useEffect(() => {
-    if (viewImage) {
-      fetchNeighbors(viewImage, 'end')
+    if (viewImageId !== undefined && viewImageId !== null) {
+      fetchNeighbors(viewImageId, 'end')
     }
-  }, [viewImage, fetchNeighbors])
+  }, [viewImageId, fetchNeighbors])
 
   useEffect(() => {
     if (viewImageRef.current) {
@@ -85,16 +87,16 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
     previousScrollTop.current = scrollTop
 
     if (scrollDirection === 'backward' && scrollTop === 0 && !isFetching) {
-      const firstImage = neighborsData[0]?.img_link
-      if (firstImage) {
-        fetchNeighbors(firstImage, 'start')
+      const firstImageId = neighborsData[0]?.record_id
+      if (firstImageId !== undefined && firstImageId !== null) {
+        fetchNeighbors(firstImageId, 'start')
       }
     }
 
     if (scrollDirection === 'forward' && !isFetching) {
-      const lastImage = neighborsData[neighborsData.length - 1]?.img_link
-      if (lastImage) {
-        fetchNeighbors(lastImage, 'end')
+      const lastImageId = neighborsData[neighborsData.length - 1]?.record_id
+      if (lastImageId !== undefined && lastImageId !== null) {
+        fetchNeighbors(lastImageId, 'end')
       }
     }
   }
@@ -112,7 +114,7 @@ const NeighborPopup: React.FC<NeighborPopupProps> = ({
 
     const data = neighborsData[index]
     const { img_link } = data
-    const isHighlighted = img_link === viewImage
+    const isHighlighted = img_link === viewImageLink
 
     return (
       <div

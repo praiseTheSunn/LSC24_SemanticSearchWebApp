@@ -10,7 +10,7 @@ import { appActions, useAppDispatch, useAppSelector } from '../AppState'
 import { useSubmitKISAnsweringMutation } from '../AppState'
 import { AddDislikeAction } from '../config/dislikeResponse'
 import { AddLikeAction } from '../config/likeResponse'
-import { AIC_addImages, AIC_addTrakeImages } from '../config/submitFunc'
+import { AIC_addImages, AIC_addTrakeImages, VBS_addImages } from '../config/submitFunc'
 import type { ImageRecord } from '../types/image'
 import { useState, useEffect } from 'react'
 import CloseIcon from '@mui/icons-material/Close'
@@ -42,6 +42,7 @@ const AnImage: React.FC<AnImageProps> = ({
 
   const src = data?.img_link ? data.img_link : undefined
   const videoSrc = data?.video_url ? data.video_url : undefined
+  const record_id = data?.record_id ? data.record_id : null
   const date = data?.date ? data.date : null
   const time = data?.time ? data.time : ""
   const minutes = Number.parseInt(time.substring(0, 2))  // "01" -> 1
@@ -106,7 +107,8 @@ const AnImage: React.FC<AnImageProps> = ({
 
     // REPLACE FOR EACH COMPETITION HERE
     // AIC_addCSVImages(src_data, null, dispatch, csvData)
-    AIC_addImages(src_data, triggerKIS)
+    // AIC_addImages(src_data, triggerKIS)
+    VBS_addImages(src_data, triggerKIS)
   }
 
   const addTrakeImages = (src: ImageRecord) => {
