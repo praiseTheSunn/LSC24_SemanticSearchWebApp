@@ -48,7 +48,7 @@ export type ObjPosResponse = {
   context_id_coarse?: string
   like?: any 
   dislike?: any
-  record_id: number | string
+  record_id: number
   neighbors?: ObjPosResponse[]
   image_id?: string
 }
@@ -70,13 +70,13 @@ export type TextQueryParams = {
 }
 
 export type ExploreSimilarParams = {
-  image_urls: string[] | undefined
+  image_ids: number[] | undefined
   model: string
   dataset?: string
 }
 
 export type ExploreNeighborParams = {
-  image_url: string
+  image_id: number
   span: number
   dataset?: string
 }

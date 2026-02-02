@@ -22,7 +22,7 @@ const SinglePopup = ({
   cellHeight = cellHeight ? cellHeight : Config.SinglePopupCellHeight
   const viewImage = useAppSelector((state) => state.app.similarPopUpData)
   const exploreSimilarParams = {
-    image_urls: viewImage ? [viewImage?.img_link.replace("http://127.0.0.1:8080/", "").replace(".jpg", "")] : undefined,
+    image_ids: viewImage ? [viewImage?.record_id] : undefined,
     model: queryPayload.model,
     dataset: queryPayload.dataset,
   }

@@ -256,7 +256,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             model: queryPayload.model,
             dataset: queryPayload.dataset,
             temporal_window_size: 0,
-            user_id: "xxx",
+            user_id: localStorage.getItem('username') ?? '',
             use_temporal_window: false,
             display_window_size: Config.neighborDisplaySize,
           })
@@ -318,9 +318,9 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
           model: queryPayload.model,
           dataset: queryPayload.dataset,
           temporal_window_size: 0,
-          user_id: "xxx",
+          user_id: localStorage.getItem('username') ?? '',
           use_temporal_window: false,
-          display_window_size: Config.neighborDisplaySize
+          display_window_size: Config.neighborDisplaySize,
         })
         setDisplayedFilters((previousState: any) => [...previousState, filter])
 
@@ -436,8 +436,8 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={['LSC24', 'V3C', 'MVK', 'LHE', 'All', 'Lesson', 'Cooking']}
-            valueItems={['lsc24', 'vbs25_v3c', 'vbs25_mvk', 'vbs25_lhe', 'aic25', 'aic25_lesson', 'aic25_cooking']}
+            displayItems={['V3C', 'MVK', 'LHE', 'LSC24', 'All', 'Lesson', 'Cooking']}
+            valueItems={['vbs25_v3c', 'vbs25_mvk', 'vbs25_lhe', 'lsc24', 'aic25', 'aic25_lesson', 'aic25_cooking']}
             value={queryPayload.dataset}
             setData={setDataset}
           />

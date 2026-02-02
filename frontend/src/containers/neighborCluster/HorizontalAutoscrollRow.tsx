@@ -13,8 +13,7 @@ export const NeighborRow: React.FC<{
     ...neighbors,
   ].sort((a, b) => {
     return (
-      Number.parseInt(a.record_id as string) -
-      Number.parseInt(b.record_id as string)
+      a.record_id - b.record_id
     )
   })
 

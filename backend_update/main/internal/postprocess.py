@@ -143,6 +143,65 @@ def json_safe_impute(
     return df
 
 
+def json_safe_impute(
+    df: pd.DataFrame,
+    *,
+    latlng_cols=("new_lat", "new_lng"),
+    numeric_strategy="median",   # "median" | "mean" | "zero"
+    string_strategy="empty",     # "empty" | "none"
+    bool_strategy="mode",        # "mode" | "false"
+) -> pd.DataFrame:
+    df = df.copy()
+
+    # 1) inf -> NaN
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+
+    # 2) Datetime: NaT -> None
+    dt_cols = df.select_dtypes(include=["datetime64[ns]", "datetimetz"]).columns
+    for c in dt_cols:
+        df[c] = df[c].where(df[c].notna(), None)
+
+    # 3) Bool
+    bool_cols = df.select_dtypes(include=["bool"]).columns
+    for c in bool_cols:
+        if bool_strategy == "false":
+            df[c] = df[c].fillna(False)
+        else:  # mode
+            mode = df[c].mode(dropna=True)
+            fill = bool(mode.iloc[0]) if not mode.empty else False
+            df[c] = df[c].fillna(fill)
+
+    # 4) Numeric
+    num_cols = df.select_dtypes(include=["number"]).columns
+    for c in num_cols:
+        if c in latlng_cols:
+            # lat/lng thường nên để None (unknown) thay vì bịa ra median
+            df[c] = df[c].astype(object).where(df[c].notna(), None)
+            continue
+
+        if numeric_strategy == "zero":
+            df[c] = df[c].fillna(0)
+        elif numeric_strategy == "mean":
+            m = df[c].mean(skipna=True)
+            df[c] = df[c].fillna(0 if pd.isna(m) else m)
+        else:  # median
+            m = df[c].median(skipna=True)
+            df[c] = df[c].fillna(0 if pd.isna(m) else m)
+
+    # 5) Strings / objects
+    obj_cols = df.select_dtypes(include=["object", "string"]).columns
+    if string_strategy == "none":
+        df[obj_cols] = df[obj_cols].where(df[obj_cols].notna(), None)
+    else:  # empty
+        df[obj_cols] = df[obj_cols].fillna("")
+
+    # 6) Ensure JSON-safe: any remaining missing -> None
+    # (Need object dtype so None won't turn back into NaN)
+    df = df.astype(object).where(pd.notnull(df), None)
+
+    return df
+
+
 async def prepare_response(dataset, model, record_ids=[], scores=None, display_window_size=3, all_neighbor_ids=None, top_k=100):
     dataset_name = dataset.lower()
     dataset = DatasetManager.get_dataset(dataset_name)
@@ -202,11 +261,15 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     records_df['record_id'] = records_df.index
     records_df = records_df.replace([np.inf, -np.inf], np.nan)
     records_df = json_safe_impute(records_df, numeric_strategy="median", string_strategy="empty")
+    records_df = records_df.replace([np.inf, -np.inf], np.nan)
+    records_df = json_safe_impute(records_df, numeric_strategy="median", string_strategy="empty")
     records = records_df.to_dict(orient='records')
 
     # For neighbors
     neighbors_df = dataset.df.loc[all_neighbor_ids_flat].copy()
     neighbors_df['record_id'] = neighbors_df.index
+    neighbors_df = neighbors_df.replace([np.inf, -np.inf], np.nan)
+    neighbors_df = json_safe_impute(neighbors_df, numeric_strategy="median", string_strategy="empty")
     neighbors_df = neighbors_df.replace([np.inf, -np.inf], np.nan)
     neighbors_df = json_safe_impute(neighbors_df, numeric_strategy="median", string_strategy="empty")
     neighbors = neighbors_df.to_dict(orient='records')
@@ -218,11 +281,18 @@ async def prepare_response(dataset, model, record_ids=[], scores=None, display_w
     print(f"Record IDs after mapping: {after}")
     assert before == after, "Record IDs do not match after metadata retrieval!"
 
+
+
+    # print(f"Prepare response - Retrieving metadata for {dataset} dataset:")
+    # print(f"Retrieved {len(records)} main records")
+    # print(f"Retrieved {len(all_neighbor_ids_flat)} neighbor records")
+
     # Step 2.5: Add img_link to records
     def add_img_link(dataset_name: str, record):
-        # if dataset_name.startswith("vbs25_"):
-        #     new_image_id = '/'.join(record['image_id'].split('/')[:-1] + [str(record['filename'])])
-        #     return f"{image_server_url}/{new_image_id}{image_extension}"
+        if dataset_name.startswith("vbs25"):
+            filename_str = str(int(record['filename'])) if isinstance(record['filename'], float) else str(record['filename'])
+            new_image_id = '/'.join(record['image_id'].split('/')[:-1] + [filename_str])
+            return f"{image_server_url}/{new_image_id}{image_extension}"
         return f"{image_server_url}/{record['image_id']}{image_extension}"
         
     for record in records:

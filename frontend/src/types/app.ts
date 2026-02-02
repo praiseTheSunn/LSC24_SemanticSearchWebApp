@@ -46,6 +46,12 @@ export type AppState = {
   isDictionaryPopupOpen: boolean
 }
 
+export type EvaluationState = {
+  evaluationId: null | string,
+  username: string,
+  password: string,
+}
+
 export type TimelineState = {
   selectedDate: string | null
   inHoldMode: boolean

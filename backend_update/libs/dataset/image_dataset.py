@@ -156,16 +156,6 @@ class ImageDataset(ABC):
         self.df.reset_index(drop=True, inplace=True)   # drop old record_id
         self.df.index.name = "record_id"               # set new index name
 
-        # --- Build mappings efficiently ---
-        # Image ID <-> Record ID
-        id_df = self.df[["image_id"]].reset_index()  # keep record_id from index
-        self.image_id_to_record_id = id_df.set_index("image_id")["record_id"].to_dict()
-        self.record_id_to_image_id = id_df.set_index("record_id")["image_id"].to_dict()
-        print(f"First image_id: {list(self.image_id_to_record_id.keys())[0]}")
-        print(f"First record_id: {list(self.record_id_to_image_id.keys())[0]}")
-        print(f"Image ID <-> Record ID mappings created in {time.time() - start_time:.2f} seconds")
-        print()
-
         # --- Unifying category subset ---
         self.unify_df = self.df[[self.unifying_category]].reset_index()
             
@@ -186,7 +176,7 @@ class ImageDataset(ABC):
             record_id = id
         else:
             image_id = self.standardize_image_id(id)
-            record_id = self.image_id_to_record_id.get(image_id)
+            record_id = 0
         query = "SELECT * FROM images WHERE record_id = ?"
         return self.cursor.execute(query, (record_id,)).fetchone()
 

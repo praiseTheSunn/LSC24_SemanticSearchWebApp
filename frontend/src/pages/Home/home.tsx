@@ -38,6 +38,7 @@ import NeighborClusterTab from '../../containers/neighborCluster/NeighborCluster
 import SimialrityAdvancedGrid from '../../containers/similarity/SimilarityAdvancedGrid'
 import type { ImageRecord } from '../../types/image'
 import type { SearchTermType } from '../../types/search'
+import { AGENT_URL } from '../../types/constants'
 
 const LevelList = [
   { level: 'Neighbor', bg: TrapoziedBgGrayLeft },
@@ -297,6 +298,23 @@ const Home = () => {
           overflow: 'hidden',
         }}
       >
+        <Box
+          sx={{
+            width: 420,
+            minWidth: 360,
+            flexShrink: 0,
+            minHeight: 0,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <ConversationBox
+            wsUrl={`${AGENT_URL}ws/agent?mode=assist`}
+            setResult={setResult}
+          />
+        </Box>
+
         <Box
           sx={{
             flex: 1,
