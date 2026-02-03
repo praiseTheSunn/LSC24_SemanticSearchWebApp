@@ -23,6 +23,8 @@ available_models = SYSTEM_CONFIG.get("available_models", [])
 MILVUS_CONFIG = SYSTEM_CONFIG.get("milvus", {})
 MILVUS_HOST = MILVUS_CONFIG.get("host", "")
 MILVUS_PORT = MILVUS_CONFIG.get("port", 19530)
+MILVUS_URI = f"http://{MILVUS_HOST}:{MILVUS_PORT}"
+print(f"[Milvus] Using URI: {MILVUS_URI}")
 
 ELASTICSEARCH_CONFIG = SYSTEM_CONFIG.get("elasticsearch", {})
 ELASTICSEARCH_URL = ELASTICSEARCH_CONFIG.get("url", "")
@@ -35,7 +37,7 @@ from pymilvus import MilvusClient, MilvusException
 from typing import Any, Dict
 import time
 
-milvus_client = MilvusClient(host=MILVUS_HOST, port=MILVUS_PORT)
+milvus_client = MilvusClient(uri=MILVUS_URI)
 
 
 def _print_collection_summary(collection_name: str, stats: Dict[str, Any]) -> None:

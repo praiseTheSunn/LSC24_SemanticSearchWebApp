@@ -1,5 +1,79 @@
-data/
-database/
+# ----------------------------
+# Git & VCS
+# ----------------------------
+.git
+.gitignore
+
+# ----------------------------
+# Python cache / build junk
+# ----------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# ----------------------------
+# Virtual environments
+# ----------------------------
+.venv/
+venv/
+env/
+
+# ----------------------------
+# Conda cache
+# ----------------------------
+.conda/
+conda-bld/
+
+# ----------------------------
+# Logs & runtime artifacts
+# ----------------------------
+*.log
 logs/
-*.npy
-milvus/
+*.pid
+
+# ----------------------------
+# Editor / OS junk
+# ----------------------------
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# ----------------------------
+# Tests & docs (optional)
+# ----------------------------
+tests/
+docs/
+*.md
+
+# ----------------------------
+# Large local data (IMPORTANT)
+# ----------------------------
+data/
+datasets/
+checkpoints/
+models/
+*.pkl
+*.pt
+*.pth
+*.onnx
+
+# ----------------------------
+# Env files (SECURITY)
+# ----------------------------
+.env
+.env.*
+
+# ----------------------------
+# Docker artifacts
+# ----------------------------
+docker-compose*.yml
+Dockerfile*

@@ -8,8 +8,6 @@ import warnings
 import os
 import tempfile
 from dotenv import load_dotenv
-from pathlib import Path
-
 
 load_dotenv()
 
@@ -18,12 +16,16 @@ def load_yaml(p: Path):
     with p.open("r") as f:
         return yaml.safe_load(f)
 
+
+# ================== ENV PATHS ==================
 CONFIG_DIR = Path(os.environ.get("CONFIG_DIR", "./configs")).resolve()
+DATA_DIR = Path(os.environ.get("DATA_DIR", "./data")).resolve()
+
 SYSTEM_CONFIG_NAME = os.environ.get("SYSTEM_CONFIG", "system_config.yaml")
 SYSTEM_CONFIG_PATH = (CONFIG_DIR / SYSTEM_CONFIG_NAME).resolve()
 
 SYSTEM_CONFIG = load_yaml(SYSTEM_CONFIG_PATH)
-DATASET_CFG_MAP = SYSTEM_CONFIG.get("dataset_configs", {})  # dict: name -> filename
+DATASET_CFG_MAP = SYSTEM_CONFIG.get("dataset_configs", {})
 
 
 def dataset_config_path(dataset_name: str) -> Path:
@@ -36,6 +38,13 @@ def dataset_config_path(dataset_name: str) -> Path:
     return p
 
 
+def resolve_data_path(p: str | None) -> Path | None:
+    if p is None:
+        return None
+    return (DATA_DIR / p).resolve()
+
+
+# ================== DATASET BASE ==================
 class ImageDataset(ABC):
     """Abstract class for image datasets."""
 
@@ -43,8 +52,16 @@ class ImageDataset(ABC):
         self.dataset_name = self.get_dataset_name()
         self.cfg_path = dataset_config_path(self.dataset_name)
         self.config = load_yaml(self.cfg_path)
-        self.metadata_file_path = self.config.get("metadata_file_path")
-        self.embedding_dir = self.config.get("embedding_dir")
+
+        # Resolve paths relative to DATA_DIR
+        self.metadata_file_path = resolve_data_path(
+            self.config.get("metadata_file_path")
+        )
+
+        self.embedding_dir = resolve_data_path(
+            self.config.get("embedding_dir")
+        )
+
         self.image_server_url = self.config.get("image_server_url")
         self.image_extension = self.config.get("image_extension")
         self.column_mapping = self.config.get("column_mapping")

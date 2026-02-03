@@ -61,6 +61,7 @@ startFrontend.bat
 data/*/embeddings/*
 data/*/metadata/*.csv
 data/*/metadata/*.pkl
+data/*/metadata/*.pkl*
 data/*/metadata/*.parquet
 data/**/*.json
 
@@ -82,9 +83,10 @@ main/elastic_search/http_ca.crt
 
 # configs (secret)
 configs/*
+expr_eval/*
 *.db
 *.csv
-expr_eval/*
+*.zip
 
 **/.env
 llm_agent/logs/*

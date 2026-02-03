@@ -5,7 +5,12 @@ services:
     build:
       context: .
       dockerfile: main/Dockerfile
+    image: backend_update-main
     container_name: main
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
     ports:
       - "20721:20721"
     restart: unless-stopped
@@ -14,20 +19,26 @@ services:
     build:
       context: .
       dockerfile: embedding_compute/Dockerfile
+    image: backend_update-embedding_compute
     container_name: embedding_compute
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
     ports:
-      - "20724:20724"
+      - "20722:20722"
     restart: unless-stopped
 
-  milvus:
+  db:
     build:
       context: .
-      dockerfile: milvus/Dockerfile
-    container_name: milvus
+      dockerfile: db/Dockerfile
+    image: backend_update-db
+    container_name: db
+    env_file:
+      - .env
+    volumes:
+      - ./data:/app/data
     ports:
-      - "20725:20725"
+      - "20723:20723"
     restart: unless-stopped
-
-volumes:
-  - ./libs:/app/libs
-  - ./data:/app/data

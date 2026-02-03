@@ -10,7 +10,7 @@ helpers here so other internal code can continue to import
 import sys
 sys.path.append("../routers")
 try:
-    from backend_update.milvus.routers.search import (
+    from backend_update.db.routers.search import (
         search_dense,
         search_sparse,
         apply_filter_only,

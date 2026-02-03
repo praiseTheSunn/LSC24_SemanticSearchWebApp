@@ -12,27 +12,25 @@ WORKDIR /app
 
 # Copy file (destination still is the same level with /app)
 # Due to above WORKDIR, the destination can also be written as just "environment.yml"
-COPY main/environment.yml /app/environment.yml
+COPY db/environment.yml /app/environment.yml
 
 # Create, update, and clean Conda environment
-RUN conda env create --solver=libmamba -n py311_env -f /app/environment.yml && \
+RUN conda env create --solver=libmamba -n py310_env -f /app/environment.yml && \
     conda clean -afy
 
-RUN conda run -n py311_env python -m spacy download en_core_web_sm
-    
 # Copy service code
-COPY main /app/main
+COPY db /app/db
 
-# Copy shared libraries (baked for prod)
+# Copy shared libraries
 COPY libs /app/libs
 COPY configs /app/configs
 
 # Set working directory to service folder
-WORKDIR /app/main
+WORKDIR /app/db
 
-# "This container listens on port 20721"
-EXPOSE 20721
+# "This container listens on port 20723"
+EXPOSE 20723
 
 # Entrypoint
 # Run a command inside a named Conda environment
-CMD ["conda", "run", "--no-capture-output", "-n", "py311_env", "python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "20721"]
+CMD ["conda", "run", "--no-capture-output", "-n", "py310_env", "python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "20723"]

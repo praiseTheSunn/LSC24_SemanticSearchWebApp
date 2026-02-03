@@ -17,7 +17,7 @@ from typing import Any, Dict, List, Optional
 from pymilvus import MilvusClient, MilvusException
 from elasticsearch import Elasticsearch, ApiError
 
-from milvus.setup import (
+from db.setup import (
     MILVUS_HOST,
     MILVUS_PORT,
     ELASTICSEARCH_URL,
