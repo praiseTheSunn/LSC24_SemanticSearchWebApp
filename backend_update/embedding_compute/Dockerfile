@@ -34,3 +34,5 @@ EXPOSE 20722
 # Entrypoint
 # Run a command inside a named Conda environment
 CMD ["conda", "run", "--no-capture-output", "-n", "py310_env", "python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "20722"]
+
+

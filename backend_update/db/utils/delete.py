@@ -13,7 +13,7 @@
 
 from __future__ import annotations
 
-from milvus.setup import (
+from db.setup import (
     MILVUS_HOST,
     MILVUS_PORT,
     ELASTICSEARCH_URL,

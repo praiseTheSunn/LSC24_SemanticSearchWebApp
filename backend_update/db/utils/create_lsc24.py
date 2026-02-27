@@ -25,7 +25,7 @@ import numpy as np
 import pandas as pd
 
 from dataset.dataset_manager import DatasetManager
-from milvus.setup import (
+from db.setup import (
     MILVUS_HOST,
     MILVUS_PORT,
     ELASTICSEARCH_URL,
