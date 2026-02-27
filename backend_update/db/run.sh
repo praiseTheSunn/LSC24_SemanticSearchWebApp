@@ -6,6 +6,6 @@ conda activate base
 
 export PYTHONPATH=/app/libs
 
-python -m uvicorn main:app \
+python -m uvicorn milvus:app \
   --host 0.0.0.0 \
-  --port 20721
+  --port 20725

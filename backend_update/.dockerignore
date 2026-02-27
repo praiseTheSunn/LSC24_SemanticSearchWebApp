@@ -2,4 +2,3 @@ data/
 database/
 logs/
 *.npy
-milvus/

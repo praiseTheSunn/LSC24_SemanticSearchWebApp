@@ -1,0 +1,62 @@
+version: "3.9"
+
+services:
+  main:
+    build:
+      context: .
+      dockerfile: main/Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./main:/app/main
+      - ./libs:/app/libs
+      - ./configs:/app/configs
+    env_file:
+      - .env
+    ports:
+      - "20721:20721"
+    command: >
+      conda run --no-capture-output -n py311_env
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 20721
+      --reload
+
+  embedding_compute:
+    build:
+      context: .
+      dockerfile: embedding_compute/Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./embedding_compute:/app/embedding_compute
+      - ./libs:/app/libs
+      - ./configs:/app/configs
+    env_file:
+      - .env
+    ports:
+      - "20722:20722"
+    command: >
+      conda run --no-capture-output -n py310_env
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 20722
+      --reload
+
+  db:
+    build:
+      context: .
+      dockerfile: db/Dockerfile
+    volumes:
+      - ./data:/app/data
+      - ./db:/app/db
+      - ./libs:/app/libs
+      - ./configs:/app/configs
+    env_file:
+      - .env
+    ports:
+      - "20723:20723"
+    command: >
+      conda run --no-capture-output -n py310_env
+      uvicorn main:app
+      --host 0.0.0.0
+      --port 20723
+      --reload

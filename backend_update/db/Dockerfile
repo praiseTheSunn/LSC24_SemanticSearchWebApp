@@ -12,25 +12,25 @@ WORKDIR /app
 
 # Copy file (destination still is the same level with /app)
 # Due to above WORKDIR, the destination can also be written as just "environment.yml"
-COPY embedding_compute/environment.yml /app/environment.yml
+COPY db/environment.yml /app/environment.yml
 
 # Create, update, and clean Conda environment
 RUN conda env create --solver=libmamba -n py310_env -f /app/environment.yml && \
     conda clean -afy
 
 # Copy service code
-COPY embedding_compute /app/embedding_compute
+COPY db /app/db
 
 # Copy shared libraries
 COPY libs /app/libs
 COPY configs /app/configs
 
 # Set working directory to service folder
-WORKDIR /app/embedding_compute
+WORKDIR /app/db
 
-# "This container listens on port 20722"
-EXPOSE 20722
+# "This container listens on port 20723"
+EXPOSE 20723
 
 # Entrypoint
 # Run a command inside a named Conda environment
-CMD ["conda", "run", "--no-capture-output", "-n", "py310_env", "python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "20722"]
+CMD ["conda", "run", "--no-capture-output", "-n", "py310_env", "python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "20723"]

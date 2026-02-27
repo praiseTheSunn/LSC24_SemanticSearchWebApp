@@ -1,0 +1,15 @@
+services:
+  main:
+    command: >
+      conda run --no-capture-output -n py311_env
+      bash /app/main/run.sh
+
+  embedding_compute:
+    command: >
+      conda run --no-capture-output -n py310_env
+      bash /app/embedding_compute/run.sh
+
+  db:
+    command: >
+      conda run --no-capture-output -n py310_env
+      bash /app/db/run.sh
