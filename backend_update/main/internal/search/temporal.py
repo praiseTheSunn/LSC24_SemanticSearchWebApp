@@ -8,6 +8,8 @@ from internal.api_handler import fetch_embeddings, compute_text_embedding
 from schemas.request_schemas import QueryClause
 import time
 
+from dataset.dataset_manager import DatasetManager
+
 
 async def expand_temporal(prev_result, next_clause: QueryClause, dataset: str, temporal_window_size: int, threshold: float):
     result = {

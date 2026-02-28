@@ -37,7 +37,11 @@ from pymilvus import MilvusClient, MilvusException
 from typing import Any, Dict
 import time
 
-milvus_client = MilvusClient(uri=MILVUS_URI)
+try:
+    milvus_client = MilvusClient(uri=MILVUS_URI)
+except Exception as e:
+    print(e)
+    exit(1)
 
 
 def _print_collection_summary(collection_name: str, stats: Dict[str, Any]) -> None:
