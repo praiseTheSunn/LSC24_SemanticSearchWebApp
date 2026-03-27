@@ -44,4 +44,12 @@ export default defineConfig({
       root: './dist'
     },
   },
+  tools: {
+    rspack: {
+      watchOptions: {
+        // This explicitly tells the bundler to stop tracking node_modules
+        ignored: /node_modules/,
+      },
+    },
+  },
 })

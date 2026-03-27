@@ -55,8 +55,8 @@ export type EvaluationState = {
 export type TimelineState = {
   selectedDate: string | null
   inHoldMode: boolean
-  // locationBasedData: any
-  // activityBasedData: any
+  locationBasedData: any
+  activityBasedData: any
 }
 // Define the Config type
 export type ConfigType = {

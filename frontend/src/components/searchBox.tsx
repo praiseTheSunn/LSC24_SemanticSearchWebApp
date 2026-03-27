@@ -424,7 +424,7 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             setData={setModel}
           />
         </Box>
-        <Box sx={{ marginLeft: '12px' }}>
+        {/* <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Mode"
             displayItems={['Vector', 'Vector + Keyword', 'Keyword']}
@@ -432,12 +432,12 @@ const SearchBox = forwardRef<HTMLDivElement, SearchBoxProps>(
             value={queryPayload.mode}
             setData={setMode}
           />
-        </Box>
+        </Box> */}
         <Box sx={{ marginLeft: '12px' }}>
           <Dropdown
             label="Dataset"
-            displayItems={['V3C', 'MVK', 'LHE', 'LSC24', 'All', 'Lesson', 'Cooking']}
-            valueItems={['vbs25_v3c', 'vbs25_mvk', 'vbs25_lhe', 'lsc24', 'aic25', 'aic25_lesson', 'aic25_cooking']}
+            displayItems={['LSC24', 'V3C', 'MVK', 'LHE', 'All', 'Lesson', 'Cooking']}
+            valueItems={['lsc24', 'vbs25_v3c', 'vbs25_mvk', 'vbs25_lhe', 'aic25', 'aic25_lesson', 'aic25_cooking']}
             value={queryPayload.dataset}
             setData={setDataset}
           />
