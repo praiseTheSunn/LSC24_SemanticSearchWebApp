@@ -1,19 +1,21 @@
 .tab-container {
     padding: 20px;
     display: flex;
+    height: 100%;
+    min-height: 0;
+    box-sizing: border-box;
+    gap: 20px;
 }
 
 .timeline-container {
-    height: 500px;
-    width: 1000px;
     flex: 1;
-    margin-left: 20px;
+    min-height: 0;
+    overflow: hidden;
 }
 
 .map-container {
-    height: 500px;
-    width: 1000px;
     flex: 1;
+    min-height: 0;
 }
 
 .map-container .leaflet-container {

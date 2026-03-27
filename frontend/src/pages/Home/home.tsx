@@ -43,8 +43,8 @@ import { AGENT_URL } from '../../types/constants'
 const LevelList = [
   { level: 'Neighbor', bg: TrapoziedBgGrayLeft },
   { level: 'Similarity', bg: TrapoziedBgGray3 },
-  // { level: 'Timeline', bg: TrapoziedBgGray2 },
-  // { level: 'Location', bg: TrapoziedBgGray4 },
+  { level: 'Timeline', bg: TrapoziedBgGray2 },
+  { level: 'Location', bg: TrapoziedBgGray4 },
   // { level: 'VQA', bg: TrapoziedBgGrayLeft },
 ]
 
@@ -298,7 +298,7 @@ const Home = () => {
           overflow: 'hidden',
         }}
       >
-        <Box
+        {/* <Box
           sx={{
             width: 420,
             minWidth: 360,
@@ -313,7 +313,7 @@ const Home = () => {
             wsUrl={`${AGENT_URL}ws/agent?mode=assist`}
             setResult={setResult}
           />
-        </Box>
+        </Box> */}
 
         <Box
           sx={{
@@ -453,13 +453,11 @@ const Home = () => {
               </Box>
             )}
 
-            {/* {selectedTabIndex === 2 && <TimelineTab />}
+            {selectedTabIndex === 2 && <TimelineTab />}
             {selectedTabIndex === 3 && (
               // <ImageCluster data={timelineData} />
-              <MapTab
-              // style={{ marginTop: '12px', display: 'flex', flexDirection: 'row' }}
-              />
-            )} */}
+              <MapTab />
+            )}
             {/* {selectedTabIndex === 2 && <MetadataTab />} */}
           </Box>
         </Box>
