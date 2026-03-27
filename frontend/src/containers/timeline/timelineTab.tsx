@@ -2,12 +2,15 @@ import React, {
   type CSSProperties,
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from 'react'
 import { useAppDispatch, useAppSelector } from '../../AppState'
 
-import { Box, IconButton, Typography } from '@mui/material'
+import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded'
+import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded'
+import { Box, FormControl, IconButton, MenuItem, Select, Typography } from '@mui/material'
 import {
   AutoSizer,
   CellMeasurer,
@@ -34,10 +37,129 @@ import type {
   TimelineTabLocationData,
 } from '../../types/image'
 
+type JumpGroup = {
+  key: string
+  label: string
+  firstIndex: number
+  firstDate: string
+}
+
+const normalizeDateKey = (dateLike: unknown): string => {
+  if (dateLike instanceof Date) {
+    return dateLike.toISOString().slice(0, 10)
+  }
+
+  if (typeof dateLike === 'string') {
+    if (dateLike.length === 0) return ''
+    return dateLike.includes('T') ? dateLike.slice(0, 10) : dateLike
+  }
+
+  if (typeof dateLike === 'number' && Number.isFinite(dateLike)) {
+    // Keep numeric values as-is to avoid accidental epoch conversion (1970-01-01).
+    // Some datasets use numeric day/date identifiers, not Unix timestamps.
+    return String(dateLike)
+  }
+
+  return ''
+}
+
+const toChronologicalValue = (dateKey: string): number => {
+  if (!dateKey) return Number.NaN
+
+  // Numeric-like date keys (e.g., day indices) should sort numerically.
+  if (/^\d+(\.\d+)?$/.test(dateKey)) {
+    return Number(dateKey)
+  }
+
+  // Try direct parsing first (handles most ISO variants).
+  const direct = new Date(dateKey)
+  if (!Number.isNaN(direct.getTime())) {
+    return direct.getTime()
+  }
+
+  // Then try date-only format explicitly.
+  const dateOnly = new Date(`${dateKey}T00:00:00`)
+  if (!Number.isNaN(dateOnly.getTime())) {
+    return dateOnly.getTime()
+  }
+
+  return Number.NaN
+}
+
+const compareDateKeysChronologically = (a: string, b: string): number => {
+  const av = toChronologicalValue(a)
+  const bv = toChronologicalValue(b)
+
+  const aValid = Number.isFinite(av)
+  const bValid = Number.isFinite(bv)
+
+  if (aValid && bValid) {
+    return av - bv
+  }
+  if (aValid) return -1
+  if (bValid) return 1
+
+  // Stable fallback for non-parseable mixed keys.
+  return a.localeCompare(b)
+}
+
+const getISOWeek = (dateInput: Date): { year: number; week: number } => {
+  const date = new Date(Date.UTC(dateInput.getFullYear(), dateInput.getMonth(), dateInput.getDate()))
+  const dayNum = date.getUTCDay() || 7
+  date.setUTCDate(date.getUTCDate() + 4 - dayNum)
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1))
+  const week = Math.ceil((((date.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+
+  return { year: date.getUTCFullYear(), week }
+}
+
+const monthLabel = (date: string): string => {
+  const normalized = normalizeDateKey(date)
+  if (!normalized) return 'Unknown month'
+  const d = new Date(`${normalized}T00:00:00`)
+  if (Number.isNaN(d.getTime())) return normalized
+  return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' })
+}
+
+const weekLabel = (date: string): string => {
+  const normalized = normalizeDateKey(date)
+  if (!normalized) return 'Unknown week'
+  const d = new Date(`${normalized}T00:00:00`)
+  if (Number.isNaN(d.getTime())) return normalized
+  const { year, week } = getISOWeek(d)
+  return `${year}-W${String(week).padStart(2, '0')}`
+}
+
+const buildJumpGroups = (
+  sortedDates: string[],
+  keyOf: (date: string) => string,
+  labelOf: (date: string) => string,
+): JumpGroup[] => {
+  const groups: JumpGroup[] = []
+  const seen = new Set<string>()
+
+  sortedDates.forEach((date, index) => {
+    const safeDate = normalizeDateKey(date)
+    if (!safeDate) return
+
+    const key = keyOf(safeDate)
+    if (seen.has(key)) return
+    seen.add(key)
+    groups.push({
+      key,
+      label: labelOf(safeDate),
+      firstIndex: index,
+      firstDate: safeDate,
+    })
+  })
+
+  return groups
+}
+
 const TimelineTab = () => {
   const data = useAppSelector((state) => state.app.data)
 
-  const [rowModes, setRowModes] = useState<number[]>([0]) // 0 location, 1 activity, State to track whether the button is held down
+  const [rowModes, setRowModes] = useState<number[]>([1]) // 0 location, 1 activity
   const [holdActive, setHoldActive] = useState(false) // State to track whether the button is held down
   const [holdTimer, setHoldTimer] = useState<
     string | number | ReturnType<typeof setTimeout> | undefined
@@ -53,6 +175,21 @@ const TimelineTab = () => {
   const [activityBasedData, setActivityBasedData] =
     useState<TimelineTabActivityAllData | null>(null)
 
+  const selectedDateIndex = useMemo(() => {
+    if (!selectedDate) return -1
+    return dates.indexOf(selectedDate)
+  }, [dates, selectedDate])
+
+  const monthGroups = useMemo(
+    () => buildJumpGroups(dates, (date) => normalizeDateKey(date).slice(0, 7), monthLabel),
+    [dates],
+  )
+
+  const weekGroups = useMemo(
+    () => buildJumpGroups(dates, weekLabel, weekLabel),
+    [dates],
+  )
+
   useEffect(() => {
     const initialSelectedActivityIDs = dates.map(() => null)
     setSelectedActivityIDs(initialSelectedActivityIDs)
@@ -66,11 +203,9 @@ const TimelineTab = () => {
 
   // Handler for mouse down event
   const handleMouseDown = () => {
-    console.log('Mouse down detected')
     setHoldActive(true)
 
     const timer = setTimeout(() => {
-      console.log('Click and hold detected')
       doClickAndHoldAction()
     }, 500)
 
@@ -91,9 +226,23 @@ const TimelineTab = () => {
 
   // Function to perform when click and hold is triggered
   const doClickAndHoldAction = () => {
-    console.log('Action to perform after hold')
     setInHoldMode(true)
   }
+
+  const stepDay = useCallback(
+    (direction: -1 | 1) => {
+      if (dates.length === 0) return
+
+      const currentIndex = selectedDateIndex >= 0 ? selectedDateIndex : 0
+      const nextIndex = Math.min(dates.length - 1, Math.max(0, currentIndex + direction))
+      setSelectedDate(dates[nextIndex])
+    },
+    [dates, selectedDateIndex],
+  )
+
+  const jumpToGroup = useCallback((date: string) => {
+    setSelectedDate(date)
+  }, [])
 
   useEffect(() => {
     // Parse data into location-based and activity-based data
@@ -101,14 +250,14 @@ const TimelineTab = () => {
     const activityDataMap = new Map() // Type: TimelineTabActivityAllData = Map<string, TimelineTabActivityData[]>
 
     for (const item of data) {
-      if (item.date === '2019-01-12') {
-        console.log('item', item)
-      }
+      const dateKey = normalizeDateKey(item.date)
+      if (!dateKey) continue
+
       // Location-based data
-      if (!locationDataMap.has(item.date)) {
-        locationDataMap.set(item.date, [])
+      if (!locationDataMap.has(dateKey)) {
+        locationDataMap.set(dateKey, [])
       }
-      const locationRowData = locationDataMap.get(item.date)
+      const locationRowData = locationDataMap.get(dateKey)
       if (
         !locationRowData.some(
           (data: any) => data.location_id === item.location_id,
@@ -123,10 +272,10 @@ const TimelineTab = () => {
       }
 
       // Activity-based data
-      if (!activityDataMap.has(item.date)) {
-        activityDataMap.set(item.date, [])
+      if (!activityDataMap.has(dateKey)) {
+        activityDataMap.set(dateKey, [])
       }
-      const activityData = activityDataMap.get(item.date)
+      const activityData = activityDataMap.get(dateKey)
       if (
         !activityData.some((data: any) => data.activity === item.activity)
       ) {
@@ -153,21 +302,20 @@ const TimelineTab = () => {
         (a: ImageRecord, b: ImageRecord) => String(a.activity).localeCompare(String(b.activity)),
       )
     })
-    // console.log('locationDataMap', locationDataMap)
-    // console.log('activityDataMap', activityDataMap)
-
     // Update state
     setLocationBasedData(locationDataMap)
     setActivityBasedData(activityDataMap)
 
     // Sort dates ascending
-    const dates = Array.from(locationDataMap.keys()).sort(
-      (a, b) => new Date(a).getTime() - new Date(b).getTime(),
-    )
+    const dates = Array.from(locationDataMap.keys()).sort(compareDateKeysChronologically)
     setDates(dates)
 
-    const initialRowMode = dates.map(() => 0)
+    const initialRowMode = dates.map(() => 1)
     setRowModes(initialRowMode)
+
+    if (dates.length > 0) {
+      setSelectedDate((prev) => prev ?? dates[0])
+    }
   }, [data])
 
   const recomputeRowHeights = useCallback(() => {
@@ -175,10 +323,10 @@ const TimelineTab = () => {
     if (listRef.current) {
       listRef.current.recomputeRowHeights()
     }
-  }, [])
+  }, [cache])
 
   useEffect(() => {
-    recomputeRowHeights
+    recomputeRowHeights()
   }, [locationBasedData, activityBasedData])
 
   // useEffect(() => {
@@ -197,6 +345,22 @@ const TimelineTab = () => {
       }
     }
   }, [selectedDate])
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.altKey && e.key === 'ArrowLeft') {
+        e.preventDefault()
+        stepDay(-1)
+      }
+      if (e.altKey && e.key === 'ArrowRight') {
+        e.preventDefault()
+        stepDay(1)
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [stepDay])
 
   const handleChangeRowModes = (rowIndex: number) => {
     const newRowModes = [...rowModes]
@@ -419,6 +583,152 @@ const TimelineTab = () => {
           position: 'relative',
         }}
       >
+        <Box
+          sx={{
+            position: 'sticky',
+            top: 0,
+            zIndex: 15,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'stretch',
+            gap: 0.75,
+            mb: 1,
+            ml: 4,
+            mr: 1,
+            p: 0.75,
+            borderRadius: 1.5,
+            bgcolor: 'rgba(255,255,255,0.92)',
+            backdropFilter: 'blur(2px)',
+            border: '1px solid #e5e7eb',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="caption" sx={{ color: '#4b5563', fontWeight: 700 }}>
+              Day navigator
+            </Typography>
+            <IconButton
+              size="small"
+              onClick={() => stepDay(-1)}
+              disabled={dates.length === 0 || selectedDateIndex <= 0}
+            >
+              <ChevronLeftRoundedIcon fontSize="small" />
+            </IconButton>
+            <FormControl size="small" sx={{ minWidth: 170 }}>
+              <Select
+                value={selectedDate ?? ''}
+                displayEmpty
+                onChange={(e) => {
+                  const value = e.target.value
+                  setSelectedDate(value ? String(value) : null)
+                }}
+              >
+                {dates.map((date) => (
+                  <MenuItem key={date} value={date}>
+                    {date}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            <IconButton
+              size="small"
+              onClick={() => stepDay(1)}
+              disabled={dates.length === 0 || selectedDateIndex === -1 || selectedDateIndex >= dates.length - 1}
+            >
+              <ChevronRightRoundedIcon fontSize="small" />
+            </IconButton>
+            <Typography variant="caption" sx={{ color: '#6b7280', ml: 'auto' }}>
+              Alt + Left/Right
+            </Typography>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+            <Typography variant="caption" sx={{ color: '#6b7280', flexShrink: 0 }}>
+              Month
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 0.75,
+                overflowX: 'auto',
+                pb: 0.25,
+                minWidth: 0,
+                '&::-webkit-scrollbar': { height: '6px' },
+              }}
+            >
+              {monthGroups.map((group) => {
+                const isActive = selectedDate?.startsWith(group.key)
+                return (
+                  <Box
+                    key={group.key}
+                    component="button"
+                    onClick={() => jumpToGroup(group.firstDate)}
+                    sx={{
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 999,
+                      border: '1px solid',
+                      borderColor: isActive ? '#2563eb' : '#d1d5db',
+                      backgroundColor: isActive ? '#dbeafe' : '#ffffff',
+                      color: isActive ? '#1d4ed8' : '#374151',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {group.label}
+                  </Box>
+                )
+              })}
+            </Box>
+          </Box>
+
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0 }}>
+            <Typography variant="caption" sx={{ color: '#6b7280', flexShrink: 0 }}>
+              Week
+            </Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: 0.75,
+                overflowX: 'auto',
+                pb: 0.25,
+                minWidth: 0,
+                '&::-webkit-scrollbar': { height: '6px' },
+              }}
+            >
+              {weekGroups.map((group) => {
+                const groupEnd = dates[Math.min(group.firstIndex + 6, dates.length - 1)]
+                const isActive = !!selectedDate && selectedDate >= group.firstDate && selectedDate <= groupEnd
+                return (
+                  <Box
+                    key={group.key}
+                    component="button"
+                    onClick={() => jumpToGroup(group.firstDate)}
+                    sx={{
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 999,
+                      border: '1px solid',
+                      borderColor: isActive ? '#7c3aed' : '#d1d5db',
+                      backgroundColor: isActive ? '#ede9fe' : '#ffffff',
+                      color: isActive ? '#6d28d9' : '#374151',
+                      fontSize: '0.72rem',
+                      fontWeight: 700,
+                      whiteSpace: 'nowrap',
+                      cursor: 'pointer',
+                      flexShrink: 0,
+                    }}
+                  >
+                    {group.label}
+                  </Box>
+                )
+              })}
+            </Box>
+          </Box>
+        </Box>
+
         {inHoldMode && (
           <Box
             sx={{
