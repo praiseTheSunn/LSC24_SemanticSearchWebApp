@@ -226,6 +226,8 @@ const AnImage: React.FC<AnImageProps> = ({
         src={src}
         className="image-item-img submissible"
         alt={`${index}`}
+        loading="lazy"
+        decoding="async"
         sx={{
           width: '100%',
           height: '100%',
